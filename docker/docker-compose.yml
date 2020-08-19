@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres:11-alpine
+    environment:
+      - POSTGRES_USER=netbox
+      - POSTGRES_PASSWORD=netbox
+      - POSTGRES_DB=netbox
+  redis:
+    image: redis:5-alpine
+  netbox:
+    image: netboxcommunity/netbox:v2.8
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - 8001:8001
+    environment:
+      - CORS_ORIGIN_ALLOW_ALL=True
+      - DB_NAME=netbox
+      - DB_USER=netbox
+      - DB_PASSWORD=netbox
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - REDIS_DATABASE=0
+      - REDIS_SSL=false
+      - REDIS_CACHE_HOST=redis
+      - REDIS_CACHE_DATABASE=1
+      - REDIS_CACHE_SSL=false
+      - SECRET_KEY=foobar
+      - SKIP_STARTUP_SCRIPTS=false
+      - SKIP_SUPERUSER=false
+      - SUPERUSER_NAME=admin
+      - SUPERUSER_EMAIL=admin@example.com
+      - SUPERUSER_PASSWORD=admin
+      - SUPERUSER_API_TOKEN=0123456789abcdef0123456789abcdef01234567
