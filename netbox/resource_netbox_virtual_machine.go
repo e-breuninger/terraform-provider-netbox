@@ -33,6 +33,10 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"role_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"comments": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -40,12 +44,14 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 			"memory_mb": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  0,
 			},
 			"vcpus": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  0,
+			},
+			"disk_size_gb": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
@@ -123,6 +129,12 @@ func resourceNetboxVirtualMachineCreate(d *schema.ResourceData, m interface{}) e
 		data.Memory = &memoryMb
 	}
 
+	diskSizeValue, ok := d.GetOk("disk_size_gb")
+	if ok {
+		diskSize := int64(diskSizeValue.(int))
+		data.Disk = &diskSize
+	}
+
 	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
 		tenantID := int64(tenantIDValue.(int))
@@ -133,6 +145,12 @@ func resourceNetboxVirtualMachineCreate(d *schema.ResourceData, m interface{}) e
 	if ok {
 		platformID := int64(platformIDValue.(int))
 		data.Platform = &platformID
+	}
+
+	roleIDValue, ok := d.GetOk("role_id")
+	if ok {
+		roleID := int64(roleIDValue.(int))
+		data.Role = &roleID
 	}
 
 	data.Tags = getTagListFromResourceDataSet(d.Get("tags"))
@@ -157,13 +175,15 @@ func resourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) err
 	params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(id)
 	res, err := api.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
 	if err != nil {
-		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-		if errorcode == 404 {
-			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band).
-			// Just like the destroy callback, the Read function should gracefully handle this case.
-			// https://www.terraform.io/docs/extend/writing-custom-providers.html
-			d.SetId("")
-			return nil
+		if apiError, ok := err.(*runtime.APIError); ok {
+			errorcode := apiError.Response.(runtime.ClientResponse).Code()
+			if errorcode == 404 {
+				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band).
+				// Just like the destroy callback, the Read function should gracefully handle this case.
+				// https://www.terraform.io/docs/extend/writing-custom-providers.html
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
@@ -200,14 +220,23 @@ func resourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) err
 	} else {
 		d.Set("tenant_id", nil)
 	}
+
 	if res.GetPayload().Platform != nil {
 		d.Set("platform_id", res.GetPayload().Platform.ID)
 	} else {
 		d.Set("platform_id", nil)
 	}
+
+	if res.GetPayload().Role != nil {
+		d.Set("role_id", res.GetPayload().Role.ID)
+	} else {
+		d.Set("role_id", nil)
+	}
+
 	d.Set("comments", res.GetPayload().Comments)
 	d.Set("vcpus", res.GetPayload().Vcpus)
 	d.Set("memory_mb", res.GetPayload().Memory)
+	d.Set("disk_size_gb", res.GetPayload().Disk)
 	d.Set("tags", res.GetPayload().Tags)
 	return nil
 }
@@ -236,22 +265,34 @@ func resourceNetboxVirtualMachineUpdate(d *schema.ResourceData, m interface{}) e
 		data.Platform = &platformID
 	}
 
+	roleIDValue, ok := d.GetOk("role_id")
+	if ok {
+		roleID := int64(roleIDValue.(int))
+		data.Role = &roleID
+	}
+
 	memoryMbValue, ok := d.GetOk("memory_mb")
 	if ok {
 		memoryMb := int64(memoryMbValue.(int))
 		data.Memory = &memoryMb
-	} else {
-		memoryMb := int64(0)
-		data.Memory = &memoryMb
+		//	} else {
+		//		memorymb := int64(0)
+		//		data.memory = &memorymb
 	}
 
 	vcpusValue, ok := d.GetOk("vcpus")
 	if ok {
 		vcpus := int64(vcpusValue.(int))
 		data.Vcpus = &vcpus
-	} else {
-		vcpus := int64(0)
-		data.Vcpus = &vcpus
+		//	} else {
+		//		vcpus := int64(0)
+		//		data.Vcpus = &vcpus
+	}
+
+	diskSizeValue, ok := d.GetOk("disk_size_gb")
+	if ok {
+		diskSize := int64(diskSizeValue.(int))
+		data.Disk = &diskSize
 	}
 
 	commentsValue, ok := d.GetOk("comments")

@@ -29,6 +29,11 @@ resource "netbox_cluster" "test" {
   cluster_type_id = netbox_cluster_type.test.id
 }
 
+resource "netbox_device_role" "test" {
+  name = "%[1]s"
+  color_hex = "123456"
+}
+
 resource "netbox_platform" "test" {
   name = "%[1]s"
 }
@@ -65,7 +70,9 @@ resource "netbox_virtual_machine" "test" {
   cluster_id = netbox_cluster.test.id
   comments = "thisisacomment"
   memory_mb = 1024
+  disk_size_gb = 256
   tenant_id = netbox_tenant.test.id
+  role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
   vcpus = 4
 }`, testName),
@@ -74,9 +81,11 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "platform_id", "netbox_platform.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
 				),
 			},
 			{
@@ -91,8 +100,9 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "0"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", ""),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "0"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "0"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", ""),
 				),
 			},
 			{

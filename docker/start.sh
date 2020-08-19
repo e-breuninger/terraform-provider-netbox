@@ -10,7 +10,7 @@ SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 docker-compose -f $SCRIPTPATH/docker-compose.yml up -d
 
-echo "### Waiting for Netbox to come available on ${SERVER_URL}"
+echo "### Waiting for Netbox to become available on ${SERVER_URL}"
 
 attempt_counter=0
 max_attempts=24

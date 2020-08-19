@@ -90,13 +90,20 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Comments = vm.Comments
 	data.Memory = vm.Memory
 	data.Vcpus = vm.Vcpus
+	data.Disk = vm.Disk
 
 	if vm.Platform != nil {
 		data.Platform = &vm.Platform.ID
 	}
+
 	if vm.Tenant != nil {
 		data.Tenant = &vm.Tenant.ID
 	}
+
+	if vm.Role != nil {
+		data.Role = &vm.Role.ID
+	}
+
 	// unset primary ip address if -1 is passed as id
 	if IPAddressID == -1 {
 		data.PrimaryIp4 = nil
