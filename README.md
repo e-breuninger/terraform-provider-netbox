@@ -1,6 +1,6 @@
 # terraform-provider-netbox
 
-The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of Netbox resources.
+The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://netbox.readthedocs.io/en/stable/) resources.
 This provider is maintained by E. Breuninger.
 
 ## Requirements
@@ -62,3 +62,8 @@ _Note:_ Acceptance tests create a docker compose stack on port 8001.
 ```sh
 $ make testacc
 ```
+
+## Contribution
+
+We have a focus on virtual machine management and IPAM. If you want to contribute more resources to this provider feel free to make a PR.
+
