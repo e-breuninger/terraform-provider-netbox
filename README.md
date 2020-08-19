@@ -1,64 +1,63 @@
-Terraform Provider Scaffolding
-==================
+# terraform-provider-netbox
 
-This repository is a *template* for a [Terraform](https://www.terraform.io) provider. It is intended as a starting point for creating Terraform providers, containing:
+The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of Netbox resources.
+This provider is maintained by E. Breuninger.
 
- - A resource, and a data source (`internal/provider/`),
- - Documentation (`website/`),
- - Miscellanious meta files.
- 
-These files contain boilerplate code that you will need to edit to create your own Terraform provider. A full guide to creating Terraform providers can be found at [Writing Custom Providers](https://www.terraform.io/docs/extend/writing-custom-providers.html).
+## Requirements
 
-Please see the [GitHub template repository documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) for how to create a new repository from this template on GitHub.
+- [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
+- [Go](https://golang.org/doc/install) >= 1.14
 
-
-Requirements
-------------
-
--	[Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
--	[Go](https://golang.org/doc/install) >= 1.12
-
-Building The Provider
----------------------
+## Building The Provider
 
 1. Clone the repository
 1. Enter the repository directory
-1. Build the provider using the Go `install` command: 
+1. Build the provider using the Go `install` command:
+
 ```sh
 $ go install
 ```
 
-Adding Dependencies
----------------------
+## Installation
 
-This provider uses [Go modules](https://github.com/golang/go/wiki/Modules).
-Please see the Go documentation for the most up to date information about using Go modules.
+When using Terraform 0.13 you can use the provider from the Terraform registry.
+The confirmation process of the Github organization is currently in progress.
 
-To add a new dependency `github.com/author/dependency` to your Terraform provider:
+For furteher information on how to use third party providers have a look at https://www.terraform.io/docs/configuration/providers.html
 
+Releases for all major plattform are available on the release page.
+
+## Using the provider
+
+Here is a short example on how to use this provider:
+
+```hcl
+provider "netbox" {
+    server_url           = var.netbox_server
+    api_token            = var.netbox_api_token
+    allow_insecure_https = false
+}
+
+resource "netbox_platform" "testplatform" {
+    name = "my-test-platform"
+}
+
+resource "netbox_cluster_type" "testclustertype" {
+    name = "my-test-cluster-type"
+}
 ```
-go get github.com/author/dependency
-go mod tidy
-```
 
-Then commit the changes to `go.mod` and `go.sum`.
-
-
-Using the provider
-----------------------
-
-Fill this in for each provider
-
-Developing the Provider
----------------------------
+## Developing the Provider
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (see [Requirements](#requirements) above).
 
 To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
+In order to run the suite of unit tests, run `make test`.
+
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-*Note:* Acceptance tests create real resources, and often cost money to run.
+_Note:_ Acceptance tests create a docker compose stack on port 8001.
 
 ```sh
 $ make testacc
