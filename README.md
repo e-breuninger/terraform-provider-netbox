@@ -23,7 +23,7 @@ $ go install
 When using Terraform 0.13 you can use the provider from the Terraform registry.
 The confirmation process of the Github organization is currently in progress.
 
-For furteher information on how to use third party providers have a look at https://www.terraform.io/docs/configuration/providers.html
+For further information on how to use third party providers, see https://www.terraform.io/docs/configuration/providers.html
 
 Releases for all major plattform are available on the release page.
 
@@ -65,5 +65,4 @@ $ make testacc
 
 ## Contribution
 
-We have a focus on virtual machine management and IPAM. If you want to contribute more resources to this provider feel free to make a PR.
-
+We focus on virtual machine management and IPAM. If you want to contribute more resources to this provider feel free to make a PR.
