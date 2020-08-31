@@ -1,20 +1,22 @@
 package netbox
 
 import (
+	"context"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/go-openapi/runtime"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strconv"
 )
 
 func resourceNetboxVirtualMachine() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxVirtualMachineCreate,
-		Read:   resourceNetboxVirtualMachineRead,
-		Update: resourceNetboxVirtualMachineUpdate,
-		Delete: resourceNetboxVirtualMachineDelete,
+		CreateContext: resourceNetboxVirtualMachineCreate,
+		ReadContext:   resourceNetboxVirtualMachineRead,
+		UpdateContext: resourceNetboxVirtualMachineUpdate,
+		DeleteContext: resourceNetboxVirtualMachineDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -103,7 +105,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 	}
 }
 
-func resourceNetboxVirtualMachineCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBox)
 
 	name := d.Get("name").(string)
@@ -160,16 +162,19 @@ func resourceNetboxVirtualMachineCreate(d *schema.ResourceData, m interface{}) e
 	res, err := api.Virtualization.VirtualizationVirtualMachinesCreate(params, nil)
 	if err != nil {
 		//return errors.New(getTextFromError(err))
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxVirtualMachineUpdate(d, m)
+	return resourceNetboxVirtualMachineUpdate(ctx, d, m)
 }
 
-func resourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBox)
+
+	var diags diag.Diagnostics
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(id)
@@ -185,7 +190,7 @@ func resourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) err
 				return nil
 			}
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	// get interfaces
 	//      idString := d.Id()
@@ -238,10 +243,10 @@ func resourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) err
 	d.Set("memory_mb", res.GetPayload().Memory)
 	d.Set("disk_size_gb", res.GetPayload().Disk)
 	d.Set("tags", res.GetPayload().Tags)
-	return nil
+	return diags
 }
 
-func resourceNetboxVirtualMachineUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBox)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
@@ -357,21 +362,23 @@ func resourceNetboxVirtualMachineUpdate(d *schema.ResourceData, m interface{}) e
 
 	_, err := api.Virtualization.VirtualizationVirtualMachinesUpdate(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceNetboxVirtualMachineRead(d, m)
+	return resourceNetboxVirtualMachineRead(ctx, d, m)
 }
 
-func resourceNetboxVirtualMachineDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBox)
+
+	var diags diag.Diagnostics
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationVirtualMachinesDeleteParams().WithID(id)
 
 	_, err := api.Virtualization.VirtualizationVirtualMachinesDelete(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return nil
+	return diags
 }

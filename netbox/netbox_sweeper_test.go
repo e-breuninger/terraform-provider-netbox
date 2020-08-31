@@ -3,7 +3,7 @@ package netbox
 import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
 	"testing"
 )

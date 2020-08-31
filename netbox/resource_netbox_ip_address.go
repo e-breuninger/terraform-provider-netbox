@@ -5,8 +5,8 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/go-openapi/runtime"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"strconv"
 )
 
@@ -19,8 +19,9 @@ func resourceNetboxIPAddress() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"ip_address": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.IsCIDR,
 			},
 			"interface_id": &schema.Schema{
 				Type:     schema.TypeInt,
