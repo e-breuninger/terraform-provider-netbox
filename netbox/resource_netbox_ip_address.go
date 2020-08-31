@@ -96,7 +96,10 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("interface_id", res.GetPayload().Interface)
+	if res.GetPayload().Interface != nil {
+		d.Set("interface_id", res.GetPayload().Interface.ID)
+	}
+
 	d.Set("ip_address", res.GetPayload().Address)
 	d.Set("status", res.GetPayload().Status.Value)
 	d.Set("tags", res.GetPayload().Tags)
