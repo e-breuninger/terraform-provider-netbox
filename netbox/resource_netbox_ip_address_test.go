@@ -97,6 +97,21 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
+			Config: fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  status = "active"
+  dns_name = "mytest.example.com"
+  tags = ["acctest"]
+}`, testIP),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "dns_name", "mytest.example.com"),
+				),
+			},
+			{
 				ResourceName:      "netbox_ip_address.test",
 				ImportState:       true,
 				ImportStateVerify: true,

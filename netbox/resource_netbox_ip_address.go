@@ -32,6 +32,10 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp"}, false),
 			},
+			"dns_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -58,6 +62,10 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
 		tmpInterfaceID := int64(interfaceID.(int))
 		data.Interface = &tmpInterfaceID
+	}
+
+	if dnsName, ok := d.GetOk("dns_name"); ok {
+		data.DNSName = dnsName.(string)
 	}
 
 	tagsValue := d.Get("tags").(*schema.Set).List()
@@ -100,6 +108,10 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("interface_id", res.GetPayload().Interface.ID)
 	}
 
+	if res.GetPayload().DNSName != "" {
+		d.Set("dns_name", res.GetPayload().DNSName)
+	}
+
 	d.Set("ip_address", res.GetPayload().Address)
 	d.Set("status", res.GetPayload().Status.Value)
 	d.Set("tags", res.GetPayload().Tags)
@@ -121,6 +133,15 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
 		tmpInterfaceID := int64(interfaceID.(int))
 		data.Interface = &tmpInterfaceID
+	}
+
+	if d.HasChange("dns_name") {
+		// WritableIPAddress omits empty values so set to ' '
+		if dnsName := d.Get("dns_name"); dnsName.(string) == "" {
+			data.DNSName =  " "
+		} else {
+			data.DNSName = dnsName.(string)
+		}
 	}
 
 	tagsValue := d.Get("tags").(*schema.Set).List()
