@@ -55,6 +55,12 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"custom_fields": &schema.Schema{
+                                Type:     schema.TypeMap,
+                                Optional: true,
+                                Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "Note: Only text custom fields are supported at the moment.",
+                        },
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -243,6 +249,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("memory_mb", res.GetPayload().Memory)
 	d.Set("disk_size_gb", res.GetPayload().Disk)
 	d.Set("tags", res.GetPayload().Tags)
+	d.Set("custom_fields", res.GetPayload().CustomFields)
 	return diags
 }
 
@@ -316,6 +323,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 	}
 
 	data.Tags = getTagListFromResourceDataSet(d.Get("tags"))
+	data.CustomFields = d.Get("custom_fields").(map[string]interface{})
 
 	//	interfaceValue := d.Get("interface").(*schema.Set).List()
 	//	log.Printf("[FABI] WERT %v\n", interfaceValue)

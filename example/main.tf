@@ -1,15 +1,15 @@
 terraform {
   required_providers {
     netbox = {
-      source = "e-breuninger/netbox"
-      version = ">=0.0.2"
+      source  = "e-breuninger/netbox"
+      version = ">=0.0.3"
     }
   }
 }
 
 provider "netbox" {
-    server_url           = "https://netboxdemo.com/"
-    api_token            = " 72830d67beff4ae178b94d8f781842408df8069d"
+  server_url = "https://netboxdemo.com/"
+  api_token  = " 72830d67beff4ae178b94d8f781842408df8069d"
 }
 
 resource "netbox_device_role" "testdevicerole" {
@@ -45,6 +45,10 @@ resource "netbox_virtual_machine" "testvm" {
   tenant_id    = netbox_tenant.testtenant.id
   platform_id  = netbox_platform.testplatform.id
   role_id      = netbox_device_role.testdevicerole.id
+  # NOTE: Custom fields have to be created in the API first
+  #  custom_fields = {
+  #    "custom_field_name" = "custom field value"
+  #  }
 }
 
 resource "netbox_interface" "testinterface" {
