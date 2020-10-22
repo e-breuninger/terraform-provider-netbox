@@ -33,11 +33,11 @@ func resourceNetboxCluster() *schema.Resource {
 }
 
 func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 	clusterTypeID := int64(d.Get("cluster_type_id").(int))
-	tags := []string{} // the api requires a tagset (can be empty)
+	tags := []*models.NestedTag{} // the api requires a tagset (can be empty)
 
 	params := virtualization.NewVirtualizationClustersCreateParams().WithData(
 		&models.WritableCluster{
@@ -59,7 +59,7 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClustersReadParams().WithID(id)
 
@@ -80,7 +80,7 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableCluster{}
@@ -102,7 +102,7 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxClusterDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClustersDeleteParams().WithID(id)

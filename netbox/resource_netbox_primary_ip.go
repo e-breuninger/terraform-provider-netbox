@@ -39,7 +39,7 @@ func resourceNetboxPrimaryIPCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxPrimaryIPRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(id)
 
@@ -66,7 +66,7 @@ func resourceNetboxPrimaryIPRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	IPAddressID := int64(d.Get("ip_address_id").(int))

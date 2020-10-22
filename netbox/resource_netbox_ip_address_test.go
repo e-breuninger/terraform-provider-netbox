@@ -114,7 +114,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBox)
+			api := m.(*client.NetBoxAPI)
 			params := ipam.NewIpamIPAddressesListParams()
 			res, err := api.Ipam.IpamIPAddressesList(params, nil)
 			if err != nil {

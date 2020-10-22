@@ -48,24 +48,24 @@ func resourceNetboxIPAddress() *schema.Resource {
 }
 
 func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	data := models.WritableIPAddress{}
 	ipAddress := d.Get("ip_address").(string)
 	data.Address = &ipAddress
 	data.Status = d.Get("status").(string)
 
-	if interfaceID, ok := d.GetOk("interface_id"); ok {
-		tmpInterfaceID := int64(interfaceID.(int))
-		data.Interface = &tmpInterfaceID
-	}
+//	if interfaceID, ok := d.GetOk("interface_id"); ok {
+//		tmpInterfaceID := int64(interfaceID.(int))
+//		data.Interface = &tmpInterfaceID
+//	}
 
-	tagsValue := d.Get("tags").(*schema.Set).List()
-	tags := []string{}
-	for _, tag := range tagsValue {
-		tags = append(tags, tag.(string))
-	}
-	data.Tags = tags
+//	tagsValue := d.Get("tags").(*schema.Set).List()
+//	tags := []string{}
+//	for _, tag := range tagsValue {
+//		tags = append(tags, tag.(string))
+//	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))//tags
 
 	params := ipam.NewIpamIPAddressesCreateParams().WithData(&data)
 
@@ -81,7 +81,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
 
@@ -96,9 +96,9 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if res.GetPayload().Interface != nil {
-		d.Set("interface_id", res.GetPayload().Interface.ID)
-	}
+//	if res.GetPayload().Interface != nil {
+//		d.Set("interface_id", res.GetPayload().Interface.ID)
+//	}
 
 	d.Set("ip_address", res.GetPayload().Address)
 	d.Set("status", res.GetPayload().Status.Value)
@@ -107,7 +107,7 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPAddress{}
@@ -118,18 +118,18 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Status = status
 	data.Address = &ipAddress
 
-	if interfaceID, ok := d.GetOk("interface_id"); ok {
-		tmpInterfaceID := int64(interfaceID.(int))
-		data.Interface = &tmpInterfaceID
-	}
+//	if interfaceID, ok := d.GetOk("interface_id"); ok {
+//		tmpInterfaceID := int64(interfaceID.(int))
+//		data.Interface = &tmpInterfaceID
+//	}
 
-	tagsValue := d.Get("tags").(*schema.Set).List()
-	tags := []string{}
-	for _, tag := range tagsValue {
-		tags = append(tags, tag.(string))
-	}
+//	tagsValue := d.Get("tags").(*schema.Set).List()
+//	tags := []string{}
+//	for _, tag := range tagsValue {
+//		tags = append(tags, tag.(string))
+//	}
 
-	data.Tags = tags
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := ipam.NewIpamIPAddressesPartialUpdateParams().WithID(id).WithData(&data)
 
@@ -142,7 +142,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxIPAddressDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesDeleteParams().WithID(id)

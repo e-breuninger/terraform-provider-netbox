@@ -106,7 +106,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 }
 
 func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 	clusterID := int64(d.Get("cluster_id").(int))
@@ -155,7 +155,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Role = &roleID
 	}
 
-	data.Tags = getTagListFromResourceDataSet(d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := virtualization.NewVirtualizationVirtualMachinesCreateParams().WithData(&data)
 
@@ -171,7 +171,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics
 
@@ -247,7 +247,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualMachineWithConfigContext{}
@@ -315,7 +315,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.PrimaryIp4 = &primaryIP
 	}
 
-	data.Tags = getTagListFromResourceDataSet(d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	//	interfaceValue := d.Get("interface").(*schema.Set).List()
 	//	log.Printf("[FABI] WERT %v\n", interfaceValue)
@@ -369,7 +369,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics
 

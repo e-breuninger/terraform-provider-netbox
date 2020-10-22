@@ -34,7 +34,7 @@ func resourceNetboxClusterType() *schema.Resource {
 }
 
 func resourceNetboxClusterTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -66,7 +66,7 @@ func resourceNetboxClusterTypeCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxClusterTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClusterTypesReadParams().WithID(id)
 
@@ -87,7 +87,7 @@ func resourceNetboxClusterTypeRead(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxClusterTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.ClusterType{}
@@ -117,7 +117,7 @@ func resourceNetboxClusterTypeUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxClusterTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClusterTypesDeleteParams().WithID(id)

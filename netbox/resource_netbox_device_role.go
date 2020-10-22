@@ -43,7 +43,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 }
 
 func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -80,7 +80,7 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceRolesReadParams().WithID(id)
 
@@ -105,7 +105,7 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.DeviceRole{}
@@ -140,7 +140,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceRolesDeleteParams().WithID(id)

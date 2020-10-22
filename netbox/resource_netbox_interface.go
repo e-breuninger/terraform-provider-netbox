@@ -50,19 +50,19 @@ func resourceNetboxInterface() *schema.Resource {
 }
 
 func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	description := d.Get("description").(string)
-	interfaceType := d.Get("type").(string)
-	tags := getTagListFromResourceDataSet(d.Get("tags"))
+	//interfaceType := d.Get("type").(string)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
-	data := models.WritableVirtualMachineInterface{
+	data := models.WritableVMInterface{
 		Name:           &name,
 		Description:    description,
 		VirtualMachine: &virtualMachineID,
-		Type:           &interfaceType,
+		//Type:           &interfaceType,
 		Tags:           tags,
 		TaggedVlans:    []int64{},
 	}
@@ -80,7 +80,7 @@ func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := virtualization.NewVirtualizationInterfacesReadParams().WithID(id)
@@ -101,26 +101,26 @@ func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
 	d.Set("description", res.GetPayload().Description)
 	d.Set("tags", res.GetPayload().Tags)
-	d.Set("type", res.GetPayload().Type.Value)
+	//d.Set("type", res.GetPayload().Type.Value)
 	return nil
 }
 
 func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	name := d.Get("name").(string)
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	description := d.Get("description").(string)
-	interfaceType := d.Get("type").(string)
-	tags := getTagListFromResourceDataSet(d.Get("tags"))
+	//interfaceType := d.Get("type").(string)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
-	data := models.WritableVirtualMachineInterface{
+	data := models.WritableVMInterface{
 		Name:           &name,
 		Description:    description,
 		VirtualMachine: &virtualMachineID,
-		Type:           &interfaceType,
+		//Type:           &interfaceType,
 		Tags:           tags,
 		TaggedVlans:    []int64{},
 	}
@@ -136,7 +136,7 @@ func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxInterfaceDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationInterfacesDeleteParams().WithID(id)

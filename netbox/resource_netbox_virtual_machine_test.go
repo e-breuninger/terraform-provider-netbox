@@ -116,7 +116,7 @@ resource "netbox_virtual_machine" "test" {
 
 func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*client.NetBox)
+	conn := testAccProvider.Meta().(*client.NetBoxAPI)
 
 	// loop through the resources in state, verifying each virtual machine
 	// is destroyed
@@ -200,7 +200,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBox)
+			api := m.(*client.NetBoxAPI)
 			params := virtualization.NewVirtualizationVirtualMachinesListParams()
 			res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil)
 			if err != nil {

@@ -44,7 +44,7 @@ func resourceNetboxTenant() *schema.Resource {
 }
 
 func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 
@@ -57,11 +57,12 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tagsValue := d.Get("tags").(*schema.Set).List()
-	tags := []string{}
-	for _, tag := range tagsValue {
-		tags = append(tags, tag.(string))
-	}
+//	tagsValue := d.Get("tags").(*schema.Set).List()
+//	tags := []string{}
+//	for _, tag := range tagsValue {
+//		tags = append(tags, tag.(string))
+//	}
+        tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := tenancy.NewTenancyTenantsCreateParams().WithData(
 		&models.WritableTenant{
@@ -83,7 +84,7 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyTenantsReadParams().WithID(id)
 
@@ -104,7 +105,7 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableTenant{}
@@ -120,11 +121,12 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tagsValue := d.Get("tags").(*schema.Set).List()
-	tags := []string{}
-	for _, tag := range tagsValue {
-		tags = append(tags, tag.(string))
-	}
+//	tagsValue := d.Get("tags").(*schema.Set).List()
+//	tags := []string{}
+//	for _, tag := range tagsValue {
+//		tags = append(tags, tag.(string))
+//	}
+        tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	data.Slug = &slug
 	data.Name = &name
@@ -141,7 +143,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTenantDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyTenantsDeleteParams().WithID(id)
