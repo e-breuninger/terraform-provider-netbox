@@ -29,11 +29,6 @@ func resourceNetboxInterface() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"type": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "virtual",
-			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -55,14 +50,12 @@ func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error 
 	name := d.Get("name").(string)
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	description := d.Get("description").(string)
-	//interfaceType := d.Get("type").(string)
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	data := models.WritableVMInterface{
 		Name:           &name,
 		Description:    description,
 		VirtualMachine: &virtualMachineID,
-		//Type:           &interfaceType,
 		Tags:           tags,
 		TaggedVlans:    []int64{},
 	}
@@ -100,8 +93,7 @@ func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", res.GetPayload().Name)
 	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
 	d.Set("description", res.GetPayload().Description)
-	d.Set("tags", res.GetPayload().Tags)
-	//d.Set("type", res.GetPayload().Type.Value)
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -113,14 +105,12 @@ func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error 
 	name := d.Get("name").(string)
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	description := d.Get("description").(string)
-	//interfaceType := d.Get("type").(string)
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	data := models.WritableVMInterface{
 		Name:           &name,
 		Description:    description,
 		VirtualMachine: &virtualMachineID,
-		//Type:           &interfaceType,
 		Tags:           tags,
 		TaggedVlans:    []int64{},
 	}

@@ -242,7 +242,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("vcpus", res.GetPayload().Vcpus)
 	d.Set("memory_mb", res.GetPayload().Memory)
 	d.Set("disk_size_gb", res.GetPayload().Disk)
-	d.Set("tags", res.GetPayload().Tags)
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return diags
 }
 
