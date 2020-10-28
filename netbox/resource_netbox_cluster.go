@@ -26,6 +26,14 @@ func resourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"tags": &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Optional: true,
+				Set:      schema.HashString,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -38,7 +46,7 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	clusterTypeID := int64(d.Get("cluster_type_id").(int))
-	tags := []*models.NestedTag{} // the api requires a tagset (can be empty)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := virtualization.NewVirtualizationClustersCreateParams().WithData(
 		&models.WritableCluster{
@@ -80,6 +88,7 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("cluster_type_id", res.GetPayload().Type.ID)
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 

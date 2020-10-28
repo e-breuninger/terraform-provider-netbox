@@ -13,3 +13,15 @@ func getInt64FromString(s string) int64 {
 	res, _ := strconv.ParseInt(s, 10, 64)
 	return res
 }
+
+func strToPtr(str string) *string {
+	return &str
+}
+
+func intToPtr(i int) *int {
+	return &i
+}
+
+func int64ToPtr(i int64) *int64 {
+	return &i
+}
