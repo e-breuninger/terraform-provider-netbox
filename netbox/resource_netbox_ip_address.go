@@ -56,29 +56,18 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	data.Address = &ipAddress
 	data.Status = d.Get("status").(string)
 
-//	if interfaceID, ok := d.GetOk("interface_id"); ok {
-//		tmpInterfaceID := int64(interfaceID.(int))
-//		data.Interface = &tmpInterfaceID
-//	}
-
-//	tagsValue := d.Get("tags").(*schema.Set).List()
-//	tags := []string{}
-//	for _, tag := range tagsValue {
-//		tags = append(tags, tag.(string))
-//	}
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))//tags
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := ipam.NewIpamIPAddressesCreateParams().WithData(&data)
 
 	res, err := api.Ipam.IpamIPAddressesCreate(params, nil)
 	if err != nil {
-		//return errors.New(getTextFromError(err))
 		return err
 	}
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxIPAddressRead(d, m)
+	return resourceNetboxIPAddressUpdate(d, m)
 }
 
 func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
@@ -100,13 +89,15 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-//	if res.GetPayload().Interface != nil {
-//		d.Set("interface_id", res.GetPayload().Interface.ID)
-//	}
+	if res.GetPayload().AssignedObject != nil {
+		d.Set("interface_id", res.GetPayload().AssignedObject.ID)
+	} else {
+		d.Set("interface_id", nil)
+	}
 
 	d.Set("ip_address", res.GetPayload().Address)
 	d.Set("status", res.GetPayload().Status.Value)
-	d.Set("tags", res.GetPayload().Tags)
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -122,22 +113,17 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Status = status
 	data.Address = &ipAddress
 
-//	if interfaceID, ok := d.GetOk("interface_id"); ok {
-//		tmpInterfaceID := int64(interfaceID.(int))
-//		data.Interface = &tmpInterfaceID
-//	}
-
-//	tagsValue := d.Get("tags").(*schema.Set).List()
-//	tags := []string{}
-//	for _, tag := range tagsValue {
-//		tags = append(tags, tag.(string))
-//	}
+	if interfaceID, ok := d.GetOk("interface_id"); ok {
+		// The other possible type is dcim.interface for devices
+		data.AssignedObjectType = "virtualization.vminterface"
+		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
+	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
-	params := ipam.NewIpamIPAddressesPartialUpdateParams().WithID(id).WithData(&data)
+	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Ipam.IpamIPAddressesPartialUpdate(params, nil)
+	_, err := api.Ipam.IpamIPAddressesUpdate(params, nil)
 	if err != nil {
 		return err
 	}

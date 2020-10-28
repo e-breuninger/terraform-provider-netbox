@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"log"
 	"regexp"
@@ -121,7 +122,7 @@ func init() {
 				return err
 			}
 			for _, ipAddress := range res.GetPayload().Results {
-				if len(ipAddress.Tags) > 0 && ipAddress.Tags[0] == "acctest" {
+				if len(ipAddress.Tags) > 0 && (ipAddress.Tags[0] == &models.NestedTag{Name: strToPtr("acctest"), Slug: strToPtr("acctest")}) {
 					deleteParams := ipam.NewIpamIPAddressesDeleteParams().WithID(ipAddress.ID)
 					_, err := api.Ipam.IpamIPAddressesDelete(deleteParams, nil)
 					if err != nil {
