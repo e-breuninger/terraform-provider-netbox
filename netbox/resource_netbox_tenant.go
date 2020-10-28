@@ -69,7 +69,6 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 
 	res, err := api.Tenancy.TenancyTenantsCreate(params, nil)
 	if err != nil {
-		//return errors.New(getTextFromError(err))
 		return err
 	}
 

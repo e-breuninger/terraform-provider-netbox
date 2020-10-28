@@ -67,37 +67,6 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			//			"interface": &schema.Schema{
-			//				Type:       schema.TypeSet,
-			//				Optional:   true,
-			//				Computed:   true,
-			//				ConfigMode: schema.SchemaConfigModeAttr,
-			//				Elem: &schema.Resource{
-			//					Schema: map[string]*schema.Schema{
-			//						"name": {
-			//							Type:     schema.TypeString,
-			//							Required: true,
-			//						},
-			//						"description": {
-			//							Type:     schema.TypeString,
-			//							Optional: true,
-			//						},
-			//						"tags": &schema.Schema{
-			//							Type: schema.TypeSet,
-			//							Elem: &schema.Schema{
-			//								Type: schema.TypeString,
-			//							},
-			//							Optional: true,
-			//							Set:      schema.HashString,
-			//						},
-			//					},
-			//				},
-			//				//				Set: func(v interface{}) int {
-			//				//					m := v.(map[string]interface{})
-			//				//					stringiding := m["name"].(string)
-			//				//					return hashcode.String(stringiding)
-			//				//				},
-			//			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -161,7 +130,6 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	res, err := api.Virtualization.VirtualizationVirtualMachinesCreate(params, nil)
 	if err != nil {
-		//return errors.New(getTextFromError(err))
 		return diag.FromErr(err)
 	}
 
@@ -192,25 +160,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		}
 		return diag.FromErr(err)
 	}
-	// get interfaces
-	//      idString := d.Id()
-	//	interfaceLististParams := virtualization.NewVirtualizationInterfacesListParams().WithVirtualMachineID(&idString)
-	//	interfaceRes, interfaceErr := api.Virtualization.VirtualizationInterfacesList(interfaceListParams, nil)
-	//	if interfaceErr != nil {
-	//		return interfaceErr
-	//	}
-	//
-	//	interfaces := []map[string]interface{}{}
-	//	for _, intrface := range interfaceRes.GetPayload().Results {
-	//		interfaces = append(interfaces, map[string]interface{}{
-	//			"interface_id": intrface.ID,
-	//			"name":         intrface.Name,
-	//			"description":  intrface.Description,
-	//			"tags":         intrface.Tags,
-	//		})
-	//	}
-	//
-	//	d.Set("interface", interfaces)
+
 	d.Set("name", res.GetPayload().Name)
 	d.Set("cluster_id", res.GetPayload().Cluster.ID)
 
@@ -316,34 +266,6 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-
-	//	interfaceValue := d.Get("interface").(*schema.Set).List()
-	//	log.Printf("[FABI] WERT %v\n", interfaceValue)
-	//	// "interface" is a reserved word in go
-	//	for _, intrface := range interfaceValue {
-	//		log.Printf("[FABI] TYPE interface %T\n", intrface)
-	//		log.Printf("[FABI] VALUE interface %v\n", intrface)
-	//		interfaceMap := intrface.(map[string]interface{})
-	//		interfaceName := interfaceMap["name"].(string)
-	//		interfaceDescription := interfaceMap["description"].(string)
-	//		interfaceType := "virtual"
-	//		interfaceTags := getTagListFromResourceDataSet(interfaceMap["tags"])
-	//
-	//		interfaceRequestData := models.WritableVirtualMachineInterface{
-	//			Name:           &interfaceName,
-	//			Description:    interfaceDescription,
-	//			VirtualMachine: &id,
-	//			Type:           &interfaceType,
-	//			Tags:           interfaceTags,
-	//			TaggedVlans:    []int64{},
-	//		}
-	//		interfaceParams := virtualization.NewVirtualizationInterfacesCreateParams().WithData(&interfaceRequestData)
-	//		_, err := api.Virtualization.VirtualizationInterfacesCreate(interfaceParams, nil)
-	//		if err != nil {
-	//			//return errors.New(getTextFromError(err))
-	//			return err
-	//		}
-	//	}
 
 	if d.HasChanges("comments") {
 		// check if comment is set

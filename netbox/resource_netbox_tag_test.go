@@ -47,7 +47,7 @@ func TestAccNetboxTag_defaultSlug(t *testing.T) {
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
-		{
+			{
 				Config: fmt.Sprintf(`
 resource "netbox_tag" "test" {
   name = "%s"
