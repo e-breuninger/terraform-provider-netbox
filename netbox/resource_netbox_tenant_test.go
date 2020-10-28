@@ -10,6 +10,18 @@ import (
 	"testing"
 )
 
+func testAccNetboxTenantTagDependencies(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_tag" "test_a" {
+  name = "%[1]sa"
+}
+
+resource "netbox_tag" "test_b" {
+  name = "%[1]sb"
+}
+`, testName)
+}
+
 func TestAccNetboxTenant_basic(t *testing.T) {
 
 	testSlug := "tenant_basic"
@@ -70,28 +82,31 @@ func TestAccNetboxTenant_tags(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: testAccNetboxTenantTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_tenant" "test_tags" {
-  name = "%s"
-  tags = ["boo"]
+  name = "%[1]s"
+  tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "name", testName),
 					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.0", testName+"a"),
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: testAccNetboxTenantTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_tenant" "test_tags" {
-  name = "%s"
-  tags = ["boo", "foo"]
+  name = "%[1]s"
+  tags = ["%[1]sa", "%[1]sb"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.#", "2"),
+					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.0", testName+"a"),
+					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.1", testName+"b"),
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: testAccNetboxTenantTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_tenant" "test_tags" {
   name = "%s"
 }`, testName),

@@ -33,7 +33,6 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_interface" "test" {
   virtual_machine_id = netbox_virtual_machine.test.id
   name = "%[1]s"
-  type = "virtual"
 }
 
 resource "netbox_ip_address" "test" {
