@@ -2,9 +2,9 @@ package netbox
 
 import (
 	"fmt"
-	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -25,20 +25,32 @@ func getNestedTagListFromResourceDataSet(client *client.NetBoxAPI, d interface{}
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
-				Summary: "Error retrieving tag",
-				Detail: fmt.Sprintf("Error trying to retrieve tag %s from netbox", tag.(string)),
+				Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
+				Detail:   fmt.Sprintf("API Error trying to retrieve tag %s from netbox", tag.(string)),
 			})
 		} else {
 			payload := res.GetPayload()
-			one := int64(1) // oh. my. god.
-			if (payload.Count == &one) {
+			if *payload.Count == int64(1) {
 				tags = append(tags, &models.NestedTag{
 					Name: payload.Results[0].Name,
 					Slug: payload.Results[0].Slug,
 				})
+			} else {
+				diags = append(diags, diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
+					Detail:   fmt.Sprintf("Could not map tag %s to unique tag in netbox", tag.(string)),
+				})
 			}
 		}
-		//tags = append(tags, *models.NestedTag{tag})
 	}
 	return tags, diags
+}
+
+func getTagListFromNestedTagList(nestedTags []*models.NestedTag) []string {
+	tags := []string{}
+	for _, nestedTag := range nestedTags {
+		tags = append(tags, *nestedTag.Name)
+	}
+	return tags
 }

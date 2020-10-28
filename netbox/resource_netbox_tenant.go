@@ -57,12 +57,7 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-//	tagsValue := d.Get("tags").(*schema.Set).List()
-//	tags := []string{}
-//	for _, tag := range tagsValue {
-//		tags = append(tags, tag.(string))
-//	}
-        tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := tenancy.NewTenancyTenantsCreateParams().WithData(
 		&models.WritableTenant{
@@ -121,12 +116,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-//	tagsValue := d.Get("tags").(*schema.Set).List()
-//	tags := []string{}
-//	for _, tag := range tagsValue {
-//		tags = append(tags, tag.(string))
-//	}
-        tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	data.Slug = &slug
 	data.Name = &name
