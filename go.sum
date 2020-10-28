@@ -81,10 +81,8 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
-github.com/fbreckle/go-netbox v0.0.0-20201021131340-55fe87a3f7ef h1:SoVMrq3kOqUWFB9NIj3u6oCnfL3ahdF44vsPx7gxrsU=
-github.com/fbreckle/go-netbox v0.0.0-20201021131340-55fe87a3f7ef/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
-github.com/fbreckle/go-netbox v0.0.0-20201021150321-ee7bd57718e6 h1:CGQoMoCdB75oVlecGKu5BlJWDdMgpWoD6C7XkqPd6L0=
-github.com/fbreckle/go-netbox v0.0.0-20201021150321-ee7bd57718e6/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
+github.com/fbreckle/go-netbox v0.0.0-20201028100051-c5652c806e85 h1:vrLh1gu6KJnfOa4PH4DeY1zSHJZUgXf8SlQXJ2kUSoQ=
+github.com/fbreckle/go-netbox v0.0.0-20201028100051-c5652c806e85/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
 github.com/globalsign/mgo v0.0.0-20180905125535-1ca0a4f7cbcb/go.mod h1:xkRDCp4j0OGD1HRkm4kmhM+pmpv3AKq5SU7GMg4oO/Q=
 github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8/go.mod h1:xkRDCp4j0OGD1HRkm4kmhM+pmpv3AKq5SU7GMg4oO/Q=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
@@ -350,8 +348,6 @@ github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx
 github.com/mitchellh/reflectwalk v1.0.1 h1:FVzMWA5RllMAKIdUSC8mdWo3XtwoecrH79BY70sEEpE=
 github.com/mitchellh/reflectwalk v1.0.1/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
 github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe/go.mod h1:wL8QJuTMNUDYhXwkmfOly8iTdp5TEcJFWZD2D7SIkUc=
-github.com/netbox-community/go-netbox v0.0.0-20201002085217-91e5d561efe4 h1:RItVpKp8mOF8CKYsEjqBTl1t4rXFL4rLXp3qoSO6qME=
-github.com/netbox-community/go-netbox v0.0.0-20201002085217-91e5d561efe4/go.mod h1:2BQHB87NQnl/KrnLLMKTKNNyUrE/GP7Vsa8EueN0bTY=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e h1:fD57ERR4JtEqsWbfPhv4DMiApHyliiK5xCTNVSPiaAs=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/oklog/run v1.0.0 h1:Ru7dDtJNOyC66gQ5dQmaCa0qIsAUFY3sFpK1Xk8igrw=
