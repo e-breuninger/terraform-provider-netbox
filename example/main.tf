@@ -35,6 +35,14 @@ resource "netbox_tenant" "testtenant" {
   name = "my-test-tenant"
 }
 
+resource "netbox_tag" "foo" {
+  name = "foo"
+}
+
+resource "netbox_tag" "bar" {
+  name = "bar"
+}
+
 resource "netbox_virtual_machine" "testvm" {
   name         = "my-test-vm"
   comments     = "my-test-comment"
@@ -45,15 +53,15 @@ resource "netbox_virtual_machine" "testvm" {
   tenant_id    = netbox_tenant.testtenant.id
   platform_id  = netbox_platform.testplatform.id
   role_id      = netbox_device_role.testdevicerole.id
+  tags         = [netbox_tag.foo.name, netbox_tag.bar.name]
 }
 
 resource "netbox_interface" "testinterface" {
   virtual_machine_id = netbox_virtual_machine.testvm.id
   name               = "my-test-interface"
   description        = "description"
-  type               = "virtual"
 
-  tags = ["my:tag", "bar"]
+  tags = [netbox_tag.foo.name]
 }
 
 resource "netbox_ip_address" "testip" {
