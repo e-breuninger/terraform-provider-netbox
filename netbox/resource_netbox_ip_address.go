@@ -125,15 +125,15 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Status = status
 	data.Address = &ipAddress
 
-  if d.HasChange("dns_name") {
+	if d.HasChange("dns_name") {
 		// WritableIPAddress omits empty values so set to ' '
 		if dnsName := d.Get("dns_name"); dnsName.(string) == "" {
-			data.DNSName =  " "
+			data.DNSName = " "
 		} else {
 			data.DNSName = dnsName.(string)
 		}
 	}
-  
+
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
 		// The other possible type is dcim.interface for devices
 		data.AssignedObjectType = "virtualization.vminterface"
