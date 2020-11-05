@@ -47,7 +47,7 @@ func TestAccNetboxIPAddress_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:  testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
   interface_id = netbox_interface.test.id
@@ -62,7 +62,7 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				Config:  testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
   interface_id = netbox_interface.test.id
@@ -75,7 +75,7 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				Config:  testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
   interface_id = netbox_interface.test.id
@@ -88,7 +88,7 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				Config:  testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
   interface_id = netbox_interface.test.id
@@ -98,7 +98,7 @@ resource "netbox_ip_address" "test" {
 				ExpectError: regexp.MustCompile("expected status to be one of .*"),
 			},
 			{
-				Config:  testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
   interface_id = netbox_interface.test.id
