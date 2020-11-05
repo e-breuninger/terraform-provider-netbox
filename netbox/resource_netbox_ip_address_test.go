@@ -111,6 +111,22 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  interface_id = netbox_interface.test.id
+  status = "active"
+  dns_name = "mytest.example.com"
+  tags = [netbox_tag.test.name]
+}`, testIP),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "dns_name", "mytest.example.com"),
+				),
+			},
+			{
 				ResourceName:      "netbox_ip_address.test",
 				ImportState:       true,
 				ImportStateVerify: true,
