@@ -2,7 +2,7 @@ package netbox
 
 import (
 	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
+	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,12 +10,12 @@ import (
 	"strconv"
 )
 
-func resourceNetboxTenant() *schema.Resource {
+func resourceNetboxTag() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxTenantCreate,
-		Read:   resourceNetboxTenantRead,
-		Update: resourceNetboxTenantUpdate,
-		Delete: resourceNetboxTenantDelete,
+		Create: resourceNetboxTagCreate,
+		Read:   resourceNetboxTagRead,
+		Update: resourceNetboxTagUpdate,
+		Delete: resourceNetboxTagDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -43,7 +43,7 @@ func resourceNetboxTenant() *schema.Resource {
 	}
 }
 
-func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
@@ -57,32 +57,30 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-
-	params := tenancy.NewTenancyTenantsCreateParams().WithData(
-		&models.WritableTenant{
+	params := extras.NewExtrasTagsCreateParams().WithData(
+		&models.Tag{
 			Name: &name,
 			Slug: &slug,
-			Tags: tags,
 		},
 	)
 
-	res, err := api.Tenancy.TenancyTenantsCreate(params, nil)
+	res, err := api.Extras.ExtrasTagsCreate(params, nil)
 	if err != nil {
+		//return errors.New(getTextFromError(err))
 		return err
 	}
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxTenantRead(d, m)
+	return resourceNetboxTagRead(d, m)
 }
 
-func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantsReadParams().WithID(id)
+	params := extras.NewExtrasTagsReadParams().WithID(id)
 
-	res, err := api.Tenancy.TenancyTenantsRead(params, nil)
+	res, err := api.Extras.ExtrasTagsRead(params, nil)
 	if err != nil {
 		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
 		if errorcode == 404 {
@@ -98,11 +96,11 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableTenant{}
+	data := models.Tag{}
 
 	name := d.Get("name").(string)
 
@@ -115,29 +113,26 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-
 	data.Slug = &slug
 	data.Name = &name
-	data.Tags = tags
 
-	params := tenancy.NewTenancyTenantsPartialUpdateParams().WithID(id).WithData(&data)
+	params := extras.NewExtrasTagsUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Tenancy.TenancyTenantsPartialUpdate(params, nil)
+	_, err := api.Extras.ExtrasTagsUpdate(params, nil)
 	if err != nil {
 		return err
 	}
 
-	return resourceNetboxTenantRead(d, m)
+	return resourceNetboxTagRead(d, m)
 }
 
-func resourceNetboxTenantDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTagDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantsDeleteParams().WithID(id)
+	params := extras.NewExtrasTagsDeleteParams().WithID(id)
 
-	_, err := api.Tenancy.TenancyTenantsDelete(params, nil)
+	_, err := api.Extras.ExtrasTagsDelete(params, nil)
 	if err != nil {
 		return err
 	}

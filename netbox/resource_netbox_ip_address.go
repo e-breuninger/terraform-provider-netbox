@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"errors"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -52,60 +53,54 @@ func resourceNetboxIPAddress() *schema.Resource {
 }
 
 func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	data := models.WritableIPAddress{}
 	ipAddress := d.Get("ip_address").(string)
 	data.Address = &ipAddress
 	data.Status = d.Get("status").(string)
 
-	if interfaceID, ok := d.GetOk("interface_id"); ok {
-		tmpInterfaceID := int64(interfaceID.(int))
-		data.Interface = &tmpInterfaceID
-	}
-
 	if dnsName, ok := d.GetOk("dns_name"); ok {
 		data.DNSName = dnsName.(string)
 	}
 
-	tagsValue := d.Get("tags").(*schema.Set).List()
-	tags := []string{}
-	for _, tag := range tagsValue {
-		tags = append(tags, tag.(string))
-	}
-	data.Tags = tags
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := ipam.NewIpamIPAddressesCreateParams().WithData(&data)
 
 	res, err := api.Ipam.IpamIPAddressesCreate(params, nil)
 	if err != nil {
-		//return errors.New(getTextFromError(err))
 		return err
 	}
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxIPAddressRead(d, m)
+	return resourceNetboxIPAddressUpdate(d, m)
 }
 
 func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
 
 	res, err := api.Ipam.IpamIPAddressesRead(params, nil)
 	if err != nil {
-		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-		if errorcode == 404 {
-			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-			d.SetId("")
-			return nil
+		var apiError *runtime.APIError
+		if errors.As(err, &apiError) {
+			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
+			if errorcode == 404 {
+				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
 
-	if res.GetPayload().Interface != nil {
-		d.Set("interface_id", res.GetPayload().Interface.ID)
+	if res.GetPayload().AssignedObject != nil {
+		d.Set("interface_id", res.GetPayload().AssignedObject.ID)
+	} else {
+		d.Set("interface_id", nil)
 	}
 
 	if res.GetPayload().DNSName != "" {
@@ -114,12 +109,12 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("ip_address", res.GetPayload().Address)
 	d.Set("status", res.GetPayload().Status.Value)
-	d.Set("tags", res.GetPayload().Tags)
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
 func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPAddress{}
@@ -130,12 +125,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Status = status
 	data.Address = &ipAddress
 
-	if interfaceID, ok := d.GetOk("interface_id"); ok {
-		tmpInterfaceID := int64(interfaceID.(int))
-		data.Interface = &tmpInterfaceID
-	}
-
-	if d.HasChange("dns_name") {
+  if d.HasChange("dns_name") {
 		// WritableIPAddress omits empty values so set to ' '
 		if dnsName := d.Get("dns_name"); dnsName.(string) == "" {
 			data.DNSName =  " "
@@ -143,18 +133,18 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 			data.DNSName = dnsName.(string)
 		}
 	}
-
-	tagsValue := d.Get("tags").(*schema.Set).List()
-	tags := []string{}
-	for _, tag := range tagsValue {
-		tags = append(tags, tag.(string))
+  
+	if interfaceID, ok := d.GetOk("interface_id"); ok {
+		// The other possible type is dcim.interface for devices
+		data.AssignedObjectType = "virtualization.vminterface"
+		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
 	}
 
-	data.Tags = tags
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
-	params := ipam.NewIpamIPAddressesPartialUpdateParams().WithID(id).WithData(&data)
+	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Ipam.IpamIPAddressesPartialUpdate(params, nil)
+	_, err := api.Ipam.IpamIPAddressesUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -163,7 +153,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxIPAddressDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesDeleteParams().WithID(id)

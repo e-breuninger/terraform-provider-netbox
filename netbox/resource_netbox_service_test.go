@@ -67,7 +67,7 @@ resource "netbox_service" "test" {
 
 func testAccCheckServiceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*client.NetBox)
+	conn := testAccProvider.Meta().(*client.NetBoxAPI)
 
 	// loop through the resources in state, verifying each service
 	// is destroyed
@@ -105,7 +105,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBox)
+			api := m.(*client.NetBoxAPI)
 			params := ipam.NewIpamServicesListParams()
 			res, err := api.Ipam.IpamServicesList(params, nil)
 			if err != nil {

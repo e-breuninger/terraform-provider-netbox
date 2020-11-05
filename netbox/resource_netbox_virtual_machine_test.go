@@ -19,11 +19,6 @@ resource "netbox_cluster_type" "test" {
   name = "%[1]s"
 }
 
-resource "netbox_ip_address" "test" {
-  ip_address = "1.1.1.1/32"
-  status = "active"
-}
-
 resource "netbox_cluster" "test" {
   name = "%[1]s"
   cluster_type_id = netbox_cluster_type.test.id
@@ -40,7 +35,16 @@ resource "netbox_platform" "test" {
 
 resource "netbox_tenant" "test" {
   name = "%[1]s"
-}`, testName)
+}
+
+resource "netbox_tag" "test_a" {
+  name = "%[1]sa"
+}
+
+resource "netbox_tag" "test_b" {
+  name = "%[1]sb"
+}
+`, testName)
 }
 
 func TestAccNetboxVirtualMachine_basic(t *testing.T) {
@@ -66,7 +70,7 @@ resource "netbox_virtual_machine" "test" {
 			{
 				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_machine" "test" {
-  name = "%s"
+  name = "%[1]s"
   cluster_id = netbox_cluster.test.id
   comments = "thisisacomment"
   memory_mb = 1024
@@ -75,6 +79,7 @@ resource "netbox_virtual_machine" "test" {
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
   vcpus = 4
+  tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
@@ -86,6 +91,8 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName+"a"),
 				),
 			},
 			{
@@ -116,7 +123,7 @@ resource "netbox_virtual_machine" "test" {
 
 func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*client.NetBox)
+	conn := testAccProvider.Meta().(*client.NetBoxAPI)
 
 	// loop through the resources in state, verifying each virtual machine
 	// is destroyed
@@ -156,9 +163,9 @@ func TestAccNetboxVirtualMachine_tags(t *testing.T) {
 			{
 				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_machine" "test" {
-  name = "%s"
+  name = "%[1]s"
   cluster_id = netbox_cluster.test.id
-  tags = ["boo"]
+  tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
@@ -171,7 +178,7 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
-  tags = ["boo", "foo"]
+  tags = ["%[1]sa", "%[1]sb"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "2"),
@@ -200,7 +207,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBox)
+			api := m.(*client.NetBoxAPI)
 			params := virtualization.NewVirtualizationVirtualMachinesListParams()
 			res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil)
 			if err != nil {

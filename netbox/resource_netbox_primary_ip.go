@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"errors"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -39,17 +40,20 @@ func resourceNetboxPrimaryIPCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxPrimaryIPRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(id)
 
 	res, err := api.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
 	if err != nil {
-		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-		if errorcode == 404 {
-			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-			d.SetId("")
-			return nil
+		var apiError *runtime.APIError
+		if errors.As(err, &apiError) {
+			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
+			if errorcode == 404 {
+				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
@@ -66,7 +70,7 @@ func resourceNetboxPrimaryIPRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	IPAddressID := int64(d.Get("ip_address_id").(int))
@@ -87,6 +91,11 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Name = vm.Name
 	data.Cluster = &vm.Cluster.ID
 	data.Tags = vm.Tags
+	// the netbox API sends the URL property as part of NestedTag, but it does not accept the URL property when we send it back
+	// so set it to empty
+	for _, tag := range data.Tags {
+		tag.URL = ""
+	}
 	data.Comments = vm.Comments
 	data.Memory = vm.Memory
 	data.Vcpus = vm.Vcpus

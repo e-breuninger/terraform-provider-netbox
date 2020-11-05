@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"errors"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -43,7 +44,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 }
 
 func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -80,14 +81,15 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceRolesReadParams().WithID(id)
 
 	res, err := api.Dcim.DcimDeviceRolesRead(params, nil)
 	if err != nil {
-		if apiError, ok := err.(*runtime.APIError); ok {
-			errorcode := apiError.Response.(runtime.ClientResponse).Code()
+		var apiError *runtime.APIError
+		if errors.As(err, &apiError) {
+			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -105,7 +107,7 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.DeviceRole{}
@@ -140,7 +142,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceRolesDeleteParams().WithID(id)

@@ -20,12 +20,17 @@ func TestAccNetboxCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
+resource "netbox_tag" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
 }
 resource "netbox_cluster" "test" {
   name = "%[1]s"
   cluster_type_id = netbox_cluster_type.test.id
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_cluster.test", "name", testName),
@@ -49,7 +54,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBox)
+			api := m.(*client.NetBoxAPI)
 			params := virtualization.NewVirtualizationClustersListParams()
 			res, err := api.Virtualization.VirtualizationClustersList(params, nil)
 			if err != nil {
