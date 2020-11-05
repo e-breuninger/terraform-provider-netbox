@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     netbox = {
-      source  = "registry.breuninger.io/e-breuninger/netbox"
+      source  = "e-breuninger/netbox"
       version = ">=0.0.4"
     }
   }
