@@ -1,15 +1,23 @@
 terraform {
   required_providers {
     netbox = {
-      source = "e-breuninger/netbox"
-      version = ">=0.0.2"
+      source  = "registry.breuninger.io/e-breuninger/netbox"
+      version = ">=0.0.4"
     }
   }
 }
 
 provider "netbox" {
-    server_url           = "https://netboxdemo.com/"
-    api_token            = " 72830d67beff4ae178b94d8f781842408df8069d"
+  server_url = "https://netboxdemo.com/"
+  api_token  = " 72830d67beff4ae178b94d8f781842408df8069d"
+}
+
+resource "netbox_tag" "foo" {
+  name = "foo"
+}
+
+resource "netbox_tag" "bar" {
+  name = "bar"
 }
 
 resource "netbox_device_role" "testdevicerole" {
@@ -29,19 +37,13 @@ resource "netbox_cluster_type" "testclustertype" {
 resource "netbox_cluster" "testcluster" {
   name            = "my-test-cluster"
   cluster_type_id = netbox_cluster_type.testclustertype.id
+  tags            = [netbox_tag.foo.name]
 }
 
 resource "netbox_tenant" "testtenant" {
   name = "my-test-tenant"
 }
 
-resource "netbox_tag" "foo" {
-  name = "foo"
-}
-
-resource "netbox_tag" "bar" {
-  name = "bar"
-}
 
 resource "netbox_virtual_machine" "testvm" {
   name         = "my-test-vm"
