@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"regexp"
 	"strconv"
 )
 
@@ -26,7 +27,12 @@ func resourceNetboxTag() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 30),
+			},
+			"color_hex": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "9e9e9e",
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[0-9a-f]{6}$"), "Must be hex color string"),
 			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
@@ -57,10 +63,12 @@ func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
+	color := d.Get("color_hex").(string)
 	params := extras.NewExtrasTagsCreateParams().WithData(
 		&models.Tag{
-			Name: &name,
-			Slug: &slug,
+			Name:  &name,
+			Slug:  &slug,
+			Color: color,
 		},
 	)
 
@@ -93,6 +101,7 @@ func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	d.Set("color_hex", res.GetPayload().Color)
 	return nil
 }
 
@@ -103,6 +112,7 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.Tag{}
 
 	name := d.Get("name").(string)
+	color := d.Get("color_hex").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
@@ -115,6 +125,7 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Slug = &slug
 	data.Name = &name
+	data.Color = color
 
 	params := extras.NewExtrasTagsUpdateParams().WithID(id).WithData(&data)
 

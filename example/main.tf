@@ -2,7 +2,7 @@ terraform {
   required_providers {
     netbox = {
       source  = "e-breuninger/netbox"
-      version = ">=0.0.5"
+      version = ">= 0.0.6"
     }
   }
 }
@@ -20,7 +20,8 @@ provider "netbox" {
 }
 
 resource "netbox_tag" "foo" {
-  name = "foo"
+  name      = "foo"
+  color_hex = "00ff00" # green
 }
 
 resource "netbox_tag" "bar" {
@@ -45,7 +46,7 @@ resource "netbox_cluster" "testcluster" {
   name            = "my-test-cluster"
   cluster_type_id = netbox_cluster_type.testclustertype.id
   # tags can be referenced by name but have to be created first ..
-  tags            = ["foo"]
+  tags = ["foo"]
   # .. or explicitly depended upon, unless created separately
   depends_on = [netbox_tag.foo]
 }

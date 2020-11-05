@@ -24,10 +24,12 @@ func TestAccNetboxTag_basic(t *testing.T) {
 resource "netbox_tag" "test" {
   name = "%s"
   slug = "%s"
+  color_hex = "112233"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tag.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_tag.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_tag.test", "color_hex", "112233"),
 				),
 			},
 			{
