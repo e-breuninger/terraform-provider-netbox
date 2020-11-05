@@ -2,14 +2,21 @@ terraform {
   required_providers {
     netbox = {
       source  = "e-breuninger/netbox"
-      version = ">=0.0.4"
+      version = ">=0.0.5"
     }
   }
 }
 
+# example provider configuration for a local netbox deployment
+# e.g. https://github.com/netbox-community/netbox-docker
+#provider "netbox" {
+#  server_url = "http://localhost:8000"
+#  api_token  = "0123456789abcdef0123456789abcdef01234567"
+#}
+
 provider "netbox" {
   server_url = "https://netboxdemo.com/"
-  api_token  = " 72830d67beff4ae178b94d8f781842408df8069d"
+  api_token  = "72830d67beff4ae178b94d8f781842408df8069d"
 }
 
 resource "netbox_tag" "foo" {
@@ -37,13 +44,15 @@ resource "netbox_cluster_type" "testclustertype" {
 resource "netbox_cluster" "testcluster" {
   name            = "my-test-cluster"
   cluster_type_id = netbox_cluster_type.testclustertype.id
-  tags            = [netbox_tag.foo.name]
+  # tags can be referenced by name but have to be created first ..
+  tags            = ["foo"]
+  # .. or explicitly depended upon, unless created separately
+  depends_on = [netbox_tag.foo]
 }
 
 resource "netbox_tenant" "testtenant" {
   name = "my-test-tenant"
 }
-
 
 resource "netbox_virtual_machine" "testvm" {
   name         = "my-test-vm"
@@ -68,6 +77,7 @@ resource "netbox_interface" "testinterface" {
 
 resource "netbox_ip_address" "testip" {
   ip_address   = "1.2.3.4/32"
+  dns_name     = "test.example.com"
   interface_id = netbox_interface.testinterface.id
   status       = "active"
 }
