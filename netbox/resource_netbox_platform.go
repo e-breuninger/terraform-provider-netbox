@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"errors"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -36,7 +37,7 @@ func resourceNetboxPlatform() *schema.Resource {
 }
 
 func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 
@@ -68,17 +69,20 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPlatformsReadParams().WithID(id)
 
 	res, err := api.Dcim.DcimPlatformsRead(params, nil)
 	if err != nil {
-		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-		if errorcode == 404 {
-			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-			d.SetId("")
-			return nil
+		var apiError *runtime.APIError
+		if errors.As(err, &apiError) {
+			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
+			if errorcode == 404 {
+				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
@@ -89,7 +93,7 @@ func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritablePlatform{}
@@ -119,7 +123,7 @@ func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPlatformsDeleteParams().WithID(id)

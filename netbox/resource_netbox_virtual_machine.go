@@ -67,37 +67,6 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			//			"interface": &schema.Schema{
-			//				Type:       schema.TypeSet,
-			//				Optional:   true,
-			//				Computed:   true,
-			//				ConfigMode: schema.SchemaConfigModeAttr,
-			//				Elem: &schema.Resource{
-			//					Schema: map[string]*schema.Schema{
-			//						"name": {
-			//							Type:     schema.TypeString,
-			//							Required: true,
-			//						},
-			//						"description": {
-			//							Type:     schema.TypeString,
-			//							Optional: true,
-			//						},
-			//						"tags": &schema.Schema{
-			//							Type: schema.TypeSet,
-			//							Elem: &schema.Schema{
-			//								Type: schema.TypeString,
-			//							},
-			//							Optional: true,
-			//							Set:      schema.HashString,
-			//						},
-			//					},
-			//				},
-			//				//				Set: func(v interface{}) int {
-			//				//					m := v.(map[string]interface{})
-			//				//					stringiding := m["name"].(string)
-			//				//					return hashcode.String(stringiding)
-			//				//				},
-			//			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -106,7 +75,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 }
 
 func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 	clusterID := int64(d.Get("cluster_id").(int))
@@ -155,13 +124,12 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Role = &roleID
 	}
 
-	data.Tags = getTagListFromResourceDataSet(d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := virtualization.NewVirtualizationVirtualMachinesCreateParams().WithData(&data)
 
 	res, err := api.Virtualization.VirtualizationVirtualMachinesCreate(params, nil)
 	if err != nil {
-		//return errors.New(getTextFromError(err))
 		return diag.FromErr(err)
 	}
 
@@ -171,7 +139,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics
 
@@ -192,25 +160,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		}
 		return diag.FromErr(err)
 	}
-	// get interfaces
-	//      idString := d.Id()
-	//	interfaceLististParams := virtualization.NewVirtualizationInterfacesListParams().WithVirtualMachineID(&idString)
-	//	interfaceRes, interfaceErr := api.Virtualization.VirtualizationInterfacesList(interfaceListParams, nil)
-	//	if interfaceErr != nil {
-	//		return interfaceErr
-	//	}
-	//
-	//	interfaces := []map[string]interface{}{}
-	//	for _, intrface := range interfaceRes.GetPayload().Results {
-	//		interfaces = append(interfaces, map[string]interface{}{
-	//			"interface_id": intrface.ID,
-	//			"name":         intrface.Name,
-	//			"description":  intrface.Description,
-	//			"tags":         intrface.Tags,
-	//		})
-	//	}
-	//
-	//	d.Set("interface", interfaces)
+
 	d.Set("name", res.GetPayload().Name)
 	d.Set("cluster_id", res.GetPayload().Cluster.ID)
 
@@ -242,12 +192,12 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("vcpus", res.GetPayload().Vcpus)
 	d.Set("memory_mb", res.GetPayload().Memory)
 	d.Set("disk_size_gb", res.GetPayload().Disk)
-	d.Set("tags", res.GetPayload().Tags)
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return diags
 }
 
 func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualMachineWithConfigContext{}
@@ -315,35 +265,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.PrimaryIp4 = &primaryIP
 	}
 
-	data.Tags = getTagListFromResourceDataSet(d.Get("tags"))
-
-	//	interfaceValue := d.Get("interface").(*schema.Set).List()
-	//	log.Printf("[FABI] WERT %v\n", interfaceValue)
-	//	// "interface" is a reserved word in go
-	//	for _, intrface := range interfaceValue {
-	//		log.Printf("[FABI] TYPE interface %T\n", intrface)
-	//		log.Printf("[FABI] VALUE interface %v\n", intrface)
-	//		interfaceMap := intrface.(map[string]interface{})
-	//		interfaceName := interfaceMap["name"].(string)
-	//		interfaceDescription := interfaceMap["description"].(string)
-	//		interfaceType := "virtual"
-	//		interfaceTags := getTagListFromResourceDataSet(interfaceMap["tags"])
-	//
-	//		interfaceRequestData := models.WritableVirtualMachineInterface{
-	//			Name:           &interfaceName,
-	//			Description:    interfaceDescription,
-	//			VirtualMachine: &id,
-	//			Type:           &interfaceType,
-	//			Tags:           interfaceTags,
-	//			TaggedVlans:    []int64{},
-	//		}
-	//		interfaceParams := virtualization.NewVirtualizationInterfacesCreateParams().WithData(&interfaceRequestData)
-	//		_, err := api.Virtualization.VirtualizationInterfacesCreate(interfaceParams, nil)
-	//		if err != nil {
-	//			//return errors.New(getTextFromError(err))
-	//			return err
-	//		}
-	//	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	if d.HasChanges("comments") {
 		// check if comment is set
@@ -369,7 +291,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics
 

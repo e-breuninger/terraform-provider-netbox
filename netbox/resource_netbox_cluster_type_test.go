@@ -69,7 +69,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBox)
+			api := m.(*client.NetBoxAPI)
 			params := virtualization.NewVirtualizationClusterTypesListParams()
 			res, err := api.Virtualization.VirtualizationClusterTypesList(params, nil)
 			if err != nil {

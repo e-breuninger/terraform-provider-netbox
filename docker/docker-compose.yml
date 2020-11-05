@@ -1,15 +1,15 @@
 version: "3.7"
 services:
   postgres:
-    image: postgres:11-alpine
+    image: postgres:12-alpine
     environment:
       - POSTGRES_USER=netbox
       - POSTGRES_PASSWORD=netbox
       - POSTGRES_DB=netbox
   redis:
-    image: redis:5-alpine
+    image: redis:6-alpine
   netbox:
-    image: netboxcommunity/netbox:v2.8
+    image: netboxcommunity/netbox:v2.9
     depends_on:
       - postgres
       - redis

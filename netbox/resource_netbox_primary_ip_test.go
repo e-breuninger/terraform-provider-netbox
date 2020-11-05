@@ -8,6 +8,10 @@ import (
 
 func testAccNetboxPrimaryIPFullDependencies(testName string) string {
 	return fmt.Sprintf(`
+resource "netbox_tag" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
 }
@@ -28,12 +32,13 @@ resource "netbox_tenant" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%[1]s"
   cluster_id = netbox_cluster.test.id
+
+  tags = [netbox_tag.test.name]
 }
 
 resource "netbox_interface" "test" {
   virtual_machine_id = netbox_virtual_machine.test.id
   name = "%[1]s"
-  type = "virtual"
 }
 
 resource "netbox_ip_address" "test" {

@@ -3,14 +3,14 @@ package netbox
 import (
 	"errors"
 	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strconv"
 )
 
-func dataSourceNetboxDeviceRole() *schema.Resource {
+func dataSourceNetboxTag() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxDeviceRoleRead,
+		Read: dataSourceNetboxTagRead,
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -20,24 +20,20 @@ func dataSourceNetboxDeviceRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"color_hex": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
 
-func dataSourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-	params := dcim.NewDcimDeviceRolesListParams()
+	params := extras.NewExtrasTagsListParams()
 	params.Name = &name
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 
-	res, err := api.Dcim.DcimDeviceRolesList(params, nil)
+	res, err := api.Extras.ExtrasTagsList(params, nil)
 	if err != nil {
 		return err
 	}
@@ -48,10 +44,10 @@ func dataSourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error
 	if *res.GetPayload().Count == int64(0) {
 		return errors.New("No result")
 	}
+
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
-	d.Set("color_hex", result.Color)
 	return nil
 }

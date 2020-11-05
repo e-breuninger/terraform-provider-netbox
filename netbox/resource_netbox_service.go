@@ -1,13 +1,13 @@
 package netbox
 
 import (
-	"strconv"
-
+	"errors"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"strconv"
 )
 
 func resourceNetboxService() *schema.Resource {
@@ -41,7 +41,7 @@ func resourceNetboxService() *schema.Resource {
 	}
 }
 func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	data := models.WritableService{}
 
 	dataName := d.Get("name").(string)
@@ -56,7 +56,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	data.VirtualMachine = &dataVirtualMachineID
 
-	data.Tags = []string{}
+	data.Tags = []*models.NestedTag{}
 	data.Ipaddresses = []int64{}
 
 	params := ipam.NewIpamServicesCreateParams().WithData(&data)
@@ -70,19 +70,20 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesReadParams().WithID(id)
 
 	res, err := api.Ipam.IpamServicesRead(params, nil)
 	if err != nil {
-		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-		if errorcode == 404 {
-			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band).
-			// Just like the destroy callback, the Read function should gracefully handle this case.
-			// https://www.terraform.io/docs/extend/writing-custom-providers.html
-			d.SetId("")
-			return nil
+		var apiError *runtime.APIError
+		if errors.As(err, &apiError) {
+			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
+			if errorcode == 404 {
+				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
@@ -95,7 +96,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableService{}
 
@@ -108,7 +109,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 	dataPort := int64(d.Get("port").(int))
 	data.Port = &dataPort
 
-	data.Tags = []string{}
+	data.Tags = []*models.NestedTag{}
 	data.Ipaddresses = []int64{}
 
 	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
@@ -123,7 +124,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamServicesDelete(params, nil)

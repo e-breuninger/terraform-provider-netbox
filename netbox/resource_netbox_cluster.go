@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"errors"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -25,6 +26,14 @@ func resourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"tags": &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Optional: true,
+				Set:      schema.HashString,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -33,11 +42,11 @@ func resourceNetboxCluster() *schema.Resource {
 }
 
 func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
 	clusterTypeID := int64(d.Get("cluster_type_id").(int))
-	tags := []string{} // the api requires a tagset (can be empty)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := virtualization.NewVirtualizationClustersCreateParams().WithData(
 		&models.WritableCluster{
@@ -59,28 +68,32 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClustersReadParams().WithID(id)
 
 	res, err := api.Virtualization.VirtualizationClustersRead(params, nil)
 	if err != nil {
-		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-		if errorcode == 404 {
-			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-			d.SetId("")
-			return nil
+		var apiError *runtime.APIError
+		if errors.As(err, &apiError) {
+			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
+			if errorcode == 404 {
+				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("cluster_type_id", res.GetPayload().Type.ID)
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
 func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableCluster{}
@@ -102,7 +115,7 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxClusterDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBox)
+	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClustersDeleteParams().WithID(id)

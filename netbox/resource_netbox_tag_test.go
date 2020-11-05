@@ -3,16 +3,16 @@ package netbox
 import (
 	"fmt"
 	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"log"
 	"strings"
 	"testing"
 )
 
-func TestAccNetboxPlatform_basic(t *testing.T) {
+func TestAccNetboxTag_basic(t *testing.T) {
 
-	testSlug := "platform_basic"
+	testSlug := "tag_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,17 +21,17 @@ func TestAccNetboxPlatform_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_platform" "test" {
+resource "netbox_tag" "test" {
   name = "%s"
   slug = "%s"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_platform.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_platform.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_tag.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_tag.test", "slug", randomSlug),
 				),
 			},
 			{
-				ResourceName:      "netbox_platform.test",
+				ResourceName:      "netbox_tag.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -39,9 +39,9 @@ resource "netbox_platform" "test" {
 	})
 }
 
-func TestAccNetboxPlatform_defaultSlug(t *testing.T) {
+func TestAccNetboxTag_defaultSlug(t *testing.T) {
 
-	testSlug := "platform_defSlug"
+	testSlug := "tag_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -49,12 +49,12 @@ func TestAccNetboxPlatform_defaultSlug(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_platform" "test" {
+resource "netbox_tag" "test" {
   name = "%s"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_platform.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_platform.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_tag.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_tag.test", "slug", testName),
 				),
 			},
 		},
@@ -62,8 +62,8 @@ resource "netbox_platform" "test" {
 }
 
 func init() {
-	resource.AddTestSweepers("netbox_platform", &resource.Sweeper{
-		Name:         "netbox_platform",
+	resource.AddTestSweepers("netbox_tag", &resource.Sweeper{
+		Name:         "netbox_tag",
 		Dependencies: []string{},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)
@@ -71,19 +71,19 @@ func init() {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
 			api := m.(*client.NetBoxAPI)
-			params := dcim.NewDcimPlatformsListParams()
-			res, err := api.Dcim.DcimPlatformsList(params, nil)
+			params := extras.NewExtrasTagsListParams()
+			res, err := api.Extras.ExtrasTagsList(params, nil)
 			if err != nil {
 				return err
 			}
-			for _, platform := range res.GetPayload().Results {
-				if strings.HasPrefix(*platform.Name, testPrefix) {
-					deleteParams := dcim.NewDcimPlatformsDeleteParams().WithID(platform.ID)
-					_, err := api.Dcim.DcimPlatformsDelete(deleteParams, nil)
+			for _, tag := range res.GetPayload().Results {
+				if strings.HasPrefix(*tag.Name, testPrefix) {
+					deleteParams := extras.NewExtrasTagsDeleteParams().WithID(tag.ID)
+					_, err := api.Extras.ExtrasTagsDelete(deleteParams, nil)
 					if err != nil {
 						return err
 					}
-					log.Print("[DEBUG] Deleted a platform")
+					log.Print("[DEBUG] Deleted a tag")
 				}
 			}
 			return nil

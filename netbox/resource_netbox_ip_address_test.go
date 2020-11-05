@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"log"
 	"regexp"
@@ -12,6 +13,10 @@ import (
 
 func testAccNetboxIPAddressFullDependencies(testName string) string {
 	return fmt.Sprintf(`
+resource "netbox_tag" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
 }
@@ -29,34 +34,40 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_interface" "test" {
   name = "%[1]s"
   virtual_machine_id = netbox_virtual_machine.test.id
+}
 `, testName)
 }
 
 func TestAccNetboxIPAddress_basic(t *testing.T) {
 
 	testIP := "1.1.1.1/32"
+	testSlug := "ipaddress"
+	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
+  interface_id = netbox_interface.test.id
   status = "active"
-  tags = ["acctest"]
+  tags = [netbox_tag.test.name]
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "tags.0", testName),
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
+  interface_id = netbox_interface.test.id
   status = "reserved"
-  tags = ["acctest"]
+  tags = [netbox_tag.test.name]
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
@@ -64,11 +75,12 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
+  interface_id = netbox_interface.test.id
   status = "dhcp"
-  tags = ["acctest"]
+  tags = [netbox_tag.test.name]
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
@@ -76,20 +88,22 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
+  interface_id = netbox_interface.test.id
   status = "provoke_error"
-  tags = ["acctest"]
+  tags = [netbox_tag.test.name]
 }`, testIP),
 				ExpectError: regexp.MustCompile("expected status to be one of .*"),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
+  interface_id = netbox_interface.test.id
   status = "deprecated"
-  tags = ["acctest"]
+  tags = [netbox_tag.test.name]
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
@@ -114,14 +128,14 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBox)
+			api := m.(*client.NetBoxAPI)
 			params := ipam.NewIpamIPAddressesListParams()
 			res, err := api.Ipam.IpamIPAddressesList(params, nil)
 			if err != nil {
 				return err
 			}
 			for _, ipAddress := range res.GetPayload().Results {
-				if len(ipAddress.Tags) > 0 && ipAddress.Tags[0] == "acctest" {
+				if len(ipAddress.Tags) > 0 && (ipAddress.Tags[0] == &models.NestedTag{Name: strToPtr("acctest"), Slug: strToPtr("acctest")}) {
 					deleteParams := ipam.NewIpamIPAddressesDeleteParams().WithID(ipAddress.ID)
 					_, err := api.Ipam.IpamIPAddressesDelete(deleteParams, nil)
 					if err != nil {

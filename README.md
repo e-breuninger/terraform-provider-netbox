@@ -8,6 +8,11 @@ This provider is maintained by E. Breuninger.
 - [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
 - [Go](https://golang.org/doc/install) >= 1.14
 
+## Supported netbox versions
+Netbox often makes API-breaking changes even in non-major releases. We aim to always support the latest minor version of Netbox.
+
+Version 0.0.4 of this provider is tested against Netbox 2.9.7.
+
 ## Building The Provider
 
 1. Clone the repository
@@ -21,7 +26,6 @@ $ go install
 ## Installation
 
 When using Terraform 0.13 you can use the provider from the Terraform registry.
-The confirmation process of the Github organization is currently in progress.
 
 For further information on how to use third party providers, see https://www.terraform.io/docs/configuration/providers.html
 
@@ -46,6 +50,8 @@ resource "netbox_cluster_type" "testclustertype" {
     name = "my-test-cluster-type"
 }
 ```
+
+For a more complex example, see the `example` folder.
 
 ## Developing the Provider
 
