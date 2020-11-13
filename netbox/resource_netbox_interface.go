@@ -30,6 +30,11 @@ func resourceNetboxInterface() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"type": &schema.Schema{
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "This attribute is not supported by netbox any longer. It will be removed in future versions of this provider.",
+			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
