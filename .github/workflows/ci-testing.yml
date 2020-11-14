@@ -24,3 +24,5 @@ jobs:
           go-version: 1.14
       - name: testacc
         run: make testacc
+        env:
+          NETBOX_VERSION: "2.9"
