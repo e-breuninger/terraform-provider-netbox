@@ -25,4 +25,4 @@ jobs:
       - name: testacc
         run: make testacc
         env:
-          NETBOX_VERSION: "2.9"
+          NETBOX_VERSION: "v2.9"
