@@ -11,8 +11,8 @@ jobs:
         with:
           go-version: 1.14
       - name: test
-        run: make testacc
-        
+        run: make test
+
   testacc:
     runs-on: ubuntu-latest
     strategy:
