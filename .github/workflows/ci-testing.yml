@@ -1,8 +1,11 @@
-name: main
-on: [push]
+name: ci-testing
+on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        netbox-version: ["2.8","2.9","latest"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Go
@@ -13,3 +16,5 @@ jobs:
         run: make test
       - name: testacc
         run: make testacc
+        env:
+          NETBOX_VERSION: ${{ matrix.netbox-version }}
