@@ -1,7 +1,19 @@
 name: ci-testing
 on: [push, pull_request]
 jobs:
+
   test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: test
+        run: make testacc
+        
+  testacc:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -12,8 +24,6 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.14
-      - name: test
-        run: make test
       - name: testacc
         run: make testacc
         env:
