@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
+	"regexp"
 )
 
 func dataSourceNetboxVirtualMachine() *schema.Resource {
@@ -30,6 +33,11 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 						},
 					},
 				},
+			},
+			"name_regex": {
+				Type: schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"vms": {
 				Type:     schema.TypeList,
@@ -166,8 +174,20 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		return errors.New("no result")
 	}
 
+	var filteredVms []*models.VirtualMachineWithConfigContext
+	if nameRegex, ok := d.GetOk("name_regex"); ok {
+		r := regexp.MustCompile(nameRegex.(string))
+		for _, vm := range res.GetPayload().Results {
+			if r.MatchString(*vm.Name) {
+				filteredVms = append(filteredVms, vm)
+			}
+		}
+	} else {
+		filteredVms = res.GetPayload().Results
+	}
+
 	var s []map[string]interface{}
-	for _, v := range res.GetPayload().Results {
+	for _, v := range filteredVms {
 		var mapping = make(map[string]interface{})
 		if v.Cluster != nil {
 			mapping["cluster_id"] = v.Cluster.ID
