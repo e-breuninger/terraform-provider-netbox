@@ -15,11 +15,20 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceNetboxVirtualMachineRead,
 		Schema: map[string]*schema.Schema{
-			"search": {
-				Type:     schema.TypeMap,
+			"filter": {
+				Type:     schema.TypeSet,
 				Optional: true,
-				Elem: &schema.Schema{
-					Type:     schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
 				},
 			},
 			"vms": {
@@ -118,9 +127,11 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 
 	params := virtualization.NewVirtualizationVirtualMachinesListParams()
 
-	if search, ok := d.GetOk("search"); ok {
-		var searchParams = search.(map[string]interface{})
-		for k, v := range searchParams {
+	if filter, ok := d.GetOk("filter"); ok {
+		var filterParams = filter.(*schema.Set)
+		for _, f := range filterParams.List() {
+			k := f.(map[string]interface{})["name"]
+			v := f.(map[string]interface{})["value"]
 			switch k {
 			case "cluster_id":
 				var clusterString = v.(string)
@@ -141,7 +152,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 				var siteString = v.(string)
 				params.Site = &siteString
 			default:
-				return fmt.Errorf("'%s' is not a supported search parameter", k)
+				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
 		}
 	}
