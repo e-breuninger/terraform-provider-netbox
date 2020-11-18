@@ -132,8 +132,8 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 				var nameString = v.(string)
 				params.Name = &nameString
 			case "region":
-				var siteString = v.(string)
-				params.Site = &siteString
+				var regionString = v.(string)
+				params.Region = &regionString
 			case "role":
 				var roleString = v.(string)
 				params.Role = &roleString
