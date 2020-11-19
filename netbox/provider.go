@@ -21,11 +21,12 @@ func Provider() *schema.Provider {
 			"netbox_tag":             resourceNetboxTag(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"netbox_cluster":     dataSourceNetboxCluster(),
-			"netbox_tenant":      dataSourceNetboxTenant(),
-			"netbox_platform":    dataSourceNetboxPlatform(),
-			"netbox_device_role": dataSourceNetboxDeviceRole(),
-			"netbox_tag":         dataSourceNetboxTag(),
+			"netbox_cluster":          dataSourceNetboxCluster(),
+			"netbox_tenant":           dataSourceNetboxTenant(),
+			"netbox_platform":         dataSourceNetboxPlatform(),
+			"netbox_device_role":      dataSourceNetboxDeviceRole(),
+			"netbox_tag":              dataSourceNetboxTag(),
+			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
