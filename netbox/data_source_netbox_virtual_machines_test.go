@@ -40,7 +40,7 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.1.name", "netbox_virtual_machine.test1", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.2.name", "netbox_virtual_machine.test2", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.3.name", "netbox_virtual_machine.test3", "name"),
-					),
+				),
 			},
 			{
 				Config: dependencies + testAccNetboxVirtualMachineDataSourceNameRegex,

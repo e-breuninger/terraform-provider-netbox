@@ -34,8 +34,8 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 				},
 			},
 			"name_regex": {
-				Type: schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"vms": {
