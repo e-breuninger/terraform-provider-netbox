@@ -1,7 +1,6 @@
 ---
 layout: "scaffolding"
 page_title: "Scaffolding: scaffolding_data_source"
-sidebar_current: "docs-scaffolding-data-source"
 description: |-
   Sample data source in the Terraform provider scaffolding.
 ---

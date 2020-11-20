@@ -1,25 +1,36 @@
 ---
-layout: "scaffolding"
-page_title: "Provider: Scaffolding"
-sidebar_current: "docs-scaffolding-index"
+layout: "netbox"
+page_title: "Provider: Netbox"
+sidebar_current: "docs-netbox-index"
 description: |-
-  Terraform provider scaffolding.
+  Terraform provider for managing Netbox resources.
 ---
 
-# Scaffolding Provider
+# Netbox Provider
 
-Use this paragraph to give a high-level overview of your provider, and any configuration it requires.
-
-Use the navigation to the left to read about the available resources.
+The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://netbox.readthedocs.io/en/stable/) resources.
 
 ## Example Usage
 
 ```hcl
-provider "scaffolding" {
+provider "netbox" {
+    server_url           = var.netbox_server
+    api_token            = var.netbox_api_token
+    allow_insecure_https = false
 }
 
-# Example resource configuration
-resource "scaffolding_resource" "example" {
-  # ...
+resource "netbox_platform" "testplatform" {
+    name = "my-test-platform"
+}
+
+resource "netbox_cluster_type" "testclustertype" {
+    name = "my-test-cluster-type"
 }
 ```
+
+## Argument Reference
+
+The following arguments are required:
+
+- `server_url` - (Required) The URL to the Netbox endpoint.
+- `api_token` - (Required) The API token to authenticate with Netbox.

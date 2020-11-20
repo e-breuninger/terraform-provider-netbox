@@ -1,3 +1,3 @@
-## 0.1.0 (Unreleased)
+## 0.0.8 (November 19, 2020)
 
-BACKWARDS INCOMPATIBILITIES / NOTES:
+* **New Data Source:** `netbox_virtual_machines` ([#8](https://github.com/e-breuninger/terraform-provider-netbox/pull/8) by [@jake2184](https://github.com/jake2184))
