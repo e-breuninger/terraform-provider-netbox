@@ -1,7 +1,6 @@
 ---
 layout: "scaffolding"
 page_title: "Scaffolding: scaffolding_resource"
-sidebar_current: "docs-scaffolding-resource"
 description: |-
   Sample resource in the Terraform provider scaffolding.
 ---
