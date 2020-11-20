@@ -27,6 +27,7 @@ func Provider() *schema.Provider {
 			"netbox_device_role":      dataSourceNetboxDeviceRole(),
 			"netbox_tag":              dataSourceNetboxTag(),
 			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),
+			"netbox_interfaces":       dataSourceNetboxInterfaces(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
