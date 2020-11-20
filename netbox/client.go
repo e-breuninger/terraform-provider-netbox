@@ -44,7 +44,7 @@ func (cfg *Config) Client() (interface{}, error) {
 		InsecureSkipVerify: cfg.AllowInsecureHttps,
 	}
 	client, _ := httptransport.TLSClient(clientOpts)
-	transport := httptransport.NewWithClient(parsedURL.Host, parsedURL.Path + netboxclient.DefaultBasePath, desiredRuntimeClientSchemes, client)
+	transport := httptransport.NewWithClient(parsedURL.Host, parsedURL.Path+netboxclient.DefaultBasePath, desiredRuntimeClientSchemes, client)
 	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", fmt.Sprintf("Token %v", cfg.APIToken))
 	transport.SetLogger(log.StandardLogger())
 	netboxClient := netboxclient.New(transport, nil)
