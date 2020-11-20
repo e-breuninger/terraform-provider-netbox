@@ -6,7 +6,7 @@ description: |-
   Terraform provider for managing Netbox resources.
 ---
 
-# netbox Provider
+# Netbox Provider
 
 The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://netbox.readthedocs.io/en/stable/) resources.
 
