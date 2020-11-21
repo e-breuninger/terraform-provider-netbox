@@ -1,5 +1,8 @@
 # terraform-provider-netbox
 
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=e-breuninger/terraform-provider-netbox)](https://dependabot.com)
+
+
 The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://netbox.readthedocs.io/en/stable/) resources.
 This provider is maintained by E. Breuninger.
 
