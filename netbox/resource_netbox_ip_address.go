@@ -28,6 +28,10 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"tenant_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"status": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
@@ -80,6 +84,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 
 func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
 
@@ -101,6 +106,12 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("interface_id", res.GetPayload().AssignedObject.ID)
 	} else {
 		d.Set("interface_id", nil)
+	}
+
+	if res.GetPayload().Tenant != nil {
+		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	} else {
+		d.Set("tenant_id", nil)
 	}
 
 	if res.GetPayload().DNSName != "" {
@@ -138,6 +149,10 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		// The other possible type is dcim.interface for devices
 		data.AssignedObjectType = "virtualization.vminterface"
 		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
+	}
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
