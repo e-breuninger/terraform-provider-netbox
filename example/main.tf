@@ -81,6 +81,7 @@ resource "netbox_ip_address" "testip" {
   dns_name     = "test.example.com"
   interface_id = netbox_interface.testinterface.id
   status       = "active"
+  tenant_id    = netbox_tenant.testtenant.id
 }
 
 resource "netbox_primary_ip" "testprimaryip" {
