@@ -28,6 +28,10 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"vrf_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tenant_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -108,6 +112,12 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("interface_id", nil)
 	}
 
+  if res.GetPayload().Vrf != nil {
+		d.Set("vrf_id", res.GetPayload().Vrf.ID)
+	} else {
+		d.Set("vrf_id", nil)
+	}
+
 	if res.GetPayload().Tenant != nil {
 		d.Set("tenant_id", res.GetPayload().Tenant.ID)
 	} else {
@@ -149,6 +159,10 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		// The other possible type is dcim.interface for devices
 		data.AssignedObjectType = "virtualization.vminterface"
 		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
+	}
+
+	if vrfID, ok := d.GetOk("vrf_id"); ok {
+		data.Vrf = int64ToPtr(int64(vrfID.(int)))
 	}
 
 	if tenantID, ok := d.GetOk("tenant_id"); ok {
