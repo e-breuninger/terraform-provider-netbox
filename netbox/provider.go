@@ -12,6 +12,7 @@ func Provider() *schema.Provider {
 			"netbox_cluster_type":    resourceNetboxClusterType(),
 			"netbox_cluster":         resourceNetboxCluster(),
 			"netbox_tenant":          resourceNetboxTenant(),
+			"netbox_vrf":             resourceNetboxVrf(),
 			"netbox_ip_address":      resourceNetboxIPAddress(),
 			"netbox_interface":       resourceNetboxInterface(),
 			"netbox_service":         resourceNetboxService(),

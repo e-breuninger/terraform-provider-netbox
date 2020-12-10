@@ -78,7 +78,7 @@ resource "netbox_ip_address" "test" {
   interface_id = netbox_interface.test.id
   status = "reserved"
   tenant_id = netbox_tenant.test.id
-  vrf_id = netbox_tenant.test.id
+  vrf_id = netbox_vrf.test.id
   tags = [netbox_tag.test.name]
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(

@@ -15,7 +15,7 @@ func TestAccNetboxVrfDataSource_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_vrf" "test" {
+resource"netbox_vrf" "test" {
   name = "%[1]s"
 }
 
