@@ -20,9 +20,11 @@ func Provider() *schema.Provider {
 			"netbox_primary_ip":      resourceNetboxPrimaryIP(),
 			"netbox_device_role":     resourceNetboxDeviceRole(),
 			"netbox_tag":             resourceNetboxTag(),
+			"netbox_cluster_group":   resourceNetboxClusterGroup(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),
+			"netbox_cluster_group":          dataSourceNetboxClusterGroup(),
 			"netbox_tenant":           dataSourceNetboxTenant(),
 			"netbox_vrf":              dataSourceNetboxVrf(),
 			"netbox_platform":         dataSourceNetboxPlatform(),

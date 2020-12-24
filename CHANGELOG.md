@@ -4,10 +4,13 @@ FEATURES
 
 * **New Resource:** `netbox_vrf` ([#26](https://github.com/e-breuninger/terraform-provider-netbox/pull/26) by [@rthomson](https://github.com/rthomson))
 * **New Data Source:** `netbox_vrf` ([#26](https://github.com/e-breuninger/terraform-provider-netbox/pull/26) by [@rthomson](https://github.com/rthomson))
+* **New Resource:** `netbox_cluster_group`
+* **New Data Source:** `netbox_cluster_group`
 
 ENHANCEMENTS
 
 * resource/netbox_ip_address: Add `tenant_id` attribute
+* resource/netbox_cluster: Add `cluster_group_id` attribute
 
 ## 0.0.9 (November 20, 2020)
 
