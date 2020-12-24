@@ -42,6 +42,10 @@ resource "netbox_cluster_type" "testclustertype" {
   name = "my-test-cluster-type"
 }
 
+resource "netbox_vrf" "testvrf" {
+  name = "my-test-vrf"
+}
+
 resource "netbox_cluster" "testcluster" {
   name            = "my-test-cluster"
   cluster_type_id = netbox_cluster_type.testclustertype.id
@@ -82,6 +86,7 @@ resource "netbox_ip_address" "testip" {
   interface_id = netbox_interface.testinterface.id
   status       = "active"
   tenant_id    = netbox_tenant.testtenant.id
+  vrf_id       = netbox_vrf.testvrf.id
 }
 
 resource "netbox_primary_ip" "testprimaryip" {
