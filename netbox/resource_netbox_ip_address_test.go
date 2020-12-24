@@ -21,6 +21,10 @@ resource "netbox_tenant" "test" {
   name = "%[1]s"
 }
 
+resource "netbox_vrf" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
 }
@@ -64,6 +68,7 @@ resource "netbox_ip_address" "test" {
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "tags.0", testName),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "tenant_id", "0"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "vrf_id", "0"),
 				),
 			},
 			{
@@ -73,12 +78,14 @@ resource "netbox_ip_address" "test" {
   interface_id = netbox_interface.test.id
   status = "reserved"
   tenant_id = netbox_tenant.test.id
+  vrf_id = netbox_vrf.test.id
   tags = [netbox_tag.test.name]
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "status", "reserved"),
 					resource.TestCheckResourceAttrPair("netbox_ip_address.test", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_ip_address.test", "vrf_id", "netbox_vrf.test", "id"),
 				),
 			},
 			{
@@ -93,6 +100,7 @@ resource "netbox_ip_address" "test" {
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "status", "dhcp"),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "tenant_id", "0"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "vrf_id", "0"),
 				),
 			},
 			{

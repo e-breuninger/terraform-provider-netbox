@@ -12,6 +12,7 @@ func Provider() *schema.Provider {
 			"netbox_cluster_type":    resourceNetboxClusterType(),
 			"netbox_cluster":         resourceNetboxCluster(),
 			"netbox_tenant":          resourceNetboxTenant(),
+			"netbox_vrf":             resourceNetboxVrf(),
 			"netbox_ip_address":      resourceNetboxIPAddress(),
 			"netbox_interface":       resourceNetboxInterface(),
 			"netbox_service":         resourceNetboxService(),
@@ -23,6 +24,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),
 			"netbox_tenant":           dataSourceNetboxTenant(),
+			"netbox_vrf":              dataSourceNetboxVrf(),
 			"netbox_platform":         dataSourceNetboxPlatform(),
 			"netbox_device_role":      dataSourceNetboxDeviceRole(),
 			"netbox_tag":              dataSourceNetboxTag(),
