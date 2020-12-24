@@ -26,6 +26,10 @@ func resourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"cluster_group_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -44,17 +48,23 @@ func resourceNetboxCluster() *schema.Resource {
 func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
-	name := d.Get("name").(string)
-	clusterTypeID := int64(d.Get("cluster_type_id").(int))
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data := models.WritableCluster{}
 
-	params := virtualization.NewVirtualizationClustersCreateParams().WithData(
-		&models.WritableCluster{
-			Name: &name,
-			Type: &clusterTypeID,
-			Tags: tags,
-		},
-	)
+	name := d.Get("name").(string)
+	data.Name = &name
+
+	clusterTypeID := int64(d.Get("cluster_type_id").(int))
+	data.Type = &clusterTypeID
+
+	if clusterGroupIDValue, ok := d.GetOk("cluster_group_id"); ok {
+		clusterGroupID := int64(clusterGroupIDValue.(int))
+		data.Group = &clusterGroupID
+	}
+
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags = tags
+
+	params := virtualization.NewVirtualizationClustersCreateParams().WithData(&data)
 
 	res, err := api.Virtualization.VirtualizationClustersCreate(params, nil)
 	if err != nil {
@@ -88,6 +98,11 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("cluster_type_id", res.GetPayload().Type.ID)
+	if res.GetPayload().Group != nil {
+		d.Set("cluster_group_id", res.GetPayload().Group.ID)
+	} else {
+		d.Set("cluster_group_id", nil)
+	}
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
@@ -99,10 +114,15 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritableCluster{}
 
 	name := d.Get("name").(string)
-	clusterTypeID := int64(d.Get("cluster_type_id").(int))
-
 	data.Name = &name
+
+	clusterTypeID := int64(d.Get("cluster_type_id").(int))
 	data.Type = &clusterTypeID
+
+	if clusterGroupIDValue, ok := d.GetOk("cluster_group_id"); ok {
+		clusterGroupID := int64(clusterGroupIDValue.(int))
+		data.Group = &clusterGroupID
+	}
 
 	params := virtualization.NewVirtualizationClustersPartialUpdateParams().WithID(id).WithData(&data)
 

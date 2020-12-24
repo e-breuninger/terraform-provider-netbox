@@ -42,6 +42,11 @@ resource "netbox_cluster_type" "testclustertype" {
   name = "my-test-cluster-type"
 }
 
+resource "netbox_cluster_group" "testclustergroup" {
+  name = "my-test-cluster-group"
+  description = "test cluster group description"
+}
+
 resource "netbox_vrf" "testvrf" {
   name = "my-test-vrf"
 }
@@ -49,6 +54,7 @@ resource "netbox_vrf" "testvrf" {
 resource "netbox_cluster" "testcluster" {
   name            = "my-test-cluster"
   cluster_type_id = netbox_cluster_type.testclustertype.id
+  cluster_group_id = netbox_cluster_group.testclustergroup.id
   # tags can be referenced by name but have to be created first ..
   tags = ["foo"]
   # .. or explicitly depended upon, unless created separately
