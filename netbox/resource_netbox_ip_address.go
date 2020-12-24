@@ -112,7 +112,7 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("interface_id", nil)
 	}
 
-  if res.GetPayload().Vrf != nil {
+	if res.GetPayload().Vrf != nil {
 		d.Set("vrf_id", res.GetPayload().Vrf.ID)
 	} else {
 		d.Set("vrf_id", nil)
