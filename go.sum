@@ -81,10 +81,6 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
-github.com/fbreckle/go-netbox v0.0.0-20201028100051-c5652c806e85 h1:vrLh1gu6KJnfOa4PH4DeY1zSHJZUgXf8SlQXJ2kUSoQ=
-github.com/fbreckle/go-netbox v0.0.0-20201028100051-c5652c806e85/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
-github.com/fbreckle/go-netbox v0.0.0-20201127225146-baaf86cf1989 h1:5uRwyWYtBwx/sHIs5lu+AdcrS5yQEx5v/VgVK08t4ZQ=
-github.com/fbreckle/go-netbox v0.0.0-20201127225146-baaf86cf1989/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
 github.com/fbreckle/go-netbox v0.0.0-20201127231152-23f80e06cb3d h1:2Sejlvf/IqA0XRrzO15rQ1+mNWz6WHulrLBW7xODvp8=
 github.com/fbreckle/go-netbox v0.0.0-20201127231152-23f80e06cb3d/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
 github.com/globalsign/mgo v0.0.0-20180905125535-1ca0a4f7cbcb/go.mod h1:xkRDCp4j0OGD1HRkm4kmhM+pmpv3AKq5SU7GMg4oO/Q=
@@ -388,6 +384,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
+github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/ulikunitz/xz v0.5.5 h1:pFrO0lVpTBXLpYw+pnLj6TbvHuyjXMfjGeCwSqCVwok=
