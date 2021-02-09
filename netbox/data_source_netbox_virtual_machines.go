@@ -38,6 +38,10 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
+			"limit": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"vms": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -162,6 +166,11 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
 		}
+	}
+
+	if limit, ok := d.GetOk("limit"); ok {
+		limitInt := int64(limit.(int))
+		params.Limit = &limitInt
 	}
 
 	res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil)
