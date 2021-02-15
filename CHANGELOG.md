@@ -1,3 +1,9 @@
+## 0.1.1 (February 15, 2021)
+
+ENHANCEMENTS
+
+* data-source/netbox_virtual_machines: Add `limit` attribute ([#33](https://github.com/e-breuninger/terraform-provider-netbox/pull/33) by [@jake2184](https://github.com/jake2184))
+
 ## 0.1.0 Ho-Ho-Ho (December 24, 2020)
 
 FEATURES
