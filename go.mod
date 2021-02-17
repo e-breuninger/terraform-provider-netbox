@@ -8,6 +8,6 @@ require (
 	github.com/go-openapi/runtime v0.19.26
 	github.com/goware/urlx v0.3.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.1
-	github.com/sirupsen/logrus v1.7.0
+	github.com/sirupsen/logrus v1.7.1
 	github.com/stretchr/testify v1.7.0
 )
