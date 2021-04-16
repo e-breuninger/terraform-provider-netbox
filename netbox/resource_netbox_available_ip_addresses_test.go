@@ -14,13 +14,11 @@ import (
 func TestAccNetboxAvailableIPAddress_basic(t *testing.T) {
 	testPrefix := "1.1.1.0/24"
 	testIP := "1.1.1.1/24"
-	testSlug := "availableipaddress"
-	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+				Config: fmt.Sprintf(`
 resource "netbox_prefix" "test" {
 	prefix = "%s"
 	status = "active"
