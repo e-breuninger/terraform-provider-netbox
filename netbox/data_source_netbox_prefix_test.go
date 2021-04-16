@@ -9,7 +9,7 @@ import (
 
 func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 
-	testPrefix := "10.0.0.1/24"
+	testPrefix := "10.0.0.0/24"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

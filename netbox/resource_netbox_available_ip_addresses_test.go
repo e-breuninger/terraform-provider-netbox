@@ -24,10 +24,10 @@ func TestAccNetboxAvailableIPAddress_basic(t *testing.T) {
 resource "netbox_prefix" "test" {
 	prefix = "%s"
 	status = "active"
-	pool = false
+	is_pool = false
 }
 resource "netbox_available_ip_address" "test" {
-  prefix_Id = netbox_prefix.test.id
+  prefix_id = netbox_prefix.test.id
   status = "active"
   dns_name = "test.mydomain.local"
 }`, testPrefix),
