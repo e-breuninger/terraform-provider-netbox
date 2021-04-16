@@ -9,21 +9,21 @@ import (
 
 func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 
-	testSlug := "tnt_ds_basic"
-	testName := testAccGetTestName(testSlug)
+	testPrefix := "10.0.0.1/24"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_prefix" "test" {
-  name = "%[1]s"
+  prefix = "%[1]s"
+  status = "active"
+  is_pool = false
 }
-
 data "netbox_prefix" "test" {
   depends_on = [netbox_prefix.test]
-  name = "%[1]s"
-}`, testName),
+  cidr = "%[1]s"
+}`, testPrefix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.test", "id", "netbox_prefix.test", "id"),
 				),
