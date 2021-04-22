@@ -11,6 +11,9 @@ description: |-
 
 The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://netbox.readthedocs.io/en/stable/) resources.
 
+Each resource's `id` (unless otherwise specified) is computed by the resource and should not be specified for resource creation. These IDs are critical for relating different resource objects to each other - a common pattern is creating a resource / retrieving a datasource for a type of Netbox object, then using that object's id for creation in a subsequent resource (see example below)
+
+
 ## Example Usage
 
 ```hcl
@@ -20,12 +23,23 @@ provider "netbox" {
     allow_insecure_https = false
 }
 
-resource "netbox_platform" "testplatform" {
+data "netbox_platform" "testplatform" {
     name = "my-test-platform"
 }
 
 resource "netbox_cluster_type" "testclustertype" {
     name = "my-test-cluster-type"
+}
+
+resource "netbox_cluster" "testcluster" {
+    name = "my-test-cluster"
+    cluster_group_id = netbox_cluster_type.testclustertype.id
+}
+
+resource "netbox_virtual_machine" "testvm" {
+    name = "my-test-vm"
+    cluster_id = netbox_cluster.testcluster.id
+    platform_id = data.netbox_platform.testplatform.id
 }
 ```
 

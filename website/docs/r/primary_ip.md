@@ -8,7 +8,7 @@ description: |-
 
 # netbox_primary_ip (Resource)
 
-
+This resource is used to define the primary IP for a given virtual machine. The primary IP is reflected in the Virtual machine Netbox UI, which identifies the Primary IPv4 and IPv6 addresses.
 
 
 
