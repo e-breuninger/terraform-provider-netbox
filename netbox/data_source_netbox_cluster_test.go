@@ -30,7 +30,6 @@ data "netbox_cluster" "test" {
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.test", "id", "netbox_cluster.test", "id"),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 		},
 	})

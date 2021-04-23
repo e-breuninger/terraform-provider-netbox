@@ -26,7 +26,6 @@ data "netbox_vrf" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_vrf.test", "id", "netbox_vrf.test", "id"),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 		},
 	})

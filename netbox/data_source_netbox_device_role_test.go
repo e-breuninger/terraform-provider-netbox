@@ -26,7 +26,6 @@ data "netbox_device_role" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_device_role.test", "id", "netbox_device_role.test", "id"),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
