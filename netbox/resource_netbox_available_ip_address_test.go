@@ -12,8 +12,8 @@ import (
 )
 
 func TestAccNetboxAvailableIPAddress_basic(t *testing.T) {
-	testPrefix := "1.1.1.0/24"
-	testIP := "1.1.1.1/24"
+	testPrefix := "1.1.2.0/24"
+	testIP := "1.1.2.1/24"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

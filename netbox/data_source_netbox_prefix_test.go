@@ -18,7 +18,7 @@ func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 resource "netbox_prefix" "test" {
   prefix = "%[1]s"
   status = "active"
-  is_pool = false
+  is_pool = true
 }
 data "netbox_prefix" "test" {
   depends_on = [netbox_prefix.test]
@@ -27,7 +27,7 @@ data "netbox_prefix" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.test", "id", "netbox_prefix.test", "id"),
 				),
-				ExpectNonEmptyPlan: true,
+				ExpectNonEmptyPlan: false,
 			},
 		},
 	})
