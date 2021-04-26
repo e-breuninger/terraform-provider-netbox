@@ -46,7 +46,6 @@ func TestAccNetboxInterface_basic(t *testing.T) {
 resource "netbox_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
-  type = "thisattributeisdeprecated" # deprecated attribute
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),

@@ -20,4 +20,5 @@ test:
 
 .PHONY: fmt
 fmt:
+	go fmt
 	go fmt netbox/*.go
