@@ -25,7 +25,7 @@ resource "netbox_tag" "test_b" {
 
 func TestAccNetboxTenantGroup_basic(t *testing.T) {
 
-	testSlug := "tenant_basic"
+	testSlug := "t_grp_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -34,17 +34,17 @@ func TestAccNetboxTenantGroup_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_tenant" "test" {
+resource "netbox_tenant_group" "test" {
   name = "%s"
   slug = "%s"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_tenant.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_tenant.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_tenant_group.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_tenant_group.test", "slug", randomSlug),
 				),
 			},
 			{
-				ResourceName:      "netbox_tenant.test",
+				ResourceName:      "netbox_tenant_group.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -62,57 +62,12 @@ func TestAccNetboxTenantGroup_defaultSlug(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_tenant" "test" {
+resource "netbox_tenant_group" "test" {
   name = "%s"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_tenant.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_tenant.test", "slug", testName),
-				),
-			},
-		},
-	})
-}
-
-func TestAccNetboxTenantGroup_tags(t *testing.T) {
-
-	testSlug := "tenant_tags"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
-		Steps: []resource.TestStep{
-			{
-				Config: testAccNetboxTenantGroupTagDependencies(testName) + fmt.Sprintf(`
-resource "netbox_tenant" "test_tags" {
-  name = "%[1]s"
-  tags = ["%[1]sa"]
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "name", testName),
-					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.0", testName+"a"),
-				),
-			},
-			{
-				Config: testAccNetboxTenantGroupTagDependencies(testName) + fmt.Sprintf(`
-resource "netbox_tenant" "test_tags" {
-  name = "%[1]s"
-  tags = ["%[1]sa", "%[1]sb"]
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.#", "2"),
-					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.0", testName+"a"),
-					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.1", testName+"b"),
-				),
-			},
-			{
-				Config: testAccNetboxTenantGroupTagDependencies(testName) + fmt.Sprintf(`
-resource "netbox_tenant" "test_tags" {
-  name = "%s"
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.#", "0"),
+					resource.TestCheckResourceAttr("netbox_tenant_group.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_tenant_group.test", "slug", testName),
 				),
 			},
 		},
@@ -120,8 +75,8 @@ resource "netbox_tenant" "test_tags" {
 }
 
 func init() {
-	resource.AddTestSweepers("netbox_tenant", &resource.Sweeper{
-		Name:         "netbox_tenant",
+	resource.AddTestSweepers("netbox_tenant_group", &resource.Sweeper{
+		Name:         "netbox_tenant_group",
 		Dependencies: []string{},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)
@@ -129,19 +84,19 @@ func init() {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
 			api := m.(*client.NetBoxAPI)
-			params := tenancy.NewTenancyTenantsListParams()
-			res, err := api.Tenancy.TenancyTenantsList(params, nil)
+			params := tenancy.NewTenancyTenantGroupsListParams()
+			res, err := api.Tenancy.TenancyTenantGroupsList(params, nil)
 			if err != nil {
 				return err
 			}
 			for _, tenant := range res.GetPayload().Results {
 				if strings.HasPrefix(*tenant.Name, testPrefix) {
-					deleteParams := tenancy.NewTenancyTenantsDeleteParams().WithID(tenant.ID)
-					_, err := api.Tenancy.TenancyTenantsDelete(deleteParams, nil)
+					deleteParams := tenancy.NewTenancyTenantGroupsDeleteParams().WithID(tenant.ID)
+					_, err := api.Tenancy.TenancyTenantGroupsDelete(deleteParams, nil)
 					if err != nil {
 						return err
 					}
-					log.Print("[DEBUG] Deleted a tenant")
+					log.Print("[DEBUG] Deleted a tenant group")
 				}
 			}
 			return nil

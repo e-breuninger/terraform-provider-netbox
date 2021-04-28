@@ -9,23 +9,23 @@ import (
 
 func TestAccNetboxTenantDataGroupSource_basic(t *testing.T) {
 
-	testSlug := "tnt_ds_basic"
+	testSlug := "tntgrp_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_tenant" "test" {
+resource "netbox_tenant_group" "test" {
   name = "%[1]s"
 }
 
-data "netbox_tenant" "test" {
-  depends_on = [netbox_tenant.test]
+data "netbox_tenant_group" "test" {
+  depends_on = [netbox_tenant_group.test]
   name = "%[1]s"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("data.netbox_tenant.test", "id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_tenant_group.test", "id", "netbox_tenant_group.test", "id"),
 				),
 			},
 		},

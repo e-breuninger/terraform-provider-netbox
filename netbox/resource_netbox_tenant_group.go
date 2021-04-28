@@ -29,13 +29,13 @@ func resourceNetboxTenantGroup() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+			"parent_id": &schema.Schema{
+				Type:     schema.TypeInt,
 				Optional: true,
-				Set:      schema.HashString,
+			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -48,6 +48,8 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
+	parent_id := int64(d.Get("parent_id").(int))
+	description := d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
@@ -58,17 +60,16 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-
-	params := tenancy.NewTenancyTenantsCreateParams().WithData(
-		&models.WritableTenant{
-			Name: &name,
-			Slug: &slug,
-			Tags: tags,
+	params := tenancy.NewTenancyTenantGroupsCreateParams().WithData(
+		&models.WritableTenantGroup{
+			Name:        &name,
+			Slug:        &slug,
+			Description: description,
+			Parent:      &parent_id,
 		},
 	)
 
-	res, err := api.Tenancy.TenancyTenantsCreate(params, nil)
+	res, err := api.Tenancy.TenancyTenantGroupsCreate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -81,9 +82,9 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantsReadParams().WithID(id)
+	params := tenancy.NewTenancyTenantGroupsReadParams().WithID(id)
 
-	res, err := api.Tenancy.TenancyTenantsRead(params, nil)
+	res, err := api.Tenancy.TenancyTenantGroupsRead(params, nil)
 	if err != nil {
 		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
 		if errorcode == 404 {
@@ -96,6 +97,8 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	d.Set("description", res.GetPayload().Description)
+	d.Set("parent", res.GetPayload().Parent.ID)
 	return nil
 }
 
@@ -103,9 +106,11 @@ func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) erro
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableTenant{}
+	data := models.WritableTenantGroup{}
 
 	name := d.Get("name").(string)
+	description := d.Get("description").(string)
+	parent_id := int64(d.Get("parent_id").(int))
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
@@ -116,15 +121,14 @@ func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) erro
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-
 	data.Slug = &slug
 	data.Name = &name
-	data.Tags = tags
+	data.Description = description
+	data.Parent = &parent_id
 
-	params := tenancy.NewTenancyTenantsPartialUpdateParams().WithID(id).WithData(&data)
+	params := tenancy.NewTenancyTenantGroupsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Tenancy.TenancyTenantsPartialUpdate(params, nil)
+	_, err := api.Tenancy.TenancyTenantGroupsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -136,9 +140,9 @@ func resourceNetboxTenantGroupDelete(d *schema.ResourceData, m interface{}) erro
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantsDeleteParams().WithID(id)
+	params := tenancy.NewTenancyTenantGroupsDeleteParams().WithID(id)
 
-	_, err := api.Tenancy.TenancyTenantsDelete(params, nil)
+	_, err := api.Tenancy.TenancyTenantGroupsDelete(params, nil)
 	if err != nil {
 		return err
 	}
