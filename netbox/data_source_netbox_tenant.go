@@ -2,10 +2,11 @@ package netbox
 
 import (
 	"errors"
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strconv"
 )
 
 func dataSourceNetboxTenant() *schema.Resource {
@@ -18,6 +19,10 @@ func dataSourceNetboxTenant() *schema.Resource {
 			},
 			"slug": &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"group_id": &schema.Schema{
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 		},
@@ -48,5 +53,8 @@ func dataSourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
+	if result.Group != nil {
+		d.Set("group_id", result.Group.ID)
+	}
 	return nil
 }

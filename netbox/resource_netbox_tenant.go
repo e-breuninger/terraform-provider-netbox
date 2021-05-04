@@ -1,13 +1,14 @@
 package netbox
 
 import (
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"strconv"
 )
 
 func resourceNetboxTenant() *schema.Resource {
@@ -36,6 +37,10 @@ func resourceNetboxTenant() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
+			"group_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -47,7 +52,7 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-
+	group_id := int64(d.Get("group_id").(int))
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 	// Default slug to name attribute if not given
@@ -59,13 +64,17 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
-	params := tenancy.NewTenancyTenantsCreateParams().WithData(
-		&models.WritableTenant{
-			Name: &name,
-			Slug: &slug,
-			Tags: tags,
-		},
-	)
+	data := &models.WritableTenant{}
+
+	data.Name = &name
+	data.Slug = &slug
+	data.Tags = tags
+
+	if group_id != 0 {
+		data.Group = &group_id
+	}
+
+	params := tenancy.NewTenancyTenantsCreateParams().WithData(data)
 
 	res, err := api.Tenancy.TenancyTenantsCreate(params, nil)
 	if err != nil {
@@ -95,6 +104,10 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	if res.GetPayload().Group != nil {
+		d.Set("group_id", res.GetPayload().Group.ID)
+	}
+
 	return nil
 }
 
@@ -105,7 +118,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritableTenant{}
 
 	name := d.Get("name").(string)
-
+	group_id := int64(d.Get("group_id").(int))
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 	// Default slug to name if not given
@@ -120,6 +133,9 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Slug = &slug
 	data.Name = &name
 	data.Tags = tags
+	if group_id != 0 {
+		data.Group = &group_id
+	}
 
 	params := tenancy.NewTenancyTenantsPartialUpdateParams().WithID(id).WithData(&data)
 

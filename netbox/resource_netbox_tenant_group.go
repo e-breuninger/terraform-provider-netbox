@@ -60,14 +60,15 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 		slug = slugValue.(string)
 	}
 
-	params := tenancy.NewTenancyTenantGroupsCreateParams().WithData(
-		&models.WritableTenantGroup{
-			Name:        &name,
-			Slug:        &slug,
-			Description: description,
-			Parent:      &parent_id,
-		},
-	)
+	data := &models.WritableTenantGroup{}
+	data.Name = &name
+	data.Slug = &slug
+	data.Description = description
+	if parent_id != 0 {
+		data.Parent = &parent_id
+	}
+
+	params := tenancy.NewTenancyTenantGroupsCreateParams().WithData(data)
 
 	res, err := api.Tenancy.TenancyTenantGroupsCreate(params, nil)
 	if err != nil {
@@ -98,7 +99,9 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("description", res.GetPayload().Description)
-	d.Set("parent", res.GetPayload().Parent.ID)
+	if res.GetPayload().ID == 0 {
+		d.Set("parent", res.GetPayload().Parent.ID)
+	}
 	return nil
 }
 
@@ -124,8 +127,9 @@ func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) erro
 	data.Slug = &slug
 	data.Name = &name
 	data.Description = description
-	data.Parent = &parent_id
-
+	if parent_id != 0 {
+		data.Parent = &parent_id
+	}
 	params := tenancy.NewTenancyTenantGroupsPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Tenancy.TenancyTenantGroupsPartialUpdate(params, nil)

@@ -58,6 +58,8 @@ func dataSourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
 	d.Set("description", result.Description)
-	d.Set("parent_id", result.Parent.ID)
+	if result.Parent != nil {
+		d.Set("parent_id", result.Parent.ID)
+	}
 	return nil
 }
