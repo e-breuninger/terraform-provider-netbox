@@ -14,7 +14,7 @@ services:
       - postgres
       - redis
     ports:
-      - 8001:8080
+      - 8001:8001
     environment:
       - CORS_ORIGIN_ALLOW_ALL=True
       - DB_NAME=netbox
