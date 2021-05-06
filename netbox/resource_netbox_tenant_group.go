@@ -59,15 +59,17 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 	} else {
 		slug = slugValue.(string)
 	}
+	tenantGroup := &models.WritableTenantGroup{
+		Name:        &name,
+		Slug:        &slug,
+		Description: description,
+	}
 
-	params := tenancy.NewTenancyTenantGroupsCreateParams().WithData(
-		&models.WritableTenantGroup{
-			Name:        &name,
-			Slug:        &slug,
-			Description: description,
-			Parent:      &parent_id,
-		},
-	)
+	if parent_id != 0 {
+		tenantGroup.Parent = &parent_id
+	}
+
+	params := tenancy.NewTenancyTenantGroupsCreateParams().WithData(tenantGroup)
 
 	res, err := api.Tenancy.TenancyTenantGroupsCreate(params, nil)
 	if err != nil {
@@ -82,6 +84,7 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
+
 	params := tenancy.NewTenancyTenantGroupsReadParams().WithID(id)
 
 	res, err := api.Tenancy.TenancyTenantGroupsRead(params, nil)
@@ -98,7 +101,9 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("description", res.GetPayload().Description)
-	d.Set("parent", res.GetPayload().Parent.ID)
+	if res.GetPayload().Parent != nil {
+		d.Set("parent", res.GetPayload().Parent.ID)
+	}
 	return nil
 }
 
