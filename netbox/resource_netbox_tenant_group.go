@@ -105,11 +105,7 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("description", res.GetPayload().Description)
-<<<<<<< HEAD
-	if res.GetPayload().ID == 0 {
-=======
 	if res.GetPayload().Parent != nil {
->>>>>>> 46be36a3612c5793b1b71eda27a2898bfc5488f1
 		d.Set("parent", res.GetPayload().Parent.ID)
 	}
 	return nil
