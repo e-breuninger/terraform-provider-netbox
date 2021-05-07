@@ -25,6 +25,7 @@ func Provider() *schema.Provider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),
+			"netbox_prefix":           dataSourceNetboxPrefix(),
 			"netbox_cluster_group":    dataSourceNetboxClusterGroup(),
 			"netbox_tenant":           dataSourceNetboxTenant(),
 			"netbox_tenant_group":     dataSourceNetboxTenantGroup(),

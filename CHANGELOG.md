@@ -1,3 +1,10 @@
+## 0.1.2 (May 4, 2021)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_prefix` ([#43](https://github.com/e-breuninger/terraform-provider-netbox/pull/43) by [@pezhore](https://github.com/pezhore))
+* **New Resource:** `netbox_available_ip_address` ([#43](https://github.com/e-breuninger/terraform-provider-netbox/pull/43) by [@pezhore](https://github.com/pezhore))
+
 ## 0.1.1 (February 15, 2021)
 
 ENHANCEMENTS

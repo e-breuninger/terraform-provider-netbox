@@ -14,11 +14,11 @@ import (
 func testAccNetboxTenantGroupTagDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_tag" "test_a" {
-  name = "%[1]sa"
+  name = "tgrp_%[1]sa"
 }
 
 resource "netbox_tag" "test_b" {
-  name = "%[1]sb"
+  name = "tgrp_%[1]sb"
 }
 `, testName)
 }

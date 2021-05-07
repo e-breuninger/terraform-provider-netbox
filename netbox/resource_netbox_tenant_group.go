@@ -59,6 +59,11 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 	} else {
 		slug = slugValue.(string)
 	}
+	tenantGroup := &models.WritableTenantGroup{
+		Name:        &name,
+		Slug:        &slug,
+		Description: description,
+	}
 
 	data := &models.WritableTenantGroup{}
 	data.Name = &name
@@ -83,6 +88,7 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
+
 	params := tenancy.NewTenancyTenantGroupsReadParams().WithID(id)
 
 	res, err := api.Tenancy.TenancyTenantGroupsRead(params, nil)
@@ -99,7 +105,11 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("description", res.GetPayload().Description)
+<<<<<<< HEAD
 	if res.GetPayload().ID == 0 {
+=======
+	if res.GetPayload().Parent != nil {
+>>>>>>> 46be36a3612c5793b1b71eda27a2898bfc5488f1
 		d.Set("parent", res.GetPayload().Parent.ID)
 	}
 	return nil
