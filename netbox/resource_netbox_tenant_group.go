@@ -59,11 +59,6 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 	} else {
 		slug = slugValue.(string)
 	}
-	tenantGroup := &models.WritableTenantGroup{
-		Name:        &name,
-		Slug:        &slug,
-		Description: description,
-	}
 
 	data := &models.WritableTenantGroup{}
 	data.Name = &name
