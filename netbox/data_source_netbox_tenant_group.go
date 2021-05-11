@@ -23,11 +23,11 @@ func dataSourceNetboxTenantGroup() *schema.Resource {
 			},
 			"parent_id": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
+				Computed: true,
 			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 		},
 	}

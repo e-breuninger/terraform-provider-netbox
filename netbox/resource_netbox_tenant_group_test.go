@@ -11,18 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func testAccNetboxTenantGroupTagDependencies(testName string) string {
-	return fmt.Sprintf(`
-resource "netbox_tag" "test_a" {
-  name = "tgrp_%[1]sa"
-}
-
-resource "netbox_tag" "test_b" {
-  name = "tgrp_%[1]sb"
-}
-`, testName)
-}
-
 func TestAccNetboxTenantGroup_basic(t *testing.T) {
 
 	testSlug := "t_grp_basic"
