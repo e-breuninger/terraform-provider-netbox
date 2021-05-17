@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceNetboxTenant() *schema.Resource {
+func dataSourceNetboxTenantGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxTenantRead,
+		Read: dataSourceNetboxTenantGroupRead,
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -21,24 +21,28 @@ func dataSourceNetboxTenant() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"group_id": &schema.Schema{
+			"parent_id": &schema.Schema{
 				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
 	}
 }
 
-func dataSourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-	params := tenancy.NewTenancyTenantsListParams()
+	params := tenancy.NewTenancyTenantGroupsListParams()
 	params.Name = &name
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 
-	res, err := api.Tenancy.TenancyTenantsList(params, nil)
+	res, err := api.Tenancy.TenancyTenantGroupsList(params, nil)
 	if err != nil {
 		return err
 	}
@@ -53,8 +57,9 @@ func dataSourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
-	if result.Group != nil {
-		d.Set("group_id", result.Group.ID)
+	d.Set("description", result.Description)
+	if result.Parent != nil {
+		d.Set("parent_id", result.Parent.ID)
 	}
 	return nil
 }

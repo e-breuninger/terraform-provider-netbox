@@ -11,12 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxTenant() *schema.Resource {
+func resourceNetboxTenantGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxTenantCreate,
-		Read:   resourceNetboxTenantRead,
-		Update: resourceNetboxTenantUpdate,
-		Delete: resourceNetboxTenantDelete,
+		Create: resourceNetboxTenantGroupCreate,
+		Read:   resourceNetboxTenantGroupRead,
+		Update: resourceNetboxTenantGroupUpdate,
+		Delete: resourceNetboxTenantGroupDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -29,16 +29,12 @@ func resourceNetboxTenant() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
-			"group_id": &schema.Schema{
+			"parent_id": &schema.Schema{
 				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
 				Optional: true,
 			},
 		},
@@ -48,11 +44,13 @@ func resourceNetboxTenant() *schema.Resource {
 	}
 }
 
-func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-	group_id := int64(d.Get("group_id").(int))
+	parent_id := int64(d.Get("parent_id").(int))
+	description := d.Get("description").(string)
+
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 	// Default slug to name attribute if not given
@@ -62,36 +60,33 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-
-	data := &models.WritableTenant{}
-
+	data := &models.WritableTenantGroup{}
 	data.Name = &name
 	data.Slug = &slug
-	data.Tags = tags
-
-	if group_id != 0 {
-		data.Group = &group_id
+	data.Description = description
+	if parent_id != 0 {
+		data.Parent = &parent_id
 	}
 
-	params := tenancy.NewTenancyTenantsCreateParams().WithData(data)
+	params := tenancy.NewTenancyTenantGroupsCreateParams().WithData(data)
 
-	res, err := api.Tenancy.TenancyTenantsCreate(params, nil)
+	res, err := api.Tenancy.TenancyTenantGroupsCreate(params, nil)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxTenantRead(d, m)
+	return resourceNetboxTenantGroupRead(d, m)
 }
 
-func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantsReadParams().WithID(id)
 
-	res, err := api.Tenancy.TenancyTenantsRead(params, nil)
+	params := tenancy.NewTenancyTenantGroupsReadParams().WithID(id)
+
+	res, err := api.Tenancy.TenancyTenantGroupsRead(params, nil)
 	if err != nil {
 		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
 		if errorcode == 404 {
@@ -104,21 +99,23 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
-	if res.GetPayload().Group != nil {
-		d.Set("group_id", res.GetPayload().Group.ID)
+	d.Set("description", res.GetPayload().Description)
+	if res.GetPayload().Parent != nil {
+		d.Set("parent", res.GetPayload().Parent.ID)
 	}
-
 	return nil
 }
 
-func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableTenant{}
+	data := models.WritableTenantGroup{}
 
 	name := d.Get("name").(string)
-	group_id := int64(d.Get("group_id").(int))
+	description := d.Get("description").(string)
+	parent_id := int64(d.Get("parent_id").(int))
+
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 	// Default slug to name if not given
@@ -128,32 +125,29 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-
 	data.Slug = &slug
 	data.Name = &name
-	data.Tags = tags
-	if group_id != 0 {
-		data.Group = &group_id
+	data.Description = description
+	if parent_id != 0 {
+		data.Parent = &parent_id
 	}
+	params := tenancy.NewTenancyTenantGroupsPartialUpdateParams().WithID(id).WithData(&data)
 
-	params := tenancy.NewTenancyTenantsPartialUpdateParams().WithID(id).WithData(&data)
-
-	_, err := api.Tenancy.TenancyTenantsPartialUpdate(params, nil)
+	_, err := api.Tenancy.TenancyTenantGroupsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
 
-	return resourceNetboxTenantRead(d, m)
+	return resourceNetboxTenantGroupRead(d, m)
 }
 
-func resourceNetboxTenantDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTenantGroupDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantsDeleteParams().WithID(id)
+	params := tenancy.NewTenancyTenantGroupsDeleteParams().WithID(id)
 
-	_, err := api.Tenancy.TenancyTenantsDelete(params, nil)
+	_, err := api.Tenancy.TenancyTenantGroupsDelete(params, nil)
 	if err != nil {
 		return err
 	}
