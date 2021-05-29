@@ -2,12 +2,13 @@ package netbox
 
 import (
 	"fmt"
-	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"log"
 	"strings"
 	"testing"
+
+	"github.com/fbreckle/go-netbox/netbox/client"
+	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccNetboxClusterType_basic(t *testing.T) {

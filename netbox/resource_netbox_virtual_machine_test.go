@@ -2,15 +2,15 @@ package netbox
 
 import (
 	"fmt"
-	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
-	"github.com/go-openapi/runtime"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"log"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/fbreckle/go-netbox/netbox/client"
+	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func testAccNetboxVirtualMachineFullDependencies(testName string) string {
@@ -142,7 +142,7 @@ func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 		}
 
 		if err != nil {
-			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
+			errorcode := err.(*virtualization.VirtualizationVirtualMachinesReadDefault).Code()
 			if errorcode == 404 {
 				return nil
 			}

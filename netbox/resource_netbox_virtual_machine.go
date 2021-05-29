@@ -2,13 +2,13 @@ package netbox
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strconv"
 )
 
 func resourceNetboxVirtualMachine() *schema.Resource {
@@ -146,19 +146,16 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(id)
+
 	res, err := api.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
 	if err != nil {
-		if apiError, ok := err.(*runtime.APIError); ok {
-			errorcode := apiError.Response.(runtime.ClientResponse).Code()
-			if errorcode == 404 {
-				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band).
-				// Just like the destroy callback, the Read function should gracefully handle this case.
-				// https://www.terraform.io/docs/extend/writing-custom-providers.html
-				d.SetId("")
-				return nil
-			}
+		errorcode := err.(*virtualization.VirtualizationVirtualMachinesReadDefault).Code()
+		if errorcode == 404 {
+			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+			d.SetId("")
+			return nil
 		}
-		return diag.FromErr(err)
+		return err
 	}
 
 	d.Set("name", res.GetPayload().Name)

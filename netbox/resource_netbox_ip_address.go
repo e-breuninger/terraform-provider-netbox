@@ -1,14 +1,13 @@
 package netbox
 
 import (
-	"errors"
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"strconv"
 )
 
 func resourceNetboxIPAddress() *schema.Resource {
@@ -94,14 +93,11 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 
 	res, err := api.Ipam.IpamIPAddressesRead(params, nil)
 	if err != nil {
-		var apiError *runtime.APIError
-		if errors.As(err, &apiError) {
-			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-			if errorcode == 404 {
-				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-				d.SetId("")
-				return nil
-			}
+		errorcode := err.(*ipam.IpamIPAddressesReadDefault).Code()
+		if errorcode == 404 {
+			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+			d.SetId("")
+			return nil
 		}
 		return err
 	}

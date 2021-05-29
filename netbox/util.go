@@ -1,8 +1,9 @@
 package netbox
 
 import (
-	sp "github.com/davecgh/go-spew/spew"
 	"strconv"
+
+	sp "github.com/davecgh/go-spew/spew"
 )
 
 func spew(obj interface{}) string {
