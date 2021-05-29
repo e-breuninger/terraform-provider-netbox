@@ -176,7 +176,7 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
 		// The other possible type is dcim.interface for devices
-		data.AssignedObjectType = "virtualization.vminterface"
+		data.AssignedObjectType = strToPtr("virtualization.vminterface")
 		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
 	}
 
