@@ -45,8 +45,10 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 
 	params := ipam.NewIpamVrfsCreateParams().WithData(
 		&models.WritableVRF{
-			Name: &name,
-			Tags: tags,
+			Name:          &name,
+			Tags:          tags,
+			ExportTargets: []int64{},
+			ImportTargets: []int64{},
 		},
 	)
 
@@ -92,6 +94,8 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Tags = tags
+	data.ExportTargets = []int64{}
+	data.ImportTargets = []int64{}
 
 	params := ipam.NewIpamVrfsPartialUpdateParams().WithID(id).WithData(&data)
 
