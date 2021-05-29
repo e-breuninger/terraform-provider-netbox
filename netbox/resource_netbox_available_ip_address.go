@@ -124,11 +124,12 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 		return err
 	}
 
-	if res.GetPayload().AssignedObject != nil {
-		d.Set("interface_id", res.GetPayload().AssignedObject.ID)
-	} else {
-		d.Set("interface_id", nil)
-	}
+	// We actually do not deserialize AssignedObjectID, so this will never be reached
+	//	if res.GetPayload().AssignedObject != nil {
+	//		d.Set("interface_id", res.GetPayload().AssignedObject.ID)
+	//	} else {
+	//		d.Set("interface_id", nil)
+	//	}
 
 	if res.GetPayload().Vrf != nil {
 		d.Set("vrf_id", res.GetPayload().Vrf.ID)
