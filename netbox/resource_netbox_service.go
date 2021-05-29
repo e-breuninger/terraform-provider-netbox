@@ -19,8 +19,9 @@ func resourceNetboxService() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"virtual_machine_id": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -31,8 +32,17 @@ func resourceNetboxService() *schema.Resource {
 				Required: true,
 			},
 			"port": &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"port", "ports"},
+			},
+			"ports": &schema.Schema{
+				Type:         schema.TypeSet,
+				Optional:     true,
+				ExactlyOneOf: []string{"port", "ports"},
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -50,8 +60,16 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 	dataProtocol := d.Get("protocol").(string)
 	data.Protocol = &dataProtocol
 
-	dataPort := int64(d.Get("port").(int))
-	data.Port = &dataPort
+	// for backwards compatibility, we allow either port or ports
+	// the API only supports ports. We give precedence to port, if it exists.
+	//dataPort := int64(d.Get("port").(int))
+	dataPort, dataPortOk := d.GetOk("port")
+	if dataPortOk {
+		data.Ports = []int64{int64(dataPort.(int))}
+	} else {
+		// if port is not set, ports has to be set
+		data.Ports = d.Get("ports").([]int64)
+	}
 
 	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	data.VirtualMachine = &dataVirtualMachineID
@@ -84,9 +102,14 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 		}
 		return err
 	}
+
 	d.Set("name", res.GetPayload().Name)
 	d.Set("protocol", res.GetPayload().Protocol.Value)
-	d.Set("port", res.GetPayload().Port)
+	if len(res.GetPayload().Ports) == 1 {
+		d.Set("port", res.GetPayload().Ports[0])
+	} else {
+		d.Set("ports", res.GetPayload().Ports)
+	}
 	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
 
 	return nil
@@ -103,8 +126,13 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 	dataProtocol := d.Get("protocol").(string)
 	data.Protocol = &dataProtocol
 
-	dataPort := int64(d.Get("port").(int))
-	data.Port = &dataPort
+	dataPort, dataPortOk := d.GetOk("port")
+	if dataPortOk {
+		data.Ports = []int64{int64(dataPort.(int))}
+	} else {
+		// if port is not set, ports has to be set
+		data.Ports = d.Get("ports").([]int64)
+	}
 
 	data.Tags = []*models.NestedTag{}
 	data.Ipaddresses = []int64{}
