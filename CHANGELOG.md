@@ -1,3 +1,14 @@
+## 0.2.0 (May 31, 2021)
+
+FEATURES
+
+* provider: Now supports NetBox v2.10.10
+
+CHANGES
+
+* resource/service: `port` field is now deprecated in favor of `ports` field.
+
+
 ## 0.1.3 (May 17, 2021)
 
 ENHANCEMENTS
@@ -7,8 +18,6 @@ ENHANCEMENTS
 * data-source/tenant: Add `group_id` attribute ([#48](https://github.com/e-breuninger/terraform-provider-netbox/pull/48) by [@pezhore](https://github.com/pezhore))
 * resource/tenant: Add `group_id` attribute ([#48](https://github.com/e-breuninger/terraform-provider-netbox/pull/48) by [@pezhore](https://github.com/pezhore))
 * Documentation ([#46](https://github.com/e-breuninger/terraform-provider-netbox/pull/46) by [@pezhore](https://github.com/pezhore))
-
-
 
 ## 0.1.2 (May 4, 2021)
 

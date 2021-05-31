@@ -13,7 +13,8 @@ Netbox often makes API-breaking changes even in non-major releases. We aim to al
 
 Provider version | Netbox version
 --- | ---
-v0.1.x | v2.10.10
+v0.2.x | v2.10.10
+v0.1.x | v2.9
 v0.0.x | v2.9
 
 ## Building The Provider
