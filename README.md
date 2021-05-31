@@ -9,9 +9,12 @@ This provider is maintained by E. Breuninger.
 - [Go](https://golang.org/doc/install) >= 1.14
 
 ## Supported netbox versions
-Netbox often makes API-breaking changes even in non-major releases. We aim to always support the latest minor version of Netbox.
+Netbox often makes API-breaking changes even in non-major releases. We aim to always support the latest minor version of Netbox. Check the table below to see which version a provider was tested against. It is generally recommended to use the provider version matching your netbox version.
 
-Version 0.0.4 of this provider is tested against Netbox 2.9.7.
+Provider version | Netbox version
+--- | ---
+v0.1.x | v2.10.10
+v0.0.x | v2.9
 
 ## Building The Provider
 
