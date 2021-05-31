@@ -46,13 +46,14 @@ func TestAccNetboxService_basic(t *testing.T) {
 resource "netbox_service" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
-  port = 666
+  ports = [666]
   protocol = "tcp"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_service.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_service.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
-					resource.TestCheckResourceAttr("netbox_service.test", "port", "666"),
+					resource.TestCheckResourceAttr("netbox_service.test", "ports.#", "1"),
+					resource.TestCheckResourceAttr("netbox_service.test", "ports.0", "666"),
 					resource.TestCheckResourceAttr("netbox_service.test", "protocol", "tcp"),
 				),
 			},

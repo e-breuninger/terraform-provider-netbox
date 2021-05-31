@@ -2,22 +2,22 @@ terraform {
   required_providers {
     netbox = {
       source  = "e-breuninger/netbox"
-      version = ">= 0.0.6"
     }
   }
 }
 
 # example provider configuration for a local netbox deployment
 # e.g. https://github.com/netbox-community/netbox-docker
-#provider "netbox" {
-#  server_url = "http://localhost:8000"
-#  api_token  = "0123456789abcdef0123456789abcdef01234567"
-#}
-
 provider "netbox" {
-  server_url = "https://netboxdemo.com/"
-  api_token  = "72830d67beff4ae178b94d8f781842408df8069d"
+  server_url = "http://localhost:8000"
+  api_token  = "0123456789abcdef0123456789abcdef01234567"
 }
+
+# example provider configuration for https://netboxdemo.om
+#provider "netbox" {
+#  server_url = "https://netboxdemo.com/"
+#  api_token  = "72830d67beff4ae178b94d8f781842408df8069d"
+#}
 
 resource "netbox_tag" "foo" {
   name      = "foo"
@@ -93,6 +93,8 @@ resource "netbox_ip_address" "testip" {
   status       = "active"
   tenant_id    = netbox_tenant.testtenant.id
   vrf_id       = netbox_vrf.testvrf.id
+
+  tags = [netbox_tag.foo.name]
 }
 
 resource "netbox_primary_ip" "testprimaryip" {
@@ -104,5 +106,5 @@ resource "netbox_service" "testservice" {
   name               = "my-test-service"
   virtual_machine_id = netbox_virtual_machine.testvm.id
   protocol           = "tcp"
-  port               = 80
+  ports              = [80]
 }

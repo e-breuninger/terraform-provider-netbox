@@ -35,6 +35,7 @@ func resourceNetboxService() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ExactlyOneOf: []string{"port", "ports"},
+				Deprecated:   "This field is deprecated. Please use the new \"ports\" attribute instead.",
 			},
 			"ports": &schema.Schema{
 				Type:         schema.TypeSet,
@@ -68,7 +69,13 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		data.Ports = []int64{int64(dataPort.(int))}
 	} else {
 		// if port is not set, ports has to be set
-		data.Ports = d.Get("ports").([]int64)
+		var dataPorts []int64
+		if v := d.Get("ports").(*schema.Set); v.Len() > 0 {
+			for _, v := range v.List() {
+				dataPorts = append(dataPorts, int64(v.(int)))
+			}
+			data.Ports = dataPorts
+		}
 	}
 
 	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
@@ -105,11 +112,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("protocol", res.GetPayload().Protocol.Value)
-	if len(res.GetPayload().Ports) == 1 {
-		d.Set("port", res.GetPayload().Ports[0])
-	} else {
-		d.Set("ports", res.GetPayload().Ports)
-	}
+	d.Set("ports", res.GetPayload().Ports)
 	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
 
 	return nil
@@ -131,7 +134,13 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Ports = []int64{int64(dataPort.(int))}
 	} else {
 		// if port is not set, ports has to be set
-		data.Ports = d.Get("ports").([]int64)
+		var dataPorts []int64
+		if v := d.Get("ports").(*schema.Set); v.Len() > 0 {
+			for _, v := range v.List() {
+				dataPorts = append(dataPorts, int64(v.(int)))
+			}
+			data.Ports = dataPorts
+		}
 	}
 
 	data.Tags = []*models.NestedTag{}
