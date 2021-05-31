@@ -2,10 +2,11 @@ package netbox
 
 import (
 	"errors"
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strconv"
 )
 
 func dataSourceNetboxDeviceRole() *schema.Resource {

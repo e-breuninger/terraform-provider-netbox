@@ -1,12 +1,12 @@
 package netbox
 
 import (
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strconv"
 )
 
 func resourceNetboxVrf() *schema.Resource {
@@ -45,8 +45,10 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 
 	params := ipam.NewIpamVrfsCreateParams().WithData(
 		&models.WritableVRF{
-			Name: &name,
-			Tags: tags,
+			Name:          &name,
+			Tags:          tags,
+			ExportTargets: []int64{},
+			ImportTargets: []int64{},
 		},
 	)
 
@@ -67,7 +69,7 @@ func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 
 	res, err := api.Ipam.IpamVrfsRead(params, nil)
 	if err != nil {
-		errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
+		errorcode := err.(*ipam.IpamVrfsReadDefault).Code()
 		if errorcode == 404 {
 			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 			d.SetId("")
@@ -92,6 +94,8 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Tags = tags
+	data.ExportTargets = []int64{}
+	data.ImportTargets = []int64{}
 
 	params := ipam.NewIpamVrfsPartialUpdateParams().WithID(id).WithData(&data)
 

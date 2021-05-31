@@ -1,13 +1,11 @@
 package netbox
 
 import (
-	"errors"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -83,19 +81,18 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamPrefixesReadParams().WithID(id)
+
 	res, err := api.Ipam.IpamPrefixesRead(params, nil)
 	if err != nil {
-		var apiError *runtime.APIError
-		if errors.As(err, &apiError) {
-			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-			if errorcode == 404 {
-				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-				d.SetId("")
-				return nil
-			}
+		errorcode := err.(*ipam.IpamPrefixesReadDefault).Code()
+		if errorcode == 404 {
+			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+			d.SetId("")
+			return nil
 		}
 		return err
 	}
+
 	d.Set("description", res.GetPayload().Description)
 	d.Set("is_pool", res.GetPayload().IsPool)
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)

@@ -1,13 +1,13 @@
 package netbox
 
 import (
-	"errors"
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/go-openapi/runtime"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strconv"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxService() *schema.Resource {
@@ -19,8 +19,9 @@ func resourceNetboxService() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"virtual_machine_id": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -31,8 +32,18 @@ func resourceNetboxService() *schema.Resource {
 				Required: true,
 			},
 			"port": &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"port", "ports"},
+				Deprecated:   "This field is deprecated. Please use the new \"ports\" attribute instead.",
+			},
+			"ports": &schema.Schema{
+				Type:         schema.TypeSet,
+				Optional:     true,
+				ExactlyOneOf: []string{"port", "ports"},
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -50,8 +61,22 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 	dataProtocol := d.Get("protocol").(string)
 	data.Protocol = &dataProtocol
 
-	dataPort := int64(d.Get("port").(int))
-	data.Port = &dataPort
+	// for backwards compatibility, we allow either port or ports
+	// the API only supports ports. We give precedence to port, if it exists.
+	//dataPort := int64(d.Get("port").(int))
+	dataPort, dataPortOk := d.GetOk("port")
+	if dataPortOk {
+		data.Ports = []int64{int64(dataPort.(int))}
+	} else {
+		// if port is not set, ports has to be set
+		var dataPorts []int64
+		if v := d.Get("ports").(*schema.Set); v.Len() > 0 {
+			for _, v := range v.List() {
+				dataPorts = append(dataPorts, int64(v.(int)))
+			}
+			data.Ports = dataPorts
+		}
+	}
 
 	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	data.VirtualMachine = &dataVirtualMachineID
@@ -76,20 +101,18 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 
 	res, err := api.Ipam.IpamServicesRead(params, nil)
 	if err != nil {
-		var apiError *runtime.APIError
-		if errors.As(err, &apiError) {
-			errorcode := err.(*runtime.APIError).Response.(runtime.ClientResponse).Code()
-			if errorcode == 404 {
-				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-				d.SetId("")
-				return nil
-			}
+		errorcode := err.(*ipam.IpamServicesReadDefault).Code()
+		if errorcode == 404 {
+			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+			d.SetId("")
+			return nil
 		}
 		return err
 	}
+
 	d.Set("name", res.GetPayload().Name)
 	d.Set("protocol", res.GetPayload().Protocol.Value)
-	d.Set("port", res.GetPayload().Port)
+	d.Set("ports", res.GetPayload().Ports)
 	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
 
 	return nil
@@ -106,8 +129,19 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 	dataProtocol := d.Get("protocol").(string)
 	data.Protocol = &dataProtocol
 
-	dataPort := int64(d.Get("port").(int))
-	data.Port = &dataPort
+	dataPort, dataPortOk := d.GetOk("port")
+	if dataPortOk {
+		data.Ports = []int64{int64(dataPort.(int))}
+	} else {
+		// if port is not set, ports has to be set
+		var dataPorts []int64
+		if v := d.Get("ports").(*schema.Set); v.Len() > 0 {
+			for _, v := range v.List() {
+				dataPorts = append(dataPorts, int64(v.(int)))
+			}
+			data.Ports = dataPorts
+		}
+	}
 
 	data.Tags = []*models.NestedTag{}
 	data.Ipaddresses = []int64{}

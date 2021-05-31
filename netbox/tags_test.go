@@ -1,9 +1,10 @@
 package netbox
 
 import (
+	"testing"
+
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGetTagListFromNestedTagList(t *testing.T) {

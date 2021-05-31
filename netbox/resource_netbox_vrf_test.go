@@ -2,12 +2,13 @@ package netbox
 
 import (
 	"fmt"
-	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/ipam"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"log"
 	"strings"
 	"testing"
+
+	"github.com/fbreckle/go-netbox/netbox/client"
+	"github.com/fbreckle/go-netbox/netbox/client/ipam"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func testAccNetboxVrfTagDependencies(testName string) string {
@@ -24,7 +25,8 @@ resource "netbox_tag" "test_b" {
 
 func TestAccNetboxVrf_basic(t *testing.T) {
 
-	testName := "vrf_basic"
+	testSlug := "vrf_basic"
+	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -49,7 +51,8 @@ resource "netbox_vrf" "test" {
 
 func TestAccNetboxVrf_tags(t *testing.T) {
 
-	testName := "vrf_tag"
+	testSlug := "vrf_tag"
+	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },

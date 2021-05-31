@@ -22,7 +22,7 @@ data "netbox_virtual_machine" "myvm" {
 
 resource "netbox_service" "ssh" {
     name = "ssh"
-    port = 22
+    ports = [22]
     protocol = "TCP"
     virtual_machine_id = data.netbox_virtual_machine.myvm.id
 }
@@ -34,7 +34,7 @@ resource "netbox_service" "ssh" {
 ### Required
 
 - **name** (String)
-- **port** (Number)
+- **ports** (Set of Number)
 - **protocol** (String)
 - **virtual_machine_id** (Number)
 
