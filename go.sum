@@ -109,6 +109,10 @@ github.com/fbreckle/go-netbox v0.0.0-20210528215003-223332ab9e16 h1:zpYgIUZfJS6Z
 github.com/fbreckle/go-netbox v0.0.0-20210528215003-223332ab9e16/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
 github.com/fbreckle/go-netbox v0.0.0-20210529204504-05ae84f2962c h1:TbA0ki0PkpmealDOaYgJ9+yU6zsRiQDeCcpGGVPouYk=
 github.com/fbreckle/go-netbox v0.0.0-20210529204504-05ae84f2962c/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
+github.com/fbreckle/go-netbox v0.0.0-20210531140543-50aee85f9313 h1:DezakIMpbMHlCMrvZIitus1GZ9Td4SqhepHmXjGWTMI=
+github.com/fbreckle/go-netbox v0.0.0-20210531140543-50aee85f9313/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
+github.com/fbreckle/go-netbox v0.0.0-20210531150834-9806aa36688d h1:3Ap/QFg6DspNhxXynD8+mcachVZcSqI+NRLBFGHmASU=
+github.com/fbreckle/go-netbox v0.0.0-20210531150834-9806aa36688d/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 h1:BHsljHzVlRcyQhjrss6TZTdY2VfCqZPbv5k3iBFa2ZQ=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/gliderlabs/ssh v0.2.2 h1:6zsha5zo/TWhRhwqCD3+EarCAgZ2yN28ipRnGPnwkI0=
