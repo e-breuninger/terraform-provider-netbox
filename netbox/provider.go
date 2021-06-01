@@ -1,6 +1,12 @@
 package netbox
 
 import (
+	"context"
+	"fmt"
+
+	"github.com/fbreckle/go-netbox/netbox/client"
+	"github.com/fbreckle/go-netbox/netbox/client/status"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -58,12 +64,14 @@ func Provider() *schema.Provider {
 				Description: "Flag to set whether to allow https with invalid certificates",
 			},
 		},
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 	return provider
 }
 
-func providerConfigure(data *schema.ResourceData) (interface{}, error) {
+func providerConfigure(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
+
+	var diags diag.Diagnostics
 
 	config := Config{
 		ServerURL:          data.Get("server_url").(string),
@@ -71,5 +79,25 @@ func providerConfigure(data *schema.ResourceData) (interface{}, error) {
 		AllowInsecureHttps: data.Get("allow_insecure_https").(bool),
 	}
 
-	return config.Client()
+	netboxClient, clientError := config.Client()
+	if clientError != nil {
+		return nil, diag.FromErr(clientError)
+	}
+
+	req := status.NewStatusListParams()
+	res, _ := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+	netboxVersion  := res.GetPayload().(map[string]interface{})["netbox-version"]
+
+	supportedVersion := "2.10.10"
+
+	if netboxVersion != supportedVersion {
+
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Possibly unsupported Netbox version",
+			Detail:   fmt.Sprintf("This provider was tested against Netbox v%s. Your Netbox version is v%v. Unexpected errors may occur.", supportedVersion, netboxVersion),
+		})
+	}
+
+	return netboxClient, diags
 }
