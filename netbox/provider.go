@@ -86,7 +86,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	req := status.NewStatusListParams()
 	res, _ := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
-	netboxVersion  := res.GetPayload().(map[string]interface{})["netbox-version"]
+	netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"]
 
 	supportedVersion := "2.10.10"
 
