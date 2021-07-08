@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"testing"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -33,6 +34,85 @@ resource "netbox_available_ip_address" "test" {
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "dns_name", "test.mydomain.local"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxAvailableIPAddress_multipleIpsParallel(t *testing.T) {
+	testPrefix := "1.1.3.0/24"
+	testIP := []string{"1.1.3.1/24", "1.1.3.2/24", "1.1.3.3/24"}
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_prefix" "test" {
+	prefix = "%s"
+	status = "active"
+	is_pool = false
+}
+resource "netbox_available_ip_address" "test1" {
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  dns_name = "test.mydomain.local"
+}
+resource "netbox_available_ip_address" "test2" {
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  dns_name = "test.mydomain.local"
+}
+resource "netbox_available_ip_address" "test3" {
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  dns_name = "test.mydomain.local"
+}`, testPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test1", "ip_address", testIP[0]),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test2", "ip_address", testIP[1]),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test3", "ip_address", testIP[2]),
+				),
+				ExpectError: regexp.MustCompile(".*"),
+			},
+		},
+	})
+}
+
+func TestAccNetboxAvailableIPAddress_multipleIpsSerial(t *testing.T) {
+	testPrefix := "1.1.4.0/24"
+	testIP := []string{"1.1.4.1/24", "1.1.4.2/24", "1.1.4.3/24"}
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_prefix" "test" {
+	prefix = "%s"
+	status = "active"
+	is_pool = false
+}
+resource "netbox_available_ip_address" "test1" {
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  dns_name = "test.mydomain.local"
+}
+resource "netbox_available_ip_address" "test2" {
+  depends_on = [netbox_available_ip_address.test1]
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  dns_name = "test.mydomain.local"
+}
+resource "netbox_available_ip_address" "test3" {
+  depends_on = [netbox_available_ip_address.test2]
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  dns_name = "test.mydomain.local"
+}`, testPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test1", "ip_address", testIP[0]),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test2", "ip_address", testIP[1]),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test3", "ip_address", testIP[2]),
 				),
 			},
 		},
