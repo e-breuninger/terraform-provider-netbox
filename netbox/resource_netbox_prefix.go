@@ -95,6 +95,13 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("description", res.GetPayload().Description)
 	d.Set("is_pool", res.GetPayload().IsPool)
+	if res.GetPayload().Status != nil {
+		d.Set("status", res.GetPayload().Status.Value)
+	}
+	if res.GetPayload().Prefix != nil {
+		d.Set("prefix", res.GetPayload().Prefix)
+	}
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
 	return nil
