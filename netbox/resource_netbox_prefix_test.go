@@ -17,6 +17,14 @@ func testAccNetboxPrefixFullDependencies(testName string) string {
 resource "netbox_tag" "test" {
   name = "%[1]s"
 }
+
+resource "netbox_vrf" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_tenant" "test" {
+  name = "%[1]s"
+}
 `, testName)
 }
 
@@ -80,6 +88,28 @@ resource "netbox_prefix" "test" {
 					resource.TestCheckResourceAttr("netbox_prefix.test", "prefix", testPrefix),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "description", fmt.Sprintf("%s 2", testDesc)),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "vrf_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "tenant_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.0", testName),
+				),
+			},
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  description = "%s 2"
+  status = "active"
+  vrf_id = netbox_vrf.test.id
+  tenant_id = netbox_tenant.test.id
+  tags = [netbox_tag.test.name]
+}`, testPrefix, testDesc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "prefix", testPrefix),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "description", fmt.Sprintf("%s 2", testDesc)),
+					resource.TestCheckResourceAttrPair("netbox_prefix.test", "vrf_id", "netbox_vrf.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_prefix.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.0", testName),
 				),

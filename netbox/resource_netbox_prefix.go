@@ -36,6 +36,14 @@ func resourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"vrf_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"tenant_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -101,6 +109,18 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	if res.GetPayload().Prefix != nil {
 		d.Set("prefix", res.GetPayload().Prefix)
 	}
+
+	if res.GetPayload().Vrf != nil {
+		d.Set("vrf_id", res.GetPayload().Vrf.ID)
+	} else {
+		d.Set("vrf_id", nil)
+	}
+
+	if res.GetPayload().Tenant != nil {
+		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	} else {
+		d.Set("tenant_id", nil)
+	}
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
@@ -121,6 +141,14 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Description = description
 	data.IsPool = is_pool
+
+	if vrfID, ok := d.GetOk("vrf_id"); ok {
+		data.Vrf = int64ToPtr(int64(vrfID.(int)))
+	}
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
