@@ -1,3 +1,13 @@
+## 0.2.1 (Jul 26, 2021)
+
+ENHANCEMENTS
+
+* resource/prefix: Add `vrf` and `tenant` attribute ([#61](https://github.com/e-breuninger/terraform-provider-netbox/pull/61) by [@jeansebastienh](https://github.com/jeansebastienh))
+
+BUG FIXES
+
+* resource/prefix: Correctly read `prefix` and `status` ([#60](https://github.com/e-breuninger/terraform-provider-netbox/pull/60) by [@jeansebastienh](https://github.com/jeansebastienh))
+
 ## 0.2.0 (May 31, 2021)
 
 FEATURES
@@ -7,7 +17,6 @@ FEATURES
 CHANGES
 
 * resource/service: `port` field is now deprecated in favor of `ports` field.
-
 
 ## 0.1.3 (May 17, 2021)
 
