@@ -1,12 +1,14 @@
 package netbox
 
 import (
+	"regexp"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxInterface() *schema.Resource {
@@ -28,6 +30,14 @@ func resourceNetboxInterface() *schema.Resource {
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"mac_address": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringMatch(
+					regexp.MustCompile("^([A-Z0-9]{2}:){5}[A-Z0-9]{2}$"),
+					"Must be like AA:AA:AA:AA:AA"),
+				ForceNew: true,
 			},
 			"type": &schema.Schema{
 				Type:       schema.TypeString,
@@ -64,7 +74,9 @@ func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error 
 		Tags:           tags,
 		TaggedVlans:    []int64{},
 	}
-
+	if macAddress != "" {
+		data.MacAddress = &macAddress
+	}
 	params := virtualization.NewVirtualizationInterfacesCreateParams().WithData(&data)
 
 	res, err := api.Virtualization.VirtualizationInterfacesCreate(params, nil)
@@ -97,6 +109,7 @@ func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", res.GetPayload().Name)
 	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
 	d.Set("description", res.GetPayload().Description)
+	d.Set("mac_address", res.GetPayload().MacAddress)
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
@@ -120,7 +133,10 @@ func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
-
+	if d.HasChange("mac_address") {
+		macAddress := d.Get("mac_address").(string)
+		data.MacAddress = &macAddress
+	}
 	_, err := api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil)
 	if err != nil {
 		return err
