@@ -65,6 +65,7 @@ func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error 
 	name := d.Get("name").(string)
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	description := d.Get("description").(string)
+	macAddress := d.Get("mac_address").(string)
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	data := models.WritableVMInterface{
