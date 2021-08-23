@@ -61,6 +61,38 @@ resource "netbox_interface" "test" {
 	})
 }
 
+func TestAccNetboxInterface_mac(t *testing.T) {
+
+	testSlug := "iface_mac"
+	testMac := "00:01:02:03:04:05"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxInterfaceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_interface" "test" {
+  name = "%[1]s"
+  virtual_machine_id = netbox_virtual_machine.test.id
+  mac_address = "%[2]s"
+}`, testName, testMac),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
+				),
+			},
+			{
+				ResourceName:      "netbox_interface.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckInterfaceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
 	conn := testAccProvider.Meta().(*client.NetBoxAPI)

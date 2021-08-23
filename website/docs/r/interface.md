@@ -38,6 +38,7 @@ resource "netbox_interface" "myvm-eth0" {
 
 - **description** (String)
 - **id** (String) The ID of this resource.
+- **mac_address** (String) The mac_address of this resource.
 - **tags** (Set of String)
 - **type** (String, Deprecated)
 
