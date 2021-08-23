@@ -1,3 +1,9 @@
+## 0.2.2 (Aug 23, 2021)
+
+ENHANCEMENTS
+
+* resource/interface: Add `mac_address` attribute ([#65](https://github.com/e-breuninger/terraform-provider-netbox/pull/65) by [@holmesb](https://github.com/holmesb))
+
 ## 0.2.1 (Jul 26, 2021)
 
 ENHANCEMENTS
