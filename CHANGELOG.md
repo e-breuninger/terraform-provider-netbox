@@ -1,3 +1,9 @@
+## 0.2.3 (Sep 20, 2021)
+
+ENHANCEMENTS
+
+* Add arm64 builds ([#71](https://github.com/e-breuninger/terraform-provider-netbox/pull/71) by [@richardklose](https://github.com/richardklose)
+
 ## 0.2.2 (Aug 23, 2021)
 
 ENHANCEMENTS
