@@ -1,3 +1,9 @@
+## 0.2.4 (Sep 20, 2021)
+
+CHANGES
+
+* Use go 1.17 to fix some builds
+
 ## 0.2.3 (Sep 20, 2021)
 
 ENHANCEMENTS
