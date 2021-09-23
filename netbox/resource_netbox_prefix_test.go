@@ -80,6 +80,19 @@ resource "netbox_prefix" "test" {
 				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
+  description = "%s"
+  status = "container"
+  tags = [netbox_tag.test.name]
+}`, testPrefix, testDesc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "prefix", testPrefix),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "status", "container"),
+				),
+			},
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_prefix" "test" {
+  prefix = "%s"
   description = "%s 2"
   status = "active"
   tags = [netbox_tag.test.name]

@@ -26,7 +26,7 @@ func resourceNetboxPrefix() *schema.Resource {
 			"status": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "container"}, false),
 			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
