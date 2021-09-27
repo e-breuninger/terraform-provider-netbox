@@ -26,6 +26,7 @@ func Provider() *schema.Provider {
 			"netbox_service":              resourceNetboxService(),
 			"netbox_platform":             resourceNetboxPlatform(),
 			"netbox_prefix":               resourceNetboxPrefix(),
+			"netbox_available_prefix":     resourceNetboxAvailablePrefix(),
 			"netbox_primary_ip":           resourceNetboxPrimaryIP(),
 			"netbox_device_role":          resourceNetboxDeviceRole(),
 			"netbox_tag":                  resourceNetboxTag(),
