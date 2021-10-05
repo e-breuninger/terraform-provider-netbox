@@ -1,3 +1,9 @@
+## 0.2.5 (Unreleased)
+
+BUG FIXES
+
+* resource/cluster: Properly set tags when updating ([#69](https://github.com/e-breuninger/terraform-provider-netbox/issues/69)
+
 ## 0.2.4 (Sep 20, 2021)
 
 CHANGES

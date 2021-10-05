@@ -120,6 +120,9 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Group = &clusterGroupID
 	}
 
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags = tags
+
 	params := virtualization.NewVirtualizationClustersPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Virtualization.VirtualizationClustersPartialUpdate(params, nil)
