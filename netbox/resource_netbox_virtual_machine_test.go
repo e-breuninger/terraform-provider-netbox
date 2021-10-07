@@ -22,6 +22,7 @@ resource "netbox_cluster_type" "test" {
 resource "netbox_cluster" "test" {
   name = "%[1]s"
   cluster_type_id = netbox_cluster_type.test.id
+  site_id = netbox_site.test.id
 }
 
 resource "netbox_device_role" "test" {
@@ -35,6 +36,11 @@ resource "netbox_platform" "test" {
 
 resource "netbox_tenant" "test" {
   name = "%[1]s"
+}
+
+resource "netbox_site" "test" {
+  name = "%[1]s"
+  status = "active"
 }
 
 resource "netbox_tag" "test_a" {
@@ -87,6 +93,7 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "platform_id", "netbox_platform.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),

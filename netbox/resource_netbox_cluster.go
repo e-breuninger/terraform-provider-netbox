@@ -29,6 +29,10 @@ func resourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"site_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -58,6 +62,11 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 	if clusterGroupIDValue, ok := d.GetOk("cluster_group_id"); ok {
 		clusterGroupID := int64(clusterGroupIDValue.(int))
 		data.Group = &clusterGroupID
+	}
+
+	if siteIDValue, ok := d.GetOk("site_id"); ok {
+		siteID := int64(siteIDValue.(int))
+		data.Site = &siteID
 	}
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
@@ -94,11 +103,19 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("cluster_type_id", res.GetPayload().Type.ID)
+
 	if res.GetPayload().Group != nil {
 		d.Set("cluster_group_id", res.GetPayload().Group.ID)
 	} else {
 		d.Set("cluster_group_id", nil)
 	}
+
+	if res.GetPayload().Site != nil {
+		d.Set("site_id", res.GetPayload().Site.ID)
+	} else {
+		d.Set("site_id", nil)
+	}
+
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
@@ -118,6 +135,11 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 	if clusterGroupIDValue, ok := d.GetOk("cluster_group_id"); ok {
 		clusterGroupID := int64(clusterGroupIDValue.(int))
 		data.Group = &clusterGroupID
+	}
+
+	if siteIDValue, ok := d.GetOk("site_id"); ok {
+		siteID := int64(siteIDValue.(int))
+		data.Site = &siteID
 	}
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))

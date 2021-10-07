@@ -39,6 +39,10 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"site_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"comments": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -135,7 +139,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxVirtualMachineUpdate(ctx, d, m)
+	return resourceNetboxVirtualMachineRead(ctx, d, m)
 }
 
 func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -183,6 +187,12 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		d.Set("role_id", res.GetPayload().Role.ID)
 	} else {
 		d.Set("role_id", nil)
+	}
+
+	if res.GetPayload().Site != nil {
+		d.Set("site_id", res.GetPayload().Site.ID)
+	} else {
+		d.Set("site_id", nil)
 	}
 
 	d.Set("comments", res.GetPayload().Comments)

@@ -33,16 +33,23 @@ resource "netbox_cluster_group" "test" {
   name = "%[1]s"
 }
 
+resource "netbox_site" "test" {
+  name   = "%[1]s"
+  status = "active"
+}
+
 resource "netbox_cluster" "test" {
   name = "%[1]s"
   cluster_type_id = netbox_cluster_type.test.id
   cluster_group_id = netbox_cluster_group.test.id
+  site_id = netbox_site.test.id
   tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_cluster.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_cluster.test", "cluster_type_id", "netbox_cluster_type.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_cluster.test", "cluster_group_id", "netbox_cluster_group.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_cluster.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("netbox_cluster.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_cluster.test", "tags.0", testName),
 				),
@@ -64,6 +71,11 @@ resource "netbox_cluster_type" "test" {
 
 resource "netbox_cluster_group" "test" {
   name = "%[1]s"
+}
+
+resource "netbox_site" "test" {
+  name   = "%[1]s"
+  status = "active"
 }
 
 resource "netbox_cluster" "test" {
@@ -93,7 +105,7 @@ resource "netbox_cluster" "test" {
 func init() {
 	resource.AddTestSweepers("netbox_cluster", &resource.Sweeper{
 		Name:         "netbox_cluster",
-		Dependencies: []string{"netbox_virtual_machine"},
+		Dependencies: []string{"netbox_virtual_machine", "netbox_site"},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)
 			if err != nil {
