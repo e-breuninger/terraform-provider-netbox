@@ -1,4 +1,8 @@
-## 0.2.5 (Unreleased)
+## 0.2.5 (Oct 8, 2021)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_site` ([#78](https://github.com/e-breuninger/terraform-provider-netbox/pull/78)
 
 BUG FIXES
 
