@@ -34,6 +34,11 @@ resource "netbox_device_role" "testdevicerole" {
   color_hex = "ff0000" # beautiful red
 }
 
+resource "netbox_site" "testsite" {
+  name   = "my-test-site"
+  status = "active"
+}
+
 resource "netbox_platform" "testplatform" {
   name = "my-test-platform"
 }
@@ -43,7 +48,7 @@ resource "netbox_cluster_type" "testclustertype" {
 }
 
 resource "netbox_cluster_group" "testclustergroup" {
-  name = "my-test-cluster-group"
+  name        = "my-test-cluster-group"
   description = "test cluster group description"
 }
 
@@ -52,9 +57,11 @@ resource "netbox_vrf" "testvrf" {
 }
 
 resource "netbox_cluster" "testcluster" {
-  name            = "my-test-cluster"
-  cluster_type_id = netbox_cluster_type.testclustertype.id
+  name             = "my-test-cluster"
+  cluster_type_id  = netbox_cluster_type.testclustertype.id
   cluster_group_id = netbox_cluster_group.testclustergroup.id
+  site_id          = netbox_site.testsite.id
+
   # tags can be referenced by name but have to be created first ..
   tags = ["foo"]
   # .. or explicitly depended upon, unless created separately
