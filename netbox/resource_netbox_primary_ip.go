@@ -89,8 +89,10 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Tags = vm.Tags
 	// the netbox API sends the URL property as part of NestedTag, but it does not accept the URL property when we send it back
 	// so set it to empty
+	// display too
 	for _, tag := range data.Tags {
 		tag.URL = ""
+		tag.Display = ""
 	}
 	data.Comments = vm.Comments
 	data.Memory = vm.Memory
