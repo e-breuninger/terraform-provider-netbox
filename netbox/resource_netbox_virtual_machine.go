@@ -52,7 +52,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Optional: true,
 			},
 			"vcpus": &schema.Schema{
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"disk_size_gb": &schema.Schema{
@@ -94,7 +94,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	vcpusValue, ok := d.GetOk("vcpus")
 	if ok {
-		vcpus := int64(vcpusValue.(int))
+		vcpus := vcpusValue.(string)
 		data.Vcpus = &vcpus
 	}
 
@@ -196,7 +196,19 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	}
 
 	d.Set("comments", res.GetPayload().Comments)
-	d.Set("vcpus", res.GetPayload().Vcpus)
+	vcpus := res.GetPayload().Vcpus
+	if vcpus != nil {
+		// vcpus comes as string with double digit precision
+		// for usability, we trim the .00 part if its a .00 value
+		// this way, we do not get configuration drift if e.g. vcpus = "4" is set
+		if (*vcpus)[len(*vcpus)-3:] == ".00" {
+			d.Set("vcpus", (*vcpus)[0:len(*vcpus)-3])
+		} else {
+			d.Set("vcpus", res.GetPayload().Vcpus)
+		}
+	} else {
+		d.Set("vcpus", res.GetPayload().Vcpus)
+	}
 	d.Set("memory_mb", res.GetPayload().Memory)
 	d.Set("disk_size_gb", res.GetPayload().Disk)
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
@@ -237,18 +249,12 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 	if ok {
 		memoryMb := int64(memoryMbValue.(int))
 		data.Memory = &memoryMb
-		//	} else {
-		//		memorymb := int64(0)
-		//		data.memory = &memorymb
 	}
 
 	vcpusValue, ok := d.GetOk("vcpus")
 	if ok {
-		vcpus := int64(vcpusValue.(int))
+		vcpus := vcpusValue.(string)
 		data.Vcpus = &vcpus
-		//	} else {
-		//		vcpus := int64(0)
-		//		data.Vcpus = &vcpus
 	}
 
 	diskSizeValue, ok := d.GetOk("disk_size_gb")
