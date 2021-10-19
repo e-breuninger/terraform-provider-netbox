@@ -13,7 +13,7 @@ docker-compose -f $SCRIPTPATH/docker-compose.yml up -d
 echo "### Waiting for Netbox to become available on ${SERVER_URL} \n\n"
 
 attempt_counter=0
-max_attempts=24
+max_attempts=48
 until $(curl --connect-timeout 1 --output /dev/null --silent --head --fail ${SERVER_URL}); do
     if [ ${attempt_counter} -eq ${max_attempts} ];then
       echo "Max attempts reached"

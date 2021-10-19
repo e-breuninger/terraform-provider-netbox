@@ -84,7 +84,7 @@ resource "netbox_virtual_machine" "test" {
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
-  vcpus = 4
+  vcpus = "4"
   tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -113,10 +113,54 @@ resource "netbox_virtual_machine" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "0"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", ""),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "0"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "0"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", ""),
+				),
+			},
+			{
+				ResourceName:      "netbox_virtual_machine.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxVirtualMachine_fractionalVcpu(t *testing.T) {
+
+	testSlug := "vm_fracVcpu"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVirtualMachineDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  vcpus = "2.50"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "2.50"),
+				),
+			},
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  vcpus = "4"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"), // netbox will return "4.00", but we parse it to improve usability
 				),
 			},
 			{

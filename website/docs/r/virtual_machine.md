@@ -51,7 +51,7 @@ resource "netbox_virtual_machine" "basic-vm" {
     name = "myvm-2"
     disk_size_gb = 40
     memory_mb = 4092
-    vcpus = 2
+    vcpus = "2"
 }
 ```
 
@@ -73,7 +73,7 @@ resource "netbox_virtual_machine" "full-vm" {
     name = "myvm-3"
     disk_size_gb = 40
     memory_mb = 4092
-    vcpus = 2
+    vcpus = "2"
     role_id = 31 // This corresponds to the Netbox ID for a given role
     tenant_id = data.netbox_tenant.customer-a.id
 }
@@ -98,7 +98,7 @@ resource "netbox_virtual_machine" "full-vm" {
 - **role_id** (Number)
 - **tags** (Set of String)
 - **tenant_id** (Number)
-- **vcpus** (Number)
+- **vcpus** (String)
 
 ### Read-Only
 

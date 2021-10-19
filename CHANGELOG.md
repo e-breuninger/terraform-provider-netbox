@@ -1,3 +1,13 @@
+## 0.3.0 (Oct 19, 2021)
+
+FEATURES
+
+* provider: Now supports NetBox v2.11.12
+
+BREAKING CHANGES
+
+* resource/virtual_machine: `vcpus` is now a string to match upstream API
+
 ## 0.2.5 (Oct 8, 2021)
 
 ENHANCEMENTS
