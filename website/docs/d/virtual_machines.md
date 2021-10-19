@@ -85,7 +85,7 @@ Read-Only:
 - **status** (String)
 - **tag_ids** (List of Number)
 - **tenant_id** (Number)
-- **vcpus** (Number)
+- **vcpus** (String)
 - **vm_id** (Number)
 
 
