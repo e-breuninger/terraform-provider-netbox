@@ -102,8 +102,6 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
-github.com/fbreckle/go-netbox v0.0.0-20211008135937-9eefca4dcc06 h1:vkY0JLy2456TkDL46pWnXnHvcLOk9C4+avO5c0za2Mg=
-github.com/fbreckle/go-netbox v0.0.0-20211008135937-9eefca4dcc06/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
 github.com/fbreckle/go-netbox v0.0.0-20211019120953-a22717727647 h1:kpryjXA8l3bEfAtnUls0zj+CADWlxXw/FVv+BIqHLLw=
 github.com/fbreckle/go-netbox v0.0.0-20211019120953-a22717727647/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
