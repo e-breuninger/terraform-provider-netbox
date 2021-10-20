@@ -44,6 +44,10 @@ func resourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"site_id": &schema.Schema{
+            				Type:     schema.TypeInt,
+            				Optional: true,
+            },
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -121,6 +125,13 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("tenant_id", nil)
 	}
+
+	if res.GetPayload().Site != nil {
+		d.Set("site_id", res.GetPayload().Site.ID)
+	} else {
+		d.Set("site_id", nil)
+	}
+
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
@@ -148,6 +159,10 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if tenantID, ok := d.GetOk("tenant_id"); ok {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
+
+	if siteID, ok := d.GetOk("site_id"); ok {
+		data.Site = int64ToPtr(int64(siteID.(int)))
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
