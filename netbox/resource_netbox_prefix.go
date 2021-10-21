@@ -45,9 +45,9 @@ func resourceNetboxPrefix() *schema.Resource {
 				Optional: true,
 			},
 			"site_id": &schema.Schema{
-            				Type:     schema.TypeInt,
-            				Optional: true,
-            },
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{

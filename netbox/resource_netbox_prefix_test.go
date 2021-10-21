@@ -28,7 +28,7 @@ resource "netbox_tenant" "test" {
 
 resource "netbox_site" "test" {
   name = "%[1]s"
-  status = active
+  status = "active"
 }
 `, testName)
 }
@@ -108,6 +108,7 @@ resource "netbox_prefix" "test" {
 					resource.TestCheckResourceAttr("netbox_prefix.test", "description", fmt.Sprintf("%s 2", testDesc)),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "vrf_id", "0"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tenant_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "site_id", "0"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.0", testName),
 				),
@@ -132,7 +133,7 @@ resource "netbox_prefix" "test" {
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.0", testName),
 				),
 			},
-            {
+			{
 				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
