@@ -54,7 +54,7 @@ func resourceNetboxVlan() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Optional: true,
+				Required: true,
 				Set:      schema.HashString,
 			},
 		},
@@ -126,6 +126,7 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("vid", res.GetPayload().Vid)
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	if res.GetPayload().Site != nil {
 		d.Set("site_id", res.GetPayload().Site.ID)
@@ -147,8 +148,6 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("role_id", res.GetPayload().Role.ID)
 	}
 
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
-
 	return nil
 }
 
@@ -165,6 +164,7 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Vid = &vid
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	if d.HasChange("site_id") {
 		siteID := int64(d.Get("site_id").(int))
@@ -187,10 +187,6 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("role_id") {
 		roleID := int64(d.Get("role_id").(int))
 		data.Role = &roleID
-	}
-
-	if d.HasChange("tags") {
-		data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 	}
 
 	params := ipam.NewIpamVlansUpdateParams().WithID(id).WithData(&data)

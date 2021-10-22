@@ -42,10 +42,13 @@ func TestAccNetboxVlan_basic(t *testing.T) {
 resource "netbox_vlan" "test" {
   name = "%s"
   vid = "%s"
+  tags = {}
 }`, testName, testVid),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_vlan.test", "vid", testVid),
+					resource.TestCheckResourceAttr("netbox_vlan.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_vlan.test", "tags.0", testName),
 				),
 			},
 			{
