@@ -39,21 +39,20 @@ func TestAccNetboxVlan_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_vlan" "test" {
+resource "netbox_vlan" "test_basic" {
   name = "%s"
   vid = "%s"
-  tags = {}
+  tags = []
 }`, testName, testVid),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_vlan.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_vlan.test", "vid", testVid),
-					resource.TestCheckResourceAttr("netbox_vlan.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_vlan.test", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "vid", testVid),
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "tags.#", "0"),
 				),
 			},
 			{
 				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_vlan" "test" {
+resource "netbox_vlan" "test_with_optionals" {
   name = "%s"
   vid = "%s"
   description = "%s"
@@ -63,14 +62,14 @@ resource "netbox_vlan" "test" {
   tags = [netbox_tag.test.name]
 }`, testName, testVid, testDescription),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_vlan.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_vlan.test", "vid", testVid),
-					resource.TestCheckResourceAttr("netbox_vlan.test", "description", testDescription),
-					resource.TestCheckResourceAttr("netbox_prefix.test", "status", "active"),
-					resource.TestCheckResourceAttrPair("netbox_vlan.test", "tenant_id", "netbox_tenant.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_vlan.test", "site_id", "netbox_site.test", "id"),
-					resource.TestCheckResourceAttr("netbox_vlan.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_vlan.test", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "vid", testVid),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "description", testDescription),
+					resource.TestCheckResourceAttr("netbox_prefix.test_with_optionals", "status", "active"),
+					resource.TestCheckResourceAttrPair("netbox_vlan.test_with_optionals", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vlan.test_with_optionals", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "tags.0", testName),
 				),
 			},
 			{
