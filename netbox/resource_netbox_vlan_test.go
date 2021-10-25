@@ -31,7 +31,8 @@ func TestAccNetboxVlan_basic(t *testing.T) {
 
 	testSlug := "vlan_basic"
 	testName := testAccGetTestName(testSlug)
-	testVid := "777"
+	testVid1 := "777"
+	testVid2 := "666"
 	testDescription := "Test Description"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -42,11 +43,12 @@ func TestAccNetboxVlan_basic(t *testing.T) {
 resource "netbox_vlan" "test_basic" {
   name = "%s"
   vid = "%s"
+  status = "active"
   tags = []
-}`, testName, testVid),
+}`, testName, testVid1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "name", testName),
-					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "vid", testVid),
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "vid", testVid1),
 					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "tags.#", "0"),
 				),
 			},
@@ -60,10 +62,10 @@ resource "netbox_vlan" "test_with_optionals" {
   tenant_id = netbox_tenant.test.id
   site_id = netbox_site.test.id
   tags = [netbox_tag.test.name]
-}`, testName, testVid, testDescription),
+}`, testName, testVid2, testDescription),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "name", testName),
-					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "vid", testVid),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "vid", testVid2),
 					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "description", testDescription),
 					resource.TestCheckResourceAttr("netbox_prefix.test_with_optionals", "status", "active"),
 					resource.TestCheckResourceAttrPair("netbox_vlan.test_with_optionals", "tenant_id", "netbox_tenant.test", "id"),

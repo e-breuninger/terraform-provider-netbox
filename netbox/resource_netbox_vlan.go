@@ -70,29 +70,15 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	vid := int64(d.Get("vid").(int))
+	status := d.Get("status").(string)
+	description := d.Get("description").(string)
 
 	data.Name = &name
 	data.Vid = &vid
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Status = status
+	data.Description = description
 
-	if v, ok := d.GetOk("site_id"); ok {
-		siteID := int64(v.(int))
-		data.Site = &siteID
-	}
-	if v, ok := d.GetOk("tenant_id"); ok {
-		tenantID := int64(v.(int))
-		data.Tenant = &tenantID
-	}
-	if v, ok := d.GetOk("status"); ok {
-		data.Status = v.(string)
-	}
-	if v, ok := d.GetOk("description"); ok {
-		data.Description = v.(string)
-	}
-	if v, ok := d.GetOk("role_id"); ok {
-		roleID := int64(v.(int))
-		data.Role = &roleID
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := ipam.NewIpamVlansCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlansCreate(params, nil)
@@ -106,11 +92,7 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
-
-	id, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansReadParams().WithID(id)
 
 	res, err := api.Ipam.IpamVlansRead(params, nil)
@@ -124,9 +106,21 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("vid", res.GetPayload().Vid)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	if res.GetPayload().Name != nil {
+		d.Set("name", res.GetPayload().Name)
+	}
+
+	if res.GetPayload().Vid != nil {
+		d.Set("vid", res.GetPayload().Vid)
+	}
+
+	if res.GetPayload().Status != nil {
+		d.Set("status", res.GetPayload().Status.Value)
+	}
+
+	if res.GetPayload().Description != "" {
+		d.Set("description", res.GetPayload().Description)
+	}
 
 	if res.GetPayload().Site != nil {
 		d.Set("site_id", res.GetPayload().Site.ID)
@@ -136,79 +130,59 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("tenant_id", res.GetPayload().Tenant.ID)
 	}
 
-	if res.GetPayload().Description != "" {
-		d.Set("description", res.GetPayload().Description)
-	}
-
-	if res.GetPayload().Status != nil {
-		d.Set("status", res.GetPayload().Status.Value)
-	}
-
 	if res.GetPayload().Role != nil {
 		d.Set("role_id", res.GetPayload().Role.ID)
 	}
+
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
 
 func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
-	id, err1 := strconv.ParseInt(d.Id(), 10, 64)
-	if err1 != nil {
-		return err1
-	}
+	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVLAN{}
-
 	name := d.Get("name").(string)
 	vid := int64(d.Get("vid").(int))
+	status := d.Get("status").(string)
+	description := d.Get("description").(string)
 
 	data.Name = &name
 	data.Vid = &vid
+
+	data.Status = status
+	data.Description = description
+
+	if siteID, ok := d.GetOk("site_id"); ok {
+		data.Site = int64ToPtr(int64(siteID.(int)))
+	}
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
+
+	if roleID, ok := d.GetOk("role_id"); ok {
+		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
-	if d.HasChange("site_id") {
-		siteID := int64(d.Get("site_id").(int))
-		data.Site = &siteID
-	}
-
-	if d.HasChange("tenant_id") {
-		tenantID := int64(d.Get("tenant_id").(int))
-		data.Tenant = &tenantID
-	}
-
-	if d.HasChange("status") {
-		data.Status = d.Get("status").(string)
-	}
-
-	if d.HasChange("description") {
-		data.Description = d.Get("description").(string)
-	}
-
-	if d.HasChange("role_id") {
-		roleID := int64(d.Get("role_id").(int))
-		data.Role = &roleID
-	}
-
 	params := ipam.NewIpamVlansUpdateParams().WithID(id).WithData(&data)
-	_, err2 := api.Ipam.IpamVlansUpdate(params, nil)
-	if err2 != nil {
-		return err2
+	_, err := api.Ipam.IpamVlansUpdate(params, nil)
+	if err != nil {
+		return err
 	}
-
 	return resourceNetboxVlanRead(d, m)
 }
 
 func resourceNetboxVlanDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
-	id, err1 := strconv.ParseInt(d.Id(), 10, 64)
-	if err1 != nil {
-		return err1
-	}
-
+	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansDeleteParams().WithID(id)
-	_, err2 := api.Ipam.IpamVlansDelete(params, nil)
-	if err2 != nil {
-		return err2
+	_, err := api.Ipam.IpamVlansDelete(params, nil)
+	if err != nil {
+		return err
 	}
 
 	return nil
