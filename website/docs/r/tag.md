@@ -16,8 +16,8 @@ Per [the docs](https://netbox.readthedocs.io/en/stable/models/extras/tag/):
 
 ```terraform
 resource "netbox_tag" "dmz" {
+    name      = "DMZ"
     color_hex = "ff00ff"
-    id = "DMZ"
 }
 ```
 

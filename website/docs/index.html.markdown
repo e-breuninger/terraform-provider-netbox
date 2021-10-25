@@ -33,7 +33,7 @@ resource "netbox_cluster_type" "testclustertype" {
 
 resource "netbox_cluster" "testcluster" {
     name = "my-test-cluster"
-    cluster_group_id = netbox_cluster_type.testclustertype.id
+    cluster_type_id = netbox_cluster_type.testclustertype.id
 }
 
 resource "netbox_virtual_machine" "testvm" {
