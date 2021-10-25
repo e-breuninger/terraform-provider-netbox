@@ -31,8 +31,7 @@ func TestAccNetboxVlan_basic(t *testing.T) {
 
 	testSlug := "vlan_basic"
 	testName := testAccGetTestName(testSlug)
-	testVid1 := "777"
-	testVid2 := "666"
+	testVid := "777"
 	testDescription := "Test Description"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -44,17 +43,38 @@ resource "netbox_vlan" "test_basic" {
   name = "%s"
   vid = "%s"
   status = "active"
+  description = "%s"
   tags = []
-}`, testName, testVid1),
+}`, testName, testVid, testDescription),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "name", testName),
-					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "vid", testVid1),
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "vid", testVid),
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "description", testDescription),
 					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "tags.#", "0"),
 				),
 			},
 			{
+				ResourceName:      "netbox_vlan.test_basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxVlan_with_dependencies(t *testing.T) {
+
+	testSlug := "vlan_with_dependencies"
+	testName := testAccGetTestName(testSlug)
+	testVid := "666"
+	testDescription := "Test Description"
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
 				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_vlan" "test_with_optionals" {
+resource "netbox_vlan" "test_with_dependencies" {
   name = "%s"
   vid = "%s"
   description = "%s"
@@ -62,20 +82,20 @@ resource "netbox_vlan" "test_with_optionals" {
   tenant_id = netbox_tenant.test.id
   site_id = netbox_site.test.id
   tags = [netbox_tag.test.name]
-}`, testName, testVid2, testDescription),
+}`, testName, testVid, testDescription),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "name", testName),
-					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "vid", testVid2),
-					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "description", testDescription),
-					resource.TestCheckResourceAttr("netbox_prefix.test_with_optionals", "status", "active"),
-					resource.TestCheckResourceAttrPair("netbox_vlan.test_with_optionals", "tenant_id", "netbox_tenant.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_vlan.test_with_optionals", "site_id", "netbox_site.test", "id"),
-					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_vlan.test_with_optionals", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_dependencies", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_dependencies", "vid", testVid),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_dependencies", "description", testDescription),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_dependencies", "status", "active"),
+					resource.TestCheckResourceAttrPair("netbox_vlan.test_with_dependencies", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vlan.test_with_dependencies", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_dependencies", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_dependencies", "tags.0", testName),
 				),
 			},
 			{
-				ResourceName:      "netbox_vlan.test",
+				ResourceName:      "netbox_vlan.test_with_dependencies",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
