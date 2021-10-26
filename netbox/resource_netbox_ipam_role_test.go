@@ -22,17 +22,17 @@ func TestAccNetboxRole_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_role" "test_basic" {
+resource "netbox_ipam_role" "test_basic" {
   name = "%s"
   slug = "%s"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_role.test_basic", "name", testName),
-					resource.TestCheckResourceAttr("netbox_role.test_basic", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_basic", "slug", randomSlug),
 				),
 			},
 			{
-				ResourceName:      "netbox_role.test_basic",
+				ResourceName:      "netbox_ipam_role.test_basic",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +53,7 @@ func TestAccNetboxRole_extended(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_role" "role_extended" {
+resource "netbox_ipam_role" "role_extended" {
   name = "%[1]s"
   slug = "%[2]s"
   weight = "%[3]s"
@@ -61,14 +61,14 @@ resource "netbox_role" "role_extended" {
 
 }`, testName, randomSlug, testWeight, testDescription),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_role.role_extended", "name", testName),
-					resource.TestCheckResourceAttr("netbox_role.role_extended", "slug", randomSlug),
-					resource.TestCheckResourceAttr("netbox_role.role_extended", "weight", testWeight),
-					resource.TestCheckResourceAttr("netbox_role.role_extended", "description", testDescription),
+					resource.TestCheckResourceAttr("netbox_ipam_role.role_extended", "name", testName),
+					resource.TestCheckResourceAttr("netbox_ipam_role.role_extended", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_ipam_role.role_extended", "weight", testWeight),
+					resource.TestCheckResourceAttr("netbox_ipam_role.role_extended", "description", testDescription),
 				),
 			},
 			{
-				ResourceName:      "netbox_role.role_extended",
+				ResourceName:      "netbox_ipam_role.role_extended",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -77,8 +77,8 @@ resource "netbox_role" "role_extended" {
 }
 
 func init() {
-	resource.AddTestSweepers("netbox_role", &resource.Sweeper{
-		Name:         "netbox_role",
+	resource.AddTestSweepers("netbox_ipam_role", &resource.Sweeper{
+		Name:         "netbox_ipam_role",
 		Dependencies: []string{},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)

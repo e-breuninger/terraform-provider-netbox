@@ -10,12 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxRole() *schema.Resource {
+func resourceNetboxIpamRole() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxRoleCreate,
-		Read:   resourceNetboxRoleRead,
-		Update: resourceNetboxRoleUpdate,
-		Delete: resourceNetboxRoleDelete,
+		Create: resourceNetboxIpamRoleCreate,
+		Read:   resourceNetboxIpamRoleRead,
+		Update: resourceNetboxIpamRoleUpdate,
+		Delete: resourceNetboxIpamRoleDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -43,7 +43,7 @@ func resourceNetboxRole() *schema.Resource {
 		},
 	}
 }
-func resourceNetboxRoleCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	data := models.Role{}
 
@@ -72,10 +72,10 @@ func resourceNetboxRoleCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxRoleUpdate(d, m)
+	return resourceNetboxIpamRoleUpdate(d, m)
 }
 
-func resourceNetboxRoleRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxIpamRoleRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRolesReadParams().WithID(id)
@@ -110,7 +110,7 @@ func resourceNetboxRoleRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceNetboxRoleUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.Role{}
@@ -138,10 +138,10 @@ func resourceNetboxRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	return resourceNetboxRoleRead(d, m)
+	return resourceNetboxIpamRoleRead(d, m)
 }
 
-func resourceNetboxRoleDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxIpamRoleDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRolesDeleteParams().WithID(id)
