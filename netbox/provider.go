@@ -33,6 +33,7 @@ func Provider() *schema.Provider {
 			"netbox_cluster_group":        resourceNetboxClusterGroup(),
 			"netbox_site":                 resourceNetboxSite(),
 			"netbox_vlan":                 resourceNetboxVlan(),
+			"netbox_role":                 resourceNetboxRole(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),
