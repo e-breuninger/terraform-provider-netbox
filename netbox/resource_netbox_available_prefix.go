@@ -61,6 +61,14 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"vlan_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"role_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tags": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
