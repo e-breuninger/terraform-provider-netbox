@@ -143,8 +143,8 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	if res.GetPayload().Vlan != nil {
 		d.Set("vlan_id", res.GetPayload().Vlan.ID)
 	} else {
-        d.Set("vlan_id", nil)
-    }
+		d.Set("vlan_id", nil)
+	}
 
 	if res.GetPayload().Role != nil {
 		d.Set("role_id", res.GetPayload().Role.ID)

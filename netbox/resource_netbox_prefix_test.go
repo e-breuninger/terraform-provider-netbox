@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func testAccNetboxPrefixFullDependencies(testName string) string {
+func testAccNetboxPrefixFullDependencies(testName string, testSlug string, testVid string) string {
 	return fmt.Sprintf(`
 resource "netbox_tag" "test" {
   name = "%[1]s"
@@ -30,20 +30,35 @@ resource "netbox_site" "test" {
   name = "%[1]s"
   status = "active"
 }
-`, testName)
+
+resource "netbox_ipam_role" "test" {
+  name = "%[1]s"
+  slug = "%[2]s"
+}
+
+resource "netbox_vlan" "test" {
+  name = "%[1]s"
+  vid = "%[3]s"
+  status = "active"
+  description = "Test"
+  tags = []
+}
+`, testName, testSlug, testVid)
 }
 
 func TestAccNetboxPrefix_basic(t *testing.T) {
 
 	testPrefix := "1.1.1.0/25"
 	testSlug := "prefix"
+	testVid := "123"
+	randomSlug := testAccGetTestName(testSlug)
 	testDesc := "test prefix"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
   description = "%s"
@@ -59,7 +74,7 @@ resource "netbox_prefix" "test" {
 				),
 			},
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
   description = "%s"
@@ -69,7 +84,7 @@ resource "netbox_prefix" "test" {
 				ExpectError: regexp.MustCompile("expected status to be one of .*"),
 			},
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
   description = "%s"
@@ -82,7 +97,7 @@ resource "netbox_prefix" "test" {
 				),
 			},
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
   description = "%s"
@@ -95,7 +110,7 @@ resource "netbox_prefix" "test" {
 				),
 			},
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
   description = "%s 2"
@@ -114,7 +129,7 @@ resource "netbox_prefix" "test" {
 				),
 			},
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
   description = "%s 2"
@@ -134,7 +149,7 @@ resource "netbox_prefix" "test" {
 				),
 			},
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
 resource "netbox_prefix" "test" {
   prefix = "%s"
   description = "%s 2"
@@ -142,6 +157,8 @@ resource "netbox_prefix" "test" {
   vrf_id = netbox_vrf.test.id
   tenant_id = netbox_tenant.test.id
   site_id = netbox_site.test.id
+  vlan_id = netbox_vlan.test.id
+  role_id = netbox_ipam_role.test.id
   tags = [netbox_tag.test.name]
 }`, testPrefix, testDesc),
 				Check: resource.ComposeTestCheckFunc(
@@ -151,6 +168,8 @@ resource "netbox_prefix" "test" {
 					resource.TestCheckResourceAttrPair("netbox_prefix.test", "vrf_id", "netbox_vrf.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_prefix.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_prefix.test", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_prefix.test", "vlan_id", "netbox_vlan.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_prefix.test", "role_id", "netbox_ipam_role.test", "id"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.0", testName),
 				),
