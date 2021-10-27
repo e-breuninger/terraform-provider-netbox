@@ -1,3 +1,14 @@
+## 0.3.1 (Oct 27, 2021)
+
+FEATURES
+
+* **New Resource:** `netbox_vlan` ([#83](https://github.com/e-breuninger/terraform-provider-netbox/pull/83) by [@Sanverik](https://github.com/Sanverik))
+* **New Resource:** `netbox_ipam_role` ([#86](https://github.com/e-breuninger/terraform-provider-netbox/pull/86) by [@Sanverik](https://github.com/Sanverik))
+
+ENHANCEMENTS
+
+* resource/prefix: Add `site_id`, `vlan_id` and `role_id` attributes ([#85](https://github.com/e-breuninger/terraform-provider-netbox/pull/85) and [#85](https://github.com/e-breuninger/terraform-provider-netbox/pull/85)) by [@Sanverik](https://github.com/Sanverik))
+
 ## 0.3.0 (Oct 19, 2021)
 
 FEATURES
@@ -12,11 +23,11 @@ BREAKING CHANGES
 
 ENHANCEMENTS
 
-* **New Resource:** `netbox_site` ([#78](https://github.com/e-breuninger/terraform-provider-netbox/pull/78)
+* **New Resource:** `netbox_site` ([#78](https://github.com/e-breuninger/terraform-provider-netbox/pull/78))
 
 BUG FIXES
 
-* resource/cluster: Properly set tags when updating ([#69](https://github.com/e-breuninger/terraform-provider-netbox/issues/69)
+* resource/cluster: Properly set tags when updating ([#69](https://github.com/e-breuninger/terraform-provider-netbox/issues/69))
 
 ## 0.2.4 (Sep 20, 2021)
 
@@ -28,7 +39,7 @@ CHANGES
 
 ENHANCEMENTS
 
-* Add arm64 builds ([#71](https://github.com/e-breuninger/terraform-provider-netbox/pull/71) by [@richardklose](https://github.com/richardklose)
+* Add arm64 builds ([#71](https://github.com/e-breuninger/terraform-provider-netbox/pull/71) by [@richardklose](https://github.com/richardklose))
 
 ## 0.2.2 (Aug 23, 2021)
 
