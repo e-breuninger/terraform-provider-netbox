@@ -38,7 +38,7 @@ func TestAccNetboxVlan_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxVlanFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vlan" "test_basic" {
   name = "%s"
   vid = "%s"
@@ -73,7 +73,7 @@ func TestAccNetboxVlan_with_dependencies(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxPrefixFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxVlanFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vlan" "test_with_dependencies" {
   name = "%s"
   vid = "%s"

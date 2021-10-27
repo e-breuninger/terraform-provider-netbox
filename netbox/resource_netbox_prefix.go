@@ -48,6 +48,14 @@ func resourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"vlan_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"role_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -132,6 +140,18 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("site_id", nil)
 	}
 
+	if res.GetPayload().Vlan != nil {
+		d.Set("vlan_id", res.GetPayload().Vlan.ID)
+	} else {
+		d.Set("vlan_id", nil)
+	}
+
+	if res.GetPayload().Role != nil {
+		d.Set("role_id", res.GetPayload().Role.ID)
+	} else {
+		d.Set("role_id", nil)
+	}
+
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
@@ -163,6 +183,14 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if siteID, ok := d.GetOk("site_id"); ok {
 		data.Site = int64ToPtr(int64(siteID.(int)))
+	}
+
+	if vlanID, ok := d.GetOk("vlan_id"); ok {
+		data.Vlan = int64ToPtr(int64(vlanID.(int)))
+	}
+
+	if roleID, ok := d.GetOk("role_id"); ok {
+		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
