@@ -60,8 +60,14 @@ resource "netbox_interface" "test" {
   name = "%[1]s"
 }
 
-resource "netbox_ip_address" "test" {
+resource "netbox_ip_address" "test_v4" {
   ip_address = "1.1.1.1/32"
+  status = "active"
+  interface_id = netbox_interface.test.id
+}
+
+resource "netbox_ip_address" "test_v6" {
+  ip_address = "2000::1/128"
   status = "active"
   interface_id = netbox_interface.test.id
 }
@@ -78,13 +84,20 @@ func TestAccNetboxPrimaryIP_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxPrimaryIPFullDependencies(testName) + `
-resource "netbox_primary_ip" "test" {
+resource "netbox_primary_ip" "test_v4" {
   virtual_machine_id = netbox_virtual_machine.test.id
-  ip_address_id = netbox_ip_address.test.id
+  ip_address_id = netbox_ip_address.test_v4.id
+}
+resource "netbox_primary_ip" "test_v6" {
+  virtual_machine_id = netbox_virtual_machine.test.id
+  ip_address_id = netbox_ip_address.test_v6.id
+  ip_address_version = 6
 }`,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("netbox_primary_ip.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_primary_ip.test", "ip_address_id", "netbox_ip_address.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_primary_ip.test_v4", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_primary_ip.test_v4", "ip_address_id", "netbox_ip_address.test_v4", "id"),
+					resource.TestCheckResourceAttrPair("netbox_primary_ip.test_v6", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_primary_ip.test_v6", "ip_address_id", "netbox_ip_address.test_v6", "id"),
 
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
