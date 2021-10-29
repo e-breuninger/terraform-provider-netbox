@@ -111,8 +111,8 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Memory = vm.Memory
 	data.Vcpus = vm.Vcpus
 	data.Disk = vm.Disk
-	data.PrimaryIp4 = vm.PrimaryIp4
-	data.PrimaryIp6 = vm.PrimaryIp6
+	data.PrimaryIp4 = &vm.PrimaryIp4.ID
+	data.PrimaryIp6 = &vm.PrimaryIp6.ID
 
 	if vm.Platform != nil {
 		data.Platform = &vm.Platform.ID
