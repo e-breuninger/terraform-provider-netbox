@@ -7,6 +7,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxPrimaryIP() *schema.Resource {
@@ -24,6 +25,12 @@ func resourceNetboxPrimaryIP() *schema.Resource {
 			"ip_address_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Required: true,
+			},
+			"ip_address_version": &schema.Schema{
+				Type:         schema.TypeInt,
+				ValidateFunc: validation.IntInSlice([]int{4, 6}),
+				Optional:     true,
+				Default:      4,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -54,8 +61,13 @@ func resourceNetboxPrimaryIPRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if res.GetPayload().PrimaryIp4 != nil {
+	IPAddressVersion := d.Get("ip_address_version")
+	d.Set("ip_address_version", IPAddressVersion)
+
+	if IPAddressVersion == 4 && res.GetPayload().PrimaryIp4 != nil {
 		d.Set("ip_address_id", res.GetPayload().PrimaryIp4.ID)
+	} else if IPAddressVersion == 6 && res.GetPayload().PrimaryIp6 != nil {
+		d.Set("ip_address_id", res.GetPayload().PrimaryIp6.ID)
 	} else {
 		// if the vm exists, but has no primary ip, consider this element deleted
 		d.SetId("")
@@ -70,6 +82,7 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	IPAddressID := int64(d.Get("ip_address_id").(int))
+	IPAddressVersion := int64(d.Get("ip_address_version").(int))
 
 	// because the go-netbox library does not have patch support atm, we have to get the whole object and re-put it
 
@@ -98,6 +111,12 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Memory = vm.Memory
 	data.Vcpus = vm.Vcpus
 	data.Disk = vm.Disk
+	if vm.PrimaryIp4 != nil {
+		data.PrimaryIp4 = &vm.PrimaryIp4.ID
+	}
+	if vm.PrimaryIp6 != nil {
+		data.PrimaryIp6 = &vm.PrimaryIp6.ID
+	}
 
 	if vm.Platform != nil {
 		data.Platform = &vm.Platform.ID
@@ -113,9 +132,17 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 
 	// unset primary ip address if -1 is passed as id
 	if IPAddressID == -1 {
-		data.PrimaryIp4 = nil
+		if IPAddressVersion == 4 {
+			data.PrimaryIp4 = nil
+		} else {
+			data.PrimaryIp6 = nil
+		}
 	} else {
-		data.PrimaryIp4 = &IPAddressID
+		if IPAddressVersion == 4 {
+			data.PrimaryIp4 = &IPAddressID
+		} else {
+			data.PrimaryIp6 = &IPAddressID
+		}
 	}
 
 	updateParams := virtualization.NewVirtualizationVirtualMachinesUpdateParams().WithID(virtualMachineID).WithData(&data)
