@@ -202,7 +202,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		Device:      &interfaceID,
 		Type:        &interfaceType,
 		Name:        &name,
-		Tags:           tags,
+		Tags:        tags,
 		TaggedVlans: expandTaggedVlans(d.Get("tagged_vlan").([]interface{})),
 	}
 
@@ -345,7 +345,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		Type:        &interfaceType,
 		Name:        &name,
 		TaggedVlans: expandTaggedVlans(d.Get("tagged_vlan").([]interface{})),
-		Tags:           tags,
+		Tags:        tags,
 	}
 
 	//	if d.HasChange("connection_status") {
