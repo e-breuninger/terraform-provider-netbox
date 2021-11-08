@@ -70,8 +70,12 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 
 	data := models.WritableIPAddress{}
 	ipAddress := d.Get("ip_address").(string)
+  interface_id := int64(d.Get("interface_id").(int))
+  interface_type := d.Get("interface_type").(string)
 	data.Address = &ipAddress
 	data.Status = d.Get("status").(string)
+	data.AssignedObjectID = &interface_id
+	data.AssignedObjectType = &interface_type
 
 	if dnsName, ok := d.GetOk("dns_name"); ok {
 		data.DNSName = dnsName.(string)
@@ -165,7 +169,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
-		if interfaceType == "device" {
+		if interfaceType == "dcim.interface" {
 			data.AssignedObjectType = strToPtr("dcim.interface")
 		} else {
 			data.AssignedObjectType = strToPtr("virtualization.vminterface")

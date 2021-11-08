@@ -120,18 +120,6 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"primary_ip": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"primary_ip4_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"primary_ip6_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
 			"rack_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -248,17 +236,6 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	if v, ok := d.GetOk("position_id"); ok {
 		positionID := int64(v.(int))
 		params.Data.Position = &positionID
-	}
-	if v, ok := d.GetOk("primary_ip"); ok {
-		params.Data.PrimaryIP = v.(string)
-	}
-	if v, ok := d.GetOk("primary_ip4_id"); ok {
-		pramaryIP4ID := int64(v.(int))
-		params.Data.PrimaryIp4 = &pramaryIP4ID
-	}
-	if v, ok := d.GetOk("primary_ip6_id"); ok {
-		pramaryIP6ID := int64(v.(int))
-		params.Data.PrimaryIp6 = &pramaryIP6ID
 	}
 	if v, ok := d.GetOk("rack_id"); ok {
 		rackID := int64(v.(int))
@@ -383,18 +360,6 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("position_id", resp.Payload.Position)
 	}
 
-	if resp.Payload.PrimaryIP != nil {
-		d.Set("primary_ip", resp.Payload.PrimaryIP.Address)
-	}
-
-	if resp.Payload.PrimaryIp4 != nil {
-		d.Set("primary_ip4_id", resp.Payload.PrimaryIp4.ID)
-	}
-
-	if resp.Payload.PrimaryIp6 != nil {
-		d.Set("primary_ip6_id", resp.Payload.PrimaryIp6.ID)
-	}
-
 	if resp.Payload.Rack != nil {
 		d.Set("rack_id", resp.Payload.Rack.ID)
 	}
@@ -501,20 +466,6 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	if d.HasChange("position_id") {
 		positionID := int64(d.Get("parent_device_id").(int))
 		params.Data.Position = &positionID
-	}
-
-	if d.HasChange("primary_ip") {
-		params.Data.PrimaryIP = d.Get("parent_device_id").(string)
-	}
-
-	if d.HasChange("primary_ip4_id") {
-		primaryIP4ID := int64(d.Get("primary_ip4_id").(int))
-		params.Data.PrimaryIp4 = &primaryIP4ID
-	}
-
-	if d.HasChange("primary_ip6_id") {
-		primaryIP6ID := int64(d.Get("primary_ip6_id").(int))
-		params.Data.PrimaryIp6 = &primaryIP6ID
 	}
 
 	if d.HasChange("rack_id") {
