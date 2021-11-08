@@ -40,7 +40,7 @@ resource "netbox_virtual_machine" "test" {
   cluster_id = netbox_cluster.test.id
 }
 
-resource "netbox_interface" "test" {
+resource "netbox_virtual_interface" "test" {
   name = "%[1]s"
   virtual_machine_id = netbox_virtual_machine.test.id
 }
@@ -59,7 +59,7 @@ func TestAccNetboxIPAddress_basic(t *testing.T) {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_virtual_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
 }`, testIP),
@@ -76,7 +76,7 @@ resource "netbox_ip_address" "test" {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_virtual_interface.test.id
   status = "reserved"
   tenant_id = netbox_tenant.test.id
   vrf_id = netbox_vrf.test.id
@@ -93,7 +93,7 @@ resource "netbox_ip_address" "test" {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_virtual_interface.test.id
   status = "dhcp"
   tags = [netbox_tag.test.name]
 }`, testIP),
@@ -108,7 +108,7 @@ resource "netbox_ip_address" "test" {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_virtual_interface.test.id
   status = "provoke_error"
   tags = [netbox_tag.test.name]
 }`, testIP),
@@ -118,7 +118,7 @@ resource "netbox_ip_address" "test" {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_virtual_interface.test.id
   status = "deprecated"
   tags = [netbox_tag.test.name]
 }`, testIP),
@@ -131,7 +131,7 @@ resource "netbox_ip_address" "test" {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
   ip_address = "%s"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_virtual_interface.test.id
   status = "active"
   dns_name = "mytest.example.com"
   tags = [netbox_tag.test.name]

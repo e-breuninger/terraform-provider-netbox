@@ -6,26 +6,22 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/go-openapi/runtime"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccNetboxDevice_basic(t *testing.T) {
-	device_type_id := "7"
-	device_role_id := "4"
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetboxDeviceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckNetboxDeviceConfigBasic(device_type_id, device_role_id),
+				Config: testAccCheckNetboxDeviceConfigBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetboxDeviceExists("netbox_dcim_device.test"),
+					testAccCheckNetboxDeviceExists("netbox_device.test-device"),
 				),
 			},
 		},
@@ -36,7 +32,7 @@ func testAccCheckNetboxDeviceDestroy(s *terraform.State) error {
 	c := testAccProvider.Meta().(*client.NetBoxAPI)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "netbox_dcim_device" {
+		if rs.Type != "netbox_device" {
 			continue
 		}
 
@@ -52,7 +48,7 @@ func testAccCheckNetboxDeviceDestroy(s *terraform.State) error {
 
 		resp, err := c.Dcim.DcimDevicesRead(params, nil)
 		if err != nil {
-			if err.(*runtime.APIError).Code == 404 {
+			if err.(*dcim.DcimDevicesReadDefault).Code() == 404 {
 				return nil
 			}
 
@@ -98,46 +94,35 @@ func testAccCheckNetboxDeviceExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckNetboxDeviceConfigBasic(device_type_id string, device_role_id string) string {
+func testAccCheckNetboxDeviceConfigBasic() string {
 	return fmt.Sprintf(`
-resource "netbox_extras_tag" "test-device" {
-  name = "Test Device"
+resource "netbox_tag" "test-device" {
+  name = "test-device"
+}
+resource "netbox_site" "test-device" {
+  name = "test-device"
+  slug = "test-device"
+  status = "active"
+}
+resource "netbox_manufacturer" "test-device" {
+  name = "test-device"
+}
+resource "netbox_device_type" "test-device" {
+  manufacturer_id = netbox_manufacturer.test-device.id
+  model = "test-device"
   slug = "test-device"
 }
-  
-resource "netbox_dcim_site" "test-device" {
-	name = "test-device"
-	slug = "test-device"
-	status = "active"
+resource "netbox_device_role" "test-device" {
+  name = "test-device"
+  color_hex = "112233"
+}
+resource "netbox_device" "test-device" {
+  device_type_id = netbox_device_type.test-device.id
+  device_role_id = netbox_device_role.test-device.id
+  site_id = netbox_site.test-device.id
 
-	custom_fields = {
-		tf-test = "customFieldValue"
-	}
+  tags = ["test-device"]
 }
 
-resource "netbox_dcim_rack" "test-device" {
-	name = "rack-test-device"
-	site_id = netbox_dcim_site.test-device.id
-
-	custom_fields = {
-		rackCustomField = "rackCustomeFieldValue"
-	  }
-
-}
-resource "netbox_dcim_device" "test" {
-	device_type_id = "%s"
-	device_role_id = "%s"
-	site_id = netbox_dcim_site.test-device.id
-
-
-	tags {
-		name = netbox_extras_tag.test-device.name
-		slug = netbox_extras_tag.test-device.slug
-	}
-	custom_fields = {
-		deviceCsutomField = "deviceCustomFieldValue"
-	}
-}
-
-`, device_type_id, device_role_id)
+`)
 }

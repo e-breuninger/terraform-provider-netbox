@@ -43,17 +43,17 @@ func TestAccNetboxVirtualInterface_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxVirtualInterfaceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_interface" "test" {
+resource "netbox_virtual_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_virtual_interface.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
 				),
 			},
 			{
-				ResourceName:      "netbox_interface.test",
+				ResourceName:      "netbox_virtual_interface.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -73,19 +73,19 @@ func TestAccNetboxVirtualInterface_mac(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxVirtualInterfaceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_interface" "test" {
+resource "netbox_virtual_interface" "test" {
   name = "%[1]s"
   virtual_machine_id = netbox_virtual_machine.test.id
   mac_address = "%[2]s"
 }`, testName, testMac),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_virtual_interface.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_virtual_interface.test", "mac_address", "00:01:02:03:04:05"),
 				),
 			},
 			{
-				ResourceName:      "netbox_interface.test",
+				ResourceName:      "netbox_virtual_interface.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -100,7 +100,7 @@ func testAccCheckInterfaceDestroy(s *terraform.State) error {
 	// loop through the resources in state, verifying each interface
 	// is destroyed
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "netbox_interface" {
+		if rs.Type != "netbox_virtual_interface" {
 			continue
 		}
 
@@ -125,8 +125,8 @@ func testAccCheckInterfaceDestroy(s *terraform.State) error {
 }
 
 func init() {
-	resource.AddTestSweepers("netbox_interface", &resource.Sweeper{
-		Name:         "netbox_interface",
+	resource.AddTestSweepers("netbox_virtual_interface", &resource.Sweeper{
+		Name:         "netbox_virtual_interface",
 		Dependencies: []string{},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)

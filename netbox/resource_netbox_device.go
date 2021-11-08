@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/go-openapi/runtime"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 
@@ -15,12 +14,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxDevices() *schema.Resource {
+func resourceNetboxDevice() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceNetboxDevicesCreate,
-		ReadContext:   resourceNetboxDevicesRead,
-		UpdateContext: resourceNetboxDevicesUpdate,
-		DeleteContext: resourceNetboxDevicesDelete,
+		CreateContext: resourceNetboxDeviceCreate,
+		ReadContext:   resourceNetboxDeviceRead,
+		UpdateContext: resourceNetboxDeviceUpdate,
+		DeleteContext: resourceNetboxDeviceDelete,
 
 		Schema: map[string]*schema.Schema{
 			"device_type_id": {
@@ -42,8 +41,8 @@ func resourceNetboxDevices() *schema.Resource {
 			},
 
 			"comments": {
-				Type:             schema.TypeString,
-				Optional:         true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 200),
 			},
 
@@ -63,8 +62,8 @@ func resourceNetboxDevices() *schema.Resource {
 			},
 
 			"asset_tag": {
-				Type:             schema.TypeString,
-				Optional:         true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
 
@@ -74,8 +73,8 @@ func resourceNetboxDevices() *schema.Resource {
 			},
 
 			"serial": {
-				Type:             schema.TypeString,
-				Optional:         true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
 
@@ -151,31 +150,12 @@ func resourceNetboxDevices() *schema.Resource {
 			},
 
 			"tags": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"slug": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"id": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"color": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
+				Optional: true,
+				Set:      schema.HashString,
 			},
 
 			"custom_fields": {
@@ -189,7 +169,7 @@ func resourceNetboxDevices() *schema.Resource {
 	}
 }
 
-func resourceNetboxDevicesCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics
@@ -206,7 +186,6 @@ func resourceNetboxDevicesCreate(ctx context.Context, d *schema.ResourceData, m 
 		DeviceRole: &deviceRoleID,
 		DeviceType: &deviceTypeID,
 		Site:       &siteID,
-		Tags:       expandTags(d.Get("tags").([]interface{})),
 	}
 
 	if v, ok := d.GetOk("tenant_id"); ok {
@@ -298,6 +277,11 @@ func resourceNetboxDevicesCreate(ctx context.Context, d *schema.ResourceData, m 
 		params.Data.VirtualChassis = &vcID
 	}
 
+	if v, ok := d.GetOk("tags"); ok {
+		tags, _ := getNestedTagListFromResourceDataSet(c, v)
+		params.Data.Tags = tags
+	}
+
 	if v, ok := d.GetOk("custom_fields"); ok {
 		params.Data.CustomFields = v.(map[string]interface{})
 	}
@@ -309,12 +293,12 @@ func resourceNetboxDevicesCreate(ctx context.Context, d *schema.ResourceData, m 
 
 	d.SetId(strconv.FormatInt(resp.Payload.ID, 10))
 
-	resourceNetboxDevicesRead(ctx, d, m)
+	resourceNetboxDeviceRead(ctx, d, m)
 
 	return diags
 }
 
-func resourceNetboxDevicesRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics
@@ -331,7 +315,7 @@ func resourceNetboxDevicesRead(ctx context.Context, d *schema.ResourceData, m in
 
 	resp, err := c.Dcim.DcimDevicesRead(params, nil)
 	if err != nil {
-		if err.(*runtime.APIError).Code == 404 {
+		if err.(*dcim.DcimDevicesReadDefault).Code() == 404 {
 			d.SetId("")
 			return nil
 		}
@@ -427,13 +411,13 @@ func resourceNetboxDevicesRead(ctx context.Context, d *schema.ResourceData, m in
 		d.Set("virtual_chassis_id", resp.Payload.VirtualChassis.ID)
 	}
 
-	d.Set("tags", flattenTags(resp.Payload.Tags))
+	d.Set("tags", getTagListFromNestedTagList(resp.GetPayload().Tags))
 	d.Set("custom_fields", resp.Payload.CustomFields)
 
 	return diags
 }
 
-func resourceNetboxDevicesUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.NetBoxAPI)
 
 	objectID, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -554,7 +538,7 @@ func resourceNetboxDevicesUpdate(ctx context.Context, d *schema.ResourceData, m 
 	}
 
 	if d.HasChange("tags") {
-		params.Data.Tags = expandTags(d.Get("tags").([]interface{}))
+		params.Data.Tags, _ = getNestedTagListFromResourceDataSet(c, d.Get("tags"))
 	}
 
 	if d.HasChange("custom_fields") {
@@ -566,10 +550,10 @@ func resourceNetboxDevicesUpdate(ctx context.Context, d *schema.ResourceData, m 
 		return diag.Errorf("Unable to update rack: %v", err)
 	}
 
-	return resourceNetboxDevicesRead(ctx, d, m)
+	return resourceNetboxDeviceRead(ctx, d, m)
 }
 
-func resourceNetboxDevicesDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetboxDeviceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics

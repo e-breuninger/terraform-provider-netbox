@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/go-openapi/runtime"
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 
@@ -32,80 +31,80 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
-                    models.InterfaceTypeValueVirtual,
-                    models.InterfaceTypeValueLag,
-                    models.InterfaceTypeValueNr100baseDashTx,
-                    models.InterfaceTypeValueNr1000baseDasht,
-                    models.InterfaceTypeValueNr2Dot5gbaseDasht,
-                    models.InterfaceTypeValueNr5gbaseDasht,
-                    models.InterfaceTypeValueNr10gbaseDasht,
-                    models.InterfaceTypeValueNr10gbaseDashCx4,
-                    models.InterfaceTypeValueNr1000baseDashxDashGbic,
-                    models.InterfaceTypeValueNr1000baseDashxDashSfp,
-                    models.InterfaceTypeValueNr10gbaseDashxDashSfpp,
-                    models.InterfaceTypeValueNr10gbaseDashxDashXfp,
-                    models.InterfaceTypeValueNr10gbaseDashxDashXenpak,
-                    models.InterfaceTypeValueNr10gbaseDashxDashX2,
-                    models.InterfaceTypeValueNr25gbaseDashxDashSfp28,
-                    models.InterfaceTypeValueNr50gbaseDashxDashSfp56,
-                    models.InterfaceTypeValueNr40gbaseDashxDashQsfpp,
-                    models.InterfaceTypeValueNr50gbaseDashxDashSfp28,
-                    models.InterfaceTypeValueNr100gbaseDashxDashCfp,
-                    models.InterfaceTypeValueNr100gbaseDashxDashCfp2,
-                    models.InterfaceTypeValueNr200gbaseDashxDashCfp2,
-                    models.InterfaceTypeValueNr100gbaseDashxDashCfp4,
-                    models.InterfaceTypeValueNr100gbaseDashxDashCpak,
-                    models.InterfaceTypeValueNr100gbaseDashxDashQsfp28,
-                    models.InterfaceTypeValueNr200gbaseDashxDashQsfp56,
-                    models.InterfaceTypeValueNr400gbaseDashxDashQsfpdd,
-                    models.InterfaceTypeValueNr400gbaseDashxDashOsfp,
-                    models.InterfaceTypeValueIeee802Dot11a,
-                    models.InterfaceTypeValueIeee802Dot11g,
-                    models.InterfaceTypeValueIeee802Dot11n,
-                    models.InterfaceTypeValueIeee802Dot11ac,
-                    models.InterfaceTypeValueIeee802Dot11ad,
-                    models.InterfaceTypeValueIeee802Dot11ax,
-                    models.InterfaceTypeValueGsm,
-                    models.InterfaceTypeValueCdma,
-                    models.InterfaceTypeValueLte,
-                    models.InterfaceTypeValueSonetDashOc3,
-                    models.InterfaceTypeValueSonetDashOc12,
-                    models.InterfaceTypeValueSonetDashOc48,
-                    models.InterfaceTypeValueSonetDashOc192,
-                    models.InterfaceTypeValueSonetDashOc768,
-                    models.InterfaceTypeValueSonetDashOc1920,
-                    models.InterfaceTypeValueSonetDashOc3840,
-                    models.InterfaceTypeValueNr1gfcDashSfp,
-                    models.InterfaceTypeValueNr2gfcDashSfp,
-                    models.InterfaceTypeValueNr4gfcDashSfp,
-                    models.InterfaceTypeValueNr8gfcDashSfpp,
-                    models.InterfaceTypeValueNr16gfcDashSfpp,
-                    models.InterfaceTypeValueNr32gfcDashSfp28,
-                    models.InterfaceTypeValueNr64gfcDashQsfpp,
-                    models.InterfaceTypeValueNr128gfcDashSfp28,
-                    models.InterfaceTypeValueInfinibandDashSdr,
-                    models.InterfaceTypeValueInfinibandDashDdr,
-                    models.InterfaceTypeValueInfinibandDashQdr,
-                    models.InterfaceTypeValueInfinibandDashFdr10,
-                    models.InterfaceTypeValueInfinibandDashFdr,
-                    models.InterfaceTypeValueInfinibandDashEdr,
-                    models.InterfaceTypeValueInfinibandDashHdr,
-                    models.InterfaceTypeValueInfinibandDashNdr,
-                    models.InterfaceTypeValueInfinibandDashXdr,
-                    models.InterfaceTypeValueT1,
-                    models.InterfaceTypeValueE1,
-                    models.InterfaceTypeValueT3,
-                    models.InterfaceTypeValueE3,
-                    models.InterfaceTypeValueCiscoDashStackwise,
-                    models.InterfaceTypeValueCiscoDashStackwiseDashPlus,
-                    models.InterfaceTypeValueCiscoDashFlexstack,
-                    models.InterfaceTypeValueCiscoDashFlexstackDashPlus,
-                    models.InterfaceTypeValueJuniperDashVcp,
-                    models.InterfaceTypeValueExtremeDashSummitstack,
-                    models.InterfaceTypeValueExtremeDashSummitstackDash128,
-                    models.InterfaceTypeValueExtremeDashSummitstackDash256,
-                    models.InterfaceTypeValueExtremeDashSummitstackDash512,
-                    models.InterfaceTypeValueOther,
+					models.InterfaceTypeValueVirtual,
+					models.InterfaceTypeValueLag,
+					models.InterfaceTypeValueNr100baseDashTx,
+					models.InterfaceTypeValueNr1000baseDasht,
+					models.InterfaceTypeValueNr2Dot5gbaseDasht,
+					models.InterfaceTypeValueNr5gbaseDasht,
+					models.InterfaceTypeValueNr10gbaseDasht,
+					models.InterfaceTypeValueNr10gbaseDashCx4,
+					models.InterfaceTypeValueNr1000baseDashxDashGbic,
+					models.InterfaceTypeValueNr1000baseDashxDashSfp,
+					models.InterfaceTypeValueNr10gbaseDashxDashSfpp,
+					models.InterfaceTypeValueNr10gbaseDashxDashXfp,
+					models.InterfaceTypeValueNr10gbaseDashxDashXenpak,
+					models.InterfaceTypeValueNr10gbaseDashxDashX2,
+					models.InterfaceTypeValueNr25gbaseDashxDashSfp28,
+					models.InterfaceTypeValueNr50gbaseDashxDashSfp56,
+					models.InterfaceTypeValueNr40gbaseDashxDashQsfpp,
+					models.InterfaceTypeValueNr50gbaseDashxDashSfp28,
+					models.InterfaceTypeValueNr100gbaseDashxDashCfp,
+					models.InterfaceTypeValueNr100gbaseDashxDashCfp2,
+					models.InterfaceTypeValueNr200gbaseDashxDashCfp2,
+					models.InterfaceTypeValueNr100gbaseDashxDashCfp4,
+					models.InterfaceTypeValueNr100gbaseDashxDashCpak,
+					models.InterfaceTypeValueNr100gbaseDashxDashQsfp28,
+					models.InterfaceTypeValueNr200gbaseDashxDashQsfp56,
+					models.InterfaceTypeValueNr400gbaseDashxDashQsfpdd,
+					models.InterfaceTypeValueNr400gbaseDashxDashOsfp,
+					models.InterfaceTypeValueIeee802Dot11a,
+					models.InterfaceTypeValueIeee802Dot11g,
+					models.InterfaceTypeValueIeee802Dot11n,
+					models.InterfaceTypeValueIeee802Dot11ac,
+					models.InterfaceTypeValueIeee802Dot11ad,
+					models.InterfaceTypeValueIeee802Dot11ax,
+					models.InterfaceTypeValueGsm,
+					models.InterfaceTypeValueCdma,
+					models.InterfaceTypeValueLte,
+					models.InterfaceTypeValueSonetDashOc3,
+					models.InterfaceTypeValueSonetDashOc12,
+					models.InterfaceTypeValueSonetDashOc48,
+					models.InterfaceTypeValueSonetDashOc192,
+					models.InterfaceTypeValueSonetDashOc768,
+					models.InterfaceTypeValueSonetDashOc1920,
+					models.InterfaceTypeValueSonetDashOc3840,
+					models.InterfaceTypeValueNr1gfcDashSfp,
+					models.InterfaceTypeValueNr2gfcDashSfp,
+					models.InterfaceTypeValueNr4gfcDashSfp,
+					models.InterfaceTypeValueNr8gfcDashSfpp,
+					models.InterfaceTypeValueNr16gfcDashSfpp,
+					models.InterfaceTypeValueNr32gfcDashSfp28,
+					models.InterfaceTypeValueNr64gfcDashQsfpp,
+					models.InterfaceTypeValueNr128gfcDashSfp28,
+					models.InterfaceTypeValueInfinibandDashSdr,
+					models.InterfaceTypeValueInfinibandDashDdr,
+					models.InterfaceTypeValueInfinibandDashQdr,
+					models.InterfaceTypeValueInfinibandDashFdr10,
+					models.InterfaceTypeValueInfinibandDashFdr,
+					models.InterfaceTypeValueInfinibandDashEdr,
+					models.InterfaceTypeValueInfinibandDashHdr,
+					models.InterfaceTypeValueInfinibandDashNdr,
+					models.InterfaceTypeValueInfinibandDashXdr,
+					models.InterfaceTypeValueT1,
+					models.InterfaceTypeValueE1,
+					models.InterfaceTypeValueT3,
+					models.InterfaceTypeValueE3,
+					models.InterfaceTypeValueCiscoDashStackwise,
+					models.InterfaceTypeValueCiscoDashStackwiseDashPlus,
+					models.InterfaceTypeValueCiscoDashFlexstack,
+					models.InterfaceTypeValueCiscoDashFlexstackDashPlus,
+					models.InterfaceTypeValueJuniperDashVcp,
+					models.InterfaceTypeValueExtremeDashSummitstack,
+					models.InterfaceTypeValueExtremeDashSummitstackDash128,
+					models.InterfaceTypeValueExtremeDashSummitstackDash256,
+					models.InterfaceTypeValueExtremeDashSummitstackDash512,
+					models.InterfaceTypeValueOther,
 				}, false),
 			},
 
@@ -173,32 +172,13 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Optional: true,
 			},
 
-			"tags": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"slug": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"id": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"color": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
+			"tags": &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
+				Optional: true,
+				Set:      schema.HashString,
 			},
 		},
 	}
@@ -212,6 +192,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	interfaceID := int64(d.Get("device_id").(int))
 	interfaceType := d.Get("type").(string)
 	name := d.Get("name").(string)
+	tags, _ := getNestedTagListFromResourceDataSet(c, d.Get("tags"))
 
 	params := &dcim.DcimInterfacesCreateParams{
 		Context: ctx,
@@ -221,14 +202,14 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		Device:      &interfaceID,
 		Type:        &interfaceType,
 		Name:        &name,
-		Tags:        expandTags(d.Get("tags").([]interface{})),
+		Tags:           tags,
 		TaggedVlans: expandTaggedVlans(d.Get("tagged_vlan").([]interface{})),
 	}
 
-    //if v, ok := d.GetOk("connection_status"); ok {
-    //connectionStatus := v.(bool)
-    //params.Data.ConnectionStatus = &connectionStatus
-    //}
+	//if v, ok := d.GetOk("connection_status"); ok {
+	//connectionStatus := v.(bool)
+	//params.Data.ConnectionStatus = &connectionStatus
+	//}
 
 	if v, ok := d.GetOk("enabled"); ok {
 		params.Data.Enabled = v.(bool)
@@ -293,7 +274,7 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 
 	resp, err := c.Dcim.DcimInterfacesRead(params, nil)
 	if err != nil {
-		if err.(*runtime.APIError).Code == 404 {
+		if err.(*dcim.DcimInterfacesReadDefault).Code() == 404 {
 			d.SetId("")
 			return nil
 		}
@@ -305,9 +286,9 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("type", resp.Payload.Type.Value)
 	d.Set("name", resp.Payload.Name)
 
-    //if resp.Payload.ConnectionStatus != nil {
-    //	d.Set("connection_status", resp.Payload.ConnectionStatus.Value)
-    //}
+	//if resp.Payload.ConnectionStatus != nil {
+	//	d.Set("connection_status", resp.Payload.ConnectionStatus.Value)
+	//}
 
 	if resp.Payload.Label != "" {
 		d.Set("label", resp.Payload.Label)
@@ -336,8 +317,7 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("enabled", resp.Payload.Enabled)
 	d.Set("management_only", resp.Payload.MgmtOnly)
 	d.Set("tagged_vlan", flattenTaggedVlans(resp.Payload.TaggedVlans))
-
-	d.Set("tags", flattenTags(resp.Payload.Tags))
+	d.Set("tags", getTagListFromNestedTagList(resp.GetPayload().Tags))
 
 	return diags
 }
@@ -353,6 +333,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	deviceID := int64(d.Get("device_id").(int))
 	interfaceType := d.Get("type").(string)
 	name := d.Get("name").(string)
+	tags, _ := getNestedTagListFromResourceDataSet(c, d.Get("tags"))
 
 	params := &dcim.DcimInterfacesPartialUpdateParams{
 		Context: ctx,
@@ -364,12 +345,13 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		Type:        &interfaceType,
 		Name:        &name,
 		TaggedVlans: expandTaggedVlans(d.Get("tagged_vlan").([]interface{})),
+		Tags:           tags,
 	}
 
-    //	if d.HasChange("connection_status") {
-    //	connectionStatus := d.Get("connection_status").(bool)
-    //	params.Data.ConnectionStatus = &connectionStatus
-    //}
+	//	if d.HasChange("connection_status") {
+	//	connectionStatus := d.Get("connection_status").(bool)
+	//	params.Data.ConnectionStatus = &connectionStatus
+	//}
 
 	if d.HasChange("enabled") {
 		params.Data.Enabled = d.Get("enabled").(bool)
@@ -404,10 +386,6 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	if d.HasChange("mtu") {
 		mtu := int64(d.Get("mtu").(int))
 		params.Data.Mtu = &mtu
-	}
-
-	if d.HasChange("tags") {
-		params.Data.Tags = expandTags(d.Get("tags").([]interface{}))
 	}
 
 	_, err = c.Dcim.DcimInterfacesPartialUpdate(params, nil)
@@ -500,10 +478,6 @@ func flattenTags(input []*models.NestedTag) []interface{} {
 }
 
 func expandTaggedVlans(input []interface{}) []int64 {
-	if len(input) == 0 {
-		return nil
-	}
-
 	results := make([]int64, 0)
 
 	for _, item := range input {
@@ -515,10 +489,6 @@ func expandTaggedVlans(input []interface{}) []int64 {
 }
 
 func flattenTaggedVlans(input []*models.NestedVLAN) []interface{} {
-	if input == nil {
-		return []interface{}{}
-	}
-
 	result := make([]interface{}, 0)
 
 	for _, item := range input {

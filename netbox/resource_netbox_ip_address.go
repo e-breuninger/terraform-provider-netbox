@@ -28,9 +28,10 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Optional: true,
 			},
 			"interface_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{"device", "vm", "virtual"}, false),
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"dcim.interface", "virtualization.vminterface"}, false),
+				Default:      "virtualization.vminterface",
 			},
 			"vrf_id": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -149,7 +150,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 
 	ipAddress := d.Get("ip_address").(string)
 	status := d.Get("status").(string)
-    interfaceType := d.Get("interface_type").(string)
+	interfaceType := d.Get("interface_type").(string)
 
 	data.Status = status
 	data.Address = &ipAddress
@@ -164,11 +165,11 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
-        if interfaceType == "device" {
-		    data.AssignedObjectType = strToPtr("dcim.interface")
-        } else {
-		    data.AssignedObjectType = strToPtr("virtualization.vminterface")
-        }
+		if interfaceType == "device" {
+			data.AssignedObjectType = strToPtr("dcim.interface")
+		} else {
+			data.AssignedObjectType = strToPtr("virtualization.vminterface")
+		}
 		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
 	}
 
