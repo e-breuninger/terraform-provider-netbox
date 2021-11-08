@@ -23,7 +23,7 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.name", testName+"_0"),
-					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.vcpus", "4.00"),
+					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.vcpus", "4"),
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.memory_mb", "1024"),
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.disk_size_gb", "256"),
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.comments", "thisisacomment"),
