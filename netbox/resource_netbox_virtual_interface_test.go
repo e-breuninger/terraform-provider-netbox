@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func testAccNetboxInterfaceFullDependencies(testName string) string {
+func testAccNetboxVirtualInterfaceFullDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
@@ -32,7 +32,7 @@ resource "netbox_virtual_machine" "test" {
 `, testName)
 }
 
-func TestAccNetboxInterface_basic(t *testing.T) {
+func TestAccNetboxVirtualInterface_basic(t *testing.T) {
 
 	testSlug := "iface_basic"
 	testName := testAccGetTestName(testSlug)
@@ -42,7 +42,7 @@ func TestAccNetboxInterface_basic(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxInterfaceFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxVirtualInterfaceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
@@ -61,7 +61,7 @@ resource "netbox_interface" "test" {
 	})
 }
 
-func TestAccNetboxInterface_mac(t *testing.T) {
+func TestAccNetboxVirtualInterface_mac(t *testing.T) {
 
 	testSlug := "iface_mac"
 	testMac := "00:01:02:03:04:05"
@@ -72,7 +72,7 @@ func TestAccNetboxInterface_mac(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxInterfaceFullDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxVirtualInterfaceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_interface" "test" {
   name = "%[1]s"
   virtual_machine_id = netbox_virtual_machine.test.id
