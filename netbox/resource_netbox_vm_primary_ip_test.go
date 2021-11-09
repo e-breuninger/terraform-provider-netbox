@@ -55,7 +55,7 @@ resource "netbox_virtual_machine" "test" {
   tags = [netbox_tag.test.name]
 }
 
-resource "netbox_virtual_interface" "test" {
+resource "netbox_vm_interface" "test" {
   virtual_machine_id = netbox_virtual_machine.test.id
   name = "%[1]s"
 }
@@ -63,13 +63,13 @@ resource "netbox_virtual_interface" "test" {
 resource "netbox_ip_address" "test_v4" {
   ip_address = "1.1.1.1/32"
   status = "active"
-  interface_id = netbox_virtual_interface.test.id
+  interface_id = netbox_vm_interface.test.id
 }
 
 resource "netbox_ip_address" "test_v6" {
   ip_address = "2000::1/128"
   status = "active"
-  interface_id = netbox_virtual_interface.test.id
+  interface_id = netbox_vm_interface.test.id
 }
 `, testName)
 }
