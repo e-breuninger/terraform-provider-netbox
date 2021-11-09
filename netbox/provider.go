@@ -22,7 +22,7 @@ func Provider() *schema.Provider {
 			"netbox_tenant_group":         resourceNetboxTenantGroup(),
 			"netbox_vrf":                  resourceNetboxVrf(),
 			"netbox_ip_address":           resourceNetboxIPAddress(),
-			"netbox_virtual_interface":    resourceNetboxVirtualInterface(),
+			"netbox_vm_interface":    resourceNetboxVMInterface(),
 			"netbox_device_interface":     resourceNetboxDeviceInterface(),
 			"netbox_service":              resourceNetboxService(),
 			"netbox_platform":             resourceNetboxPlatform(),
@@ -53,7 +53,7 @@ func Provider() *schema.Provider {
 			"netbox_tag":                dataSourceNetboxTag(),
 			"netbox_site":               dataSourceNetboxSite(),
 			"netbox_virtual_machines":   dataSourceNetboxVirtualMachine(),
-			"netbox_virtual_interfaces": dataSourceNetboxVirtualInterfaces(),
+			"netbox_vm_interfaces": dataSourceNetboxVMInterfaces(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {

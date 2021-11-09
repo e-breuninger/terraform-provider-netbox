@@ -13,9 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func dataSourceNetboxVirtualInterfaces() *schema.Resource {
+func dataSourceNetboxVMInterfaces() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxVirtualInterfaceRead,
+		Read: dataSourceNetboxVMInterfaceRead,
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:     schema.TypeSet,
@@ -130,7 +130,7 @@ func dataSourceNetboxVirtualInterfaces() *schema.Resource {
 	}
 }
 
-func dataSourceNetboxVirtualInterfaceRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceNetboxVMInterfaceRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	params := virtualization.NewVirtualizationInterfacesListParams()
