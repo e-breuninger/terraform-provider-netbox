@@ -376,7 +376,7 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("virtual_chassis_id", resp.Payload.VirtualChassis.ID)
 	}
 
-	d.Set("tags", getTagListFromNestedTagList(resp.GetPayload().Tags))
+	d.Set("tags", getTagListFromNestedTagList(resp.Payload.Tags))
 	d.Set("custom_fields", resp.Payload.CustomFields)
 
 	return diags
