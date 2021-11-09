@@ -421,62 +421,6 @@ func resourceNetboxDeviceInterfaceDelete(ctx context.Context, d *schema.Resource
 	return diags
 }
 
-func expandTags(input []interface{}) []*models.NestedTag {
-	if len(input) == 0 {
-		return nil
-	}
-
-	results := make([]*models.NestedTag, 0)
-
-	for _, item := range input {
-		values := item.(map[string]interface{})
-		result := &models.NestedTag{}
-
-		if v, ok := values["id"]; ok {
-			result.ID = int64(v.(int))
-		}
-
-		if v, ok := values["name"]; ok {
-			name := v.(string)
-			result.Name = &name
-		}
-
-		if v, ok := values["slug"]; ok {
-			slug := v.(string)
-			result.Slug = &slug
-		}
-
-		if v, ok := values["color"]; ok {
-			result.Color = v.(string)
-		}
-
-		results = append(results, result)
-	}
-
-	return results
-}
-
-func flattenTags(input []*models.NestedTag) []interface{} {
-	if input == nil {
-		return []interface{}{}
-	}
-
-	result := make([]interface{}, 0)
-
-	for _, item := range input {
-		values := make(map[string]interface{})
-
-		values["id"] = item.ID
-		values["name"] = item.Name
-		values["slug"] = item.Slug
-		values["color"] = item.Color
-
-		result = append(result, values)
-	}
-
-	return result
-}
-
 func expandTaggedVlans(input []interface{}) []int64 {
 	results := make([]int64, 0)
 
@@ -497,7 +441,6 @@ func flattenTaggedVlans(input []*models.NestedVLAN) []interface{} {
 		values["id"] = item.ID
 		values["name"] = item.Name
 		values["vid"] = item.Vid
-		values["DisplayName"] = item.DisplayName
 
 		result = append(result, values["id"])
 	}
