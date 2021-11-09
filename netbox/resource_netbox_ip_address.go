@@ -70,8 +70,8 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 
 	data := models.WritableIPAddress{}
 	ipAddress := d.Get("ip_address").(string)
-  interface_id := int64(d.Get("interface_id").(int))
-  interface_type := d.Get("interface_type").(string)
+	interface_id := int64(d.Get("interface_id").(int))
+	interface_type := d.Get("interface_type").(string)
 	data.Address = &ipAddress
 	data.Status = d.Get("status").(string)
 	data.AssignedObjectID = &interface_id

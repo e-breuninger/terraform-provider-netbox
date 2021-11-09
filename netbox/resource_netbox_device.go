@@ -405,6 +405,8 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		Site:       &siteID,
 	}
 
+	params.Data.Tags, _ = getNestedTagListFromResourceDataSet(c, d.Get("tags"))
+
 	if d.HasChange("tenant_id") {
 		tenantID := int64(d.Get("tenant_id").(int))
 		params.Data.Tenant = &tenantID
@@ -486,10 +488,6 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	if d.HasChange("virtual_chassis_id") {
 		vcID := int64(d.Get("virtual_chassis_id").(int))
 		params.Data.VirtualChassis = &vcID
-	}
-
-	if d.HasChange("tags") {
-		params.Data.Tags, _ = getNestedTagListFromResourceDataSet(c, d.Get("tags"))
 	}
 
 	if d.HasChange("custom_fields") {
