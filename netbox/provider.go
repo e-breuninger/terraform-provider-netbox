@@ -22,7 +22,7 @@ func Provider() *schema.Provider {
 			"netbox_tenant_group":         resourceNetboxTenantGroup(),
 			"netbox_vrf":                  resourceNetboxVrf(),
 			"netbox_ip_address":           resourceNetboxIPAddress(),
-			"netbox_vm_interface":    resourceNetboxVMInterface(),
+			"netbox_vm_interface":         resourceNetboxVMInterface(),
 			"netbox_device_interface":     resourceNetboxDeviceInterface(),
 			"netbox_service":              resourceNetboxService(),
 			"netbox_platform":             resourceNetboxPlatform(),
@@ -41,19 +41,19 @@ func Provider() *schema.Provider {
 			"netbox_ipam_role":            resourceNetboxIpamRole(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"netbox_cluster":            dataSourceNetboxCluster(),
-			"netbox_cluster_group":      dataSourceNetboxClusterGroup(),
-			"netbox_tenant":             dataSourceNetboxTenant(),
-			"netbox_tenant_group":       dataSourceNetboxTenantGroup(),
-			"netbox_vrf":                dataSourceNetboxVrf(),
-			"netbox_platform":           dataSourceNetboxPlatform(),
-			"netbox_prefix":             dataSourceNetboxPrefix(),
-			"netbox_device_role":        dataSourceNetboxDeviceRole(),
-			"netbox_device_type":        dataSourceNetboxDeviceType(),
-			"netbox_tag":                dataSourceNetboxTag(),
-			"netbox_site":               dataSourceNetboxSite(),
-			"netbox_virtual_machines":   dataSourceNetboxVirtualMachine(),
-			"netbox_vm_interfaces": dataSourceNetboxVMInterfaces(),
+			"netbox_cluster":          dataSourceNetboxCluster(),
+			"netbox_cluster_group":    dataSourceNetboxClusterGroup(),
+			"netbox_tenant":           dataSourceNetboxTenant(),
+			"netbox_tenant_group":     dataSourceNetboxTenantGroup(),
+			"netbox_vrf":              dataSourceNetboxVrf(),
+			"netbox_platform":         dataSourceNetboxPlatform(),
+			"netbox_prefix":           dataSourceNetboxPrefix(),
+			"netbox_device_role":      dataSourceNetboxDeviceRole(),
+			"netbox_device_type":      dataSourceNetboxDeviceType(),
+			"netbox_tag":              dataSourceNetboxTag(),
+			"netbox_site":             dataSourceNetboxSite(),
+			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),
+			"netbox_vm_interfaces":    dataSourceNetboxVMInterfaces(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
@@ -96,7 +96,11 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	}
 
 	req := status.NewStatusListParams()
-	res, _ := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+	res, err := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+
 	netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"]
 
 	supportedVersion := "2.11.12"
