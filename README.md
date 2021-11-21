@@ -9,7 +9,11 @@ This provider is maintained by E. Breuninger.
 - [Go](https://golang.org/doc/install) >= 1.14
 
 ## Supported netbox versions
-Netbox often makes API-breaking changes even in non-major releases. We aim to always support the latest minor version of Netbox. Check the table below to see which version a provider was tested against. It is generally recommended to use the provider version matching your netbox version.
+
+Netbox often makes API-breaking changes even in non-major releases. We aim to always support the latest minor version of Netbox. Check the table below to see which version a provider was tested against. It is generally recommended to use the provider version matching your Netbox version.
+
+Tests also cover the latest versions without breaking the CI pipeline. 
+This is used as indication to if the provider could support the current Netbox version. 
 
 Provider version | Netbox version
 --- | ---
@@ -68,7 +72,7 @@ In order to run the suite of unit tests, run `make test`.
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-_Note:_ Acceptance tests create a docker compose stack on port 8001.
+_Note:_ Acceptance tests create a dockerized Netbox on localhost port 8001. Port and Host are customizable. Have a look at the Makefile for more details.
 
 ```sh
 $ make testacc

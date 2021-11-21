@@ -1,7 +1,6 @@
 name: ci-testing
 on: [push, pull_request]
 jobs:
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -10,19 +9,43 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.17
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: install-tools
+        run: make install-tools
       - name: test
         run: make test
 
   testacc:
-    needs: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        netbox-version:
+          - "v3.0"
+          - "latest"
     steps:
       - uses: actions/checkout@v2.3.5
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.17
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: install-tools
+        run: make install-tools
       - name: testacc
         run: make testacc
         env:
-          NETBOX_VERSION: "v2.10.10"
+          NETBOX_VERSION: ${{ matrix.netbox-version }}

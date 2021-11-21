@@ -1,3 +1,5 @@
+# Minimal docker compose stack to run Netbox.
+# For testing only, use the netbox-communizy/docker project for production workloads
 version: "3.7"
 services:
   postgres:
@@ -9,12 +11,13 @@ services:
   redis:
     image: redis:6-alpine
   netbox:
+    # Pull netbox image version from environment
     image: netboxcommunity/netbox:${NETBOX_VERSION-latest}
     depends_on:
       - postgres
       - redis
     ports:
-      - 8001:8080
+      - ${NETBOX_PORT-8000}:8080
     environment:
       - CORS_ORIGIN_ALLOW_ALL=True
       - DB_NAME=netbox
@@ -33,4 +36,4 @@ services:
       - SUPERUSER_NAME=admin
       - SUPERUSER_EMAIL=admin@example.com
       - SUPERUSER_PASSWORD=admin
-      - SUPERUSER_API_TOKEN=0123456789abcdef0123456789abcdef01234567
+      - SUPERUSER_API_TOKEN=${NETBOX_API_TOKEN}
