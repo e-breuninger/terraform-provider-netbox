@@ -1,3 +1,19 @@
+## 1.0.0 (Nov 8, 2021)
+
+FEATURES
+
+* provider: Now supports NetBox v3.0.9
+
+BREAKING CHANGES
+
+* resource/virtual_machine: `vcpus` is now a float to match upstream API
+
+## 0.3.2 (Nov 2, 2021)
+
+ENHANCEMENTS
+
+* resource/primary_ip: Support both v4 and v6 primary IP ([#87](https://github.com/e-breuninger/terraform-provider-netbox/pull/87) by [@t-tran](https://github.com/t-tran))
+
 ## 0.3.1 (Oct 27, 2021)
 
 FEATURES

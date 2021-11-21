@@ -17,6 +17,7 @@ This is used as indication to if the provider could support the current Netbox v
 
 Provider version | Netbox version
 --- | ---
+v1.0.x | v3.0.9
 v0.3.x | v2.11.12
 v0.2.x | v2.10.10
 v0.1.x | v2.9
