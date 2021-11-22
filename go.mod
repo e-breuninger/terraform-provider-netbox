@@ -7,7 +7,7 @@ require (
 	github.com/fbreckle/go-netbox v0.0.0-20211108152602-6c9cea679011
 	github.com/go-openapi/runtime v0.19.32-0.20210924162202-f7fb72beda3a
 	github.com/goware/urlx v0.3.1
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.8.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.9.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 )
@@ -37,6 +37,7 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
@@ -51,8 +52,8 @@ require (
 	github.com/hashicorp/go-version v1.3.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.3.0 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
-	github.com/hashicorp/terraform-exec v0.14.0 // indirect
-	github.com/hashicorp/terraform-json v0.12.0 // indirect
+	github.com/hashicorp/terraform-exec v0.15.0 // indirect
+	github.com/hashicorp/terraform-json v0.13.0 // indirect
 	github.com/hashicorp/terraform-plugin-go v0.4.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -73,7 +74,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/ulikunitz/xz v0.5.8 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
-	github.com/zclconf/go-cty v1.8.4 // indirect
+	github.com/zclconf/go-cty v1.9.1 // indirect
 	go.mongodb.org/mongo-driver v1.4.6 // indirect
 	go.opencensus.io v0.22.4 // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
