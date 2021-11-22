@@ -31,7 +31,7 @@ data "netbox_cluster" "vmw-cluster-01" {
     name = "vmw-cluster-01"
 }
 
-data "netbox_virtual_machine" "base-vm" {
+data "netbox_virtual_machines" "base-vm" {
     name_regex = "myvm-1"
     filter {
         name  = "cluster_id"
