@@ -34,6 +34,10 @@ func resourceNetboxTag() *schema.Resource {
 				Default:      "9e9e9e",
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[0-9a-f]{6}$"), "Must be hex color string"),
 			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -64,11 +68,13 @@ func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	color := d.Get("color_hex").(string)
+	description := d.Get("description").(string)
 	params := extras.NewExtrasTagsCreateParams().WithData(
 		&models.Tag{
-			Name:  &name,
-			Slug:  &slug,
-			Color: color,
+			Name:        &name,
+			Slug:        &slug,
+			Color:       color,
+			Description: description,
 		},
 	)
 
@@ -102,6 +108,7 @@ func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("color_hex", res.GetPayload().Color)
+	d.Set("description", res.GetPayload().Description)
 	return nil
 }
 
@@ -113,6 +120,7 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	color := d.Get("color_hex").(string)
+	description := d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
@@ -126,6 +134,7 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Slug = &slug
 	data.Name = &name
 	data.Color = color
+	data.Description = description
 
 	params := extras.NewExtrasTagsUpdateParams().WithID(id).WithData(&data)
 
