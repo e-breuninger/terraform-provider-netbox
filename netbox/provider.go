@@ -34,6 +34,7 @@ func Provider() *schema.Provider {
 			"netbox_site":                 resourceNetboxSite(),
 			"netbox_vlan":                 resourceNetboxVlan(),
 			"netbox_ipam_role":            resourceNetboxIpamRole(),
+			"netbox_ip_range":             resourceNetboxIpRange(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),
@@ -47,6 +48,7 @@ func Provider() *schema.Provider {
 			"netbox_tag":              dataSourceNetboxTag(),
 			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),
 			"netbox_interfaces":       dataSourceNetboxInterfaces(),
+			"netbox_ip_range":         dataSourceNetboxIpRange(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
