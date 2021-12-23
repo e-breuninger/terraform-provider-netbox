@@ -74,6 +74,12 @@ _Note:_ Acceptance tests create a docker compose stack on port 8001.
 ```sh
 $ make testacc
 ```
+If you notice a failed test, it might be due to a stale netbox data volume.  Before concluding there is a problem, 
+refresh the docker containers and try again:
+```shell
+docker rm -f docker_netbox_1 ; docker rm -f  docker_postgres_1 ; docker rm -f docker_redis_1
+make testacc
+```
 
 ## Contribution
 
