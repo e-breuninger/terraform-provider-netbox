@@ -1,3 +1,10 @@
+## 1.0.1 (Dec 22, 2021)
+
+FEATURES
+
+* **New Resource:** `netbox_ip_range` ([#101](https://github.com/e-breuninger/terraform-provider-netbox/pull/100) by [@holmesb](https://github.com/holmesb))
+* **New Data Source:** `netbox_ip_range` ([#101](https://github.com/e-breuninger/terraform-provider-netbox/pull/100) by [@holmesb](https://github.com/holmesb))
+ 
 ## 1.0.0 (Nov 8, 2021)
 
 FEATURES
