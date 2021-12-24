@@ -34,5 +34,6 @@ resource "netbox_tag" "dmz" {
 - **id** (String) The ID of this resource.
 - **slug** (String)
 - **tags** (Set of String)
+- **description** (String)
 
 

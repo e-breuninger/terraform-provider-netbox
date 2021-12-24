@@ -1,3 +1,9 @@
+## 1.0.2 Ho-Ho-Ho (Dec 24, 2021)
+
+ENHANCEMENTS
+
+* resource/tag: Add `description` attribute ([#98](https://github.com/e-breuninger/terraform-provider-netbox/pull/98)) by [@lu1as](https://github.com/lu1as))
+
 ## 1.0.1 (Dec 23, 2021)
 
 FEATURES
