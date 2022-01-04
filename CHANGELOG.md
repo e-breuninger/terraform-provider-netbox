@@ -1,3 +1,9 @@
+## 1.1.0 (Jan 3, 2022)
+
+FEATURES
+
+* provider: Now supports NetBox v3.1.3
+
 ## 1.0.2 Ho-Ho-Ho (Dec 24, 2021)
 
 ENHANCEMENTS

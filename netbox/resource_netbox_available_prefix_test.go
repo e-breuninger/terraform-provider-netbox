@@ -140,7 +140,7 @@ resource "netbox_available_prefix" "test3" {
 					resource.TestCheckResourceAttr("netbox_available_prefix.test1", "prefix", expectedPrefixes[0]),
 					resource.TestCheckResourceAttr("netbox_available_prefix.test2", "prefix", expectedPrefixes[1]),
 				),
-				ExpectError: regexp.MustCompile(".*unexpected success response.*"),
+				ExpectError: regexp.MustCompile(".*Insufficient space is available.*"),
 			},
 		},
 	})
