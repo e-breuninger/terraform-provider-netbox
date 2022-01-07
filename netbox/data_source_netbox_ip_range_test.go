@@ -9,8 +9,8 @@ import (
 
 func TestAccNetboxIpRangeDataSource_basic(t *testing.T) {
 
-	testStartIp := "10.0.0.1/24"
-	testEndIp := "10.0.0.50/24"
+	testStartIp := "10.0.0.101/24"
+	testEndIp := "10.0.0.150/24"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

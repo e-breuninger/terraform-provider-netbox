@@ -1,3 +1,11 @@
+## 1.2.0 (Jan 17, 2022)
+
+FEATURES
+
+* resource `netbox_available_ip_address`: fixed duplicates ([#59](https://github.com/e-breuninger/terraform-provider-netbox/issues/59) by [@holmesb](https://github.com/holmesb))
+* resource `netbox_available_ip_address`: can now be created in netbox_ip_ranges  ([#105](https://github.com/e-breuninger/terraform-provider-netbox/issues/105) by [@holmesb](https://github.com/holmesb))
+* resource `netbox_available_ip_address`: added `description` argument by [@holmesb](https://github.com/holmesb)
+
 ## 1.1.0 (Jan 3, 2022)
 
 FEATURES
