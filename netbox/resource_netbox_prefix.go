@@ -18,17 +18,17 @@ func resourceNetboxPrefix() *schema.Resource {
 		Delete: resourceNetboxPrefixDelete,
 
 		Schema: map[string]*schema.Schema{
-			"prefix": &schema.Schema{
+			"prefix": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsCIDR,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "container"}, false),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -36,27 +36,31 @@ func resourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"vrf_id": &schema.Schema{
+			"mark_utilized": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"vrf_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"site_id": &schema.Schema{
+			"site_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vlan_id": &schema.Schema{
+			"vlan_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"role_id": &schema.Schema{
+			"role_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -115,6 +119,7 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("description", res.GetPayload().Description)
 	d.Set("is_pool", res.GetPayload().IsPool)
+	d.Set("mark_utilized", res.GetPayload().MarkUtilized)
 	if res.GetPayload().Status != nil {
 		d.Set("status", res.GetPayload().Status.Value)
 	}
@@ -166,12 +171,14 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 	status := d.Get("status").(string)
 	description := d.Get("description").(string)
 	is_pool := d.Get("is_pool").(bool)
+	mark_utilized := d.Get("mark_utilized").(bool)
 
 	data.Prefix = &prefix
 	data.Status = status
 
 	data.Description = description
 	data.IsPool = is_pool
+	data.MarkUtilized = mark_utilized
 
 	if vrfID, ok := d.GetOk("vrf_id"); ok {
 		data.Vrf = int64ToPtr(int64(vrfID.(int)))

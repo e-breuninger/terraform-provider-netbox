@@ -50,6 +50,7 @@ resource "netbox_available_prefix" "test" {
   description = "%s"
   status = "active"
   tags = [netbox_tag.test.name]
+  mark_utilized = true
 }`, testPrefixLength, testDesc),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "prefix", expectedPrefix),
@@ -57,6 +58,7 @@ resource "netbox_available_prefix" "test" {
 					resource.TestCheckResourceAttr(resourceName, "description", testDesc),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", testName),
+					resource.TestCheckResourceAttr(resourceName, "mark_utilized", "true"),
 				),
 			},
 			{
