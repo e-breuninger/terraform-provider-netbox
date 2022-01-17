@@ -17,11 +17,15 @@ func resourceNetboxVrf() *schema.Resource {
 		Delete: resourceNetboxVrfDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tags": &schema.Schema{
+			"tenant_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"tags": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -38,19 +42,22 @@ func resourceNetboxVrf() *schema.Resource {
 
 func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
+	data := models.WritableVRF{}
 
 	name := d.Get("name").(string)
+	tenant_id := int64(d.Get("tenant_id").(int))
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Name = &name
+	if tenant_id != 0 {
+		data.Tenant = &tenant_id
+	}
 
-	params := ipam.NewIpamVrfsCreateParams().WithData(
-		&models.WritableVRF{
-			Name:          &name,
-			Tags:          tags,
-			ExportTargets: []int64{},
-			ImportTargets: []int64{},
-		},
-	)
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+
+	data.ExportTargets = []int64{}
+	data.ImportTargets = []int64{}
+
+	params := ipam.NewIpamVrfsCreateParams().WithData(&data)
 
 	res, err := api.Ipam.IpamVrfsCreate(params, nil)
 	if err != nil {
@@ -79,6 +86,11 @@ func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("name", res.GetPayload().Name)
+	if res.GetPayload().Tenant != nil {
+		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	} else {
+		d.Set("tenant_id", nil)
+	}
 	return nil
 }
 
@@ -97,6 +109,9 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
 
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
 	params := ipam.NewIpamVrfsPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Ipam.IpamVrfsPartialUpdate(params, nil)

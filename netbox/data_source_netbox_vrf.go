@@ -13,9 +13,13 @@ func dataSourceNetboxVrf() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceNetboxVrfRead,
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"tenant_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 		},
 	}
@@ -44,5 +48,10 @@ func dataSourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
+	if result.Tenant != nil {
+		d.Set("tenant_id", result.Tenant.ID)
+	} else {
+		d.Set("tenant_id", nil)
+	}
 	return nil
 }
