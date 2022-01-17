@@ -1,13 +1,12 @@
 package netbox
 
 import (
-	"strconv"
-
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"strconv"
 )
 
 func resourceNetboxAvailableIPAddress() *schema.Resource {
@@ -45,8 +44,9 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 			},
 			"status": &schema.Schema{
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp", "slaac"}, false),
+				Default:      "active",
 			},
 			"dns_name": {
 				Type:     schema.TypeString,
