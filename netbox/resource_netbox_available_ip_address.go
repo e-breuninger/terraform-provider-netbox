@@ -1,16 +1,12 @@
 package netbox
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"strconv"
-
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"strconv"
 )
 
 func resourceNetboxAvailableIPAddress() *schema.Resource {
@@ -22,8 +18,13 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"prefix_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
+			},
+			"ip_range_id": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 			},
 			"ip_address": &schema.Schema{
 				Type:     schema.TypeString,
@@ -43,10 +44,15 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 			},
 			"status": &schema.Schema{
 				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp"}, false),
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp", "slaac"}, false),
+				Default:      "active",
 			},
 			"dns_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -66,44 +72,30 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 }
 
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
-
 	api := m.(*client.NetBoxAPI)
-	prefix_id := int64(d.Get("prefix_id").(int))
-
-	// Get all the available IPs from the given prefix
-	ipsread := &ipam.IpamPrefixesAvailableIpsReadParams{
-		ID:      prefix_id,
-		Context: context.Background(),
+	prefixId := int64(d.Get("prefix_id").(int))
+	vrfId := int64(int64(d.Get("vrf_id").(int)))
+	rangeId := int64(d.Get("ip_range_id").(int))
+	nestedvrf := models.NestedVRF{
+		ID: vrfId,
 	}
-
-	resp, err := api.Ipam.IpamPrefixesAvailableIpsRead(ipsread, nil)
-
-	if err != nil {
-		return errors.New(fmt.Sprintf("Problem getting IPs from prefix %d: %v", prefix_id, err))
+	data := models.AvailableIP{
+		Vrf: &nestedvrf,
 	}
-
-	data := models.WritableIPAddress{}
-	// Use the first Payload Address as our data.Address value
-	data.Address = &resp.Payload[0].Address
-	data.Status = d.Get("status").(string)
-
-	if dnsName, ok := d.GetOk("dns_name"); ok {
-		data.DNSName = dnsName.(string)
+	if prefixId != 0 {
+		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixId).WithData([]*models.AvailableIP{&data})
+		res, _ := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+		// Since we generated the ip_address set that now
+		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
+		d.Set("ip_address", *res.Payload[0].Address)
 	}
-
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-
-	params := ipam.NewIpamIPAddressesCreateParams().WithData(&data)
-
-	res, err := api.Ipam.IpamIPAddressesCreate(params, nil)
-	if err != nil {
-		return err
+	if rangeId != 0 {
+		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeId).WithData([]*models.AvailableIP{&data})
+		res, _ := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+		// Since we generated the ip_address set that now
+		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
+		d.Set("ip_address", *res.Payload[0].Address)
 	}
-
-	// Since we generated the ip_address set that now
-	d.Set("ip_address", res.Payload.Address)
-	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
-
 	return resourceNetboxAvailableIPAddressUpdate(d, m)
 }
 
@@ -124,8 +116,8 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 		return err
 	}
 
-	if res.GetPayload().AssignedObject != nil {
-		d.Set("interface_id", res.GetPayload().AssignedObject.ID)
+	if res.GetPayload().AssignedObjectID != nil {
+		d.Set("interface_id", res.GetPayload().AssignedObjectID)
 	} else {
 		d.Set("interface_id", nil)
 	}
@@ -147,6 +139,7 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	}
 
 	d.Set("ip_address", res.GetPayload().Address)
+	d.Set("description", res.GetPayload().Description)
 	d.Set("status", res.GetPayload().Status.Value)
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
@@ -161,8 +154,10 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 
 	ipAddress := d.Get("ip_address").(string)
 	status := d.Get("status").(string)
+	description := d.Get("description").(string)
 
 	data.Status = status
+	data.Description = description
 	data.Address = &ipAddress
 
 	if d.HasChange("dns_name") {
@@ -196,7 +191,6 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	if err != nil {
 		return err
 	}
-
 	return resourceNetboxAvailableIPAddressRead(d, m)
 }
 

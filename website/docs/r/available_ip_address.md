@@ -21,20 +21,29 @@ Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/ipaddress/):
 > - DHCP
 > - SLAAC (IPv6 Stateless Address Autoconfiguration)
 
-This resource will retrieve the next available IP address from a given prefix (specified by ID)
+This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)
 
 ## Example Usage
 
-### Marking an IP reserved
+### Creating an IP in a prefix
 ```terraform
 data "netbox_prefix" "test" {
-	cidr = "10.0.0.0/24"
+  cidr = "10.0.0.0/24"
 }
 
 resource "netbox_available_ip_address" "test" {
   prefix_id = data.netbox_prefix.test.id
-  status = "reserved"
-  dns_name = "test.mydomain.local"
+}
+```
+### Creating an IP in an IP range 
+```terraform
+data "netbox_ip_range" "test" {
+  start_address = "10.0.0.1/24"
+  end_address = "10.0.0.50/24"
+}
+
+resource "netbox_available_ip_address" "test" {
+  ip_range_id = data.netbox_ip_range.test.id
 }
 ```
 
@@ -43,22 +52,22 @@ resource "netbox_available_ip_address" "test" {
 ```terraform
 // Assumes Netbox already has a VM whos name matches 'dc-west-myvm-20'
 data "netbox_virtual_machine" "myvm" {
-    name_regex = "dc-west-myvm-20"
+  name_regex = "dc-west-myvm-20"
 }
 
 data "netbox_prefix" "test" {
-	cidr = "10.0.0.0/24"
+  cidr = "10.0.0.0/24"
 }
 
 resource "netbox_interface" "myvm-eth0" {
-    name = "eth0"
-    virtual_machine_id = data.netbox_virtual_machine.myvm.id
+  name = "eth0"
+  virtual_machine_id = data.netbox_virtual_machine.myvm.id
 }
 
 resource "netbox_available_ip_address" "myvm-ip" {
-    prefix_id = data.netbox_prefix.test.id
-    status = "active"
-    interface_id = netbox_interface.myvm-eth0.id
+  prefix_id = data.netbox_prefix.test.id
+  status = "active"
+  interface_id = netbox_interface.myvm-eth0.id
 }
 ```
 
@@ -67,16 +76,15 @@ resource "netbox_available_ip_address" "myvm-ip" {
 
 ### Required
 
-- **prefix_id** (String)
-- **status** (String)
+- Either **prefix_id** or **ip_range_id** (String)
 
 ### Optional
 
+- **status** (String) Defaults to "active".  Choose from "active", "reserved", "deprecated", "dhcp", or "slaac"
 - **dns_name** (String)
 - **id** (String) The ID of this resource.
 - **interface_id** (Number)
 - **tags** (Set of String)
 - **tenant_id** (Number)
 - **vrf_id** (Number)
-
-
+- **description** (String)

@@ -102,8 +102,8 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if res.GetPayload().AssignedObject != nil {
-		d.Set("interface_id", res.GetPayload().AssignedObject.ID)
+	if res.GetPayload().AssignedObjectID != nil {
+		d.Set("interface_id", res.GetPayload().AssignedObjectID)
 	} else {
 		d.Set("interface_id", nil)
 	}
