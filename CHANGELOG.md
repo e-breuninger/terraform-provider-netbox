@@ -1,10 +1,17 @@
-## 1.2.0 (Jan 17, 2022)
+## 1.2.0 (Jan 20, 2022)
 
 FEATURES
 
-* resource `netbox_available_ip_address`: fixed duplicates ([#59](https://github.com/e-breuninger/terraform-provider-netbox/issues/59) by [@holmesb](https://github.com/holmesb))
-* resource `netbox_available_ip_address`: can now be created in netbox_ip_ranges  ([#105](https://github.com/e-breuninger/terraform-provider-netbox/issues/105) by [@holmesb](https://github.com/holmesb))
-* resource `netbox_available_ip_address`: added `description` argument by [@holmesb](https://github.com/holmesb)
+* resource/netbox_available_ip_address: Can now be created in netbox_ip_ranges ([#106](https://github.com/e-breuninger/terraform-provider-netbox/pull/106) by [@holmesb](https://github.com/holmesb))
+
+ENHANCEMENTS
+
+* resource/netbox_available_ip_address: fixed duplicates [#59](https://github.com/e-breuninger/terraform-provider-netbox/issues/59) ([#106](https://github.com/e-breuninger/terraform-provider-netbox/pull/106) by [@holmesb](https://github.com/holmesb))
+* resource/netbox_available_ip_address: Add `description` argument ([#106](https://github.com/e-breuninger/terraform-provider-netbox/pull/106) by [@holmesb](https://github.com/holmesb))
+* resource/netbox_available_ip_address: `status` argument is now optional ([#106](https://github.com/e-breuninger/terraform-provider-netbox/pull/106) by [@holmesb](https://github.com/holmesb))
+* resource/netbox_vrf: Add `tenant_id` attribute ([#112](https://github.com/e-breuninger/terraform-provider-netbox/pull/112) by [@cova-fe](https://github.com/cova-fe))
+* data-source/netbox_vrf: Add `tenant_id` attribute ([#112](https://github.com/e-breuninger/terraform-provider-netbox/pull/112) by [@cova-fe](https://github.com/cova-fe))
+* resource/available_prefix: Add `mark_utilized` attribute ([#111](https://github.com/e-breuninger/terraform-provider-netbox/pull/111) by [@cova-fe](https://github.com/cova-fe))
 
 ## 1.1.0 (Jan 3, 2022)
 
