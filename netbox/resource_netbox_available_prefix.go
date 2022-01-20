@@ -49,6 +49,10 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"mark_utilized": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"vrf_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -57,15 +61,15 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"site_id": &schema.Schema{
+			"site_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vlan_id": &schema.Schema{
+			"vlan_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"role_id": &schema.Schema{
+			"role_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},

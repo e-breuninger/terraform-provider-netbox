@@ -14,11 +14,11 @@ func dataSourceNetboxPrefix() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceNetboxPrefixRead,
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsCIDR,
