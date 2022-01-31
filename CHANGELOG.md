@@ -1,3 +1,9 @@
+## 1.2.1 (Jan 31, 2022)
+
+FEATURES
+
+* provider: Can now optionally pass custom HTTP headers for every request ([#116](https://github.com/e-breuninger/terraform-provider-netbox/pull/116) by [@mariuskiessling](https://github.com/mariuskiessling))
+
 ## 1.2.0 (Jan 20, 2022)
 
 FEATURES
