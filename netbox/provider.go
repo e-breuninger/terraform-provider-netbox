@@ -69,6 +69,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_ALLOW_INSECURE_HTTPS", false),
 				Description: "Flag to set whether to allow https with invalid certificates",
 			},
+			"headers": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_HEADERS", map[string]interface{}{}),
+				Description: "Set these header on all requests to Netbox",
+			},
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -83,6 +89,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		ServerURL:          data.Get("server_url").(string),
 		APIToken:           data.Get("api_token").(string),
 		AllowInsecureHttps: data.Get("allow_insecure_https").(bool),
+		Headers:            data.Get("headers").(map[string]interface{}),
 	}
 
 	netboxClient, clientError := config.Client()
