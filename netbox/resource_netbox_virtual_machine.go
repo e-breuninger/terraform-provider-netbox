@@ -75,6 +75,14 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceNetboxVirtualMachineResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceNetboxVirtualMachineStateUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
