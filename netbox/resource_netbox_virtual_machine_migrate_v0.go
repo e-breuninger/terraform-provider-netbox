@@ -75,6 +75,7 @@ func resourceNetboxVirtualMachineStateUpgradeV0(_ context.Context, rawState map[
 
 	s, ok := v.(string)
 	if !ok {
+		// since the provider was already released without this state migration, we have to accept that this field already contains non-string content
 		return rawState, nil
 	}
 
