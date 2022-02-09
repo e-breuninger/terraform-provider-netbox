@@ -1,3 +1,9 @@
+## 1.2.2 (Feb 9, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_virtual_machine: Now has a state migration for the `vcpus` attribute ([#120](https://github.com/e-breuninger/terraform-provider-netbox/pull/120) by [@pascal-hofmann](https://github.com/pascal-hofmann))
+
 ## 1.2.1 (Jan 31, 2022)
 
 FEATURES
