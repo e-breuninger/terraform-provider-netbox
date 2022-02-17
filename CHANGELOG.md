@@ -1,3 +1,10 @@
+## 1.3.0 (Feb 17, 2022)
+
+FEATURES:
+
+* **New Resource:** `netbox_region` ([#121](https://github.com/e-breuninger/terraform-provider-netbox/pull/121) by [@gerl1ng](https://github.com/gerl1ng))
+* **New Data Source:** `netbox_region` [#121](https://github.com/e-breuninger/terraform-provider-netbox/pull/121) by [@gerl1ng](https://github.com/gerl1ng)
+
 ## 1.2.2 (Feb 9, 2022)
 
 ENHANCEMENTS
