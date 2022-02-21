@@ -1,3 +1,10 @@
+## 1.4.0 (Feb 17, 2022)
+
+FEATURES:
+
+* **New Data Source:** `netbox_cluster_type` [#122](https://github.com/e-breuninger/terraform-provider-netbox/pull/122) by [@madnutter56](https://github.com/madnutter56)
+* **New Data Source:** `netbox_site` [#122](https://github.com/e-breuninger/terraform-provider-netbox/pull/122) by [@madnutter56](https://github.com/madnutter56)
+
 ## 1.3.0 (Feb 17, 2022)
 
 FEATURES:
