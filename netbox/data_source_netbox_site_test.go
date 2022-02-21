@@ -25,7 +25,7 @@ data "netbox_site" "test" {
   name = "%[1]s"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-                                        resource.TestCheckResourceAttrPair("data.netbox_site.test", "status", "netbox_site.test", "active"),
+					resource.TestCheckResourceAttrPair("data.netbox_site.test", "status", "netbox_site.test", "active"),
 					resource.TestCheckResourceAttrPair("data.netbox_site.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_site.test", "id", "netbox_site.test", "id"),
 				),
