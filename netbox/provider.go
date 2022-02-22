@@ -42,6 +42,7 @@ func Provider() *schema.Provider {
 			"netbox_cluster_group":    dataSourceNetboxClusterGroup(),
 			"netbox_cluster_type":     dataSourceNetboxClusterType(),
 			"netbox_tenant":           dataSourceNetboxTenant(),
+			"netbox_tenants":          dataSourceNetboxTenants(),
 			"netbox_tenant_group":     dataSourceNetboxTenantGroup(),
 			"netbox_vrf":              dataSourceNetboxVrf(),
 			"netbox_platform":         dataSourceNetboxPlatform(),
