@@ -1,3 +1,9 @@
+## 1.5.0 (Feb 23, 2022)
+
+FEATURES:
+
+* **New Data Source:** `netbox_tenants` [#124](https://github.com/e-breuninger/terraform-provider-netbox/pull/124) by [@twink0r](https://github.com/twink0r)
+
 ## 1.4.0 (Feb 21, 2022)
 
 FEATURES:
