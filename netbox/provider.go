@@ -103,7 +103,12 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	}
 
 	req := status.NewStatusListParams()
-	res, _ := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+	res, err := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+
 	netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"]
 
 	supportedVersion := "3.1.3"
