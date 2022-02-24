@@ -1,19 +1,25 @@
+## 1.5.1 (Feb 24, 2022)
+
+ENHANCEMENTS
+
+* No longer crashes if netbox is unreachable when initialising the provider [#126](https://github.com/e-breuninger/terraform-provider-netbox/pull/126) by [@twink0r](https://github.com/twink0r)
+
 ## 1.5.0 (Feb 23, 2022)
 
-FEATURES:
+FEATURES
 
 * **New Data Source:** `netbox_tenants` [#124](https://github.com/e-breuninger/terraform-provider-netbox/pull/124) by [@twink0r](https://github.com/twink0r)
 
 ## 1.4.0 (Feb 21, 2022)
 
-FEATURES:
+FEATURES
 
 * **New Data Source:** `netbox_cluster_type` [#122](https://github.com/e-breuninger/terraform-provider-netbox/pull/122) by [@madnutter56](https://github.com/madnutter56)
 * **New Data Source:** `netbox_site` [#122](https://github.com/e-breuninger/terraform-provider-netbox/pull/122) by [@madnutter56](https://github.com/madnutter56)
 
 ## 1.3.0 (Feb 17, 2022)
 
-FEATURES:
+FEATURES
 
 * **New Resource:** `netbox_region` ([#121](https://github.com/e-breuninger/terraform-provider-netbox/pull/121) by [@gerl1ng](https://github.com/gerl1ng))
 * **New Data Source:** `netbox_region` [#121](https://github.com/e-breuninger/terraform-provider-netbox/pull/121) by [@gerl1ng](https://github.com/gerl1ng)
