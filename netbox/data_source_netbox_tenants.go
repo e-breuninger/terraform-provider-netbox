@@ -6,6 +6,7 @@ import (
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -109,6 +110,30 @@ func dataSourceNetboxTenants() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"tenant_group": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"slug": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"tentant_count": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -173,10 +198,24 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 		mapping["circuit_count"] = v.CircuitCount
 		mapping["cluster_count"] = v.ClusterCount
 
+		mapping["tenant_group"] = flattenTentantGroup(v.Group)
 		s = append(s, mapping)
 	}
 
 	d.SetId(resource.UniqueId())
 	return d.Set("tenants", s)
 
+}
+
+func flattenTentantGroup(group *models.NestedTenantGroup) []map[string]interface{} {
+	var s []map[string]interface{}
+	if group != nil {
+		var mapping = make(map[string]interface{})
+		mapping["id"] = group.ID
+		mapping["name"] = group.Name
+		mapping["slug"] = group.Slug
+		mapping["tentant_count"] = group.TenantCount
+		s = append(s, mapping)
+	}
+	return s
 }
