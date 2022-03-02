@@ -127,7 +127,7 @@ func dataSourceNetboxTenants() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
-									"tentant_count": {
+									"tenant_count": {
 										Type:     schema.TypeInt,
 										Computed: true,
 									},
@@ -198,7 +198,7 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 		mapping["circuit_count"] = v.CircuitCount
 		mapping["cluster_count"] = v.ClusterCount
 
-		mapping["tenant_group"] = flattenTentantGroup(v.Group)
+		mapping["tenant_group"] = flattenTenantGroup(v.Group)
 		s = append(s, mapping)
 	}
 
@@ -207,14 +207,14 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 
 }
 
-func flattenTentantGroup(group *models.NestedTenantGroup) []map[string]interface{} {
+func flattenTenantGroup(group *models.NestedTenantGroup) []map[string]interface{} {
 	var s []map[string]interface{}
 	if group != nil {
 		var mapping = make(map[string]interface{})
 		mapping["id"] = group.ID
 		mapping["name"] = group.Name
 		mapping["slug"] = group.Slug
-		mapping["tentant_count"] = group.TenantCount
+		mapping["tenant_count"] = group.TenantCount
 		s = append(s, mapping)
 	}
 	return s
