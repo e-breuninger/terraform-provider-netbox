@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fbreckle/go-netbox v0.0.0-20220117123939-7f4dc1816b81
-	github.com/go-openapi/runtime v0.23.1
+	github.com/go-openapi/runtime v0.23.2
 	github.com/goware/urlx v0.3.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.1
 	github.com/sirupsen/logrus v1.8.1
