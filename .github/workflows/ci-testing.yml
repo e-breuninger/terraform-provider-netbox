@@ -1,7 +1,6 @@
 name: ci-testing
 on: [push, pull_request]
 jobs:
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +37,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: testacc
-        run: make testacc
+        run: make docker-up testacc
         env:
-          NETBOX_VERSION: "v2.10.10"
+          NETBOX_VERSION: "v3.1"

@@ -1,0 +1,5 @@
+FROM alpine
+
+RUN wget https://raw.githubusercontent.com/eficode/wait-for/master/wait-for \
+    && chmod +x wait-for \
+    && mv wait-for /usr/local/bin
