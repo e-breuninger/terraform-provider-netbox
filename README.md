@@ -68,7 +68,7 @@ To compile the provider, run `go install`. This will build the provider and put 
 
 In order to run the suite of unit tests, run `make test`.
 
-In order to run the full suite of Acceptance tests, run `make testacc`.
+In order to run the full suite of Acceptance tests, run `make docker-up testacc`.
 
 _Note:_ Acceptance tests create a docker compose stack on port 8001.
 
