@@ -9,7 +9,7 @@ services:
   redis:
     image: redis:6-alpine
   netbox:
-    image: netboxcommunity/netbox:${NETBOX_VERSION-latest}
+    image: netboxcommunity/netbox:${NETBOX_VERSION}
     depends_on:
       - postgres
       - redis
