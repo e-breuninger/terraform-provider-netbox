@@ -37,6 +37,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: testacc
-        run: make docker-up testacc
+        run: make testacc
         env:
-          NETBOX_VERSION: "v3.1"
+          NETBOX_VERSION: "v3.1.9"
