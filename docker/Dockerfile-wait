@@ -1,0 +1,2 @@
+FROM alpine
+COPY wait-for /usr/local/bin
