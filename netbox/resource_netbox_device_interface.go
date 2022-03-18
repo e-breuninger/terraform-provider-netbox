@@ -181,6 +181,9 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Set:      schema.HashString,
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 	}
 }
 
