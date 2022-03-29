@@ -29,6 +29,11 @@ resource "netbox_virtual_machine" "test" {
   cluster_id = netbox_cluster.test.id
 }
 
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["ipam.service"]
+}
 `, testName)
 }
 
@@ -36,7 +41,7 @@ func TestAccNetboxService_basic(t *testing.T) {
 
 	testSlug := "svc_basic"
 	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceDestroy,
@@ -48,6 +53,7 @@ resource "netbox_service" "test" {
   virtual_machine_id = netbox_virtual_machine.test.id
   ports = [666]
   protocol = "tcp"
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_service.test", "name", testName),
@@ -55,6 +61,7 @@ resource "netbox_service" "test" {
 					resource.TestCheckResourceAttr("netbox_service.test", "ports.#", "1"),
 					resource.TestCheckResourceAttr("netbox_service.test", "ports.0", "666"),
 					resource.TestCheckResourceAttr("netbox_service.test", "protocol", "tcp"),
+					resource.TestCheckResourceAttr("netbox_service.test", "custom_fields.issue", "76"),
 				),
 			},
 			{

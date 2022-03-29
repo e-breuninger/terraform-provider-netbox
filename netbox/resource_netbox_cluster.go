@@ -41,6 +41,7 @@ func resourceNetboxCluster() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -71,6 +72,8 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 	data.Tags = tags
+
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := virtualization.NewVirtualizationClustersCreateParams().WithData(&data)
 
@@ -117,6 +120,7 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -144,6 +148,8 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 	data.Tags = tags
+
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := virtualization.NewVirtualizationClustersPartialUpdateParams().WithID(id).WithData(&data)
 

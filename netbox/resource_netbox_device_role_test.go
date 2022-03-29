@@ -65,6 +65,36 @@ resource "netbox_device_role" "test" {
 	})
 }
 
+func TestAccNetboxDeviceRole_customFields(t *testing.T) {
+
+	testSlug := "device_role_customFields"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["dcim.devicerole"]
+}
+resource "netbox_device_role" "test" {
+  name = "%s"
+  color_hex = "111111"
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_role.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_device_role.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_device_role.test", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_device_role", &resource.Sweeper{
 		Name:         "netbox_device_role",

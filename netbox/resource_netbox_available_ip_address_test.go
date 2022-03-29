@@ -39,6 +39,7 @@ resource "netbox_available_ip_address" "test" {
 		},
 	})
 }
+
 func TestAccNetboxAvailableIPAddress_basic_range(t *testing.T) {
 	startAddress := "1.1.5.1/24"
 	endAddress := "1.1.5.50/24"
@@ -217,6 +218,40 @@ resource "netbox_available_ip_address" "test_range3" {
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range1", "ip_address", testIP[0]),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range2", "ip_address", testIP[1]),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range3", "ip_address", testIP[2]),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxAvailableIPAddress_customFields(t *testing.T) {
+	testPrefix := "1.1.8.0/24"
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "issue" {
+	name = "issue"
+	type = "url"
+	content_types = ["ipam.ipaddress"]
+}
+resource "netbox_prefix" "test" {
+	prefix = "%s"
+	status = "active"
+	is_pool = false
+}
+resource "netbox_available_ip_address" "test" {
+  depends_on = [netbox_custom_field.issue]
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  dns_name = "test.mydomain.local"
+  custom_fields = {
+	"${netbox_custom_field.issue.name}" = "76"
+  }
+}`, testPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "custom_fields.issue", "76"),
 				),
 			},
 		},

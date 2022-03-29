@@ -71,6 +71,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -137,6 +138,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := virtualization.NewVirtualizationVirtualMachinesCreateParams().WithData(&data)
 
@@ -213,6 +215,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("memory_mb", res.GetPayload().Memory)
 	d.Set("disk_size_gb", res.GetPayload().Disk)
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return diags
 }
 
@@ -293,6 +296,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		}
 		data.Comments = comments
 	}
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := virtualization.NewVirtualizationVirtualMachinesUpdateParams().WithID(id).WithData(&data)
 

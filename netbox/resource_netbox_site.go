@@ -63,6 +63,7 @@ func resourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -112,6 +113,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := dcim.NewDcimSitesCreateParams().WithData(&data)
 
@@ -160,6 +162,7 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("tenant_id", nil)
 	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -206,6 +209,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)
 

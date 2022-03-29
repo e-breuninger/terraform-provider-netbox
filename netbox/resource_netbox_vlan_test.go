@@ -63,7 +63,6 @@ resource "netbox_vlan" "test_basic" {
 }
 
 func TestAccNetboxVlan_with_dependencies(t *testing.T) {
-
 	testSlug := "vlan_with_dependencies"
 	testName := testAccGetTestName(testSlug)
 	testVid := "666"
@@ -98,6 +97,39 @@ resource "netbox_vlan" "test_with_dependencies" {
 				ResourceName:      "netbox_vlan.test_with_dependencies",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxVlan_customFields(t *testing.T) {
+
+	testSlug := "vlan_cf"
+	testName := testAccGetTestName(testSlug)
+	testVid := "999"
+	testDescription := "Test Description"
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVlanFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["ipam.vlan"]
+}
+resource "netbox_vlan" "test_basic" {
+  name = "%s"
+  vid = "%s"
+  status = "active"
+  description = "%s"
+  tags = []
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName, testVid, testDescription),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "custom_fields.issue", "76"),
+				),
 			},
 		},
 	})

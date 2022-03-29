@@ -35,6 +35,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -61,10 +62,11 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 
 	params := dcim.NewDcimDeviceRolesCreateParams().WithData(
 		&models.DeviceRole{
-			Name:   &name,
-			Slug:   &slug,
-			Color:  color,
-			VMRole: vmRole,
+			Name:         &name,
+			Slug:         &slug,
+			Color:        color,
+			VMRole:       vmRole,
+			CustomFields: d.Get(customFieldsKey),
 		},
 	)
 
@@ -99,6 +101,7 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("vm_role", res.GetPayload().VMRole)
 	d.Set("color_hex", res.GetPayload().Color)
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -126,6 +129,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	data.Name = &name
 	data.VMRole = vmRole
 	data.Color = color
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := dcim.NewDcimDeviceRolesPartialUpdateParams().WithID(id).WithData(&data)
 

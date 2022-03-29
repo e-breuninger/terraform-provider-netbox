@@ -61,6 +61,36 @@ resource "netbox_cluster_type" "test" {
 	})
 }
 
+func TestAccNetboxClusterType_customFields(t *testing.T) {
+
+	testSlug := "clstr_type_custom_fields"
+	testName := testAccGetTestName(testSlug)
+	randomSlug := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["virtualization.clustertype"]
+}
+resource "netbox_cluster_type" "test" {
+  name = "%s"
+  slug = "%s"
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName, randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_cluster_type.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_cluster_type.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_cluster_type.test", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
 func init() {
 	resource.AddTestSweepers("netbox_cluster_type", &resource.Sweeper{
 		Name:         "netbox_cluster_type",

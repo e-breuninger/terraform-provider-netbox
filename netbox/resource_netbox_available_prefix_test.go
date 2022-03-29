@@ -39,7 +39,7 @@ func TestAccNetboxAvailablePrefix_basic(t *testing.T) {
 	parentResourceName := "netbox_prefix.parent"
 	resourceName := "netbox_available_prefix.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -83,11 +83,11 @@ resource "netbox_available_prefix" "test" {
 }
 
 func TestAccNetboxAvailablePrefix_multiplePrefixesSerial(t *testing.T) {
-	testParentPrefix := "1.1.0.0/24"
+	testParentPrefix := "1.1.1.0/24"
 	testPrefixLength := 25
 	expectedPrefixes := []string{
-		"1.1.0.0/25",
-		"1.1.0.128/25",
+		"1.1.1.0/25",
+		"1.1.1.128/25",
 	}
 	testSlug := "prefix"
 	testName := testAccGetTestName(testSlug)

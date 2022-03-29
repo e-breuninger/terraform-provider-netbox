@@ -145,6 +145,8 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 		}
 	}
 
+	data.CustomFields = d.Get(customFieldsKey)
+
 	updateParams := virtualization.NewVirtualizationVirtualMachinesUpdateParams().WithID(virtualMachineID).WithData(&data)
 
 	_, err = api.Virtualization.VirtualizationVirtualMachinesUpdate(updateParams, nil)

@@ -83,6 +83,39 @@ resource "netbox_site" "test" {
 	})
 }
 
+func TestAccNetboxSite_customFields(t *testing.T) {
+
+	testSlug := "site_customFields"
+	testName := testAccGetTestName(testSlug)
+	randomSlug := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["dcim.site"]
+}
+resource "netbox_site" "test" {
+  name = "%s"
+  slug = "slug"
+  status = "active"
+  description = "%[1]s"
+  facility = "%[1]s"
+  asn = 1337
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName, randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_site.test", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_site", &resource.Sweeper{
 		Name:         "netbox_site",

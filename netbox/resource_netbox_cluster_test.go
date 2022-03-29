@@ -15,12 +15,18 @@ func TestAccNetboxCluster_basic(t *testing.T) {
 
 	testSlug := "clstr_basic"
 	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name 		  = "issue"
+	type 		  = "text"
+	content_types = ["virtualization.cluster"]
+}
+
 resource "netbox_tag" "test" {
   name = "%[1]s"
 }
@@ -34,7 +40,7 @@ resource "netbox_cluster_group" "test" {
 }
 
 resource "netbox_site" "test" {
-  name   = "%[1]s"
+  name	 = "%[1]s"
   status = "active"
 }
 
@@ -44,6 +50,7 @@ resource "netbox_cluster" "test" {
   cluster_group_id = netbox_cluster_group.test.id
   site_id = netbox_site.test.id
   tags = [netbox_tag.test.name]
+  custom_fields = {"${netbox_custom_field.test.name}" = "76" }
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_cluster.test", "name", testName),
@@ -52,6 +59,7 @@ resource "netbox_cluster" "test" {
 					resource.TestCheckResourceAttrPair("netbox_cluster.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("netbox_cluster.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_cluster.test", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_cluster.test", "custom_fields.issue", "76"),
 				),
 			},
 			{

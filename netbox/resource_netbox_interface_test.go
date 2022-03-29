@@ -93,6 +93,35 @@ resource "netbox_interface" "test" {
 	})
 }
 
+func TestAccNetboxInterface_customFields(t *testing.T) {
+
+	testSlug := "iface_customFields"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxInterfaceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name = "issue"
+  type = "text"
+  content_types = ["virtualization.vminterface"]
+}
+resource "netbox_interface" "test" {
+  name = "%s"
+  virtual_machine_id = netbox_virtual_machine.test.id
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_interface.test", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckInterfaceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
 	conn := testAccProvider.Meta().(*client.NetBoxAPI)

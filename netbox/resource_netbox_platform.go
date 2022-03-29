@@ -28,6 +28,7 @@ func resourceNetboxPlatform() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -51,8 +52,9 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimPlatformsCreateParams().WithData(
 		&models.WritablePlatform{
-			Name: &name,
-			Slug: &slug,
+			Name:         &name,
+			Slug:         &slug,
+			CustomFields: d.Get(customFieldsKey),
 		},
 	)
 
@@ -86,6 +88,7 @@ func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -108,6 +111,7 @@ func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Slug = &slug
 	data.Name = &name
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := dcim.NewDcimPlatformsPartialUpdateParams().WithID(id).WithData(&data)
 

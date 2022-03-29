@@ -57,6 +57,7 @@ func resourceNetboxVlan() *schema.Resource {
 				Required: true,
 				Set:      schema.HashString,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -91,6 +92,7 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamVlansCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlansCreate(params, nil)
@@ -147,6 +149,7 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 
 	return nil
 }
@@ -179,6 +182,7 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamVlansUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamVlansUpdate(params, nil)

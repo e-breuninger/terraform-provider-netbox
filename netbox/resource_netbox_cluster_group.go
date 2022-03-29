@@ -32,6 +32,7 @@ func resourceNetboxClusterGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -56,6 +57,8 @@ func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) err
 		slug = slugValue.(string)
 	}
 	data.Slug = &slug
+
+	data.CustomFields = d.Get(customFieldsKey)
 
 	if description, ok := d.GetOk("description"); ok {
 		data.Description = description.(string)
@@ -92,6 +95,7 @@ func resourceNetboxClusterGroupRead(d *schema.ResourceData, m interface{}) error
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("description", res.GetPayload().Description)
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -122,6 +126,8 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 			data.Description = description.(string)
 		}
 	}
+
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := virtualization.NewVirtualizationClusterGroupsPartialUpdateParams().WithID(id).WithData(&data)
 

@@ -41,6 +41,12 @@ resource "netbox_site" "test" {
   status = "active"
 }
 
+resource "netbox_custom_field" "test" {
+  name = "issue"
+  type = "text"
+  content_types = ["virtualization.virtualmachine"]
+}
+
 resource "netbox_virtual_machine" "test" {
   name = "%[1]s"
   cluster_id = netbox_cluster.test.id
@@ -53,6 +59,7 @@ resource "netbox_virtual_machine" "test" {
   vcpus = "4"
 
   tags = [netbox_tag.test.name]
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
 }
 
 resource "netbox_interface" "test" {
@@ -78,7 +85,7 @@ func TestAccNetboxPrimaryIP4_basic(t *testing.T) {
 
 	testSlug := "pr_ip_basic"
 	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -104,6 +111,7 @@ resource "netbox_primary_ip" "test_v4" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "custom_fields.issue", "76"),
 				),
 			},
 		},
@@ -114,7 +122,7 @@ func TestAccNetboxPrimaryIP6_basic(t *testing.T) {
 
 	testSlug := "pr_ip_basic"
 	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

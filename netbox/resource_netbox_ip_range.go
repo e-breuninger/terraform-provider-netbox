@@ -55,6 +55,7 @@ func resourceNetboxIpRange() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -77,6 +78,7 @@ func resourceNetboxIpRangeCreate(d *schema.ResourceData, m interface{}) error {
 	data.Description = description
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamIPRangesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamIPRangesCreate(params, nil)
@@ -133,7 +135,7 @@ func resourceNetboxIpRangeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
-
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -165,6 +167,7 @@ func resourceNetboxIpRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamIPRangesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamIPRangesUpdate(params, nil)

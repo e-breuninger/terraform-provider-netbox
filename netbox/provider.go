@@ -41,6 +41,7 @@ func Provider() *schema.Provider {
 			"netbox_region":               resourceNetboxRegion(),
 			"netbox_aggregate":            resourceNetboxAggregate(),
 			"netbox_rir":                  resourceNetboxRir(),
+			"netbox_custom_field":         resourceCustomField(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),
@@ -88,6 +89,7 @@ func Provider() *schema.Provider {
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
+
 	return provider
 }
 

@@ -52,6 +52,7 @@ func resourceNetboxInterface() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -74,6 +75,7 @@ func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error 
 		VirtualMachine: &virtualMachineID,
 		Tags:           tags,
 		TaggedVlans:    []int64{},
+		CustomFields:   d.Get(customFieldsKey),
 	}
 	if macAddress != "" {
 		data.MacAddress = &macAddress
@@ -112,6 +114,7 @@ func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", res.GetPayload().Description)
 	d.Set("mac_address", res.GetPayload().MacAddress)
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -131,6 +134,7 @@ func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error 
 		VirtualMachine: &virtualMachineID,
 		Tags:           tags,
 		TaggedVlans:    []int64{},
+		CustomFields:   d.Get(customFieldsKey),
 	}
 
 	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)

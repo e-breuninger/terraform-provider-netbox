@@ -26,6 +26,7 @@ func resourceNetboxClusterType() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -49,8 +50,9 @@ func resourceNetboxClusterTypeCreate(d *schema.ResourceData, m interface{}) erro
 
 	params := virtualization.NewVirtualizationClusterTypesCreateParams().WithData(
 		&models.ClusterType{
-			Name: &name,
-			Slug: &slug,
+			Name:         &name,
+			Slug:         &slug,
+			CustomFields: d.Get(customFieldsKey),
 		},
 	)
 
@@ -83,6 +85,7 @@ func resourceNetboxClusterTypeRead(d *schema.ResourceData, m interface{}) error 
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -105,6 +108,7 @@ func resourceNetboxClusterTypeUpdate(d *schema.ResourceData, m interface{}) erro
 
 	data.Slug = &slug
 	data.Name = &name
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := virtualization.NewVirtualizationClusterTypesPartialUpdateParams().WithID(id).WithData(&data)
 

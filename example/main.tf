@@ -28,6 +28,12 @@ resource "netbox_tag" "bar" {
   name = "bar"
 }
 
+resource "netbox_custom_field" "issue" {
+  name = "issue"
+  type = "url"
+  content_types = ["virtualization.virtualmachine"]
+}
+
 resource "netbox_device_role" "testdevicerole" {
   name      = "my-device-role"
   vm_role   = true
@@ -73,16 +79,19 @@ resource "netbox_tenant" "testtenant" {
 }
 
 resource "netbox_virtual_machine" "testvm" {
-  name         = "my-test-vm"
-  comments     = "my-test-comment"
-  memory_mb    = 1024
-  vcpus        = 4
-  disk_size_gb = 512
-  cluster_id   = netbox_cluster.testcluster.id
-  tenant_id    = netbox_tenant.testtenant.id
-  platform_id  = netbox_platform.testplatform.id
-  role_id      = netbox_device_role.testdevicerole.id
-  tags         = [netbox_tag.foo.name, netbox_tag.bar.name]
+  name          = "my-test-vm"
+  comments      = "my-test-comment"
+  memory_mb     = 1024
+  vcpus         = 4
+  disk_size_gb  = 512
+  cluster_id    = netbox_cluster.testcluster.id
+  tenant_id     = netbox_tenant.testtenant.id
+  platform_id   = netbox_platform.testplatform.id
+  role_id       = netbox_device_role.testdevicerole.id
+  tags          = [netbox_tag.foo.name, netbox_tag.bar.name]
+  custom_fields = {
+    "${netbox_custom_field.issue.name}" = "https://github.com/e-breuninger/terraform-provider-netbox/issues/76"
+  }
 }
 
 resource "netbox_interface" "testinterface" {

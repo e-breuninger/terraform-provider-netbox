@@ -62,6 +62,32 @@ resource "netbox_platform" "test" {
 	})
 }
 
+func TestAccNetboxPlatform_customFields(t *testing.T) {
+	testSlug := "platform_customFields"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["dcim.platform"]
+}
+resource "netbox_platform" "test" {
+  name = "%s"
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_platform.test", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_platform", &resource.Sweeper{
 		Name:         "netbox_platform",

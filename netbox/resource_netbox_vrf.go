@@ -33,6 +33,7 @@ func resourceNetboxVrf() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -56,6 +57,7 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamVrfsCreateParams().WithData(&data)
 
@@ -91,6 +93,7 @@ func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("tenant_id", nil)
 	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -112,6 +115,8 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	if tenantID, ok := d.GetOk("tenant_id"); ok {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
+	data.CustomFields = d.Get(customFieldsKey)
+
 	params := ipam.NewIpamVrfsPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Ipam.IpamVrfsPartialUpdate(params, nil)

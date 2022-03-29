@@ -45,6 +45,7 @@ func resourceNetboxService() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -83,6 +84,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Tags = []*models.NestedTag{}
 	data.Ipaddresses = []int64{}
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamServicesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamServicesCreate(params, nil)
@@ -114,6 +116,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("protocol", res.GetPayload().Protocol.Value)
 	d.Set("ports", res.GetPayload().Ports)
 	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 
 	return nil
 }
@@ -148,6 +151,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	data.VirtualMachine = &dataVirtualMachineID
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamServicesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamServicesUpdate(params, nil)

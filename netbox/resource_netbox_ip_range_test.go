@@ -140,6 +140,41 @@ resource "netbox_ip_range" "test_with_dependencies" {
 	})
 }
 
+func TestAccNetboxIpRange_customFields(t *testing.T) {
+
+	testSlug := "range_customFields"
+	testName := testAccGetTestName(testSlug)
+	randomSlug := testAccGetTestName(testSlug)
+	testStartAddress := "10.0.0.1/24"
+	testEndAddress := "10.0.0.50/24"
+	testDescription := "Test Description"
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIpRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["ipam.iprange"]
+}
+resource "netbox_ip_range" "test_basic" {
+  start_address = "%s"
+  end_address = "%s"
+  status = "active"
+  description = "%s"
+  tags = []
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testStartAddress, testEndAddress, testDescription),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_ip_range", &resource.Sweeper{
 		Name:         "netbox_ip_range",

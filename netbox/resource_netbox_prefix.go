@@ -68,6 +68,7 @@ func resourceNetboxPrefix() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -113,6 +114,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamPrefixesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamPrefixesCreate(params, nil)
@@ -120,6 +122,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 
 	return resourceNetboxPrefixRead(d, m)
 }
@@ -181,6 +184,7 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
 	return nil
@@ -224,6 +228,7 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamPrefixesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamPrefixesUpdate(params, nil)

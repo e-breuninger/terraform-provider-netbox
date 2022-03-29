@@ -139,6 +139,32 @@ resource "netbox_vrf" "test_tenant" {
 	})
 }
 
+func TestAccNetboxVrf_customFields(t *testing.T) {
+	testSlug := "vrf_cf"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["ipam.vrf"]
+}
+resource "netbox_vrf" "test" {
+  name = "%s"
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vrf.test", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_vrf", &resource.Sweeper{
 		Name:         "netbox_vrf",

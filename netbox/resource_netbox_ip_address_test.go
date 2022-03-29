@@ -154,6 +154,34 @@ resource "netbox_ip_address" "test" {
 	})
 }
 
+func TestAccNetboxIPAddress_customFields(t *testing.T) {
+	testIP := "1.1.1.1/32"
+	testSlug := "ipa_ct"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["ipam.ipaddress"]
+}
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  interface_id = netbox_interface.test.id
+  status = "active"
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testIP),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_ip_address", &resource.Sweeper{
 		Name:         "netbox_ip_address",

@@ -40,6 +40,7 @@ func resourceNetboxTenant() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -72,6 +73,8 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 	if group_id != 0 {
 		data.Group = &group_id
 	}
+
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := tenancy.NewTenancyTenantsCreateParams().WithData(data)
 
@@ -106,7 +109,7 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 	if res.GetPayload().Group != nil {
 		d.Set("group_id", res.GetPayload().Group.ID)
 	}
-
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -135,6 +138,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 	if group_id != 0 {
 		data.Group = &group_id
 	}
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := tenancy.NewTenancyTenantsPartialUpdateParams().WithID(id).WithData(&data)
 

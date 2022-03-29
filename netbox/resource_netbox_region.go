@@ -41,6 +41,7 @@ func resourceNetboxRegion() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -72,7 +73,7 @@ func resourceNetboxRegionCreate(d *schema.ResourceData, m interface{}) error {
 	if ok {
 		data.Parent = int64ToPtr(int64(parentRegionIDValue.(int)))
 	}
-
+	data.CustomFields = d.Get(customFieldsKey)
 	params := dcim.NewDcimRegionsCreateParams().WithData(&data)
 
 	res, err := api.Dcim.DcimRegionsCreate(params, nil)
@@ -109,6 +110,7 @@ func resourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("parent_region_id", nil)
 	}
 	d.Set("description", res.GetPayload().Description)
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 	return nil
 }
 
@@ -137,6 +139,7 @@ func resourceNetboxRegionUpdate(d *schema.ResourceData, m interface{}) error {
 	if ok {
 		data.Parent = int64ToPtr(int64(parentRegionIDValue.(int)))
 	}
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := dcim.NewDcimRegionsPartialUpdateParams().WithID(id).WithData(&data)
 

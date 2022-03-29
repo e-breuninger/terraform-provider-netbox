@@ -65,6 +65,34 @@ resource "netbox_region" "test" {
 	})
 }
 
+func TestAccNetboxRegion_customFields(t *testing.T) {
+	testSlug := "region_customFields"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["dcim.region"]
+}
+resource "netbox_region" "test" {
+  name = "%s"
+  slug = "slug"
+  description = "%[1]s"
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_region.test", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_region", &resource.Sweeper{
 		Name:         "netbox_region",

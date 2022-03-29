@@ -65,6 +65,35 @@ resource "netbox_cluster_group" "test" {
 	})
 }
 
+func TestAccNetboxClusterGroup_customFields(t *testing.T) {
+	testSlug := "clstrgrp_customFields"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["virtualization.clustergroup"]
+}
+resource "netbox_cluster_group" "test" {
+  name = "%[1]s"
+  description = "%[1]s"
+  custom_fields = {"${netbox_custom_field.test.name}" = "%[1]s"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_cluster_group.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_cluster_group.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_cluster_group.test", "custom_fields.issue", testName),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_cluster_group", &resource.Sweeper{
 		Name:         "netbox_cluster_group",

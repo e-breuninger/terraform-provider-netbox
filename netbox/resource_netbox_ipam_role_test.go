@@ -76,6 +76,36 @@ resource "netbox_ipam_role" "role_extended" {
 	})
 }
 
+func TestAccNetboxRole_customFields(t *testing.T) {
+	testSlug := "role_customFields"
+	testName := testAccGetTestName(testSlug)
+	randomSlug := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["ipam.role"]
+}
+resource "netbox_ipam_role" "test_basic" {
+  name = "%s"
+  slug = "%s"
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName, randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_basic", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_basic", "custom_fields.issue", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_ipam_role", &resource.Sweeper{
 		Name:         "netbox_ipam_role",

@@ -65,13 +65,12 @@ func dataSourceNetboxTenants() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"custom_fields": {
-							Type:     schema.TypeMap,
-							Computed: true,
-						},
-
 						"site_count": {
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"custom_fields": {
+							Type:     schema.TypeMap,
 							Computed: true,
 						},
 						"rack_count": {
@@ -186,7 +185,6 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 		mapping["last_updated"] = v.LastUpdated.String()
 		mapping["comments"] = v.Comments
 		mapping["custom_fields"] = v.CustomFields
-
 		mapping["site_count"] = v.SiteCount
 		mapping["rack_count"] = v.RackCount
 		mapping["device_count"] = v.DeviceCount

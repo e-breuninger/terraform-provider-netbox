@@ -37,6 +37,7 @@ func resourceNetboxIpamRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -64,6 +65,7 @@ func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Weight = &weight
 	data.Description = description
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamRolesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamRolesCreate(params, nil)
@@ -107,6 +109,8 @@ func resourceNetboxIpamRoleRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("description", res.GetPayload().Description)
 	}
 
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	return nil
 }
 
@@ -132,6 +136,7 @@ func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Weight = &weight
 	data.Description = description
+	data.CustomFields = d.Get(customFieldsKey)
 
 	params := ipam.NewIpamRolesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamRolesUpdate(params, nil)
