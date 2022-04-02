@@ -30,13 +30,21 @@ resource "netbox_device_role" "test" {
 }
 
 resource "netbox_tag" "test_a" {
-	name = "%[1]sa"
-  }
+  name = "%[1]sa"
+}
   
-  resource "netbox_tag" "test_b" {
-	name = "%[1]sb"
-  }
-`, testName)
+resource "netbox_tag" "test_b" {
+  name = "%[1]sb"
+}
+
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+	
+resource "netbox_device_type" "test" {
+  model = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+}`, testName)
 }
 
 func TestAccNetboxDevice_basic(t *testing.T) {
@@ -55,7 +63,7 @@ resource "netbox_device" "test" {
   comments = "thisisacomment"
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
-  device_type_id = 1
+  device_type_id = netbox_device_type.test.id
   tags = ["%[1]sa"]
   site_id = netbox_site.test.id
   serial = "ABCDEF"
@@ -109,37 +117,6 @@ func testAccCheckDeviceDestroy(s *terraform.State) error {
 		}
 	}
 	return nil
-}
-
-func TestAccNetboxDevice_tags(t *testing.T) {
-
-	testSlug := "device_tags"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_device" "test" {
-  name = "%s"
-  tags = ["%[1]sa", "%[1]sb"]
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "2"),
-				),
-			},
-			{
-				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_device" "test" {
-  name = "%s"
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "0"),
-				),
-			},
-		},
-	})
 }
 
 func init() {
