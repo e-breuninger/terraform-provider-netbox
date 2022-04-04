@@ -2,11 +2,9 @@ module github.com/e-breuninger/terraform-provider-netbox
 
 go 1.17
 
-replace github.com/fbreckle/go-netbox v0.0.0-20220117123939-7f4dc1816b81 => github.com/chapsuk/go-netbox v0.0.0-20220330084927-d140aa5aadf5
-
 require (
 	github.com/davecgh/go-spew v1.1.1
-	github.com/fbreckle/go-netbox v0.0.0-20220117123939-7f4dc1816b81
+	github.com/fbreckle/go-netbox v0.0.0-20220404130901-93c2ca669951
 	github.com/go-openapi/runtime v0.23.3
 	github.com/goware/urlx v0.3.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.13.0
