@@ -13,7 +13,7 @@ import (
 
 func TestAccNetboxManufacturer_basic(t *testing.T) {
 
-	testSlug := "device_type"
+	testSlug := "manufacturer"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

@@ -245,7 +245,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		serialValue, ok := d.GetOk("serial")
 		serial := ""
 		if !ok {
-			// Setting an space string deletes the comment
+			// Setting an space string deletes the serial
 			serial = " "
 		} else {
 			serial = serialValue.(string)
