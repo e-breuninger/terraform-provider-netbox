@@ -47,6 +47,18 @@ func resourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"tenant_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"tags": &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Optional: true,
+				Set:      schema.HashString,
+			},
 			"asn": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -89,12 +101,17 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
 	}
 
+	tenantIDValue, ok := d.GetOk("tenant_id")
+	if ok {
+		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
+	}
+
 	asnValue, ok := d.GetOk("asn")
 	if ok {
 		data.Asn = int64ToPtr(int64(asnValue.(int)))
 	}
 
-	data.Tags = []*models.NestedTag{}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := dcim.NewDcimSitesCreateParams().WithData(&data)
 
@@ -131,6 +148,7 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", res.GetPayload().Description)
 	d.Set("facility", res.GetPayload().Facility)
 	d.Set("region_id", res.GetPayload().Region)
+	d.Set("tenant_id", res.GetPayload().Tenant)
 	d.Set("asn", res.GetPayload().Asn)
 	return nil
 }
@@ -167,12 +185,17 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
 	}
 
+	tenantIDValue, ok := d.GetOk("tenant_id")
+	if ok {
+		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
+	}
+
 	asnValue, ok := d.GetOk("asn")
 	if ok {
 		data.Asn = int64ToPtr(int64(asnValue.(int)))
 	}
 
-	data.Tags = []*models.NestedTag{}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)
 
