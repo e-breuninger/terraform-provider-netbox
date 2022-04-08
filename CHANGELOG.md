@@ -1,3 +1,11 @@
+## 1.6.0 (Apr 8, 2022)
+
+FEATURES
+
+* **New Resource:** `netbox_device` ([#142](https://github.com/e-breuninger/terraform-provider-netbox/pull/142) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_device_type` ([#142](https://github.com/e-breuninger/terraform-provider-netbox/pull/142) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_manufacturer` ([#142](https://github.com/e-breuninger/terraform-provider-netbox/pull/142) by [@arjenvri](https://github.com/arjenvri))
+
 ## 1.5.2 (Mar 4, 2022)
 
 ENHANCEMENTS

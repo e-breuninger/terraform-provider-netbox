@@ -114,7 +114,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"]
 
-	supportedVersion := "3.1.3"
+	supportedVersion := "3.1.9"
 
 	if netboxVersion != supportedVersion {
 
