@@ -147,8 +147,8 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("status", res.GetPayload().Status.Value)
 	d.Set("description", res.GetPayload().Description)
 	d.Set("facility", res.GetPayload().Facility)
-	d.Set("region_id", res.GetPayload().Region)
-	d.Set("tenant_id", res.GetPayload().Tenant)
+	d.Set("region_id", res.GetPayload().Region.ID)
+	d.Set("tenant_id", res.GetPayload().Tenant.ID)
 	d.Set("asn", res.GetPayload().Asn)
 	return nil
 }
