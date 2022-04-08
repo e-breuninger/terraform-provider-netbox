@@ -1,3 +1,9 @@
+## 1.6.1 (Apr 8, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_site: Add `tags` and `tenant_id` attributes ([#149](https://github.com/e-breuninger/terraform-provider-netbox/pull/149) by [@arjenvri](https://github.com/arjenvri))
+
 ## 1.6.0 (Apr 8, 2022)
 
 FEATURES
