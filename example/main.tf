@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     netbox = {
-      source  = "e-breuninger/netbox"
+      source = "e-breuninger/netbox"
     }
   }
 }
