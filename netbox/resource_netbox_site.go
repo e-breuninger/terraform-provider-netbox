@@ -147,8 +147,13 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("status", res.GetPayload().Status.Value)
 	d.Set("description", res.GetPayload().Description)
 	d.Set("facility", res.GetPayload().Facility)
-	d.Set("region_id", res.GetPayload().Region.ID)
 	d.Set("asn", res.GetPayload().Asn)
+
+	if res.GetPayload().Region != nil {
+		d.Set("region_id", res.GetPayload().Region.ID)
+	} else {
+		d.Set("region_id", nil)
+	}
 
 	if res.GetPayload().Tenant != nil {
 		d.Set("tenant_id", res.GetPayload().Tenant.ID)
