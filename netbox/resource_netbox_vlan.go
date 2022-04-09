@@ -78,6 +78,18 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 	data.Status = status
 	data.Description = description
 
+	if siteID, ok := d.GetOk("site_id"); ok {
+		data.Site = int64ToPtr(int64(siteID.(int)))
+	}
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
+
+	if roleID, ok := d.GetOk("role_id"); ok {
+		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := ipam.NewIpamVlansCreateParams().WithData(&data)
@@ -87,7 +99,7 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxVlanUpdate(d, m)
+	return resourceNetboxVlanRead(d, m)
 }
 
 func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
