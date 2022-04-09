@@ -82,12 +82,35 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 	status := d.Get("status").(string)
 	description := d.Get("description").(string)
 	is_pool := d.Get("is_pool").(bool)
+	mark_utilized := d.Get("mark_utilized").(bool)
 
 	data.Prefix = &prefix
 	data.Status = status
 
 	data.Description = description
 	data.IsPool = is_pool
+
+	data.MarkUtilized = mark_utilized
+
+	if vrfID, ok := d.GetOk("vrf_id"); ok {
+		data.Vrf = int64ToPtr(int64(vrfID.(int)))
+	}
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
+
+	if siteID, ok := d.GetOk("site_id"); ok {
+		data.Site = int64ToPtr(int64(siteID.(int)))
+	}
+
+	if vlanID, ok := d.GetOk("vlan_id"); ok {
+		data.Vlan = int64ToPtr(int64(vlanID.(int)))
+	}
+
+	if roleID, ok := d.GetOk("role_id"); ok {
+		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
@@ -98,7 +121,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxPrefixUpdate(d, m)
+	return resourceNetboxPrefixRead(d, m)
 }
 
 func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
