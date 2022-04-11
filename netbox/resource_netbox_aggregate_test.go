@@ -30,11 +30,12 @@ resource "netbox_rir" "test" {
 resource "netbox_aggregate" "test" {
   prefix = "%s"
   description = "%s"
-  rir_id = 1
+  rir_id = netbox_rir.test.id
 }`, testName, randomSlug, testPrefix, testDesc),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_aggregate.test", "prefix", testPrefix),
 					resource.TestCheckResourceAttr("netbox_aggregate.test", "description", testDesc),
+					resource.TestCheckResourceAttrPair("netbox_aggregate.test", "rir_id", "netbox_rir.test", "id"),
 				),
 			},
 			{
