@@ -39,6 +39,8 @@ func Provider() *schema.Provider {
 			"netbox_ipam_role":            resourceNetboxIpamRole(),
 			"netbox_ip_range":             resourceNetboxIpRange(),
 			"netbox_region":               resourceNetboxRegion(),
+			"netbox_aggregate":            resourceNetboxAggregate(),
+			"netbox_rir":                  resourceNetboxRir(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),
