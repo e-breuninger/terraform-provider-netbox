@@ -85,7 +85,7 @@ resource "netbox_custom_field" "test" {
   default = "red"
   description = "select field"
   label = "external"
-  required = "true"
+  required = false
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "name", testName),
@@ -95,6 +95,34 @@ resource "netbox_custom_field" "test" {
 					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "choices.*", "red"),
 					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "choices.*", "blue"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "101"),
+
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "red"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "description", "select field"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "label", "external"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "required", "false"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name = "%s"
+  type = "select"
+  content_types = ["virtualization.vminterface"]
+  choices = ["red", "blue"]
+  weight = 102
+  default = "red"
+  description = "select field"
+  label = "external"
+  required = true
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "select"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "red"),
+					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "content_types.*", "virtualization.vminterface"),
+					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "choices.*", "red"),
+					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "choices.*", "blue"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "102"),
 
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "red"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "description", "select field"),
