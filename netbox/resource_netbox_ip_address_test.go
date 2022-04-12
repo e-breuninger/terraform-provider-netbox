@@ -81,12 +81,14 @@ resource "netbox_ip_address" "test" {
   tenant_id = netbox_tenant.test.id
   vrf_id = netbox_vrf.test.id
   tags = [netbox_tag.test.name]
+  description = "description for %[1]s"
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "status", "reserved"),
 					resource.TestCheckResourceAttrPair("netbox_ip_address.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_ip_address.test", "vrf_id", "netbox_vrf.test", "id"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "description", fmt.Sprintf("description for %[1]s", testIP)),
 				),
 			},
 			{

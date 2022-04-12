@@ -52,6 +52,10 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -66,6 +70,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	ipAddress := d.Get("ip_address").(string)
 	data.Address = &ipAddress
 	data.Status = d.Get("status").(string)
+	data.Description = d.Get("description").(string)
 
 	if dnsName, ok := d.GetOk("dns_name"); ok {
 		data.DNSName = dnsName.(string)
@@ -125,12 +130,14 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("ip_address", res.GetPayload().Address)
+	d.Set("description", res.GetPayload().Description)
 	d.Set("status", res.GetPayload().Status.Value)
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
 func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
+
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
@@ -138,6 +145,15 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 
 	ipAddress := d.Get("ip_address").(string)
 	status := d.Get("status").(string)
+
+	descriptionValue, ok := d.GetOk("description")
+	if ok {
+		description := descriptionValue.(string)
+		data.Description = description
+	} else {
+		description := " "
+		data.Description = description
+	}
 
 	data.Status = status
 	data.Address = &ipAddress
