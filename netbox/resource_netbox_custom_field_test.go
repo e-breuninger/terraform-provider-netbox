@@ -130,6 +130,23 @@ resource "netbox_custom_field" "test" {
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "required", "true"),
 				),
 			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name = "%s"
+  type = "select"
+  content_types = ["virtualization.vminterface"]
+  choices = ["red", "blue"]
+  weight = 102
+  default = "red"
+  description = "select field"
+  label = "external"
+  required = false
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "required", "false"),
+				),
+			},
 		},
 	})
 }

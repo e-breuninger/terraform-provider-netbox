@@ -135,7 +135,6 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 	}
 
 	params := extras.NewExtrasCustomFieldsUpdateParams().WithID(id).WithData(data)
-
 	res, err := api.Extras.ExtrasCustomFieldsUpdate(params, nil)
 	if err != nil {
 		//return errors.New(getTextFromError(err))
