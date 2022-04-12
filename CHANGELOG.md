@@ -1,6 +1,12 @@
-## 1.6.2 (Apr 11, 2022)
+## 1.6.3 (unreleased)
 
 ENHANCEMENTS
+
+* resource/netbox_ip_address: Add `description` attribute ([#156](https://github.com/e-breuninger/terraform-provider-netbox/pull/156) by [@fbreckle](https://github.com/fbreckle))
+
+## 1.6.2 (Apr 11, 2022)
+
+FEATURES
 
 * **New Resource:** `netbox_rir` ([#153](https://github.com/e-breuninger/terraform-provider-netbox/pull/153) by [@arjenvri](https://github.com/arjenvri))
 * **New Resource:** `netbox_aggregate` ([#153](https://github.com/e-breuninger/terraform-provider-netbox/pull/153) by [@arjenvri](https://github.com/arjenvri))
