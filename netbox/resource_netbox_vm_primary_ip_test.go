@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func testAccNetboxPrimaryIPFullDependencies(testName string) string {
+func testAccNetboxVMPrimaryIPFullDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_tag" "test" {
   name = "%[1]s"
@@ -55,7 +55,7 @@ resource "netbox_virtual_machine" "test" {
   tags = [netbox_tag.test.name]
 }
 
-resource "netbox_interface" "test" {
+resource "netbox_vm_interface" "test" {
   virtual_machine_id = netbox_virtual_machine.test.id
   name = "%[1]s"
 }
@@ -63,18 +63,18 @@ resource "netbox_interface" "test" {
 resource "netbox_ip_address" "test_v4" {
   ip_address = "1.1.1.1/32"
   status = "active"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_vm_interface.test.id
 }
 
 resource "netbox_ip_address" "test_v6" {
   ip_address = "2000::1/128"
   status = "active"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_vm_interface.test.id
 }
 `, testName)
 }
 
-func TestAccNetboxPrimaryIP4_basic(t *testing.T) {
+func TestAccNetboxVMPrimaryIP4_basic(t *testing.T) {
 
 	testSlug := "pr_ip_basic"
 	testName := testAccGetTestName(testSlug)
@@ -83,14 +83,14 @@ func TestAccNetboxPrimaryIP4_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxPrimaryIPFullDependencies(testName) + `
-resource "netbox_primary_ip" "test_v4" {
+				Config: testAccNetboxVMPrimaryIPFullDependencies(testName) + `
+resource "netbox_vm_primary_ip" "test_v4" {
   virtual_machine_id = netbox_virtual_machine.test.id
   ip_address_id = netbox_ip_address.test_v4.id
 }`,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("netbox_primary_ip.test_v4", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_primary_ip.test_v4", "ip_address_id", "netbox_ip_address.test_v4", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vm_primary_ip.test_v4", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vm_primary_ip.test_v4", "ip_address_id", "netbox_ip_address.test_v4", "id"),
 
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
@@ -110,7 +110,7 @@ resource "netbox_primary_ip" "test_v4" {
 	})
 }
 
-func TestAccNetboxPrimaryIP6_basic(t *testing.T) {
+func TestAccNetboxVMPrimaryIP6_basic(t *testing.T) {
 
 	testSlug := "pr_ip_basic"
 	testName := testAccGetTestName(testSlug)
@@ -119,15 +119,15 @@ func TestAccNetboxPrimaryIP6_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxPrimaryIPFullDependencies(testName) + `
-resource "netbox_primary_ip" "test_v6" {
+				Config: testAccNetboxVMPrimaryIPFullDependencies(testName) + `
+resource "netbox_vm_primary_ip" "test_v6" {
   virtual_machine_id = netbox_virtual_machine.test.id
   ip_address_id = netbox_ip_address.test_v6.id
   ip_address_version = 6
 }`,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("netbox_primary_ip.test_v6", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_primary_ip.test_v6", "ip_address_id", "netbox_ip_address.test_v6", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vm_primary_ip.test_v6", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vm_primary_ip.test_v6", "ip_address_id", "netbox_ip_address.test_v6", "id"),
 
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),

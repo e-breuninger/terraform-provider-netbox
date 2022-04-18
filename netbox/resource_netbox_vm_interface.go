@@ -11,12 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxInterface() *schema.Resource {
+func resourceNetboxVMInterface() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxInterfaceCreate,
-		Read:   resourceNetboxInterfaceRead,
-		Update: resourceNetboxInterfaceUpdate,
-		Delete: resourceNetboxInterfaceDelete,
+		Create: resourceNetboxVMInterfaceCreate,
+		Read:   resourceNetboxVMInterfaceRead,
+		Update: resourceNetboxVMInterfaceUpdate,
+		Delete: resourceNetboxVMInterfaceDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -54,12 +54,12 @@ func resourceNetboxInterface() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxVMInterfaceCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
@@ -87,10 +87,10 @@ func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error 
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxInterfaceUpdate(d, m)
+	return resourceNetboxVMInterfaceUpdate(d, m)
 }
 
-func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxVMInterfaceRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -115,7 +115,7 @@ func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxVMInterfaceUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
@@ -143,10 +143,10 @@ func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	return resourceNetboxInterfaceRead(d, m)
+	return resourceNetboxVMInterfaceRead(d, m)
 }
 
-func resourceNetboxInterfaceDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxVMInterfaceDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)

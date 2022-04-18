@@ -4,17 +4,17 @@ import (
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
+	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNetboxClusterType() *schema.Resource {
+func resourceNetboxManufacturer() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxClusterTypeCreate,
-		Read:   resourceNetboxClusterTypeRead,
-		Update: resourceNetboxClusterTypeUpdate,
-		Delete: resourceNetboxClusterTypeDelete,
+		Create: resourceNetboxManufacturerCreate,
+		Read:   resourceNetboxManufacturerRead,
+		Update: resourceNetboxManufacturerUpdate,
+		Delete: resourceNetboxManufacturerDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -26,6 +26,11 @@ func resourceNetboxClusterType() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -33,28 +38,30 @@ func resourceNetboxClusterType() *schema.Resource {
 	}
 }
 
-func resourceNetboxClusterTypeCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
+
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-
-	// Default slug to name if not given
+	// Default slug to name attribute if not given
 	if !slugOk {
 		slug = name
 	} else {
 		slug = slugValue.(string)
 	}
 
-	params := virtualization.NewVirtualizationClusterTypesCreateParams().WithData(
-		&models.ClusterType{
-			Name: &name,
-			Slug: &slug,
+	description := d.Get("description").(string)
+	params := dcim.NewDcimManufacturersCreateParams().WithData(
+		&models.Manufacturer{
+			Name:        &name,
+			Slug:        &slug,
+			Description: description,
 		},
 	)
 
-	res, err := api.Virtualization.VirtualizationClusterTypesCreate(params, nil)
+	res, err := api.Dcim.DcimManufacturersCreate(params, nil)
 	if err != nil {
 		//return errors.New(getTextFromError(err))
 		return err
@@ -62,17 +69,17 @@ func resourceNetboxClusterTypeCreate(d *schema.ResourceData, m interface{}) erro
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxClusterTypeRead(d, m)
+	return resourceNetboxManufacturerRead(d, m)
 }
 
-func resourceNetboxClusterTypeRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationClusterTypesReadParams().WithID(id)
+	params := dcim.NewDcimManufacturersReadParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationClusterTypesRead(params, nil)
+	res, err := api.Dcim.DcimManufacturersRead(params, nil)
 	if err != nil {
-		errorcode := err.(*virtualization.VirtualizationClusterTypesReadDefault).Code()
+		errorcode := err.(*dcim.DcimManufacturersReadDefault).Code()
 		if errorcode == 404 {
 			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 			d.SetId("")
@@ -83,19 +90,21 @@ func resourceNetboxClusterTypeRead(d *schema.ResourceData, m interface{}) error 
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	d.Set("description", res.GetPayload().Description)
 	return nil
 }
 
-func resourceNetboxClusterTypeUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.ClusterType{}
+	data := models.Manufacturer{}
 
 	name := d.Get("name").(string)
+	description := d.Get("description").(string)
+
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-
 	// Default slug to name if not given
 	if !slugOk {
 		slug = name
@@ -105,24 +114,25 @@ func resourceNetboxClusterTypeUpdate(d *schema.ResourceData, m interface{}) erro
 
 	data.Slug = &slug
 	data.Name = &name
+	data.Description = description
 
-	params := virtualization.NewVirtualizationClusterTypesPartialUpdateParams().WithID(id).WithData(&data)
+	params := dcim.NewDcimManufacturersUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Virtualization.VirtualizationClusterTypesPartialUpdate(params, nil)
+	_, err := api.Dcim.DcimManufacturersUpdate(params, nil)
 	if err != nil {
 		return err
 	}
 
-	return resourceNetboxClusterTypeRead(d, m)
+	return resourceNetboxManufacturerRead(d, m)
 }
 
-func resourceNetboxClusterTypeDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxManufacturerDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationClusterTypesDeleteParams().WithID(id)
+	params := dcim.NewDcimManufacturersDeleteParams().WithID(id)
 
-	_, err := api.Virtualization.VirtualizationClusterTypesDelete(params, nil)
+	_, err := api.Dcim.DcimManufacturersDelete(params, nil)
 	if err != nil {
 		return err
 	}

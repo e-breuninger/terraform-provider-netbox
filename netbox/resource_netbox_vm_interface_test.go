@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func testAccNetboxInterfaceFullDependencies(testName string) string {
+func testAccNetboxVMInterfaceFullDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
@@ -32,7 +32,7 @@ resource "netbox_virtual_machine" "test" {
 `, testName)
 }
 
-func TestAccNetboxInterface_basic(t *testing.T) {
+func TestAccNetboxVMInterface_basic(t *testing.T) {
 
 	testSlug := "iface_basic"
 	testName := testAccGetTestName(testSlug)
@@ -42,18 +42,18 @@ func TestAccNetboxInterface_basic(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxInterfaceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_interface" "test" {
+				Config: testAccNetboxVMInterfaceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_vm_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_vm_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
 				),
 			},
 			{
-				ResourceName:      "netbox_interface.test",
+				ResourceName:      "netbox_vm_interface.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -61,7 +61,7 @@ resource "netbox_interface" "test" {
 	})
 }
 
-func TestAccNetboxInterface_mac(t *testing.T) {
+func TestAccNetboxVMInterface_mac(t *testing.T) {
 
 	testSlug := "iface_mac"
 	testMac := "00:01:02:03:04:05"
@@ -72,20 +72,20 @@ func TestAccNetboxInterface_mac(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxInterfaceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_interface" "test" {
+				Config: testAccNetboxVMInterfaceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_vm_interface" "test" {
   name = "%[1]s"
   virtual_machine_id = netbox_virtual_machine.test.id
   mac_address = "%[2]s"
 }`, testName, testMac),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_vm_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "mac_address", "00:01:02:03:04:05"),
 				),
 			},
 			{
-				ResourceName:      "netbox_interface.test",
+				ResourceName:      "netbox_vm_interface.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -100,7 +100,7 @@ func testAccCheckInterfaceDestroy(s *terraform.State) error {
 	// loop through the resources in state, verifying each interface
 	// is destroyed
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "netbox_interface" {
+		if rs.Type != "netbox_vm_interface" {
 			continue
 		}
 
@@ -125,8 +125,8 @@ func testAccCheckInterfaceDestroy(s *terraform.State) error {
 }
 
 func init() {
-	resource.AddTestSweepers("netbox_interface", &resource.Sweeper{
-		Name:         "netbox_interface",
+	resource.AddTestSweepers("netbox_vm_interface", &resource.Sweeper{
+		Name:         "netbox_vm_interface",
 		Dependencies: []string{},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)

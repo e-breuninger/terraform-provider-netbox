@@ -22,13 +22,18 @@ func Provider() *schema.Provider {
 			"netbox_tenant_group":         resourceNetboxTenantGroup(),
 			"netbox_vrf":                  resourceNetboxVrf(),
 			"netbox_ip_address":           resourceNetboxIPAddress(),
-			"netbox_interface":            resourceNetboxInterface(),
+			"netbox_vm_interface":         resourceNetboxVMInterface(),
+			"netbox_device_interface":     resourceNetboxDeviceInterface(),
 			"netbox_service":              resourceNetboxService(),
 			"netbox_platform":             resourceNetboxPlatform(),
 			"netbox_prefix":               resourceNetboxPrefix(),
+			"netbox_manufacturer":         resourceNetboxManufacturer(),
 			"netbox_available_prefix":     resourceNetboxAvailablePrefix(),
-			"netbox_primary_ip":           resourceNetboxPrimaryIP(),
+			"netbox_vm_primary_ip":        resourceNetboxVMPrimaryIP(),
+			"netbox_device_primary_ip":    resourceNetboxDevicePrimaryIP(),
 			"netbox_device_role":          resourceNetboxDeviceRole(),
+			"netbox_device_type":          resourceNetboxDeviceType(),
+			"netbox_device":               resourceNetboxDevice(),
 			"netbox_tag":                  resourceNetboxTag(),
 			"netbox_cluster_group":        resourceNetboxClusterGroup(),
 			"netbox_site":                 resourceNetboxSite(),
@@ -44,9 +49,11 @@ func Provider() *schema.Provider {
 			"netbox_platform":         dataSourceNetboxPlatform(),
 			"netbox_prefix":           dataSourceNetboxPrefix(),
 			"netbox_device_role":      dataSourceNetboxDeviceRole(),
+			"netbox_device_type":      dataSourceNetboxDeviceType(),
 			"netbox_tag":              dataSourceNetboxTag(),
+			"netbox_site":             dataSourceNetboxSite(),
 			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),
-			"netbox_interfaces":       dataSourceNetboxInterfaces(),
+			"netbox_vm_interfaces":    dataSourceNetboxVMInterfaces(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
@@ -89,7 +96,11 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	}
 
 	req := status.NewStatusListParams()
-	res, _ := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+	res, err := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+
 	netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"]
 
 	supportedVersion := "2.11.12"

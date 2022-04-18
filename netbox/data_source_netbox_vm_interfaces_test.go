@@ -7,12 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
+func TestAccNetboxVMInterfacesDataSource_basic(t *testing.T) {
 
 	testSlug := "interface_ds_basic"
-	testResource := "data.netbox_interfaces.test"
+	testResource := "data.netbox_vm_interfaces.test"
 	testName := testAccGetTestName(testSlug)
-	dependencies := testAccNetboxInterfacesDataSourceDependencies(testName)
+	dependencies := testAccNetboxVMInterfacesDataSourceDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -20,7 +20,7 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 				Config: dependencies,
 			},
 			{
-				Config: dependencies + testAccNetboxInterfacesDataSourceFilterName(testName),
+				Config: dependencies + testAccNetboxVMInterfacesDataSourceFilterName(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(testResource, "interfaces.#", "1"),
 					resource.TestCheckResourceAttr(testResource, "interfaces.0.name", testName+"_0"),
@@ -29,7 +29,7 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: dependencies + testAccNetboxInterfacesDataSourceFilterVM,
+				Config: dependencies + testAccNetboxVMInterfacesDataSourceFilterVM,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(testResource, "interfaces.#", "2"),
 					resource.TestCheckResourceAttrPair(testResource, "interfaces.0.vm_id", "netbox_virtual_machine.test1", "id"),
@@ -37,7 +37,7 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: dependencies + testAccNetboxInterfacesDataSourceNameRegex,
+				Config: dependencies + testAccNetboxVMInterfacesDataSourceNameRegex,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(testResource, "interfaces.#", "1"),
 					resource.TestCheckResourceAttr(testResource, "interfaces.0.name", testName+"_2_regex"),
@@ -47,7 +47,7 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccNetboxInterfacesDataSourceDependencies(testName string) string {
+func testAccNetboxVMInterfacesDataSourceDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
@@ -68,17 +68,17 @@ resource "netbox_virtual_machine" "test1" {
   cluster_id = netbox_cluster.test.id
 }
 
-resource "netbox_interface" "vm0_1" {
+resource "netbox_vm_interface" "vm0_1" {
   name = "%[1]s_0"
   virtual_machine_id = netbox_virtual_machine.test0.id
 }
 
-resource "netbox_interface" "vm1_1" {
+resource "netbox_vm_interface" "vm1_1" {
   name = "%[1]s_1"
   virtual_machine_id = netbox_virtual_machine.test1.id
 }
 
-resource "netbox_interface" "vm1_2" {
+resource "netbox_vm_interface" "vm1_2" {
   name = "%[1]s_2_regex"
   virtual_machine_id = netbox_virtual_machine.test1.id
 }
@@ -86,17 +86,17 @@ resource "netbox_interface" "vm1_2" {
 `, testName)
 }
 
-const testAccNetboxInterfacesDataSourceFilterVM = `
-data "netbox_interfaces" "test" {
+const testAccNetboxVMInterfacesDataSourceFilterVM = `
+data "netbox_vm_interfaces" "test" {
   filter {
     name  = "vm_id"
     value = netbox_virtual_machine.test1.id
   }
 }`
 
-func testAccNetboxInterfacesDataSourceFilterName(testName string) string {
+func testAccNetboxVMInterfacesDataSourceFilterName(testName string) string {
 	return fmt.Sprintf(`
-data "netbox_interfaces" "test" {
+data "netbox_vm_interfaces" "test" {
   filter {
     name  = "name"
     value = "%[1]s_0"
@@ -104,7 +104,7 @@ data "netbox_interfaces" "test" {
 }`, testName)
 }
 
-const testAccNetboxInterfacesDataSourceNameRegex = `
-data "netbox_interfaces" "test" {
+const testAccNetboxVMInterfacesDataSourceNameRegex = `
+data "netbox_vm_interfaces" "test" {
   name_regex = "test.*_regex"
 }`

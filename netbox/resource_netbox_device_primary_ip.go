@@ -4,21 +4,21 @@ import (
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
+	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxPrimaryIP() *schema.Resource {
+func resourceNetboxDevicePrimaryIP() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxPrimaryIPCreate,
-		Read:   resourceNetboxPrimaryIPRead,
-		Update: resourceNetboxPrimaryIPUpdate,
-		Delete: resourceNetboxPrimaryIPDelete,
+		Create: resourceNetboxDevicePrimaryIPCreate,
+		Read:   resourceNetboxDevicePrimaryIPRead,
+		Update: resourceNetboxDevicePrimaryIPUpdate,
+		Delete: resourceNetboxDevicePrimaryIPDelete,
 
 		Schema: map[string]*schema.Schema{
-			"virtual_machine_id": &schema.Schema{
+			"device_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Required: true,
 			},
@@ -34,25 +34,25 @@ func resourceNetboxPrimaryIP() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func resourceNetboxPrimaryIPCreate(d *schema.ResourceData, m interface{}) error {
-	d.SetId(strconv.Itoa(d.Get("virtual_machine_id").(int)))
+func resourceNetboxDevicePrimaryIPCreate(d *schema.ResourceData, m interface{}) error {
+	d.SetId(strconv.Itoa(d.Get("device_id").(int)))
 
-	return resourceNetboxPrimaryIPUpdate(d, m)
+	return resourceNetboxDevicePrimaryIPUpdate(d, m)
 }
 
-func resourceNetboxPrimaryIPRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxDevicePrimaryIPRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(id)
+	params := dcim.NewDcimDevicesReadParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
+	res, err := api.Dcim.DcimDevicesRead(params, nil)
 	if err != nil {
-		errorcode := err.(*virtualization.VirtualizationVirtualMachinesReadDefault).Code()
+		errorcode := err.(*dcim.DcimDevicesReadDefault).Code()
 		if errorcode == 404 {
 			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 			d.SetId("")
@@ -69,37 +69,37 @@ func resourceNetboxPrimaryIPRead(d *schema.ResourceData, m interface{}) error {
 	} else if IPAddressVersion == 6 && res.GetPayload().PrimaryIp6 != nil {
 		d.Set("ip_address_id", res.GetPayload().PrimaryIp6.ID)
 	} else {
-		// if the vm exists, but has no primary ip, consider this element deleted
+		// if the device exists, but has no primary ip, consider this element deleted
 		d.SetId("")
 		return nil
 	}
-	d.Set("virtual_machine_id", res.GetPayload().ID)
+	d.Set("device_id", res.GetPayload().ID)
 	return nil
 }
 
-func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxDevicePrimaryIPUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
-	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
+	DeviceID := int64(d.Get("device_id").(int))
 	IPAddressID := int64(d.Get("ip_address_id").(int))
 	IPAddressVersion := int64(d.Get("ip_address_version").(int))
 
 	// because the go-netbox library does not have patch support atm, we have to get the whole object and re-put it
 
-	// first, get the vm
-	readParams := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(virtualMachineID)
-	res, err := api.Virtualization.VirtualizationVirtualMachinesRead(readParams, nil)
+	// first, get the device
+	readParams := dcim.NewDcimDevicesReadParams().WithID(DeviceID)
+	res, err := api.Dcim.DcimDevicesRead(readParams, nil)
 	if err != nil {
 		return err
 	}
 
-	vm := res.GetPayload()
+	device := res.GetPayload()
 
-	// then update the FULL vm with ALL tracked attributes
-	data := models.WritableVirtualMachineWithConfigContext{}
-	data.Name = vm.Name
-	data.Cluster = &vm.Cluster.ID
-	data.Tags = vm.Tags
+	// then update the FULL device with ALL tracked attributes
+	data := models.WritableDeviceWithConfigContext{}
+	data.Name = device.Name
+	data.Site = &device.Site.ID
+	data.Tags = device.Tags
 	// the netbox API sends the URL property as part of NestedTag, but it does not accept the URL property when we send it back
 	// so set it to empty
 	// display too
@@ -107,27 +107,24 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 		tag.URL = ""
 		tag.Display = ""
 	}
-	data.Comments = vm.Comments
-	data.Memory = vm.Memory
-	data.Vcpus = vm.Vcpus
-	data.Disk = vm.Disk
-	if vm.PrimaryIp4 != nil {
-		data.PrimaryIp4 = &vm.PrimaryIp4.ID
+	data.Comments = device.Comments
+	if device.PrimaryIp4 != nil {
+		data.PrimaryIp4 = &device.PrimaryIp4.ID
 	}
-	if vm.PrimaryIp6 != nil {
-		data.PrimaryIp6 = &vm.PrimaryIp6.ID
+	if device.PrimaryIp6 != nil {
+		data.PrimaryIp6 = &device.PrimaryIp6.ID
 	}
 
-	if vm.Platform != nil {
-		data.Platform = &vm.Platform.ID
+	if device.Tenant != nil {
+		data.Tenant = &device.Tenant.ID
 	}
 
-	if vm.Tenant != nil {
-		data.Tenant = &vm.Tenant.ID
+	if device.DeviceRole != nil {
+		data.DeviceRole = &device.DeviceRole.ID
 	}
 
-	if vm.Role != nil {
-		data.Role = &vm.Role.ID
+	if device.DeviceType != nil {
+		data.DeviceType = &device.DeviceType.ID
 	}
 
 	// unset primary ip address if -1 is passed as id
@@ -145,17 +142,17 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 		}
 	}
 
-	updateParams := virtualization.NewVirtualizationVirtualMachinesUpdateParams().WithID(virtualMachineID).WithData(&data)
+	updateParams := dcim.NewDcimDevicesUpdateParams().WithID(DeviceID).WithData(&data)
 
-	_, err = api.Virtualization.VirtualizationVirtualMachinesUpdate(updateParams, nil)
+	_, err = api.Dcim.DcimDevicesUpdate(updateParams, nil)
 	if err != nil {
 		return err
 	}
-	return resourceNetboxPrimaryIPRead(d, m)
+	return resourceNetboxDevicePrimaryIPRead(d, m)
 }
 
-func resourceNetboxPrimaryIPDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxDevicePrimaryIPDelete(d *schema.ResourceData, m interface{}) error {
 	// Set ip_address_id to minus one and go to update. Update will set nil
 	d.Set("ip_address_id", -1)
-	return resourceNetboxPrimaryIPUpdate(d, m)
+	return resourceNetboxDevicePrimaryIPUpdate(d, m)
 }
