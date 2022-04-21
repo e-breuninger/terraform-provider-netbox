@@ -249,6 +249,33 @@ resource "netbox_virtual_machine" "test" {
 	})
 }
 
+func TestAccNetboxVirtualMachine_customFields(t *testing.T) {
+	testSlug := "vm_cf"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "custom_field"
+	type          = "text"
+	content_types = ["virtualization.virtualmachine"]
+}
+resource "netbox_virtual_machine" "test" {
+  name          = "%[1]s"
+  cluster_id    = netbox_cluster.test.id
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "custom_fields.custom_field", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_virtual_machine", &resource.Sweeper{
 		Name:         "netbox_virtual_machine",
