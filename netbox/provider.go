@@ -57,6 +57,7 @@ func Provider() *schema.Provider {
 			"netbox_tag":              dataSourceNetboxTag(),
 			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),
 			"netbox_interfaces":       dataSourceNetboxInterfaces(),
+			"netbox_ip_addresses":     dataSourceNetboxIpAddresses(),
 			"netbox_ip_range":         dataSourceNetboxIpRange(),
 			"netbox_region":           dataSourceNetboxRegion(),
 		},
