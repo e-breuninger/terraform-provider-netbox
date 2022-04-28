@@ -1,7 +1,9 @@
 package netbox
 
 import (
+	"regexp"
 	"strconv"
+	"strings"
 
 	sp "github.com/davecgh/go-spew/spew"
 )
@@ -25,4 +27,10 @@ func intToPtr(i int) *int {
 
 func int64ToPtr(i int64) *int64 {
 	return &i
+}
+
+func getSlugFromName(s string) string {
+	reg, _ := regexp.Compile("[^a-z0-9-_ ]+")
+	res := strings.Replace(strings.ToLower(s), " ", "-", -1)
+	return reg.ReplaceAllString(res, "")
 }
