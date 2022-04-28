@@ -46,7 +46,7 @@ func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) err
 	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to name if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlugFromName(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
@@ -98,7 +98,7 @@ func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) err
 	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to name if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlugFromName(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
