@@ -66,8 +66,8 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.9.0 h1:8xPHl4/q1VyqGIPif1F+1V3Y3lSmrq01EabUW3CoW5s=
 github.com/fatih/color v1.9.0/go.mod h1:eQcE1qtQxscV5RaZvpXrrb8Drkc3/DdQ+uUYCNjL+zU=
-github.com/fbreckle/go-netbox v0.0.0-20220117123939-7f4dc1816b81 h1:B+msHm89glJ9nJ4dGZwI5jwUMUTTQULQkVLTxc/aHzw=
-github.com/fbreckle/go-netbox v0.0.0-20220117123939-7f4dc1816b81/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
+github.com/fbreckle/go-netbox v0.0.0-20220412164522-d49cfef38bfd h1:ILjUs5ZBk8f3Z7SZ2v3ZPti++X0sdVXD0C4pfMcDOVI=
+github.com/fbreckle/go-netbox v0.0.0-20220412164522-d49cfef38bfd/go.mod h1:Nf2bxylehF4ROF+s2paaRCKLIeYcUb2+NK1R/nOsE0o=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gliderlabs/ssh v0.2.2/go.mod h1:U7qILu1NlMHj9FlMhZLlkCdDnU1DBEAqr0aevW3Awn0=
