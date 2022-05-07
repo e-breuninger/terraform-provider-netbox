@@ -43,6 +43,14 @@ func resourceNetboxSite() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
+			"longitude": &schema.Schema{
+				Type:         schema.TypeFloat,
+				Optional:     true,
+			},
+			"latitude": &schema.Schema{
+				Type:         schema.TypeFloat,
+				Optional:     true,
+			},
 			"region_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -59,10 +67,15 @@ func resourceNetboxSite() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
+			"timezone": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+			},
 			"asn": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -96,6 +109,16 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Facility = facility.(string)
 	}
 
+	latitudeValue, ok := d.GetOk("latitude")
+	if ok {
+		data.Latitude = float64ToPtr(float64(latitudeValue.(float64)))
+	}
+
+	longitudeValue, ok := d.GetOk("longitude")
+	if ok {
+		data.Longitude = float64ToPtr(float64(longitudeValue.(float64)))
+	}
+
 	regionIDValue, ok := d.GetOk("region_id")
 	if ok {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
@@ -106,12 +129,21 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
+	if timezone, ok := d.GetOk("timezone"); ok {
+		data.TimeZone = timezone.(string)
+	}
+
 	asnValue, ok := d.GetOk("asn")
 	if ok {
 		data.Asn = int64ToPtr(int64(asnValue.(int)))
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
 
 	params := dcim.NewDcimSitesCreateParams().WithData(&data)
 
@@ -147,6 +179,9 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("status", res.GetPayload().Status.Value)
 	d.Set("description", res.GetPayload().Description)
 	d.Set("facility", res.GetPayload().Facility)
+	d.Set("longitude", res.GetPayload().Longitude)
+	d.Set("latitude", res.GetPayload().Latitude)
+	d.Set("timezone", res.GetPayload().TimeZone)
 	d.Set("asn", res.GetPayload().Asn)
 
 	if res.GetPayload().Region != nil {
@@ -160,6 +195,13 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("tenant_id", nil)
 	}
+
+	cf := getCustomFields(res.GetPayload().CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+
 	return nil
 }
 
@@ -190,6 +232,16 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Facility = facility.(string)
 	}
 
+	latitudeValue, ok := d.GetOk("latitude")
+	if ok {
+		data.Latitude = float64ToPtr(float64(latitudeValue.(float64)))
+	}
+
+	longitudeValue, ok := d.GetOk("longitude")
+	if ok {
+		data.Longitude = float64ToPtr(float64(longitudeValue.(float64)))
+	}
+
 	regionIDValue, ok := d.GetOk("region_id")
 	if ok {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
@@ -200,12 +252,21 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
+	if timezone, ok := d.GetOk("timezone"); ok {
+		data.TimeZone = timezone.(string)
+	}
+
 	asnValue, ok := d.GetOk("asn")
 	if ok {
 		data.Asn = int64ToPtr(int64(asnValue.(int)))
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = cf
+	}
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)
 
