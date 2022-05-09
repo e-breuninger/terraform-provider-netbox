@@ -23,6 +23,7 @@ description: |-
 ### Optional
 
 - `comments` (String)
+- `custom_fields` (Map of String)
 - `disk_size_gb` (Number)
 - `id` (String) The ID of this resource.
 - `memory_mb` (Number)
