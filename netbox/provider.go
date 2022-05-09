@@ -45,6 +45,7 @@ func Provider() *schema.Provider {
 			"netbox_circuit_type":         resourceNetboxCircuitType(),
 			"netbox_circuit_provider":     resourceNetboxCircuitProvider(),
 			"netbox_circuit_termination":  resourceNetboxCircuitTermination(),
+			"netbox_custom_field":         resourceCustomField(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),

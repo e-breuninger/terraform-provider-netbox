@@ -26,3 +26,7 @@ func intToPtr(i int) *int {
 func int64ToPtr(i int64) *int64 {
 	return &i
 }
+
+func float64ToPtr(i float64) *float64 {
+	return &i
+}

@@ -83,6 +83,40 @@ resource "netbox_site" "test" {
 	})
 }
 
+func TestAccNetboxSite_customFields(t *testing.T) {
+	testSlug := "site_detail"
+	testName := testAccGetTestName(testSlug)
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "%[1]s"
+	type          = "text"
+	content_types = ["dcim.site"]
+}
+resource "netbox_site" "test" {
+  name          = "%[2]s"
+  status        = "active"
+  latitude      = "12.123456"
+  longitude     = "-13.123456"
+  timezone      = "Africa/Johannesburg"
+  custom_fields = {"${netbox_custom_field.test.name}" = "81"}
+}`, testField, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_site.test", "custom_fields." + testField, "81"),
+					resource.TestCheckResourceAttr("netbox_site.test", "timezone", "Africa/Johannesburg"),
+					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
+					resource.TestCheckResourceAttr("netbox_site.test", "longitude", "-13.123456"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_site", &resource.Sweeper{
 		Name:         "netbox_site",

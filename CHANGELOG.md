@@ -1,8 +1,18 @@
-## 1.6.3 (unreleased)
+## 1.6.3 (May 6th, 2022)
+
+FEATURES
+
+* **New Data Source:** `netbox_ip_addresses` [#159](https://github.com/e-breuninger/terraform-provider-netbox/pull/159) by [@twink0r](https://github.com/twink0r)
+* **New Resource:** `netbox_circuit` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_circuit_provider` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_termination` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_type` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_custom_field` ([#158](https://github.com/e-breuninger/terraform-provider-netbox/pull/158) by [@chapsuk](https://github.com/chapsuk))
 
 ENHANCEMENTS
 
 * resource/netbox_ip_address: Add `description` attribute ([#156](https://github.com/e-breuninger/terraform-provider-netbox/pull/156) by [@fbreckle](https://github.com/fbreckle))
+* resource/netbox_virtual_machine: Add `custom_fields` attribute ([#158](https://github.com/e-breuninger/terraform-provider-netbox/pull/158) by [@chapsuk](https://github.com/chapsuk))
 
 ## 1.6.2 (Apr 11, 2022)
 
