@@ -30,6 +30,11 @@ func testAccGetTestName(testSlug string) string {
 	return strings.Join([]string{testPrefix, testSlug, randomString}, "-")
 }
 
+func testAccGetTestToken() string {
+	randomToken := acctest.RandStringFromCharSet(40, "0123456789")
+	return randomToken
+}
+
 func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("NETBOX_SERVER_URL"); v == "" {
 		t.Fatal("NETBOX_SERVER must be set for acceptance tests.")
