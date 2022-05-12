@@ -158,7 +158,7 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 		mapping["address_family"] = v.Family.Label
 		mapping["status"] = v.Status.Value
 		mapping["dns_name"] = v.DNSName
-		mapping["role"] = v.Role
+		mapping["role"] = v.Role.Label
 		mapping["tenant"] = flattenTenant(v.Tenant)
 
 		s = append(s, mapping)
