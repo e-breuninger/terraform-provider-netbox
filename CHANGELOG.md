@@ -1,3 +1,9 @@
+## 1.6.5 (May 18th, 2022)
+
+ENHANCEMENTS
+
+* docs: Fix critical error in usage documentation
+
 ## 1.6.4 (May 18th, 2022)
 
 FEATURES
