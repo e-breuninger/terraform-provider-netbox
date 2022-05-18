@@ -1,3 +1,15 @@
+## 1.6.4 (May 18th, 2022)
+
+FEATURES
+
+* **New Resource:** `netbox_user` ([#169](https://github.com/e-breuninger/terraform-provider-netbox/pull/169) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_token` ([#169](https://github.com/e-breuninger/terraform-provider-netbox/pull/169) by [@arjenvri](https://github.com/arjenvri))
+
+ENHANCEMENTS
+
+* resource/netbox_site: Add `timezone`, `latitude`, `longitude` and `custom_fields` attributes ([#168](https://github.com/e-breuninger/terraform-provider-netbox/pull/168) by [@arjenvri](https://github.com/arjenvri))
+* docs: Regenerate docs with updated tooling ([#165](https://github.com/e-breuninger/terraform-provider-netbox/pull/165) by [@d-strobel](https://github.com/d-strobel))
+
 ## 1.6.3 (May 6th, 2022)
 
 FEATURES
