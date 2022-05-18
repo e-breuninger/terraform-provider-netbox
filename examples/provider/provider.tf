@@ -1,6 +1,6 @@
 terraform {
   required_providers {
-    aws = {
+    netbox = {
       source  = "e-breuninger/netbox"
       version = "~> 1.6"
     }

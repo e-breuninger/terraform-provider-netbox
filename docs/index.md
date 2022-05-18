@@ -20,7 +20,7 @@ Each resource's `id` (unless otherwise specified) is computed by the resource an
 ```terraform
 terraform {
   required_providers {
-    aws = {
+    netbox = {
       source  = "e-breuninger/netbox"
       version = "~> 1.6"
     }
