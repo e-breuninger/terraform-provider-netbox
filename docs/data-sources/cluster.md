@@ -25,12 +25,9 @@ data "netbox_cluster" "vmw_cluster_01" {
 
 - `name` (String)
 
-### Optional
-
-- `id` (String) The ID of this resource.
-
 ### Read-Only
 
 - `cluster_id` (Number)
+- `id` (String) The ID of this resource.
 
 

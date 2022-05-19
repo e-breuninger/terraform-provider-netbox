@@ -33,12 +33,12 @@ data "netbox_virtual_machines" "base_vm" {
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `id` (String) The ID of this resource.
 - `limit` (Number)
 - `name_regex` (String)
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `vms` (List of Object) (see [below for nested schema](#nestedatt--vms))
 
 <a id="nestedblock--filter"></a>

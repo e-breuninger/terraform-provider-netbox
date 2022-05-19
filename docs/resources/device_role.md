@@ -29,8 +29,11 @@ resource "netbox_device_role" "core_sw" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `slug` (String)
 - `vm_role` (Boolean)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

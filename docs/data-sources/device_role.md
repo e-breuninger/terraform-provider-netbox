@@ -25,13 +25,10 @@ data "netbox_device_role" "core_sw" {
 
 - `name` (String)
 
-### Optional
-
-- `id` (String) The ID of this resource.
-
 ### Read-Only
 
 - `color_hex` (String)
+- `id` (String) The ID of this resource.
 - `slug` (String)
 
 

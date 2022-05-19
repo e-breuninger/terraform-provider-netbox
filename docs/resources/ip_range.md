@@ -31,11 +31,14 @@ resource "netbox_ip_range" "cust_a_prod" {
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `role_id` (Number)
 - `status` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vrf_id` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

@@ -26,7 +26,6 @@ description: |-
 - `custom_fields` (Map of String)
 - `description` (String)
 - `facility` (String)
-- `id` (String) The ID of this resource.
 - `latitude` (Number)
 - `longitude` (Number)
 - `region_id` (Number)
@@ -34,5 +33,9 @@ description: |-
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `timezone` (String)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

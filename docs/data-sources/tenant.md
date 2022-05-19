@@ -25,13 +25,10 @@ data "netbox_tenant" "customer_a" {
 
 - `name` (String)
 
-### Optional
-
-- `id` (String) The ID of this resource.
-
 ### Read-Only
 
 - `group_id` (Number)
+- `id` (String) The ID of this resource.
 - `slug` (String)
 
 

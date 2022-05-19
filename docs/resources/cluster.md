@@ -46,8 +46,11 @@ resource "netbox_cluster" "vmw_cluster_01" {
 ### Optional
 
 - `cluster_group_id` (Number)
-- `id` (String) The ID of this resource.
 - `site_id` (Number)
 - `tags` (Set of String)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

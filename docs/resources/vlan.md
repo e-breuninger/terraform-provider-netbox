@@ -24,10 +24,13 @@ description: |-
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `role_id` (Number)
 - `site_id` (Number)
 - `status` (String)
 - `tenant_id` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

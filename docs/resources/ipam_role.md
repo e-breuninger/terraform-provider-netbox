@@ -22,8 +22,11 @@ description: |-
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `slug` (String)
 - `weight` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

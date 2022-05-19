@@ -28,8 +28,11 @@ resource "netbox_vrf" "cust_a_prod" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `tags` (Set of String)
 - `tenant_id` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

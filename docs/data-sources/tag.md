@@ -28,10 +28,10 @@ data "netbox_tag" "dmz" {
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `slug` (String)
 
 
