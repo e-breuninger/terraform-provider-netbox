@@ -23,7 +23,6 @@ description: |-
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `is_pool` (Boolean)
 - `mark_utilized` (Boolean)
 - `role_id` (Number)
@@ -32,5 +31,9 @@ description: |-
 - `tenant_id` (Number)
 - `vlan_id` (Number)
 - `vrf_id` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

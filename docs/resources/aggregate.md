@@ -22,9 +22,12 @@ description: |-
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `rir_id` (Number)
 - `tags` (Set of String)
 - `tenant_id` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

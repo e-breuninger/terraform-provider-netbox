@@ -37,8 +37,11 @@ resource "netbox_service" "ssh" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `port` (Number, Deprecated)
 - `ports` (Set of Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

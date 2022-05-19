@@ -32,8 +32,11 @@ description: |-
 
 Optional:
 
-- `id` (Number) The ID of this resource.
 - `name` (String)
 - `slug` (String)
+
+Read-Only:
+
+- `id` (Number) The ID of this resource.
 
 

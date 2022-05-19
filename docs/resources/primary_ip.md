@@ -45,7 +45,10 @@ resource "netbox_primary_ip" "myvm_primary_ip" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `ip_address_version` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

@@ -28,8 +28,11 @@ resource "netbox_tenant" "customer_a" {
 ### Optional
 
 - `group_id` (Number)
-- `id` (String) The ID of this resource.
 - `slug` (String)
 - `tags` (Set of String)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

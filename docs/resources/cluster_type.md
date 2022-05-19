@@ -27,7 +27,10 @@ resource "netbox_cluster_type" "vmw_vsphere" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `slug` (String)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

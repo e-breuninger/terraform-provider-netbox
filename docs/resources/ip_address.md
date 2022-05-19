@@ -47,10 +47,13 @@ resource "netbox_ip_address" "myvm_ip" {
 
 - `description` (String)
 - `dns_name` (String)
-- `id` (String) The ID of this resource.
 - `interface_id` (Number)
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vrf_id` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

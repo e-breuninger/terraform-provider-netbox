@@ -29,7 +29,10 @@ resource "netbox_cluster_group" "dc_west" {
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `slug` (String)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

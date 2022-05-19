@@ -21,7 +21,10 @@ description: |-
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `slug` (String)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

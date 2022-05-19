@@ -19,12 +19,9 @@ description: |-
 
 - `name` (String)
 
-### Optional
-
-- `id` (String) The ID of this resource.
-
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `site_id` (Number)
 
 

@@ -23,7 +23,6 @@ description: |-
 ### Optional
 
 - `comments` (String)
-- `id` (String) The ID of this resource.
 - `role_id` (Number)
 - `serial` (String)
 - `site_id` (Number)
@@ -32,6 +31,7 @@ description: |-
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `primary_ipv4` (Number)
 
 

@@ -35,9 +35,12 @@ resource "netbox_interface" "myvm_eth0" {
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `mac_address` (String)
 - `tags` (Set of String)
 - `type` (String, Deprecated)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

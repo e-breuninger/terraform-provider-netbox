@@ -68,7 +68,6 @@ resource "netbox_virtual_machine" "full_vm" {
 - `comments` (String)
 - `custom_fields` (Map of String)
 - `disk_size_gb` (Number)
-- `id` (String) The ID of this resource.
 - `memory_mb` (Number)
 - `platform_id` (Number)
 - `role_id` (Number)
@@ -78,6 +77,7 @@ resource "netbox_virtual_machine" "full_vm" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `primary_ipv4` (Number)
 - `site_id` (Number)
 

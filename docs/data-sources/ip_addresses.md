@@ -18,10 +18,10 @@ description: |-
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `id` (String) The ID of this resource.
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `ip_addresses` (List of Object) (see [below for nested schema](#nestedatt--ip_addresses))
 
 <a id="nestedblock--filter"></a>

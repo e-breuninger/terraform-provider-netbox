@@ -21,7 +21,10 @@ description: |-
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `key` (String, Sensitive)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

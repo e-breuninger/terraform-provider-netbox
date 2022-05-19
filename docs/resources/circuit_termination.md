@@ -23,8 +23,11 @@ description: |-
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `port_speed` (Number)
 - `upstream_speed` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

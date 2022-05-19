@@ -36,7 +36,6 @@ resource "netbox_available_prefix" "test" {
 ### Optional
 
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `is_pool` (Boolean)
 - `mark_utilized` (Boolean)
 - `role_id` (Number)
@@ -48,6 +47,7 @@ resource "netbox_available_prefix" "test" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `prefix` (String)
 
 

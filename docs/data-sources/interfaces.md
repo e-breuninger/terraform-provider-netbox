@@ -28,11 +28,11 @@ data "netbox_interface" "myvm_eth0" {
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `id` (String) The ID of this resource.
 - `name_regex` (String)
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `interfaces` (List of Object) (see [below for nested schema](#nestedatt--interfaces))
 
 <a id="nestedblock--filter"></a>

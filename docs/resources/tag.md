@@ -30,8 +30,11 @@ resource "netbox_tag" "dmz" {
 
 - `color_hex` (String)
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `slug` (String)
 - `tags` (Set of String)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

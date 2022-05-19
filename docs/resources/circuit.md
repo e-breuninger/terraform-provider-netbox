@@ -24,7 +24,10 @@ description: |-
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `tenant_id` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

@@ -21,9 +21,12 @@ description: |-
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `manufacturer_id` (Number)
 - `slug` (String)
 - `tags` (Set of String)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

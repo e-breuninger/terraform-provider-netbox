@@ -26,12 +26,15 @@ description: |-
 - `choices` (Set of String)
 - `default` (String)
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `label` (String)
 - `required` (Boolean)
 - `validation_maximum` (Number)
 - `validation_minimum` (Number)
 - `validation_regex` (String)
 - `weight` (Number)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

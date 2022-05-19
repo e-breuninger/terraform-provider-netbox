@@ -19,13 +19,10 @@ description: |-
 
 - `name` (String)
 
-### Optional
-
-- `id` (String) The ID of this resource.
-
 ### Read-Only
 
 - `description` (String)
+- `id` (String) The ID of this resource.
 - `parent_id` (Number)
 - `slug` (String)
 

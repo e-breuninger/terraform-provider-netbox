@@ -23,7 +23,10 @@ description: |-
 ### Optional
 
 - `active` (Boolean)
-- `id` (String) The ID of this resource.
 - `staff` (Boolean)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 
