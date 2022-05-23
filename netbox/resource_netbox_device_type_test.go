@@ -45,7 +45,6 @@ resource "netbox_device_type" "test" {
 	})
 }
 
-
 func init() {
 	resource.AddTestSweepers("netbox_device_type", &resource.Sweeper{
 		Name:         "netbox_device_type",

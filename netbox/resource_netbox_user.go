@@ -22,19 +22,19 @@ func resourceNetboxUser() *schema.Resource {
 				Required: true,
 			},
 			"password": &schema.Schema{
-				Type:         schema.TypeString,
-				Required:     true,
-				Sensitive:    true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"active": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default: true,
+				Default:  true,
 			},
 			"staff": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default: false,
+				Default:  false,
 			},
 		},
 		Importer: &schema.ResourceImporter{

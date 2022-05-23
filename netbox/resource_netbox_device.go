@@ -72,7 +72,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	name := d.Get("name").(string)
 
 	data := models.WritableDeviceWithConfigContext{
-		Name:    &name,
+		Name: &name,
 	}
 
 	typeIDValue, ok := d.GetOk("device_type_id")

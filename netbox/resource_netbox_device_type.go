@@ -103,7 +103,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("manufacturer_id", res.GetPayload().Manufacturer.ID)
 	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
-	
+
 	return nil
 }
 

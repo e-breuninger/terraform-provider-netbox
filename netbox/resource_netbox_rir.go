@@ -51,7 +51,6 @@ func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 	data.Name = &name
 	data.Slug = &slug
 
-
 	params := ipam.NewIpamRirsCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamRirsCreate(params, nil)
 	if err != nil {

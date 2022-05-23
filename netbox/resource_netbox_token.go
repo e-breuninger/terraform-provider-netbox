@@ -88,7 +88,7 @@ func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
 
 	userid := int64(d.Get("user_id").(int))
 	key := d.Get("key").(string)
-	
+
 	data.User = &userid
 	data.Key = key
 
