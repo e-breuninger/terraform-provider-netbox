@@ -46,3 +46,4 @@ provider "netbox" {
 
 - `allow_insecure_https` (Boolean) Flag to set whether to allow https with invalid certificates
 - `headers` (Map of String) Set these header on all requests to Netbox
+- `skip_version_check` (Boolean) If true, do not try to determine the running Netbox version at provider startup. Disables warnings about possibly unsupported Netbox version. Also useful for local testing on terraform plans.
