@@ -3,11 +3,13 @@ package netbox
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"golang.org/x/exp/slices"
 )
 
 // Provider returns a schema.Provider for Netbox.
@@ -93,6 +95,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_HEADERS", map[string]interface{}{}),
 				Description: "Set these header on all requests to Netbox",
 			},
+			"skip_version_check": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_SKIP_VERSION_CHECK", false),
+				Description: "If true, do not try to determine the running Netbox version at provider startup. Disables warnings about possibly unsupported Netbox version. Also useful for local testing on terraform plans.",
+			},
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -115,24 +123,31 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		return nil, diag.FromErr(clientError)
 	}
 
-	req := status.NewStatusListParams()
-	res, err := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+	// Unless explicitly switched off, use the client to retrieve the Netbox version
+	// so we can determine compatibility of the provider with the used Netbox
+	skipVersionCheck := data.Get("skip_version_check").(bool)
 
-	if err != nil {
-		return nil, diag.FromErr(err)
-	}
+	if !skipVersionCheck {
+		req := status.NewStatusListParams()
+		res, err := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
 
-	netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"]
+		if err != nil {
+			return nil, diag.FromErr(err)
+		}
 
-	supportedVersion := "3.1.9"
+		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-	if netboxVersion != supportedVersion {
+		supportedVersions := []string{"3.1.9"}
 
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  "Possibly unsupported Netbox version",
-			Detail:   fmt.Sprintf("This provider was tested against Netbox v%s. Your Netbox version is v%v. Unexpected errors may occur.", supportedVersion, netboxVersion),
-		})
+		if !slices.Contains(supportedVersions, netboxVersion) {
+
+			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Possibly unsupported Netbox version",
+				Detail:   fmt.Sprintf("Your Netbox version is v%v. The provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", netboxVersion, strings.Join(supportedVersions, ", ")),
+			})
+		}
 	}
 
 	return netboxClient, diags

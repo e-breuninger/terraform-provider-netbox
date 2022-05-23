@@ -1,3 +1,9 @@
+## 1.6.6 (unreleased)
+
+ENHANCEMENTS
+
+* provider: Add `skip_version_check` attribute
+
 ## 1.6.5 (May 18th, 2022)
 
 ENHANCEMENTS
