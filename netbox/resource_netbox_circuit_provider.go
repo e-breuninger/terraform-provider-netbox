@@ -105,6 +105,8 @@ func resourceNetboxCircuitProviderUpdate(d *schema.ResourceData, m interface{}) 
 		data.Slug = strToPtr(slugValue.(string))
 	}
 
+	data.Tags = []*models.NestedTag{}
+
 	params := circuits.NewCircuitsProvidersPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Circuits.CircuitsProvidersPartialUpdate(params, nil)

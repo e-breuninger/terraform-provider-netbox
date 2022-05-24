@@ -21,13 +21,24 @@ func TestAccNetboxCircuitProvider_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`	  
+				Config: fmt.Sprintf(`
 resource "netbox_circuit_provider" "test" {
   name = "%[1]s"
   slug = "%[2]s"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "slug", randomSlug),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`	  
+resource "netbox_circuit_provider" "test" {
+  name = "%[1]s"
+  slug = "%[2]s"
+}`, testName+"2", randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "name", testName+"2"),
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "slug", randomSlug),
 				),
 			},
