@@ -17,6 +17,10 @@ func resourceNetboxAggregate() *schema.Resource {
 		Update: resourceNetboxAggregateUpdate,
 		Delete: resourceNetboxAggregateDelete,
 
+		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#aggregates):
+
+> NetBox allows us to specify the portions of IP space that are interesting to us by defining aggregates. Typically, an aggregate will correspond to either an allocation of public (globally routable) IP space granted by a regional authority, or a private (internally-routable) designation.`,
+
 		Schema: map[string]*schema.Schema{
 			"prefix": {
 				Type:         schema.TypeString,

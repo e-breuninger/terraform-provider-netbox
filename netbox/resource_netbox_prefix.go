@@ -17,6 +17,12 @@ func resourceNetboxPrefix() *schema.Resource {
 		Update: resourceNetboxPrefixUpdate,
 		Delete: resourceNetboxPrefixDelete,
 
+		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#prefixes):
+
+> A prefix is an IPv4 or IPv6 network and mask expressed in CIDR notation (e.g. 192.0.2.0/24). A prefix entails only the "network portion" of an IP address: All bits in the address not covered by the mask must be zero. (In other words, a prefix cannot be a specific IP address.)
+>
+> Prefixes are automatically organized by their parent aggregates. Additionally, each prefix can be assigned to a particular site and virtual routing and forwarding instance (VRF). Each VRF represents a separate IP space or routing table. All prefixes not assigned to a VRF are considered to be in the "global" table.`,
+
 		Schema: map[string]*schema.Schema{
 			"prefix": {
 				Type:         schema.TypeString,

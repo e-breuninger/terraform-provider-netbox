@@ -16,6 +16,10 @@ func resourceNetboxClusterType() *schema.Resource {
 		Update: resourceNetboxClusterTypeUpdate,
 		Delete: resourceNetboxClusterTypeDelete,
 
+		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#cluster-types):
+
+> A cluster type represents a technology or mechanism by which a cluster is formed. For example, you might create a cluster type named "VMware vSphere" for a locally hosted cluster or "DigitalOcean NYC3" for one hosted by a cloud provider.`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
