@@ -152,6 +152,8 @@ func resourceNetboxCircuitUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
+	data.Tags = []*models.NestedTag{}
+
 	params := circuits.NewCircuitsCircuitsPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Circuits.CircuitsCircuitsPartialUpdate(params, nil)
