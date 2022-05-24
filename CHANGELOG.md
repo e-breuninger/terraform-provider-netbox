@@ -29,8 +29,8 @@ FEATURES
 * **New Data Source:** `netbox_ip_addresses` [#159](https://github.com/e-breuninger/terraform-provider-netbox/pull/159) by [@twink0r](https://github.com/twink0r)
 * **New Resource:** `netbox_circuit` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
 * **New Resource:** `netbox_circuit_provider` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
-* **New Resource:** `netbox_termination` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
-* **New Resource:** `netbox_type` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_circuit_termination` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_circuit_type` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
 * **New Resource:** `netbox_custom_field` ([#158](https://github.com/e-breuninger/terraform-provider-netbox/pull/158) by [@chapsuk](https://github.com/chapsuk))
 
 ENHANCEMENTS
