@@ -3,6 +3,12 @@
 ENHANCEMENTS
 
 * provider: Add `skip_version_check` attribute
+* provider: Update list of officially supported versions
+
+BUG FIXES
+
+* resource/netbox_circuit: Fix bug that prevented updates from being made
+* resource/netbox_circuit_provider: Fix bug that prevented updates from being made
 
 ## 1.6.5 (May 18th, 2022)
 
