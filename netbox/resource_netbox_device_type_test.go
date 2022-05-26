@@ -25,15 +25,17 @@ func TestAccNetboxDeviceType_basic(t *testing.T) {
 resource "netbox_manufacturer" "test" {
   name = "%[1]s"
 }
-				  
+
 resource "netbox_device_type" "test" {
   model = "%[1]s"
   slug = "%[2]s"
+  part_number = "%[2]s"
   manufacturer_id = netbox_manufacturer.test.id
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_type.test", "model", testName),
 					resource.TestCheckResourceAttr("netbox_device_type.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "part_number", randomSlug),
 				),
 			},
 			{

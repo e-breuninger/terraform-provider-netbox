@@ -24,7 +24,7 @@ func TestAccNetboxToken_basic(t *testing.T) {
 resource "netbox_user" "test" {
 	username = "%s"
 	password = "abcdefghijkl"
-}				  
+}
 resource "netbox_token" "test_basic" {
   user_id = netbox_user.test.id
   key = "%s"
