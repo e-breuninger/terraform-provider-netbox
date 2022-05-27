@@ -70,6 +70,7 @@ func Provider() *schema.Provider {
 			"netbox_ip_addresses":     dataSourceNetboxIpAddresses(),
 			"netbox_ip_range":         dataSourceNetboxIpRange(),
 			"netbox_region":           dataSourceNetboxRegion(),
+			"netbox_vlan":             dataSourceNetboxVlan(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
