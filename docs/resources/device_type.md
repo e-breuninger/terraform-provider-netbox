@@ -22,6 +22,7 @@ description: |-
 ### Optional
 
 - `manufacturer_id` (Number)
+- `part_number` (String)
 - `slug` (String)
 - `tags` (Set of String)
 
