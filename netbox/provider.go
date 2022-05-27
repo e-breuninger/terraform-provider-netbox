@@ -62,6 +62,7 @@ func Provider() *schema.Provider {
 			"netbox_platform":         dataSourceNetboxPlatform(),
 			"netbox_prefix":           dataSourceNetboxPrefix(),
 			"netbox_device_role":      dataSourceNetboxDeviceRole(),
+			"netbox_device_type":      dataSourceNetboxDeviceType(),
 			"netbox_site":             dataSourceNetboxSite(),
 			"netbox_tag":              dataSourceNetboxTag(),
 			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),

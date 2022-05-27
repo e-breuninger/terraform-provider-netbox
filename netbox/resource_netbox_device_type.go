@@ -18,21 +18,25 @@ func resourceNetboxDeviceType() *schema.Resource {
 		Delete: resourceNetboxDeviceTypeDelete,
 
 		Schema: map[string]*schema.Schema{
-			"model": &schema.Schema{
+			"model": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"manufacturer_id": &schema.Schema{
+			"manufacturer_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
+			"part_number": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tags": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -68,6 +72,10 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		data.Manufacturer = int64ToPtr(int64(manufacturerIDValue.(int)))
 	}
 
+	if partNo, ok := d.GetOk("part_number"); ok {
+		data.PartNumber = partNo.(string)
+	}
+
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
 	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
@@ -99,10 +107,12 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("model", res.GetPayload().Model)
-	d.Set("slug", res.GetPayload().Slug)
-	d.Set("manufacturer_id", res.GetPayload().Manufacturer.ID)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	device_type := res.GetPayload()
+	d.Set("model", device_type.Model)
+	d.Set("slug", device_type.Slug)
+	d.Set("manufacturer_id", device_type.Manufacturer.ID)
+	d.Set("part_number", device_type.PartNumber)
+	d.Set("tags", getTagListFromNestedTagList(device_type.Tags))
 
 	return nil
 }
@@ -127,6 +137,10 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	manufacturerIDValue, ok := d.GetOk("manufacturer_id")
 	if ok {
 		data.Manufacturer = int64ToPtr(int64(manufacturerIDValue.(int)))
+	}
+
+	if partNo, ok := d.GetOk("part_number"); ok {
+		data.PartNumber = partNo.(string)
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
