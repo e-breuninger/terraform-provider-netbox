@@ -1,9 +1,12 @@
-## 1.6.6 (unreleased)
+## 1.6.6 (May 27th, 2022)
 
 ENHANCEMENTS
 
+* **New Data Source:** `netbox_device_type` ([#179](https://github.com/e-breuninger/terraform-provider-netbox/pull/179) by [@tstarck](https://github.com/tstarck))
+* **New Data Source:** `netbox_vlan` ([#180](https://github.com/e-breuninger/terraform-provider-netbox/pull/180) by [@tstarck](https://github.com/tstarck))
 * provider: Add `skip_version_check` attribute
 * provider: Update list of officially supported versions
+* resource/netbox_device_type: Add `part_number` attribute ([#179](https://github.com/e-breuninger/terraform-provider-netbox/pull/179) by [@tstarck](https://github.com/tstarck))
 
 BUG FIXES
 
@@ -32,7 +35,7 @@ ENHANCEMENTS
 
 FEATURES
 
-* **New Data Source:** `netbox_ip_addresses` [#159](https://github.com/e-breuninger/terraform-provider-netbox/pull/159) by [@twink0r](https://github.com/twink0r)
+* **New Data Source:** `netbox_ip_addresses` ([#159](https://github.com/e-breuninger/terraform-provider-netbox/pull/159) by [@twink0r](https://github.com/twink0r))
 * **New Resource:** `netbox_circuit` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
 * **New Resource:** `netbox_circuit_provider` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
 * **New Resource:** `netbox_circuit_termination` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
