@@ -12,6 +12,8 @@ import (
 )
 
 func resourceNetboxInterface() *schema.Resource {
+	validModes := []string{"access", "tagged", "tagged-all"}
+
 	return &schema.Resource{
 		Create: resourceNetboxInterfaceCreate,
 		Read:   resourceNetboxInterfaceRead,
@@ -19,19 +21,24 @@ func resourceNetboxInterface() *schema.Resource {
 		Delete: resourceNetboxInterfaceDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"virtual_machine_id": &schema.Schema{
+			"virtual_machine_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"mac_address": &schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"mac_address": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringMatch(
@@ -39,18 +46,38 @@ func resourceNetboxInterface() *schema.Resource {
 					"Must be like AA:AA:AA:AA:AA"),
 				ForceNew: true,
 			},
-			"type": &schema.Schema{
+			"mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice(validModes, false),
+			},
+			"mtu": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(1, 65536),
+			},
+			"type": {
 				Type:       schema.TypeString,
 				Optional:   true,
 				Deprecated: "This attribute is not supported by netbox any longer. It will be removed in future versions of this provider.",
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
+			"tags": {
+				Type:     schema.TypeSet,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"tagged_vlans": {
+				Type:     schema.TypeSet,
 				Optional: true,
-				Set:      schema.HashString,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+			},
+			"untagged_vlan": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -63,20 +90,30 @@ func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error 
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	description := d.Get("description").(string)
-	macAddress := d.Get("mac_address").(string)
+	enabled := d.Get("enabled").(bool)
+	mode := d.Get("mode").(string)
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	taggedVlans := toInt64List(d.Get("tagged_vlans"))
+	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 
 	data := models.WritableVMInterface{
 		Name:           &name,
 		Description:    description,
-		VirtualMachine: &virtualMachineID,
+		Enabled:        enabled,
+		Mode:           mode,
 		Tags:           tags,
-		TaggedVlans:    []int64{},
+		TaggedVlans:    taggedVlans,
+		VirtualMachine: &virtualMachineID,
 	}
-	if macAddress != "" {
+	if macAddress := d.Get("mac_address").(string); macAddress != "" {
 		data.MacAddress = &macAddress
+	}
+	if mtu, ok := d.Get("mtu").(int); ok && mtu != 0 {
+		data.Mtu = int64ToPtr(int64(mtu))
+	}
+	if untaggedVlan, ok := d.Get("untagged_vlan").(int); ok && untaggedVlan != 0 {
+		data.UntaggedVlan = int64ToPtr(int64(untaggedVlan))
 	}
 	params := virtualization.NewVirtualizationInterfacesCreateParams().WithData(&data)
 
@@ -107,11 +144,24 @@ func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
-	d.Set("description", res.GetPayload().Description)
-	d.Set("mac_address", res.GetPayload().MacAddress)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	iface := res.GetPayload()
+
+	d.Set("name", iface.Name)
+	d.Set("description", iface.Description)
+	d.Set("enabled", iface.Enabled)
+	d.Set("mac_address", iface.MacAddress)
+	d.Set("mtu", iface.Mtu)
+	d.Set("tags", getTagListFromNestedTagList(iface.Tags))
+	d.Set("tagged_vlans", getIDsFromNestedVLAN(iface.TaggedVlans))
+	d.Set("virtual_machine_id", iface.VirtualMachine.ID)
+
+	if iface.Mode != nil {
+		d.Set("mode", iface.Mode.Value)
+	}
+	if iface.UntaggedVlan != nil {
+		d.Set("untagged_vlan", iface.UntaggedVlan.ID)
+	}
+
 	return nil
 }
 
@@ -121,23 +171,37 @@ func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	name := d.Get("name").(string)
-	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	description := d.Get("description").(string)
+	enabled := d.Get("enabled").(bool)
+	mode := d.Get("mode").(string)
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	taggedVlans := toInt64List(d.Get("tagged_vlans"))
+	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 
 	data := models.WritableVMInterface{
 		Name:           &name,
 		Description:    description,
-		VirtualMachine: &virtualMachineID,
+		Enabled:        enabled,
+		Mode:           mode,
 		Tags:           tags,
-		TaggedVlans:    []int64{},
+		TaggedVlans:    taggedVlans,
+		VirtualMachine: &virtualMachineID,
 	}
 
-	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
 	if d.HasChange("mac_address") {
 		macAddress := d.Get("mac_address").(string)
 		data.MacAddress = &macAddress
 	}
+	if d.HasChange("mtu") {
+		mtu := int64(d.Get("mtu").(int))
+		data.Mtu = &mtu
+	}
+	if d.HasChange("untagged_vlan") {
+		untaggedvlan := int64(d.Get("untagged_vlan").(int))
+		data.UntaggedVlan = &untaggedvlan
+	}
+
+	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil)
 	if err != nil {
 		return err
@@ -157,4 +221,12 @@ func resourceNetboxInterfaceDelete(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 	return nil
+}
+
+func getIDsFromNestedVLAN(nestedvlans []*models.NestedVLAN) []int64 {
+	var vlans []int64
+	for _, vlan := range nestedvlans {
+		vlans = append(vlans, vlan.ID)
+	}
+	return vlans
 }
