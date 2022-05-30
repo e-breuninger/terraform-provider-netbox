@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	sp "github.com/davecgh/go-spew/spew"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func spew(obj interface{}) string {
@@ -29,4 +30,16 @@ func int64ToPtr(i int64) *int64 {
 
 func float64ToPtr(i float64) *float64 {
 	return &i
+}
+
+func toInt64List(a interface{}) []int64 {
+	intList := []int64{}
+	for _, number := range a.(*schema.Set).List() {
+		if n, ok := number.(int); ok {
+			intList = append(intList, int64(n))
+		} else if n, ok := number.(int64); ok {
+			intList = append(intList, n)
+		}
+	}
+	return intList
 }
