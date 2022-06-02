@@ -32,7 +32,6 @@ func TestAccNetboxVlan_basic(t *testing.T) {
 	testSlug := "vlan_basic"
 	testName := testAccGetTestName(testSlug)
 	testVid := "777"
-	testDescription := "Test Description"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -42,14 +41,13 @@ func TestAccNetboxVlan_basic(t *testing.T) {
 resource "netbox_vlan" "test_basic" {
   name = "%s"
   vid = "%s"
-  status = "active"
-  description = "%s"
   tags = []
-}`, testName, testVid, testDescription),
+}`, testName, testVid),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "name", testName),
 					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "vid", testVid),
-					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "description", testDescription),
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "description", ""),
 					resource.TestCheckResourceAttr("netbox_vlan.test_basic", "tags.#", "0"),
 				),
 			},
