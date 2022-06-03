@@ -25,7 +25,7 @@ func TestAccNetboxSite_basic(t *testing.T) {
 resource "netbox_site" "test" {
   name = "%s"
   slug = "%s"
-  status = "active"
+  status = "planned"
   description = "%[1]s"
   facility = "%[1]s"
   asn = 1337
@@ -33,7 +33,7 @@ resource "netbox_site" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "slug", randomSlug),
-					resource.TestCheckResourceAttr("netbox_site.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_site.test", "status", "planned"),
 					resource.TestCheckResourceAttr("netbox_site.test", "description", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "facility", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "asn", "1337"),
@@ -66,7 +66,6 @@ resource "netbox_tag" "test" {
 }
 resource "netbox_site" "test" {
   name = "%[1]s"
-  status = "active"
   tenant_id = netbox_tenant.test.id
   tags = ["%[1]s"]
 }`, testName),
@@ -100,13 +99,14 @@ resource "netbox_custom_field" "test" {
 }
 resource "netbox_site" "test" {
   name          = "%[2]s"
-  status        = "active"
+  status        = "decommissioning"
   latitude      = "12.123456"
   longitude     = "-13.123456"
   timezone      = "Africa/Johannesburg"
   custom_fields = {"${netbox_custom_field.test.name}" = "81"}
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_site.test", "status", "decommissioning"),
 					resource.TestCheckResourceAttr("netbox_site.test", "custom_fields."+testField, "81"),
 					resource.TestCheckResourceAttr("netbox_site.test", "timezone", "Africa/Johannesburg"),
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),

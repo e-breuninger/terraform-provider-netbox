@@ -18,48 +18,49 @@ func resourceNetboxSite() *schema.Resource {
 		Delete: resourceNetboxSiteDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Default:      "active",
 				ValidateFunc: validation.StringInSlice([]string{"planned", "staging", "active", "decommissioning", "retired"}, false),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 200),
 			},
-			"facility": &schema.Schema{
+			"facility": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
-			"longitude": &schema.Schema{
+			"longitude": {
 				Type:     schema.TypeFloat,
 				Optional: true,
 			},
-			"latitude": &schema.Schema{
+			"latitude": {
 				Type:     schema.TypeFloat,
 				Optional: true,
 			},
-			"region_id": &schema.Schema{
+			"region_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -67,11 +68,11 @@ func resourceNetboxSite() *schema.Resource {
 				Optional: true,
 				Set:      schema.HashString,
 			},
-			"timezone": &schema.Schema{
+			"timezone": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"asn": &schema.Schema{
+			"asn": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
