@@ -43,7 +43,7 @@ data "netbox_site" "test" {
 func testAccNetboxSiteBySlug(testName string) string {
 	return fmt.Sprintf(`
 data "netbox_site" "test" {
-  name = "%[1]s"
+  slug = "%[1]s"
 }`, testName)
 }
 
