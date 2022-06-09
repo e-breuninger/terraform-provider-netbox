@@ -8,17 +8,19 @@ description: |-
 
 # netbox_prefix (Data Source)
 
+
+
 ## Example Usage
 
 ```terraform
-data "netbox_prefix" "production" {
-  cidr = "10.0.0.0/18"
+//Retrieve resource by cidr
+resource "netbox_prefix" "cidr" {
+    cidr = "10.0.0.0/16"
 }
-```
 
-```terraform
-data "netbox_prefix" "acceptance" {
-  description = "acc-eu-a"
+//Retrieve resource by description
+resource "netbox_prefix" "description" {
+    description = "prod-eu-west-1a"
 }
 ```
 
@@ -27,8 +29,8 @@ data "netbox_prefix" "acceptance" {
 
 ### Optional
 
-- `cidr` (String) Computed if not given
-- `description` (String) Used when no prefix is given
+- `cidr` (String)
+- `description` (String)
 
 ### Read-Only
 
