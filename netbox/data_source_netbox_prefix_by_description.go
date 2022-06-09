@@ -18,7 +18,7 @@ func dataSourceNetboxPrefixByDescription() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"cidr": {
+			"prefix": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -37,7 +37,7 @@ func dataSourceNetboxPrefixByDescriptionRead(d *schema.ResourceData, m interface
 		return err
 	}
 
-	d.Set("cidr", prefix)
+	d.Set("prefix", prefix)
 	d.SetId(id)
 	return nil
 }
