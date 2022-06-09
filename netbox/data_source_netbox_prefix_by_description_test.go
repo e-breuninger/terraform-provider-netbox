@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,7 +11,7 @@ import (
 func TestAccNetboxPrefixByDescDataSource_basic(t *testing.T) {
 
 	testPrefix := "10.0.0.0/24"
-	testDesc := "test-prefix"
+	testDesc := fmt.Sprintf("test-prefix-%d", rand.Intn(100))
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
