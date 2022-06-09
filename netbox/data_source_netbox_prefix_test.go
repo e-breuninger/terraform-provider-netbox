@@ -98,7 +98,7 @@ data "netbox_prefix" "test" {
 func TestAccNetboxPrefixDataSource_description_cidr(t *testing.T) {
 
 	testPrefix := "10.0.0.0/24"
-	testDesc := "test-description"
+	testDesc := "test-description-cidr"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -116,7 +116,7 @@ data "netbox_prefix" "test" {
 }`, testPrefix, testDesc),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.test", "id", "netbox_prefix.test", "id"),
-					resource.TestCheckResourceAttrPair("data.netbox_prefix.test", "cidr", "netbox_prefix.test", "cidr"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.test", "cidr", "netbox_prefix.test", "prefix"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.test", "description", "netbox_prefix.test", "description"),
 				),
 				ExpectNonEmptyPlan: false,
