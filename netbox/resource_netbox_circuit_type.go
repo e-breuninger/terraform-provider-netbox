@@ -17,6 +17,10 @@ func resourceNetboxCircuitType() *schema.Resource {
 		Update: resourceNetboxCircuitTypeUpdate,
 		Delete: resourceNetboxCircuitTypeDelete,
 
+		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/circuits/#circuit-types):
+
+> Circuits are classified by functional type. These types are completely customizable, and are typically used to convey the type of service being delivered over a circuit.`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,

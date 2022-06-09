@@ -32,7 +32,7 @@ resource "netbox_device_role" "test" {
 resource "netbox_tag" "test_a" {
   name = "%[1]sa"
 }
-  
+
 resource "netbox_tag" "test_b" {
   name = "%[1]sb"
 }
@@ -40,7 +40,7 @@ resource "netbox_tag" "test_b" {
 resource "netbox_manufacturer" "test" {
   name = "%[1]s"
 }
-	
+
 resource "netbox_device_type" "test" {
   model = "%[1]s"
   manufacturer_id = netbox_manufacturer.test.id

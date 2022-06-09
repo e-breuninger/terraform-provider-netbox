@@ -1,12 +1,45 @@
+## 1.6.6 (May 27th, 2022)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_device_type` ([#179](https://github.com/e-breuninger/terraform-provider-netbox/pull/179) by [@tstarck](https://github.com/tstarck))
+* **New Data Source:** `netbox_vlan` ([#180](https://github.com/e-breuninger/terraform-provider-netbox/pull/180) by [@tstarck](https://github.com/tstarck))
+* provider: Add `skip_version_check` attribute
+* provider: Update list of officially supported versions
+* resource/netbox_device_type: Add `part_number` attribute ([#179](https://github.com/e-breuninger/terraform-provider-netbox/pull/179) by [@tstarck](https://github.com/tstarck))
+
+BUG FIXES
+
+* resource/netbox_circuit: Fix bug that prevented updates from being made
+* resource/netbox_circuit_provider: Fix bug that prevented updates from being made
+
+## 1.6.5 (May 18th, 2022)
+
+ENHANCEMENTS
+
+* docs: Fix critical error in usage documentation
+
+## 1.6.4 (May 18th, 2022)
+
+FEATURES
+
+* **New Resource:** `netbox_user` ([#169](https://github.com/e-breuninger/terraform-provider-netbox/pull/169) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_token` ([#169](https://github.com/e-breuninger/terraform-provider-netbox/pull/169) by [@arjenvri](https://github.com/arjenvri))
+
+ENHANCEMENTS
+
+* resource/netbox_site: Add `timezone`, `latitude`, `longitude` and `custom_fields` attributes ([#168](https://github.com/e-breuninger/terraform-provider-netbox/pull/168) by [@arjenvri](https://github.com/arjenvri))
+* docs: Regenerate docs with updated tooling ([#165](https://github.com/e-breuninger/terraform-provider-netbox/pull/165) by [@d-strobel](https://github.com/d-strobel))
+
 ## 1.6.3 (May 6th, 2022)
 
 FEATURES
 
-* **New Data Source:** `netbox_ip_addresses` [#159](https://github.com/e-breuninger/terraform-provider-netbox/pull/159) by [@twink0r](https://github.com/twink0r)
+* **New Data Source:** `netbox_ip_addresses` ([#159](https://github.com/e-breuninger/terraform-provider-netbox/pull/159) by [@twink0r](https://github.com/twink0r))
 * **New Resource:** `netbox_circuit` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
 * **New Resource:** `netbox_circuit_provider` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
-* **New Resource:** `netbox_termination` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
-* **New Resource:** `netbox_type` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_circuit_termination` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_circuit_type` ([#160](https://github.com/e-breuninger/terraform-provider-netbox/pull/160) by [@arjenvri](https://github.com/arjenvri))
 * **New Resource:** `netbox_custom_field` ([#158](https://github.com/e-breuninger/terraform-provider-netbox/pull/158) by [@chapsuk](https://github.com/chapsuk))
 
 ENHANCEMENTS

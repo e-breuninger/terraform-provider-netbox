@@ -107,7 +107,7 @@ resource "netbox_site" "test" {
   custom_fields = {"${netbox_custom_field.test.name}" = "81"}
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_site.test", "custom_fields." + testField, "81"),
+					resource.TestCheckResourceAttr("netbox_site.test", "custom_fields."+testField, "81"),
 					resource.TestCheckResourceAttr("netbox_site.test", "timezone", "Africa/Johannesburg"),
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
 					resource.TestCheckResourceAttr("netbox_site.test", "longitude", "-13.123456"),

@@ -17,6 +17,10 @@ func resourceNetboxAggregate() *schema.Resource {
 		Update: resourceNetboxAggregateUpdate,
 		Delete: resourceNetboxAggregateDelete,
 
+		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#aggregates):
+
+> NetBox allows us to specify the portions of IP space that are interesting to us by defining aggregates. Typically, an aggregate will correspond to either an allocation of public (globally routable) IP space granted by a regional authority, or a private (internally-routable) designation.`,
+
 		Schema: map[string]*schema.Schema{
 			"prefix": {
 				Type:         schema.TypeString,
@@ -55,10 +59,10 @@ func resourceNetboxAggregateCreate(d *schema.ResourceData, m interface{}) error 
 
 	prefix := d.Get("prefix").(string)
 	description := d.Get("description").(string)
-	
+
 	data.Prefix = &prefix
 	data.Description = description
-	
+
 	if tenantID, ok := d.GetOk("tenant_id"); ok {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
@@ -123,10 +127,10 @@ func resourceNetboxAggregateUpdate(d *schema.ResourceData, m interface{}) error 
 	data := models.WritableAggregate{}
 	prefix := d.Get("prefix").(string)
 	description := d.Get("description").(string)
-	
+
 	data.Prefix = &prefix
 	data.Description = description
-	
+
 	if tenantID, ok := d.GetOk("tenant_id"); ok {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
@@ -136,7 +140,7 @@ func resourceNetboxAggregateUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
-	
+
 	params := ipam.NewIpamAggregatesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamAggregatesUpdate(params, nil)
 	if err != nil {

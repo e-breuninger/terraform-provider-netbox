@@ -18,7 +18,7 @@ func resourceNetboxVlan() *schema.Resource {
 		Delete: resourceNetboxVlanDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -26,9 +26,10 @@ func resourceNetboxVlan() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Default:      "active",
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated"}, false),
 			},
 			"tenant_id": {
@@ -45,11 +46,12 @@ func resourceNetboxVlan() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "",
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -118,35 +120,25 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if res.GetPayload().Name != nil {
-		d.Set("name", res.GetPayload().Name)
-	}
+	vlan := res.GetPayload()
 
-	if res.GetPayload().Vid != nil {
-		d.Set("vid", res.GetPayload().Vid)
-	}
+	d.Set("name", vlan.Name)
+	d.Set("vid", vlan.Vid)
+	d.Set("description", vlan.Description)
+	d.Set("tags", getTagListFromNestedTagList(vlan.Tags))
 
-	if res.GetPayload().Status != nil {
-		d.Set("status", res.GetPayload().Status.Value)
+	if vlan.Status != nil {
+		d.Set("status", vlan.Status.Value)
 	}
-
-	if res.GetPayload().Description != "" {
-		d.Set("description", res.GetPayload().Description)
+	if vlan.Site != nil {
+		d.Set("site_id", vlan.Site.ID)
 	}
-
-	if res.GetPayload().Site != nil {
-		d.Set("site_id", res.GetPayload().Site.ID)
+	if vlan.Tenant != nil {
+		d.Set("tenant_id", vlan.Tenant.ID)
 	}
-
-	if res.GetPayload().Tenant != nil {
-		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	if vlan.Role != nil {
+		d.Set("role_id", vlan.Role.ID)
 	}
-
-	if res.GetPayload().Role != nil {
-		d.Set("role_id", res.GetPayload().Role.ID)
-	}
-
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -162,7 +154,6 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Vid = &vid
-
 	data.Status = status
 	data.Description = description
 

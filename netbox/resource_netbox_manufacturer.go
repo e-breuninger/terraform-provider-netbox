@@ -82,7 +82,7 @@ func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
-	
+
 	return nil
 }
 

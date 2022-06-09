@@ -3,6 +3,8 @@
 The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://netbox.readthedocs.io/en/stable/) resources.
 This provider is maintained by E. Breuninger.
 
+See: [Official documentation](https://registry.terraform.io/providers/e-breuninger/netbox/latest/docs) in the Terraform registry.
+
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
@@ -33,11 +35,11 @@ $ go install
 
 ## Installation
 
-When using Terraform 0.13 you can use the provider from the Terraform registry.
+Starting with Terraform 0.13, you can download the provider via the Terraform registry.
 
-For further information on how to use third party providers, see https://www.terraform.io/docs/configuration/providers.html
+For further information on how to use third party providers, see the [Terraform documentation](https://www.terraform.io/docs/configuration/providers.html)
 
-Releases for all major plattform are available on the release page.
+Releases for all major plattforms are available on the release page.
 
 ## Using the provider
 
@@ -63,13 +65,15 @@ For a more complex example, see the `example` folder.
 
 ## Developing the Provider
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (see [Requirements](#requirements) above).
+If you wish to work on the provider, you need [Go](http://www.golang.org) installed on your machine (see [Requirements](#requirements) above).
 
 To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
+To generate or update documentation, run `go generate`.
+
 In order to run the suite of unit tests, run `make test`.
 
-In order to run the full suite of Acceptance tests, run `make testacc`.
+In order to run the full suite of acceptance tests, run `make testacc`.
 
 _Note:_ Acceptance tests create a docker compose stack on port 8001.
 
@@ -77,12 +81,8 @@ _Note:_ Acceptance tests create a docker compose stack on port 8001.
 $ make testacc
 ```
 If you notice a failed test, it might be due to a stale netbox data volume.  Before concluding there is a problem, 
-refresh the docker containers and try again:
-```shell
-docker rm -f docker_netbox_1 ; docker rm -f  docker_postgres_1 ; docker rm -f docker_redis_1
-make testacc
-```
+refresh the docker containers by running `docker-compose down --volumes` in the `docker` directory. Then run the tests again.
 
 ## Contribution
 
-We focus on virtual machine management and IPAM. If you want to contribute more resources to this provider feel free to make a PR.
+We focus on virtual machine management and IPAM. If you want to contribute more resources to this provider, feel free to make a PR.

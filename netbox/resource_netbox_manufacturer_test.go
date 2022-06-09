@@ -40,7 +40,6 @@ resource "netbox_manufacturer" "test" {
 	})
 }
 
-
 func init() {
 	resource.AddTestSweepers("netbox_manufacturer", &resource.Sweeper{
 		Name:         "netbox_manufacturer",

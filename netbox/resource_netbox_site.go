@@ -44,12 +44,12 @@ func resourceNetboxSite() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
 			"longitude": &schema.Schema{
-				Type:         schema.TypeFloat,
-				Optional:     true,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"latitude": &schema.Schema{
-				Type:         schema.TypeFloat,
-				Optional:     true,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"region_id": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -68,8 +68,8 @@ func resourceNetboxSite() *schema.Resource {
 				Set:      schema.HashString,
 			},
 			"timezone": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"asn": &schema.Schema{
 				Type:     schema.TypeInt,

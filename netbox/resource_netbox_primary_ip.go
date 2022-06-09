@@ -17,6 +17,8 @@ func resourceNetboxPrimaryIP() *schema.Resource {
 		Update: resourceNetboxPrimaryIPUpdate,
 		Delete: resourceNetboxPrimaryIPDelete,
 
+		Description: `This resource is used to define the primary IP for a given virtual machine. The primary IP is reflected in the Virtual machine Netbox UI, which identifies the Primary IPv4 and IPv6 addresses.`,
+
 		Schema: map[string]*schema.Schema{
 			"virtual_machine_id": &schema.Schema{
 				Type:     schema.TypeInt,
