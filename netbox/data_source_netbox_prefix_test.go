@@ -37,7 +37,7 @@ data "netbox_prefix" "test" {
 func TestAccNetboxPrefixDataSource_description_single(t *testing.T) {
 
 	testPrefix := "1.2.4.0/24"
-	testSlug := "test-description"
+	testSlug := "prefix_description_single"
 	testDesc := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -68,7 +68,7 @@ func TestAccNetboxPrefixDataSource_description_multiple_failure(t *testing.T) {
 	testPrefix := "1.2.3.0/24"
 	testPrefix2 := "1.2.64.0/24"
 
-	testSlug := "test-description"
+	testSlug := "prefix_description_multiple_failure"
 	testDesc := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -100,7 +100,7 @@ data "netbox_prefix" "test" {
 func TestAccNetboxPrefixDataSource_description_cidr(t *testing.T) {
 
 	testPrefix := "16.32.64.0/24"
-	testSlug := "test-description-cidr"
+	testSlug := "tesst_description_cidr"
 	testDesc := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
