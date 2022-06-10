@@ -65,8 +65,8 @@ data "netbox_prefix" "test" {
 
 func TestAccNetboxPrefixDataSource_description_multiple_failure(t *testing.T) {
 
-	testPrefix := "1.2.3.2/24"
-	testPrefix2 := "1.2.64.2/24"
+	testPrefix := "1.2.3.0/24"
+	testPrefix2 := "1.2.64.0/24"
 
 	testSlug := "test-description"
 	testDesc := testAccGetTestName(testSlug)
