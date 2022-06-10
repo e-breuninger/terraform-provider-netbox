@@ -100,7 +100,7 @@ data "netbox_prefix" "test" {
 func TestAccNetboxPrefixDataSource_description_cidr(t *testing.T) {
 
 	testPrefix := "16.32.64.0/24"
-	testSlug := "tesst_description_cidr"
+	testSlug := "prefix_description_cidr"
 	testDesc := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
