@@ -1,3 +1,13 @@
+## 1.6.7 (Jnue 14th, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_site: Make `status` attribute optional and default to `active` ([#187](https://github.com/e-breuninger/terraform-provider-netbox/pull/187) by [@tstarck](https://github.com/tstarck))
+* data-source/netbox_site: Add `slug` parameter to allow searching for a slug ([#187](https://github.com/e-breuninger/terraform-provider-netbox/pull/187) by [@tstarck](https://github.com/tstarck))
+* data-source/netbox_site: Include `asn`, `slug`, `comments`, `description`, `group_id`, `status`, `region_id`, `tenant_id` and `time_zone` attributes in the search result ([#187](https://github.com/e-breuninger/terraform-provider-netbox/pull/187) by [@tstarck](https://github.com/tstarck))
+* resource/netbox_vlan: Add default values to `status` and `description` attributes ([#184](https://github.com/e-breuninger/terraform-provider-netbox/pull/184) by [@tstarck](https://github.com/tstarck))
+* resource/netbox_interface: Add `enabled`, `mtu`, `mode`, `tagged_vlans` and `untagged_vlans` attributes ([#183](https://github.com/e-breuninger/terraform-provider-netbox/pull/183) by [@tstarck](https://github.com/tstarck))
+
 ## 1.6.6 (May 27th, 2022)
 
 ENHANCEMENTS
