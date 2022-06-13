@@ -1,4 +1,4 @@
-## 1.6.7 (Jnue 14th, 2022)
+## 1.6.7 (June 14th, 2022)
 
 ENHANCEMENTS
 
