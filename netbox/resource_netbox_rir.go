@@ -50,6 +50,7 @@ func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Slug = &slug
+	data.Tags = []*models.NestedTag{}
 
 	params := ipam.NewIpamRirsCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamRirsCreate(params, nil)
@@ -105,6 +106,7 @@ func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Slug = &slug
+	data.Tags = []*models.NestedTag{}
 
 	params := ipam.NewIpamRirsUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamRirsUpdate(params, nil)

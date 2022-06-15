@@ -73,6 +73,8 @@ func resourceNetboxRegionCreate(d *schema.ResourceData, m interface{}) error {
 		data.Parent = int64ToPtr(int64(parentRegionIDValue.(int)))
 	}
 
+	data.Tags = []*models.NestedTag{}
+
 	params := dcim.NewDcimRegionsCreateParams().WithData(&data)
 
 	res, err := api.Dcim.DcimRegionsCreate(params, nil)
@@ -137,6 +139,8 @@ func resourceNetboxRegionUpdate(d *schema.ResourceData, m interface{}) error {
 	if ok {
 		data.Parent = int64ToPtr(int64(parentRegionIDValue.(int)))
 	}
+
+	data.Tags = []*models.NestedTag{}
 
 	params := dcim.NewDcimRegionsPartialUpdateParams().WithID(id).WithData(&data)
 

@@ -69,6 +69,7 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 			Slug:   &slug,
 			Color:  color,
 			VMRole: vmRole,
+			Tags:   []*models.NestedTag{},
 		},
 	)
 
@@ -130,6 +131,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	data.Name = &name
 	data.VMRole = vmRole
 	data.Color = color
+	data.Tags = []*models.NestedTag{}
 
 	params := dcim.NewDcimDeviceRolesPartialUpdateParams().WithID(id).WithData(&data)
 

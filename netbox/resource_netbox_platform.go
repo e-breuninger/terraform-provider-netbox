@@ -57,6 +57,7 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 		&models.WritablePlatform{
 			Name: &name,
 			Slug: &slug,
+			Tags: []*models.NestedTag{},
 		},
 	)
 
@@ -112,6 +113,7 @@ func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Slug = &slug
 	data.Name = &name
+	data.Tags = []*models.NestedTag{}
 
 	params := dcim.NewDcimPlatformsPartialUpdateParams().WithID(id).WithData(&data)
 
