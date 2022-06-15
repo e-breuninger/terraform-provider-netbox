@@ -51,6 +51,8 @@ func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) err
 		data.Slug = strToPtr(slugValue.(string))
 	}
 
+	data.Tags = []*models.NestedTag{}
+
 	params := dcim.NewDcimManufacturersCreateParams().WithData(&data)
 
 	res, err := api.Dcim.DcimManufacturersCreate(params, nil)
@@ -102,6 +104,8 @@ func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) err
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
+
+	data.Tags = []*models.NestedTag{}
 
 	params := dcim.NewDcimManufacturersPartialUpdateParams().WithID(id).WithData(&data)
 

@@ -55,6 +55,8 @@ func resourceNetboxCircuitTypeCreate(d *schema.ResourceData, m interface{}) erro
 		data.Slug = strToPtr(slugValue.(string))
 	}
 
+	data.Tags = []*models.NestedTag{}
+
 	params := circuits.NewCircuitsCircuitTypesCreateParams().WithData(&data)
 
 	res, err := api.Circuits.CircuitsCircuitTypesCreate(params, nil)
@@ -106,6 +108,8 @@ func resourceNetboxCircuitTypeUpdate(d *schema.ResourceData, m interface{}) erro
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
+
+	data.Tags = []*models.NestedTag{}
 
 	params := circuits.NewCircuitsCircuitTypesPartialUpdateParams().WithID(id).WithData(&data)
 

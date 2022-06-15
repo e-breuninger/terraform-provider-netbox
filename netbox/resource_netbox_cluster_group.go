@@ -65,6 +65,8 @@ func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) err
 		data.Description = description.(string)
 	}
 
+	data.Tags = []*models.NestedTag{}
+
 	params := virtualization.NewVirtualizationClusterGroupsCreateParams().WithData(&data)
 
 	res, err := api.Virtualization.VirtualizationClusterGroupsCreate(params, nil)
@@ -126,6 +128,8 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 			data.Description = description.(string)
 		}
 	}
+
+	data.Tags = []*models.NestedTag{}
 
 	params := virtualization.NewVirtualizationClusterGroupsPartialUpdateParams().WithID(id).WithData(&data)
 

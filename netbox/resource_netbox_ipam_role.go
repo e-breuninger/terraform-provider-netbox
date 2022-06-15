@@ -64,6 +64,7 @@ func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Weight = &weight
 	data.Description = description
+	data.Tags = []*models.NestedTag{}
 
 	params := ipam.NewIpamRolesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamRolesCreate(params, nil)
@@ -132,6 +133,7 @@ func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Weight = &weight
 	data.Description = description
+	data.Tags = []*models.NestedTag{}
 
 	params := ipam.NewIpamRolesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamRolesUpdate(params, nil)

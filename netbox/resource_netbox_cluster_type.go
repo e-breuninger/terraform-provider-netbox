@@ -55,6 +55,7 @@ func resourceNetboxClusterTypeCreate(d *schema.ResourceData, m interface{}) erro
 		&models.ClusterType{
 			Name: &name,
 			Slug: &slug,
+			Tags: []*models.NestedTag{},
 		},
 	)
 
@@ -109,6 +110,7 @@ func resourceNetboxClusterTypeUpdate(d *schema.ResourceData, m interface{}) erro
 
 	data.Slug = &slug
 	data.Name = &name
+	data.Tags = []*models.NestedTag{}
 
 	params := virtualization.NewVirtualizationClusterTypesPartialUpdateParams().WithID(id).WithData(&data)
 

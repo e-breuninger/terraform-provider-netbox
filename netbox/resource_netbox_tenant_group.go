@@ -63,6 +63,8 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 	data.Name = &name
 	data.Slug = &slug
 	data.Description = description
+	data.Tags = []*models.NestedTag{}
+
 	if parent_id != 0 {
 		data.Parent = &parent_id
 	}
@@ -127,6 +129,8 @@ func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) erro
 	data.Slug = &slug
 	data.Name = &name
 	data.Description = description
+	data.Tags = []*models.NestedTag{}
+
 	if parent_id != 0 {
 		data.Parent = &parent_id
 	}
