@@ -44,7 +44,7 @@ func resourceNetboxCircuitProvider() *schema.Resource {
 func resourceNetboxCircuitProviderCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
-	data := models.Provider{}
+	data := models.WritableProvider{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
@@ -58,6 +58,7 @@ func resourceNetboxCircuitProviderCreate(d *schema.ResourceData, m interface{}) 
 	}
 
 	data.Tags = []*models.NestedTag{}
+	data.Asns = []int64{}
 
 	params := circuits.NewCircuitsProvidersCreateParams().WithData(&data)
 
@@ -98,7 +99,7 @@ func resourceNetboxCircuitProviderUpdate(d *schema.ResourceData, m interface{}) 
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.Provider{}
+	data := models.WritableProvider{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
@@ -112,6 +113,7 @@ func resourceNetboxCircuitProviderUpdate(d *schema.ResourceData, m interface{}) 
 	}
 
 	data.Tags = []*models.NestedTag{}
+	data.Asns = []int64{}
 
 	params := circuits.NewCircuitsProvidersPartialUpdateParams().WithID(id).WithData(&data)
 
