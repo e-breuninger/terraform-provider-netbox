@@ -32,7 +32,7 @@ docker-logs:
 	
 .PHONY: docker-down
 docker-down: 
-	docker-compose -f docker/docker-compose.yml down
+	docker-compose -f docker/docker-compose.yml down --volumes
 
 #! Development 
 # The following make goals are only for local usage 
