@@ -72,9 +72,12 @@ func resourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"asn": {
-				Type:     schema.TypeInt,
+			"asn_ids": {
+				Type:     schema.TypeSet,
 				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 			},
 			customFieldsKey: customFieldsSchema,
 		},
@@ -134,9 +137,9 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.TimeZone = timezone.(string)
 	}
 
-	asnValue, ok := d.GetOk("asn")
-	if ok {
-		data.Asn = int64ToPtr(int64(asnValue.(int)))
+	data.Asns = []int64{}
+	if asnsValue, ok := d.GetOk("asn_ids"); ok {
+		data.Asns = toInt64List(asnsValue)
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
@@ -175,15 +178,17 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("slug", res.GetPayload().Slug)
-	d.Set("status", res.GetPayload().Status.Value)
-	d.Set("description", res.GetPayload().Description)
-	d.Set("facility", res.GetPayload().Facility)
-	d.Set("longitude", res.GetPayload().Longitude)
-	d.Set("latitude", res.GetPayload().Latitude)
-	d.Set("timezone", res.GetPayload().TimeZone)
-	d.Set("asn", res.GetPayload().Asn)
+	site := res.GetPayload()
+
+	d.Set("name", site.Name)
+	d.Set("slug", site.Slug)
+	d.Set("status", site.Status.Value)
+	d.Set("description", site.Description)
+	d.Set("facility", site.Facility)
+	d.Set("longitude", site.Longitude)
+	d.Set("latitude", site.Latitude)
+	d.Set("timezone", site.TimeZone)
+	d.Set("asn_ids", getIDsFromNestedASNList(site.Asns))
 
 	if res.GetPayload().Region != nil {
 		d.Set("region_id", res.GetPayload().Region.ID)
@@ -257,9 +262,9 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.TimeZone = timezone.(string)
 	}
 
-	asnValue, ok := d.GetOk("asn")
-	if ok {
-		data.Asn = int64ToPtr(int64(asnValue.(int)))
+	data.Asns = []int64{}
+	if asnsValue, ok := d.GetOk("asn_ids"); ok {
+		data.Asns = toInt64List(asnsValue)
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
@@ -290,4 +295,12 @@ func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func getIDsFromNestedASNList(nestedASNs []*models.NestedASN) []int64 {
+	var asns []int64
+	for _, asn := range nestedASNs {
+		asns = append(asns, asn.ID)
+	}
+	return asns
 }

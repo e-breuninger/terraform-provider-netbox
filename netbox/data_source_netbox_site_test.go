@@ -10,6 +10,15 @@ import (
 
 func testAccNetboxSiteSetUp(testName string) string {
 	return fmt.Sprintf(`
+resource "netbox_rir" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_asn" "test" {
+  asn = 123
+  rir_id = netbox_rir.test.id
+}
+
 resource "netbox_region" "test" {
   name = "%[1]s"
 }
@@ -20,7 +29,7 @@ resource "netbox_tenant" "test" {
 
 resource "netbox_site" "test" {
   name = "%[1]s"
-  asn = 123
+  asn_ids = [netbox_asn.test.id]
   description = "Test"
   region_id = netbox_region.test.id
   tenant_id = netbox_tenant.test.id
@@ -73,7 +82,8 @@ func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 				Config: setUp + testAccNetboxSiteBySlug(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_site.test", "id", "netbox_site.test", "id"),
-					resource.TestCheckResourceAttr("data.netbox_site.test", "asn", "123"),
+					resource.TestCheckResourceAttr("netbox_site.test", "asn_ids.#", "1"),
+					resource.TestCheckResourceAttrPair("netbox_site.test", "asn_ids.0", "netbox_asn.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_site.test", "description", "Test"),
 					resource.TestCheckResourceAttr("data.netbox_site.test", "time_zone", "Europe/Berlin"),
 					resource.TestCheckResourceAttr("data.netbox_site.test", "status", "active"),
