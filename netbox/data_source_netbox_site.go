@@ -21,9 +21,12 @@ func dataSourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"asn": {
-				Type:     schema.TypeInt,
-				Computed: true,
+			"asn_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 			},
 			"comments": {
 				Type:     schema.TypeString,
@@ -84,7 +87,7 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	site := res.GetPayload().Results[0]
 
 	d.SetId(strconv.FormatInt(site.ID, 10))
-	d.Set("asn", site.Asn)
+	d.Set("asn_ids", getIDsFromNestedASNList(site.Asns))
 	d.Set("comments", site.Comments)
 	d.Set("description", site.Description)
 	d.Set("name", site.Name)
