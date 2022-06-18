@@ -24,6 +24,11 @@ resource "netbox_site" "test" {
   status = "active"
 }
 
+resource "netbox_location" "test" {
+	name = "%[1]s"
+	site_id =netbox_site.test.id
+}
+
 resource "netbox_device_role" "test" {
   name = "%[1]s"
   color_hex = "123456"
@@ -66,11 +71,13 @@ resource "netbox_device" "test" {
   device_type_id = netbox_device_type.test.id
   tags = ["%[1]sa"]
   site_id = netbox_site.test.id
+  location_id = netbox_location.test.id
   serial = "ABCDEF"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),

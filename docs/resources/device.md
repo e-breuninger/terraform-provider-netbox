@@ -26,6 +26,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/core-functio
 ### Optional
 
 - `comments` (String)
+- `location_id` (Number)
 - `role_id` (Number)
 - `serial` (String)
 - `site_id` (Number)
