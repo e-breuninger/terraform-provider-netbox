@@ -1,3 +1,19 @@
+## 2.0.1 (June 25th, 2022)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_location` ([#195](https://github.com/e-breuninger/terraform-provider-netbox/pull/195) by [@arjenvri](https://github.com/arjenvri))
+* resource/netbox_device: Add `location_id` attribute ([#195](https://github.com/e-breuninger/terraform-provider-netbox/pull/195) by [@arjenvri](https://github.com/arjenvri))
+
+## 2.0.0 (June 16th, 2022)
+
+**BREAKING CHANGES**
+Netbox 3.2.0 came with [breaking changes](https://docs.netbox.dev/en/stable/release-notes/version-3.2/#breaking-changes). In accordance with the upstream API, the `netbox_site` resource and data source now have an `asn_ids` attribute that replaces the `asn` attriute. Note that `asn_ids` contains **IDs** of ASN objects, not numbers.
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_asn`
+
 ## 1.6.7 (June 14th, 2022)
 
 ENHANCEMENTS
