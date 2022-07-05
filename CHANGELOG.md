@@ -1,3 +1,10 @@
+## 2.0.2 (July 6th, 2022)
+
+BUG FIXES
+
+* resource/netbox_device: Make `role_id` and `site_id` attributes mandatory
+* resource/netbox_device_type: Make `manufacturer_id` attribute mandatory
+
 ## 2.0.1 (June 25th, 2022)
 
 ENHANCEMENTS
