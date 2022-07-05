@@ -44,7 +44,7 @@ terraform {
 
 # example provider configuration for https://demo.netbox.dev
 provider "netbox" {
-  server_url = "https://demo.netbox.dev/"
+  server_url = "https://demo.netbox.dev"
   api_token  = "<your api key>"
 }
 ```
@@ -54,7 +54,7 @@ provider "netbox" {
 
 ### Required
 
-- `server_url` (String) Location of Netbox server including scheme and optional port. Can be set via the `NETBOX_SERVER_URL` environment variable.
+- `server_url` (String) Location of Netbox server including scheme (http or https) and optional port, but without trailing slash. Can be set via the `NETBOX_SERVER_URL` environment variable.
 
 ### Optional
 

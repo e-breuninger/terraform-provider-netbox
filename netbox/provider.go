@@ -113,7 +113,7 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_SERVER_URL", nil),
-				Description: "Location of Netbox server including scheme and optional port. Can be set via the `NETBOX_SERVER_URL` environment variable.",
+				Description: "Location of Netbox server including scheme (http or https) and optional port, but without trailing slash. Can be set via the `NETBOX_SERVER_URL` environment variable.",
 			},
 			"api_token": {
 				Type:        schema.TypeString,

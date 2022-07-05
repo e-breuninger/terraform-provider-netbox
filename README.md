@@ -50,17 +50,12 @@ Here is a short example on how to use this provider:
 
 ```hcl
 provider "netbox" {
-    server_url           = var.netbox_server
-    api_token            = var.netbox_api_token
-    allow_insecure_https = false
+  server_url = "https://demo.netbox.dev"
+  api_token  = "<your api token>"
 }
 
 resource "netbox_platform" "testplatform" {
-    name = "my-test-platform"
-}
-
-resource "netbox_cluster_type" "testclustertype" {
-    name = "my-test-cluster-type"
+  name = "my-test-platform"
 }
 ```
 
