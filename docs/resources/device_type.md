@@ -17,11 +17,11 @@ description: |-
 
 ### Required
 
+- `manufacturer_id` (Number)
 - `model` (String)
 
 ### Optional
 
-- `manufacturer_id` (Number)
 - `part_number` (String)
 - `slug` (String)
 - `tags` (Set of String)
