@@ -175,7 +175,6 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 		data.CustomFields = cf
 	}
 
-	
 	params := dcim.NewDcimLocationsPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Dcim.DcimLocationsPartialUpdate(params, nil)
