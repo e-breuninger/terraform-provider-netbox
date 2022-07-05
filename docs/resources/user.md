@@ -22,8 +22,8 @@ description: |-
 
 ### Optional
 
-- `active` (Boolean)
-- `staff` (Boolean)
+- `active` (Boolean) Defaults to `true`.
+- `staff` (Boolean) Defaults to `false`.
 
 ### Read-Only
 

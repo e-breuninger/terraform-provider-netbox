@@ -61,7 +61,7 @@ resource "netbox_available_ip_address" "myvm_ip" {
 - `interface_id` (Number)
 - `ip_range_id` (Number)
 - `prefix_id` (Number)
-- `status` (String)
+- `status` (String) Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vrf_id` (Number)

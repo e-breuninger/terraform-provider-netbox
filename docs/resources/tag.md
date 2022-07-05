@@ -28,7 +28,7 @@ resource "netbox_tag" "dmz" {
 
 ### Optional
 
-- `color_hex` (String)
+- `color_hex` (String) Defaults to `9e9e9e`.
 - `description` (String)
 - `slug` (String)
 - `tags` (Set of String)

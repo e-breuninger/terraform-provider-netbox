@@ -45,7 +45,7 @@ resource "netbox_primary_ip" "myvm_primary_ip" {
 
 ### Optional
 
-- `ip_address_version` (Number)
+- `ip_address_version` (Number) Defaults to `4`.
 
 ### Read-Only
 

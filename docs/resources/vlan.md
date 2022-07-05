@@ -42,10 +42,10 @@ resource "netbox_vlan" "example2" {
 
 ### Optional
 
-- `description` (String)
+- `description` (String) Defaults to `""`.
 - `role_id` (Number)
 - `site_id` (Number)
-- `status` (String)
+- `status` (String) Defaults to `active`.
 - `tenant_id` (Number)
 
 ### Read-Only

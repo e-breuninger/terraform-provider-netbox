@@ -41,7 +41,7 @@ resource "netbox_site" "example1" {
 - `longitude` (Number)
 - `region_id` (Number)
 - `slug` (String)
-- `status` (String)
+- `status` (String) Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `timezone` (String)

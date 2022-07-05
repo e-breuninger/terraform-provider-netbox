@@ -47,7 +47,7 @@ resource "netbox_interface" "myvm_eth1" {
 ### Optional
 
 - `description` (String)
-- `enabled` (Boolean)
+- `enabled` (Boolean) Defaults to `true`.
 - `mac_address` (String)
 - `mode` (String)
 - `mtu` (Number)

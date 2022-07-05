@@ -33,7 +33,7 @@ resource "netbox_device_role" "core_sw" {
 ### Optional
 
 - `slug` (String)
-- `vm_role` (Boolean)
+- `vm_role` (Boolean) Defaults to `true`.
 
 ### Read-Only
 

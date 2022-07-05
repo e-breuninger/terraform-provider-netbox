@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strings"
@@ -11,6 +12,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"golang.org/x/exp/slices"
 )
+
+// This makes the description contain the default value, particularly useful for the docs
+// From https://github.com/hashicorp/terraform-plugin-docs/issues/65#issuecomment-1152842370
+func init() {
+	schema.DescriptionKind = schema.StringMarkdown
+
+	schema.SchemaDescriptionBuilder = func(s *schema.Schema) string {
+		desc := s.Description
+		desc = strings.TrimSpace(desc)
+
+		if !bytes.HasSuffix([]byte(s.Description), []byte(".")) && s.Description != "" {
+			desc += "."
+		}
+
+		if s.Default != nil {
+			if s.Default == "" {
+				desc += " Defaults to `\"\"`."
+			} else {
+				desc += fmt.Sprintf(" Defaults to `%v`.", s.Default)
+			}
+		}
+
+		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
+			conflicts := make([]string, len(s.ConflictsWith))
+			for i, c := range s.ConflictsWith {
+				conflicts[i] = fmt.Sprintf("`%s`", c)
+			}
+			desc += fmt.Sprintf(" Conflicts with %s.", strings.Join(conflicts, ", "))
+		}
+
+		return strings.TrimSpace(desc)
+	}
+}
 
 // Provider returns a schema.Provider for Netbox.
 func Provider() *schema.Provider {
