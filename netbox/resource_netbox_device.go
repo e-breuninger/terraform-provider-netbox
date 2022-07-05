@@ -41,7 +41,7 @@ func resourceNetboxDevice() *schema.Resource {
 			},
 			"role_id": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
+				Required: true,
 			},
 			"serial": &schema.Schema{
 				Type:     schema.TypeString,
@@ -49,7 +49,7 @@ func resourceNetboxDevice() *schema.Resource {
 			},
 			"site_id": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
+				Required: true,
 			},
 			"comments": &schema.Schema{
 				Type:     schema.TypeString,
