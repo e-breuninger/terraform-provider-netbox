@@ -44,11 +44,11 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
-func testProviderConfig(plattform string) string {
+func testProviderConfig(platform string) string {
 	return fmt.Sprintf(`
 	resource "netbox_platform" "testplatform" {
     name = "%s"
-	}`, plattform)
+	}`, platform)
 }
 
 func providerInvalidConfigure() schema.ConfigureContextFunc {
@@ -86,5 +86,4 @@ func TestAccNetboxProviderConfigure_failure(t *testing.T) {
 				ExpectError: regexp.MustCompile("Post \"https://fake.netbox.server/api/dcim/platforms/\": dial tcp: lookup fake.netbox.server: no such host"),
 			},
 		},
-	})
-}
+	})}
