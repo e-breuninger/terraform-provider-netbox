@@ -36,6 +36,8 @@ resource "netbox_device_type" "test" {
 					resource.TestCheckResourceAttr("netbox_device_type.test", "model", testName),
 					resource.TestCheckResourceAttr("netbox_device_type.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_device_type.test", "part_number", randomSlug),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "part_number", randomSlug),
+					resource.TestCheckResourceAttrPair("netbox_device_type.test", "manufacturer_id", "netbox_manufacturer.test", "id"),
 				),
 			},
 			{

@@ -30,7 +30,7 @@ func resourceNetboxDeviceType() *schema.Resource {
 			},
 			"manufacturer_id": {
 				Type:     schema.TypeInt,
-				Optional: true,
+				Required: true,
 			},
 			"part_number": {
 				Type:     schema.TypeString,
