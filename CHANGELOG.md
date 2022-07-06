@@ -1,3 +1,9 @@
+## 2.0.3 (unreleased)
+
+ENHANCEMENTS
+
+* data-source/netbox_prefix: Add `vrf_id` attribute
+
 ## 2.0.2 (July 6th, 2022)
 
 BUG FIXES
