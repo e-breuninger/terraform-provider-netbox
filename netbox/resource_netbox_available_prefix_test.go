@@ -51,6 +51,7 @@ resource "netbox_available_prefix" "test" {
   status = "active"
   tags = [netbox_tag.test.name]
   mark_utilized = true
+  is_pool = true
 }`, testPrefixLength, testDesc),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "prefix", expectedPrefix),
@@ -59,6 +60,23 @@ resource "netbox_available_prefix" "test" {
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", testName),
 					resource.TestCheckResourceAttr(resourceName, "mark_utilized", "true"),
+					resource.TestCheckResourceAttr(resourceName, "is_pool", "true"),
+				),
+			},
+			{
+				Config: testAccNetboxAvailablePrefixFullDependencies(testName, testParentPrefix) + fmt.Sprintf(`
+resource "netbox_available_prefix" "test" {
+  parent_prefix_id = netbox_prefix.parent.id
+  prefix_length = %d
+  description = "%s"
+  status = "active"
+  tags = [netbox_tag.test.name]
+  mark_utilized = false
+  is_pool = false
+}`, testPrefixLength, testDesc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "mark_utilized", "false"),
+					resource.TestCheckResourceAttr(resourceName, "is_pool", "false"),
 				),
 			},
 			{
