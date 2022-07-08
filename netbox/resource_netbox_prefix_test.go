@@ -65,6 +65,7 @@ resource "netbox_prefix" "test" {
   status = "active"
   tags = [netbox_tag.test.name]
   mark_utilized = true
+  is_pool = true
 }`, testPrefix, testDesc),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_prefix.test", "prefix", testPrefix),
@@ -73,6 +74,7 @@ resource "netbox_prefix" "test" {
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "tags.0", testName),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "mark_utilized", "true"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "is_pool", "true"),
 				),
 			},
 			{
@@ -94,13 +96,12 @@ resource "netbox_prefix" "test" {
   status = "active"
   tags = [netbox_tag.test.name]
   mark_utilized = false
+  is_pool = false
 }`, testPrefix, testDesc),
-				Check: resource.TestCheckResourceAttr("netbox_prefix.test", "mark_utilized", "false"),
-				// This test will fail due to a incorrect behavior when changing parameters to "false" or "0".
-				// See https://github.com/e-breuninger/terraform-provider-netbox/issues/109
-				// We test the right behavior and we simply catch the error.
-				// Once the bug is fixed, we can simply remove the ExpectError line.
-				ExpectError: regexp.MustCompile("Attribute 'mark_utilized' expected \"false\", got \"true\""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "mark_utilized", "false"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "is_pool", "false"),
+				),
 			},
 			{
 				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
