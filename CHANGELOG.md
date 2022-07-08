@@ -1,8 +1,13 @@
-## 2.0.3 (unreleased)
+## 2.0.3 (July 8th, 2022)
 
 ENHANCEMENTS
 
 * data-source/netbox_prefix: Add `vrf_id` attribute
+
+BUG FIXES
+
+* resource/netbox_prefix: Allow unsetting mark_utilized and is_pool attributes
+* resource/netbox_available_prefix: Allow unsetting mark_utilized and is_pool attributes
 
 ## 2.0.2 (July 6th, 2022)
 
