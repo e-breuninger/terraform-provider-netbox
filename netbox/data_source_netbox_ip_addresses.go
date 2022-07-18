@@ -73,10 +73,6 @@ func dataSourceNetboxIpAddresses() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"role": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 
 						"tenant": {
 							Type:     schema.TypeList,
@@ -158,7 +154,6 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 		mapping["address_family"] = v.Family.Label
 		mapping["status"] = v.Status.Value
 		mapping["dns_name"] = v.DNSName
-		mapping["role"] = v.Role
 		mapping["tenant"] = flattenTenant(v.Tenant)
 
 		s = append(s, mapping)
