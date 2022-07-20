@@ -208,8 +208,8 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 
 	typeIDValue, ok := d.GetOk("device_type_id")
 	if ok {
-		tenantID := int64(typeIDValue.(int))
-		data.Tenant = &tenantID
+		typeID := int64(typeIDValue.(int))
+		data.DeviceType = &typeID
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
