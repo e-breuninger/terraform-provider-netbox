@@ -62,6 +62,11 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"role": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}, false),
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -77,6 +82,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	data.Address = &ipAddress
 	data.Status = d.Get("status").(string)
 	data.Description = d.Get("description").(string)
+	data.Role = d.Get("role").(string)
 
 	if dnsName, ok := d.GetOk("dns_name"); ok {
 		data.DNSName = dnsName.(string)
@@ -135,6 +141,12 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("dns_name", res.GetPayload().DNSName)
 	}
 
+	if res.GetPayload().Role != nil {
+		d.Set("role", res.GetPayload().Role.Value)
+	} else {
+		d.Set("role", nil)
+	}
+
 	d.Set("ip_address", res.GetPayload().Address)
 	d.Set("description", res.GetPayload().Description)
 	d.Set("status", res.GetPayload().Status.Value)
@@ -186,6 +198,10 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	if tenantID, ok := d.GetOk("tenant_id"); ok {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
+
+        if role, ok := d.GetOk("role"); ok {
+                data.Role = role.(string)
+        }
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 

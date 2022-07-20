@@ -1,3 +1,9 @@
+## 2.0.4 (unreleased)
+
+ENHANCEMENTS
+
+* resource/netbox_ip_address: Add `role` attribute
+
 ## 2.0.3 (July 8th, 2022)
 
 ENHANCEMENTS
