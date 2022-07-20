@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/davecgh/go-spew v1.1.1
-	github.com/fbreckle/go-netbox v0.0.0-20220708093436-cc4d62d60c45
+	github.com/fbreckle/go-netbox v0.0.0-20220720074306-e34836390267
 	github.com/go-openapi/runtime v0.24.1
 	github.com/goware/urlx v0.3.2
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
