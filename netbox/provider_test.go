@@ -86,4 +86,5 @@ func TestAccNetboxProviderConfigure_failure(t *testing.T) {
 				ExpectError: regexp.MustCompile("Post \"https://fake.netbox.server/api/dcim/platforms/\": dial tcp: lookup fake.netbox.server: no such host"),
 			},
 		},
-	})}
+	})
+}
