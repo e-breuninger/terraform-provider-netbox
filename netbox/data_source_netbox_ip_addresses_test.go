@@ -22,12 +22,14 @@ resource "netbox_ip_address" "test" {
   interface_id = netbox_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
+	role = "anycast"
 }
 data "netbox_ip_addresses" "test" {
 	depends_on = [netbox_ip_address.test]
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.ip_address", "netbox_ip_address.test", "ip_address"),
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.0.role", "anycast"),
 				),
 			},
 		},
