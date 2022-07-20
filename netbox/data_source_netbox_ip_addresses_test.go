@@ -18,10 +18,10 @@ func TestAccNetboxIpAddressesDataSource_basic(t *testing.T) {
 			{
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
-  ip_address = "%s"
-  interface_id = netbox_interface.test.id
-  status = "active"
-  tags = [netbox_tag.test.name]
+	ip_address = "%s"
+	interface_id = netbox_interface.test.id
+	status = "active"
+	tags = [netbox_tag.test.name]
 	role = "anycast"
 }
 data "netbox_ip_addresses" "test" {
