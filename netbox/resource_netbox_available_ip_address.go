@@ -16,6 +16,20 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 		Update: resourceNetboxAvailableIPAddressUpdate,
 		Delete: resourceNetboxAvailableIPAddressDelete,
 
+		Description: `Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/ipaddress/):
+
+> An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
+> Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchya.
+>
+> Each IP address can also be assigned an operational status and a functional role. Statuses are hard-coded in NetBox and include the following: 
+> * Active
+> * Reserved
+> * Deprecated
+> * DHCP
+> * SLAAC (IPv6 Stateless Address Autoconfiguration)
+
+This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)`,
+
 		Schema: map[string]*schema.Schema{
 			"prefix_id": &schema.Schema{
 				Type:         schema.TypeInt,

@@ -1,0 +1,41 @@
+---
+page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
+subcategory: ""
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+## Example Usage
+### Creating an IP in a prefix
+{{ tffile "examples/resources/netbox_available_ip_address/prefix.tf" }}
+
+### Creating an IP in an IP range
+{{ tffile "examples/resources/netbox_available_ip_address/range.tf" }}
+
+### Marking an IP active and assigning to interface
+{{ tffile "examples/resources/netbox_available_ip_address/assign_to_interface.tf" }}
+
+## Schema
+
+### Required
+
+- Either **prefix_id** or **ip_range_id** (String)
+
+### Optional
+
+- **description** (String)
+- **dns_name** (String)
+- **interface_id** (Number)
+- **status** (String) Defaults to "active".  Choose from "active", "reserved", "deprecated", "dhcp", or "slaac"
+- **tags** (Set of String)
+- **tenant_id** (Number)
+- **vrf_id** (Number)
+
+### Read-Only
+
+- **id** (String) The ID of this resource.
+- **ip_address** (String)

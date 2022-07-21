@@ -3,6 +3,7 @@
 ENHANCEMENTS
 
 * resource/netbox_ip_address: Add `role` attribute
+* resource/netbox_available_ip_address: improve documentation by [@holmesb](https://github.com/holmesb)
 
 ## 2.0.3 (July 8th, 2022)
 
