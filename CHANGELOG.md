@@ -1,9 +1,14 @@
-## 2.0.4 (unreleased)
+## 2.0.4 (August 1st, 2022)
 
 ENHANCEMENTS
 
 * resource/netbox_ip_address: Add `role` attribute
-* resource/netbox_available_ip_address: improve documentation by [@holmesb](https://github.com/holmesb)
+* resource/netbox_available_ip_address: improve documentation ([#220](https://github.com/e-breuninger/terraform-provider-netbox/pull/220) by [@holmesb](https://github.com/holmesb))
+
+BUG FIXES
+
+* resource/netbox_device: Set correct attribute for `device_type_id` ([#219](https://github.com/e-breuninger/terraform-provider-netbox/pull/219) by [@BegBlev](https://github.com/BegBlev))
+* data-source/netbox_ip_addresses: Use correct attribute for `role` ([#217](https://github.com/e-breuninger/terraform-provider-netbox/pull/217) by [@twink0r](https://github.com/twink0r))
 
 ## 2.0.3 (July 8th, 2022)
 
