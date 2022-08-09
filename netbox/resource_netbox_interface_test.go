@@ -15,6 +15,11 @@ import (
 
 func testAccNetboxInterfaceFullDependencies(testName string) string {
 	return fmt.Sprintf(`
+
+resource "netbox_tag" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
 }
@@ -47,6 +52,7 @@ func testAccNetboxInterface_basic(testName string) string {
 resource "netbox_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
+  tags = ["%[1]s"]
 }`, testName)
 }
 
@@ -101,6 +107,8 @@ func TestAccNetboxInterface_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "tags.0", testName),
 				),
 			},
 			{
