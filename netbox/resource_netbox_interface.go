@@ -1,12 +1,14 @@
 package netbox
 
 import (
+	"context"
 	"regexp"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -15,10 +17,10 @@ func resourceNetboxInterface() *schema.Resource {
 	validModes := []string{"access", "tagged", "tagged-all"}
 
 	return &schema.Resource{
-		Create: resourceNetboxInterfaceCreate,
-		Read:   resourceNetboxInterfaceRead,
-		Update: resourceNetboxInterfaceUpdate,
-		Delete: resourceNetboxInterfaceDelete,
+		CreateContext: resourceNetboxInterfaceCreate,
+		ReadContext:   resourceNetboxInterfaceRead,
+		UpdateContext: resourceNetboxInterfaceUpdate,
+		DeleteContext: resourceNetboxInterfaceDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -86,14 +88,19 @@ func resourceNetboxInterface() *schema.Resource {
 	}
 }
 
-func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
+
+	var diags diag.Diagnostics
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	if diagnostics != nil {
+		diags = append(diags, diagnostics...)
+	}
 	taggedVlans := toInt64List(d.Get("tagged_vlans"))
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 
@@ -119,17 +126,19 @@ func resourceNetboxInterfaceCreate(d *schema.ResourceData, m interface{}) error 
 
 	res, err := api.Virtualization.VirtualizationInterfacesCreate(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxInterfaceUpdate(d, m)
+	return diags
 }
 
-func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
+
+	var diags diag.Diagnostics
 
 	params := virtualization.NewVirtualizationInterfacesReadParams().WithID(id)
 
@@ -141,7 +150,7 @@ func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	iface := res.GetPayload()
@@ -162,11 +171,13 @@ func resourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("untagged_vlan", iface.UntaggedVlan.ID)
 	}
 
-	return nil
+	return diags
 }
 
-func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
+
+	var diags diag.Diagnostics
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -174,7 +185,10 @@ func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	if diagnostics != nil {
+		diags = append(diags, diagnostics...)
+	}
 	taggedVlans := toInt64List(d.Get("tagged_vlans"))
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 
@@ -204,13 +218,13 @@ func resourceNetboxInterfaceUpdate(d *schema.ResourceData, m interface{}) error 
 	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceNetboxInterfaceRead(d, m)
+	return diags
 }
 
-func resourceNetboxInterfaceDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
@@ -218,7 +232,7 @@ func resourceNetboxInterfaceDelete(d *schema.ResourceData, m interface{}) error 
 
 	_, err := api.Virtualization.VirtualizationInterfacesDelete(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }
