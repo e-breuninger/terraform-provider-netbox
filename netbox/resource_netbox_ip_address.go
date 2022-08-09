@@ -63,8 +63,8 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Optional: true,
 			},
 			"role": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}, false),
 			},
 		},
@@ -199,9 +199,9 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
 
-        if role, ok := d.GetOk("role"); ok {
-                data.Role = role.(string)
-        }
+	if role, ok := d.GetOk("role"); ok {
+		data.Role = role.(string)
+	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
 
