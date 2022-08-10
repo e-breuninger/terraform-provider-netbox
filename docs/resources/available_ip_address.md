@@ -1,6 +1,6 @@
 ---
 page_title: "netbox_available_ip_address Resource - terraform-provider-netbox"
-subcategory: ""
+subcategory: "IP Address Management (IPAM)"
 description: |-
   Per the docs https://netbox.readthedocs.io/en/stable/models/ipam/ipaddress/:
   An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.

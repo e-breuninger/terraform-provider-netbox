@@ -16,7 +16,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 		Update: resourceNetboxDeviceRoleUpdate,
 		Delete: resourceNetboxDeviceRoleDelete,
 
-		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#device-roles):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#device-roles):
 
 > Devices can be organized by functional roles, which are fully customizable by the user. For example, you might create roles for core switches, distribution switches, and access switches within your network.`,
 

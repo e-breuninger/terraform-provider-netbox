@@ -16,7 +16,7 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 		Update: resourceNetboxAvailableIPAddressUpdate,
 		Delete: resourceNetboxAvailableIPAddressDelete,
 
-		Description: `Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/ipaddress/):
+		Description: `:meta:subcategory:IP Address Management (IPAM):Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/ipaddress/):
 
 > An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
 > Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchya.

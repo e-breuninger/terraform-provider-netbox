@@ -18,7 +18,7 @@ func resourceNetboxDevice() *schema.Resource {
 		UpdateContext: resourceNetboxDeviceUpdate,
 		DeleteContext: resourceNetboxDeviceDelete,
 
-		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#devices):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#devices):
 
 > Every piece of hardware which is installed within a site or rack exists in NetBox as a device. Devices are measured in rack units (U) and can be half depth or full depth. A device may have a height of 0U: These devices do not consume vertical rack space and cannot be assigned to a particular rack unit. A common example of a 0U device is a vertically-mounted PDU.`,
 

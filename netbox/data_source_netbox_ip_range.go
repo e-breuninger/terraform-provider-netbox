@@ -12,7 +12,8 @@ import (
 
 func dataSourceNetboxIpRange() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxIpRangeRead,
+		Read:        dataSourceNetboxIpRangeRead,
+		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
 				Type:     schema.TypeInt,

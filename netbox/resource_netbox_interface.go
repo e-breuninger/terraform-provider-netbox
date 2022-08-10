@@ -22,6 +22,9 @@ func resourceNetboxInterface() *schema.Resource {
 		UpdateContext: resourceNetboxInterfaceUpdate,
 		DeleteContext: resourceNetboxInterfaceDelete,
 
+		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#interfaces):
+
+> Virtual machine interfaces behave similarly to device interfaces, and can be assigned to VRFs, and may have IP addresses, VLANs, and services attached to them. However, given their virtual nature, they lack properties pertaining to physical attributes. For example, VM interfaces do not have a physical type and cannot have cables attached to them.`,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,

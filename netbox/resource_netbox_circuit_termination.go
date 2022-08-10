@@ -17,7 +17,7 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 		Update: resourceNetboxCircuitTerminationUpdate,
 		Delete: resourceNetboxCircuitTerminationDelete,
 
-		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/circuits/#circuit-terminations):
+		Description: `:meta:subcategory:Circuits:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/circuits/#circuit-terminations):
 
 > The association of a circuit with a particular site and/or device is modeled separately as a circuit termination. A circuit may have up to two terminations, labeled A and Z. A single-termination circuit can be used when you don't know (or care) about the far end of a circuit (for example, an Internet access circuit which connects to a transit provider). A dual-termination circuit is useful for tracking circuits which connect two sites.
 >

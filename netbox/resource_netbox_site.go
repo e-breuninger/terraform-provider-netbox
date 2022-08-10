@@ -17,6 +17,12 @@ func resourceNetboxSite() *schema.Resource {
 		Update: resourceNetboxSiteUpdate,
 		Delete: resourceNetboxSiteDelete,
 
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/sites-and-racks/#sites):
+
+> How you choose to employ sites when modeling your network may vary depending on the nature of your organization, but generally a site will equate to a building or campus. For example, a chain of banks might create a site to represent each of its branches, a site for its corporate headquarters, and two additional sites for its presence in two colocation facilities.
+>
+> Each site must be assigned a unique name and may optionally be assigned to a region and/or tenant.`,
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,

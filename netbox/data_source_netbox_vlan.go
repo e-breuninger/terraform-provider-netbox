@@ -12,7 +12,8 @@ import (
 
 func dataSourceNetboxVlan() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxVlanRead,
+		Read:        dataSourceNetboxVlanRead,
+		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"vid": {
 				Type:         schema.TypeInt,

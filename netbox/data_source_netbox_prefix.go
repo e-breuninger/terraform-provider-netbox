@@ -12,7 +12,8 @@ import (
 
 func dataSourceNetboxPrefix() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxPrefixRead,
+		Read:        dataSourceNetboxPrefixRead,
+		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeInt,

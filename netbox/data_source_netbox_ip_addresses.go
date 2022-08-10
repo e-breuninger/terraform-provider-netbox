@@ -13,7 +13,8 @@ import (
 
 func dataSourceNetboxIpAddresses() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxIpAddressesRead,
+		Read:        dataSourceNetboxIpAddressesRead,
+		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:     schema.TypeSet,

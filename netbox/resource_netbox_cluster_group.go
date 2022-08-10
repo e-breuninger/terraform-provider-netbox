@@ -17,7 +17,7 @@ func resourceNetboxClusterGroup() *schema.Resource {
 		Update: resourceNetboxClusterGroupUpdate,
 		Delete: resourceNetboxClusterGroupDelete,
 
-		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#cluster-groups):
+		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#cluster-groups):
 
 > Cluster groups may be created for the purpose of organizing clusters. The arrangement of clusters into groups is optional.`,
 

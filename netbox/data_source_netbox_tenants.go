@@ -13,7 +13,8 @@ import (
 
 func dataSourceNetboxTenants() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxTenantsRead,
+		Read:        dataSourceNetboxTenantsRead,
+		Description: `:meta:subcategory:Tenancy:`,
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:     schema.TypeSet,

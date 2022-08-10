@@ -11,7 +11,8 @@ import (
 
 func dataSourceNetboxTag() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxTagRead,
+		Read:        dataSourceNetboxTagRead,
+		Description: `:meta:subcategory:Extras:`,
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,

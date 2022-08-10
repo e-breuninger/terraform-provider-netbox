@@ -18,6 +18,12 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 		UpdateContext: resourceNetboxVirtualMachineUpdate,
 		DeleteContext: resourceNetboxVirtualMachineDelete,
 
+		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#virtual-machines):
+
+> A virtual machine represents a virtual compute instance hosted within a cluster. Each VM must be assigned to exactly one cluster.
+>
+> Like devices, each VM can be assigned a platform and/or functional role`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,

@@ -17,7 +17,7 @@ func resourceNetboxPlatform() *schema.Resource {
 		Update: resourceNetboxPlatformUpdate,
 		Delete: resourceNetboxPlatformDelete,
 
-		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#platforms):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#platforms):
 
 > A platform defines the type of software running on a device or virtual machine. This can be helpful to model when it is necessary to distinguish between different versions or feature sets. Note that two devices of the same type may be assigned different platforms: For example, one Juniper MX240 might run Junos 14 while another runs Junos 15.`,
 

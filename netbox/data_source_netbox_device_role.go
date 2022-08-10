@@ -11,7 +11,8 @@ import (
 
 func dataSourceNetboxDeviceRole() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxDeviceRoleRead,
+		Read:        dataSourceNetboxDeviceRoleRead,
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):`,
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,

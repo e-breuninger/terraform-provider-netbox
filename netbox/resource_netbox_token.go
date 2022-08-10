@@ -17,6 +17,10 @@ func resourceNetboxToken() *schema.Resource {
 		Update: resourceNetboxTokenUpdate,
 		Delete: resourceNetboxTokenDelete,
 
+		Description: `:meta:subcategory:Authentication:From the [official documentation](https://docs.netbox.dev/en/stable/rest-api/authentication/#tokens):
+
+> A token is a unique identifier mapped to a NetBox user account. Each user may have one or more tokens which he or she can use for authentication when making REST API requests. To create a token, navigate to the API tokens page under your user profile.`,
+
 		Schema: map[string]*schema.Schema{
 			"user_id": &schema.Schema{
 				Type:     schema.TypeInt,

@@ -11,7 +11,8 @@ import (
 
 func dataSourceNetboxVrf() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxVrfRead,
+		Read:        dataSourceNetboxVrfRead,
+		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,

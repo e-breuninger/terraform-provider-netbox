@@ -17,7 +17,7 @@ func resourceNetboxIpRange() *schema.Resource {
 		Update: resourceNetboxIpRangeUpdate,
 		Delete: resourceNetboxIpRangeDelete,
 
-		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#ip-ranges):
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#ip-ranges):
 
 > This model represents an arbitrary range of individual IPv4 or IPv6 addresses, inclusive of its starting and ending addresses. For instance, the range 192.0.2.10 to 192.0.2.20 has eleven members. (The total member count is available as the size property on an IPRange instance.) Like prefixes and IP addresses, each IP range may optionally be assigned to a VRF and/or tenant.`,
 

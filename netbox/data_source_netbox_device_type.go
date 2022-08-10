@@ -11,7 +11,8 @@ import (
 
 func dataSourceNetboxDeviceType() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxDeviceTypeRead,
+		Read:        dataSourceNetboxDeviceTypeRead,
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):`,
 		Schema: map[string]*schema.Schema{
 			"is_full_depth": {
 				Type:     schema.TypeBool,

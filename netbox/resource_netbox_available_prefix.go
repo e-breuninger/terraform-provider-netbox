@@ -20,6 +20,8 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 		Update: resourceNetboxPrefixUpdate,
 		Delete: resourceNetboxPrefixDelete,
 
+		Description: `:meta:subcategory:IP Address Management (IPAM):`,
+
 		Schema: map[string]*schema.Schema{
 			"parent_prefix_id": {
 				Type:     schema.TypeInt,

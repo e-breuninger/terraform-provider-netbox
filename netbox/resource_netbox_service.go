@@ -17,7 +17,7 @@ func resourceNetboxService() *schema.Resource {
 		Update: resourceNetboxServiceUpdate,
 		Delete: resourceNetboxServiceDelete,
 
-		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/services/#services):
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/services/#services):
 
 > A service represents a layer four TCP or UDP service available on a device or virtual machine. For example, you might want to document that an HTTP service is running on a device. Each service includes a name, protocol, and port number; for example, "SSH (TCP/22)" or "DNS (UDP/53)."
 >

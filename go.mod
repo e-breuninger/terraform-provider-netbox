@@ -7,7 +7,6 @@ require (
 	github.com/fbreckle/go-netbox v0.0.0-20220720074306-e34836390267
 	github.com/go-openapi/runtime v0.24.1
 	github.com/goware/urlx v0.3.2
-	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.0
@@ -27,6 +26,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
+	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220810141406-61d0056de5b7 // indirect
 	github.com/go-openapi/analysis v0.21.2 // indirect
 	github.com/go-openapi/errors v0.20.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect

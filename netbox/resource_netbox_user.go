@@ -16,6 +16,8 @@ func resourceNetboxUser() *schema.Resource {
 		Update: resourceNetboxUserUpdate,
 		Delete: resourceNetboxUserDelete,
 
+		Description: `:meta:subcategory:Authentication:This resource is used to manage users.`,
+
 		Schema: map[string]*schema.Schema{
 			"username": &schema.Schema{
 				Type:     schema.TypeString,

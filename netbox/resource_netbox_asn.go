@@ -16,7 +16,7 @@ func resourceNetboxAsn() *schema.Resource {
 		Update: resourceNetboxAsnUpdate,
 		Delete: resourceNetboxAsnDelete,
 
-		Description: `From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#asn):
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#asn):
 > ASN is short for Autonomous System Number. This identifier is used in the BGP protocol to identify which "autonomous system" a particular prefix is originating and transiting through.
 >
 > The AS number model within NetBox allows you to model some of this real-world relationship.`,
