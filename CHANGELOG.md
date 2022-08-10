@@ -1,3 +1,11 @@
+## 2.0.5 (August 10th, 2022)
+
+ENHANCEMENTS
+
+* provider: Update list of supported versions
+* docs: Add all missing docs and update existing ones
+* docs: Add subcategories
+
 ## 2.0.4 (August 1st, 2022)
 
 ENHANCEMENTS
