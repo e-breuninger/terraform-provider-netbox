@@ -30,14 +30,7 @@ func resourceNetboxAsn() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -56,7 +49,7 @@ func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 	rir := int64(d.Get("rir_id").(int))
 	data.Rir = &rir
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamAsnsCreateParams().WithData(&data)
 
@@ -90,7 +83,7 @@ func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("asn", res.GetPayload().Asn)
 	d.Set("rir_id", res.GetPayload().Rir)
 
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -107,7 +100,7 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 	rir := int64(d.Get("rir_id").(int))
 	data.Rir = &rir
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamAsnsUpdateParams().WithID(id).WithData(&data)
 

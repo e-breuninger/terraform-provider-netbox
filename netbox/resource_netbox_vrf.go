@@ -25,14 +25,7 @@ func resourceNetboxVrf() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": {
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -52,7 +45,7 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = &tenant_id
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
@@ -102,7 +95,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	data.Name = &name
 	data.Tags = tags

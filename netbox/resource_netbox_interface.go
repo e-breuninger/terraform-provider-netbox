@@ -63,13 +63,7 @@ func resourceNetboxInterface() *schema.Resource {
 				Optional:   true,
 				Deprecated: "This attribute is not supported by netbox any longer. It will be removed in future versions of this provider.",
 			},
-			"tags": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
+			tagsKey: tagsSchema,
 			"tagged_vlans": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -97,7 +91,7 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	if diagnostics != nil {
 		diags = append(diags, diagnostics...)
 	}
@@ -160,7 +154,7 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	d.Set("enabled", iface.Enabled)
 	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
-	d.Set("tags", getTagListFromNestedTagList(iface.Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(iface.Tags))
 	d.Set("tagged_vlans", getIDsFromNestedVLAN(iface.TaggedVlans))
 	d.Set("virtual_machine_id", iface.VirtualMachine.ID)
 
@@ -185,7 +179,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	if diagnostics != nil {
 		diags = append(diags, diagnostics...)
 	}

@@ -50,14 +50,7 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -88,7 +81,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 		data.DNSName = dnsName.(string)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamIPAddressesCreateParams().WithData(&data)
 
@@ -150,7 +143,7 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ip_address", res.GetPayload().Address)
 	d.Set("description", res.GetPayload().Description)
 	d.Set("status", res.GetPayload().Status.Value)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -203,7 +196,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		data.Role = role.(string)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 

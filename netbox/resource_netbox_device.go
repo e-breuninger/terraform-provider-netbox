@@ -55,14 +55,7 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 			"primary_ipv4": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -119,7 +112,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Site = &siteID
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimDevicesCreateParams().WithData(&data)
 
@@ -193,7 +186,7 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	d.Set("serial", res.GetPayload().Serial)
 
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return diags
 }
 
@@ -251,7 +244,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		data.PrimaryIp4 = &primaryIP
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	if d.HasChanges("comments") {
 		// check if comment is set

@@ -39,14 +39,7 @@ func resourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -75,7 +68,7 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 		data.Site = &siteID
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	data.Tags = tags
 
 	params := virtualization.NewVirtualizationClustersCreateParams().WithData(&data)
@@ -122,7 +115,7 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("site_id", nil)
 	}
 
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -148,7 +141,7 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Site = &siteID
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	data.Tags = tags
 
 	params := virtualization.NewVirtualizationClustersPartialUpdateParams().WithID(id).WithData(&data)

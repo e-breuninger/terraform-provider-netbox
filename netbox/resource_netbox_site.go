@@ -60,14 +60,7 @@ func resourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": {
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 			"timezone": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -142,7 +135,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -206,7 +199,7 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -267,7 +260,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {

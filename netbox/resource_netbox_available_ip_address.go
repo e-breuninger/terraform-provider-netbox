@@ -70,14 +70,7 @@ This resource will retrieve the next available IP address from a given prefix or
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -155,7 +148,7 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	d.Set("ip_address", res.GetPayload().Address)
 	d.Set("description", res.GetPayload().Description)
 	d.Set("status", res.GetPayload().Status.Value)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -197,7 +190,7 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 

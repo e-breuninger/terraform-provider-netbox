@@ -51,14 +51,7 @@ func resourceNetboxVlan() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
-			"tags": {
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Required: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -92,7 +85,7 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamVlansCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlansCreate(params, nil)
@@ -125,7 +118,7 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", vlan.Name)
 	d.Set("vid", vlan.Vid)
 	d.Set("description", vlan.Description)
-	d.Set("tags", getTagListFromNestedTagList(vlan.Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(vlan.Tags))
 
 	if vlan.Status != nil {
 		d.Set("status", vlan.Status.Value)
@@ -169,7 +162,7 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamVlansUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamVlansUpdate(params, nil)

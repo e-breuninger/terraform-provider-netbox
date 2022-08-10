@@ -73,14 +73,7 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": {
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: func(c context.Context, rd *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

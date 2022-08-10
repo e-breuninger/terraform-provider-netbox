@@ -28,14 +28,7 @@ func resourceNetboxTenant() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 			"group_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -61,7 +54,7 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	data := &models.WritableTenant{}
 
@@ -127,7 +120,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	data.Slug = &slug
 	data.Name = &name

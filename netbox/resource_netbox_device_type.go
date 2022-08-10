@@ -40,14 +40,7 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": {
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -80,7 +73,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		data.PartNumber = partNo.(string)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
 
@@ -116,7 +109,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", device_type.Slug)
 	d.Set("manufacturer_id", device_type.Manufacturer.ID)
 	d.Set("part_number", device_type.PartNumber)
-	d.Set("tags", getTagListFromNestedTagList(device_type.Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(device_type.Tags))
 
 	return nil
 }
@@ -147,7 +140,7 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 		data.PartNumber = partNo.(string)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimDeviceTypesPartialUpdateParams().WithID(id).WithData(&data)
 

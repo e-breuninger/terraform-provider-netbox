@@ -59,14 +59,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 			"primary_ipv4": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -137,7 +130,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Role = &roleID
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -218,7 +211,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	}
 	d.Set("memory_mb", res.GetPayload().Memory)
 	d.Set("disk_size_gb", res.GetPayload().Disk)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	cf := getCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
@@ -291,7 +284,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.PrimaryIp4 = &primaryIP
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {

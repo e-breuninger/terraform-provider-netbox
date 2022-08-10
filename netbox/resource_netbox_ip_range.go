@@ -52,14 +52,7 @@ func resourceNetboxIpRange() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -81,7 +74,7 @@ func resourceNetboxIpRangeCreate(d *schema.ResourceData, m interface{}) error {
 	data.Status = status
 	data.Description = description
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamIPRangesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamIPRangesCreate(params, nil)
@@ -137,7 +130,7 @@ func resourceNetboxIpRangeRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("role_id", res.GetPayload().Role.ID)
 	}
 
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -169,7 +162,7 @@ func resourceNetboxIpRangeUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamIPRangesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamIPRangesUpdate(params, nil)
