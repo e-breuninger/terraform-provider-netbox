@@ -85,6 +85,7 @@ resource "netbox_virtual_machine" "test" {
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
   vcpus = 4
+  status = "active"
   tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -98,6 +99,7 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName+"a"),
 				),

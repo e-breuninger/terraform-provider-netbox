@@ -1,3 +1,9 @@
+## 2.0.6 (unreleased)
+
+ENHANCEMENTS
+
+* resource/netbox_virtual_machine: Add `status` attribute. The `status` attribute will default to `active`, which matches the implicit behavior of NetBox. If you manually changed the status of your terraform-managed NetBox VMs, be cautious.
+
 ## 2.0.5 (August 10th, 2022)
 
 ENHANCEMENTS
@@ -46,7 +52,7 @@ ENHANCEMENTS
 ## 2.0.0 (June 16th, 2022)
 
 **BREAKING CHANGES**
-Netbox 3.2.0 came with [breaking changes](https://docs.netbox.dev/en/stable/release-notes/version-3.2/#breaking-changes). In accordance with the upstream API, the `netbox_site` resource and data source now have an `asn_ids` attribute that replaces the `asn` attriute. Note that `asn_ids` contains **IDs** of ASN objects, not numbers.
+NetBox 3.2.0 came with [breaking changes](https://docs.netbox.dev/en/stable/release-notes/version-3.2/#breaking-changes). In accordance with the upstream API, the `netbox_site` resource and data source now have an `asn_ids` attribute that replaces the `asn` attriute. Note that `asn_ids` contains **IDs** of ASN objects, not numbers.
 
 ENHANCEMENTS
 
