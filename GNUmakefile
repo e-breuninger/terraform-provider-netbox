@@ -34,10 +34,6 @@ docker-logs:
 docker-down: 
 	docker-compose -f docker/docker-compose.yml down --volumes
 
-.PHONY: docs
-docs:
-	go generate
-
 #! Development 
 # The following make goals are only for local usage 
 .PHONY: fmt
