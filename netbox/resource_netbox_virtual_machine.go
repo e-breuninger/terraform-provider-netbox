@@ -71,6 +71,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 			        Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"offline","active","planned","staged","failed","decommissioning"}, false),
 				Default:      "active",
+				Description: "Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`",
 			},
 			tagsKey: tagsSchema,
 			"primary_ipv4": &schema.Schema{

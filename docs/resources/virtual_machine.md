@@ -77,6 +77,7 @@ resource "netbox_virtual_machine" "full_vm" {
 - `memory_mb` (Number)
 - `platform_id` (Number)
 - `role_id` (Number)
+- `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vcpus` (Number)
