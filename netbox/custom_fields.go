@@ -90,7 +90,6 @@ func updateCustomFieldsFromAPI(stateCustomFields, customFields interface{}) []ma
 			for key, value := range t {
 				if stateCustomField.(map[string]interface{})["name"].(string) == key {
 					var strValue string
-
 					cm := map[string]string{}
 					cm["name"] = key
 					cm["type"] = stateCustomField.(map[string]interface{})["type"].(string)
