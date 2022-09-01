@@ -211,6 +211,45 @@ resource "netbox_prefix" "test" {
 	})
 }
 
+func TestAccNetboxPrefix_customFields(t *testing.T) {
+	testPrefix := "1.2.1.0/25"
+	testSlug := "prefix_customFields"
+	testVid := "123"
+	randomSlug := testAccGetTestName(testSlug)
+	testDesc := "test prefix"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name = "issue"
+	type = "text"
+	content_types = ["ipam.prefix"]
+}
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  description = "%s"
+  status = "active"
+  tags = [netbox_tag.test.name]
+  custom_field {
+		name = "${netbox_custom_field.test.name}"
+		type = "text"
+		value = "76"
+	}
+  mark_utilized = true
+}`, testPrefix, testDesc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.name", "issue"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.type", "text"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.value", "76"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_prefix", &resource.Sweeper{
 		Name:         "netbox_prefix",
