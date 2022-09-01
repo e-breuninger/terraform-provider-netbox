@@ -434,7 +434,7 @@ func TestAccNetboxVirtualMachine_customFields(t *testing.T) {
 			{
 				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_custom_field" "test" {
-	name          = "custom_field"
+	name          = "issue"
 	type          = "text"
 	content_types = ["virtualization.virtualmachine"]
 }

@@ -130,7 +130,7 @@ resource "netbox_site" "test" {
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
 					resource.TestCheckResourceAttr("netbox_site.test", "longitude", "-13.123456"),
 					resource.TestCheckResourceAttr("netbox_site.test", "custom_field.0.name", testField),
-					resource.TestCheckResourceAttr("netbox_site.test", "custom_field.0,type", "text"),
+					resource.TestCheckResourceAttr("netbox_site.test", "custom_field.0.type", "text"),
 					resource.TestCheckResourceAttr("netbox_site.test", "custom_field.0.value", "81"),
 				),
 			},
