@@ -3,6 +3,7 @@
 ENHANCEMENTS
 
 * **New Resource:** `netbox_site_group`
+* **New Data Source:** `netbox_site_group`
 * resource/netbox_virtual_machine: Add `status` attribute. The `status` attribute will default to `active`, which matches the implicit behavior of NetBox. If you manually changed the status of your terraform-managed NetBox VMs, be cautious.
 * data-source/netbox_tenant: Allow searching by `slug` attribute.
 
