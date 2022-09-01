@@ -1,7 +1,9 @@
 package netbox
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 
 	sp "github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -42,4 +44,18 @@ func toInt64List(a interface{}) []int64 {
 		}
 	}
 	return intList
+}
+
+func joinStringWithFinalConjunction(elems []string, sep, con string) string {
+	switch len(elems) {
+	case 0:
+		return ""
+	case 1:
+		return elems[0]
+	}
+
+	var b strings.Builder
+	b.WriteString(strings.Join(elems[0:len(elems)-1], sep))
+	b.WriteString(fmt.Sprintf(" %s %s", con, elems[len(elems)-1]))
+	return b.String()
 }
