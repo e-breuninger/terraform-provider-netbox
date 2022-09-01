@@ -8,12 +8,12 @@ data "netbox_prefix" "test" {
 }
 
 resource "netbox_interface" "myvm-eth0" {
-  name = "eth0"
+  name               = "eth0"
   virtual_machine_id = data.netbox_virtual_machine.myvm.id
 }
 
 resource "netbox_available_ip_address" "myvm-ip" {
-  prefix_id = data.netbox_prefix.test.id
-  status = "active"
+  prefix_id    = data.netbox_prefix.test.id
+  status       = "active"
   interface_id = netbox_interface.myvm-eth0.id
 }

@@ -46,7 +46,7 @@ resource "netbox_available_ip_address" "test" {
 ```terraform
 data "netbox_ip_range" "test" {
   start_address = "10.0.0.1/24"
-  end_address = "10.0.0.50/24"
+  end_address   = "10.0.0.50/24"
 }
 
 resource "netbox_available_ip_address" "test" {
@@ -66,13 +66,13 @@ data "netbox_prefix" "test" {
 }
 
 resource "netbox_interface" "myvm-eth0" {
-  name = "eth0"
+  name               = "eth0"
   virtual_machine_id = data.netbox_virtual_machine.myvm.id
 }
 
 resource "netbox_available_ip_address" "myvm-ip" {
-  prefix_id = data.netbox_prefix.test.id
-  status = "active"
+  prefix_id    = data.netbox_prefix.test.id
+  status       = "active"
   interface_id = netbox_interface.myvm-eth0.id
 }
 ```
