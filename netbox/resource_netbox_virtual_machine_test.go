@@ -449,9 +449,9 @@ resource "netbox_virtual_machine" "test" {
 	}
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.name", "issue"),
-					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.type", "text"),
-					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.value", "76"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "custom_field.0.name", "issue"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "custom_field.0.type", "text"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "custom_field.0.value", "76"),
 				),
 			},
 		},
