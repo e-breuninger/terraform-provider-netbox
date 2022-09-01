@@ -26,12 +26,12 @@ func init() {
 			desc += "."
 		}
 
-		if s.Default != nil {
-			if s.Default == "" {
-				desc += " Defaults to `\"\"`."
-			} else {
-				desc += fmt.Sprintf(" Defaults to `%v`.", s.Default)
+		if s.AtLeastOneOf != nil && len(s.AtLeastOneOf) > 0 {
+			atLeastOneOf := make([]string, len(s.AtLeastOneOf))
+			for i, l := range s.AtLeastOneOf {
+				atLeastOneOf[i] = fmt.Sprintf("`%s`", l)
 			}
+			desc += fmt.Sprintf(" At least one of %s must be given.", joinStringWithFinalConjunction(atLeastOneOf, ", ", "or"))
 		}
 
 		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
@@ -39,7 +39,15 @@ func init() {
 			for i, c := range s.ConflictsWith {
 				conflicts[i] = fmt.Sprintf("`%s`", c)
 			}
-			desc += fmt.Sprintf(" Conflicts with %s.", strings.Join(conflicts, ", "))
+			desc += fmt.Sprintf(" Conflicts with %s.", joinStringWithFinalConjunction(conflicts, ", ", "and"))
+		}
+
+		if s.Default != nil {
+			if s.Default == "" {
+				desc += " Defaults to `\"\"`."
+			} else {
+				desc += fmt.Sprintf(" Defaults to `%v`.", s.Default)
+			}
 		}
 
 		return strings.TrimSpace(desc)

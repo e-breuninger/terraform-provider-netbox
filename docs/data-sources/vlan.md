@@ -29,8 +29,8 @@ data "netbox_vlan" "vlan2" {
 
 ### Optional
 
-- `name` (String)
-- `vid` (Number)
+- `name` (String) At least one of `name` or `vid` must be given.
+- `vid` (Number) At least one of `name` or `vid` must be given.
 
 ### Read-Only
 
