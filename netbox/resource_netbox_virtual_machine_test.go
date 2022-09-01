@@ -441,11 +441,17 @@ resource "netbox_custom_field" "test" {
 resource "netbox_virtual_machine" "test" {
   name          = "%[1]s"
   cluster_id    = netbox_cluster.test.id
-  site_id       = netbox_site.test.id
-  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+	site_id       = netbox_site.test.id
+  custom_field {
+		name = "${netbox_custom_field.test.name}"
+		type = "text"
+		value = "76"
+	}
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "custom_fields.custom_field", "76"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.name", "issue"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.type", "text"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.value", "76"),
 				),
 			},
 		},

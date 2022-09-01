@@ -82,7 +82,7 @@ func resourceNetboxSite() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			customFieldsKey: customFieldsSchema,
+			customFieldsKey: customFieldSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -152,9 +152,8 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
+	if resourceCustomFields, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = convertCustomFieldsFromTerraformToAPI(nil, resourceCustomFields.(*schema.Set).List())
 	}
 
 	params := dcim.NewDcimSitesCreateParams().WithData(&data)
@@ -216,9 +215,14 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("tenant_id", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
+	if d.Get(customFieldsKey) != nil {
+		customFields := updateCustomFieldsFromAPI(
+			d.Get(customFieldsKey).(*schema.Set).List(),
+			res.GetPayload().CustomFields,
+		)
+		d.Set(customFieldsKey, customFields)
+	} else {
+		d.Set(customFieldsKey, nil)
 	}
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
@@ -288,9 +292,9 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
+	if d.HasChange(customFieldsKey) {
+		stateCustomFields, resourceCustomFields := d.GetChange(customFieldsKey)
+		data.CustomFields = convertCustomFieldsFromTerraformToAPI(stateCustomFields.(*schema.Set).List(), resourceCustomFields.(*schema.Set).List())
 	}
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)

@@ -241,9 +241,9 @@ resource "netbox_prefix" "test" {
   mark_utilized = true
 }`, testPrefix, testDesc),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.name", "issue"),
-					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.type", "text"),
-					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.value", "76"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.name", "issue"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.type", "text"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.value", "76"),
 				),
 			},
 		},

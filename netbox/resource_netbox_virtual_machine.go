@@ -85,7 +85,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			customFieldsKey: customFieldsSchema,
+			customFieldsKey: customFieldSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -171,9 +171,8 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
+	if resourceCustomFields, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = convertCustomFieldsFromTerraformToAPI(nil, resourceCustomFields.(*schema.Set).List())
 	}
 
 	params := virtualization.NewVirtualizationVirtualMachinesCreateParams().WithData(&data)
@@ -276,9 +275,14 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	}
 	d.Set(tagsKey, getTagListFromNestedTagList(vm.Tags))
 
-	cf := getCustomFields(vm.CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
+	if d.Get(customFieldsKey) != nil {
+		customFields := updateCustomFieldsFromAPI(
+			d.Get(customFieldsKey).(*schema.Set).List(),
+			res.GetPayload().CustomFields,
+		)
+		d.Set(customFieldsKey, customFields)
+	} else {
+		d.Set(customFieldsKey, nil)
 	}
 
 	return diags
@@ -364,9 +368,9 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
+	if d.HasChange(customFieldsKey) {
+		stateCustomFields, resourceCustomFields := d.GetChange(customFieldsKey)
+		data.CustomFields = convertCustomFieldsFromTerraformToAPI(stateCustomFields.(*schema.Set).List(), resourceCustomFields.(*schema.Set).List())
 	}
 
 	if d.HasChanges("comments") {

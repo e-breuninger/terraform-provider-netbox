@@ -43,7 +43,7 @@ Each location must have a name that is unique within its parent site and locatio
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			customFieldsKey: customFieldsSchema,
+			customFieldsKey: customFieldSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -79,9 +79,8 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
+	if resourceCustomFields, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = convertCustomFieldsFromTerraformToAPI(nil, resourceCustomFields.(*schema.Set).List())
 	}
 
 	params := dcim.NewDcimLocationsCreateParams().WithData(&data)
@@ -130,9 +129,14 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("tenant_id", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
+	if d.Get(customFieldsKey) != nil {
+		customFields := updateCustomFieldsFromAPI(
+			d.Get(customFieldsKey).(*schema.Set).List(),
+			res.GetPayload().CustomFields,
+		)
+		d.Set(customFieldsKey, customFields)
+	} else {
+		d.Set(customFieldsKey, nil)
 	}
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
@@ -163,9 +167,9 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
+	if d.HasChange(customFieldsKey) {
+		stateCustomFields, resourceCustomFields := d.GetChange(customFieldsKey)
+		data.CustomFields = convertCustomFieldsFromTerraformToAPI(stateCustomFields.(*schema.Set).List(), resourceCustomFields.(*schema.Set).List())
 	}
 
 	params := dcim.NewDcimLocationsPartialUpdateParams().WithID(id).WithData(&data)

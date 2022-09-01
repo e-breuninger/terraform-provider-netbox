@@ -118,14 +118,20 @@ resource "netbox_site" "test" {
   latitude      = "12.123456"
   longitude     = "-13.123456"
   timezone      = "Africa/Johannesburg"
-  custom_fields = {"${netbox_custom_field.test.name}" = "81"}
+  custom_field {
+		name = "${netbox_custom_field.test.name}"
+		type = "text"
+		value = "81"
+	}
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "status", "decommissioning"),
-					resource.TestCheckResourceAttr("netbox_site.test", "custom_fields."+testField, "81"),
 					resource.TestCheckResourceAttr("netbox_site.test", "timezone", "Africa/Johannesburg"),
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
 					resource.TestCheckResourceAttr("netbox_site.test", "longitude", "-13.123456"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.name", testField),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0,type", "text"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_field.0.value", "81"),
 				),
 			},
 		},
