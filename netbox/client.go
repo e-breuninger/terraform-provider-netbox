@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	netboxclient "github.com/fbreckle/go-netbox/netbox/client"
 	httptransport "github.com/go-openapi/runtime/client"
@@ -16,6 +17,7 @@ type Config struct {
 	ServerURL          string
 	AllowInsecureHttps bool
 	Headers            map[string]interface{}
+	RequestTimeout     int
 }
 
 // customHeaderTransport is a transport that adds the specified headers on
@@ -71,6 +73,7 @@ func (cfg *Config) Client() (interface{}, error) {
 
 	httpClient := &http.Client{
 		Transport: trans,
+		Timeout: time.Second * time.Duration(cfg.RequestTimeout),
 	}
 
 	transport := httptransport.NewWithClient(parsedURL.Host, parsedURL.Path+netboxclient.DefaultBasePath, desiredRuntimeClientSchemes, httpClient)

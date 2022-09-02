@@ -139,6 +139,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_SKIP_VERSION_CHECK", false),
 				Description: "If true, do not try to determine the running Netbox version at provider startup. Disables warnings about possibly unsupported Netbox version. Also useful for local testing on terraform plans. Can be set via the `NETBOX_SKIP_VERSION_CHECK` environment variable.",
 			},
+			"request_timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_REQUEST_TIMEOUT", 10),
+				Description: "Netbox API HTTP request timeout in seconds. Can be set via the `NETBOX_REQUEST_TIMEOUT` environment variable.",
+			},
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -154,6 +160,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		APIToken:           data.Get("api_token").(string),
 		AllowInsecureHttps: data.Get("allow_insecure_https").(bool),
 		Headers:            data.Get("headers").(map[string]interface{}),
+		RequestTimeout:     data.Get("request_timeout").(int),
 	}
 
 	netboxClient, clientError := config.Client()
