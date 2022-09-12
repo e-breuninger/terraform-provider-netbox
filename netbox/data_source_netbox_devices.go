@@ -17,7 +17,8 @@ import (
 
 func dataSourceNetboxDevices() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxDevicesRead,
+		Read:        dataSourceNetboxDevicesRead,
+		Description: ":meta:subcategory:Data Center Inventory Management (DCIM):",
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:     schema.TypeSet,
