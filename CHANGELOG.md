@@ -1,3 +1,10 @@
+## 2.0.7 (unreleased)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_site_group` ([#236](https://github.com/e-breuninger/terraform-provider-netbox/pull/236) by [@dipeshsharma](https://github.com/dipeshsharma))
+* provider: Add `request_timeout` attribute ([#227](https://github.com/e-breuninger/terraform-provider-netbox/pull/227) by [@twink0r](https://github.com/twink0r))
+
 ## 2.0.6 (September 9th, 2022)
 
 ENHANCEMENTS
