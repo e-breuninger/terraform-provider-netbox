@@ -25,6 +25,7 @@ jobs:
     strategy:
       matrix:
         netbox-version:
+          - "v3.3.2"
           - "v3.2.9"
           - "v3.2.8"
           - "v3.2.7"
