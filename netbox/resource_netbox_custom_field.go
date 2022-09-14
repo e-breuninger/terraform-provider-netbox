@@ -234,7 +234,7 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 
 	d.Set("weight", res.GetPayload().Weight)
 	if res.GetPayload().Default != nil {
-		d.Set("default", *res.GetPayload().Default)
+		d.Set("default", res.GetPayload().Default)
 	}
 
 	d.Set("description", res.GetPayload().Description)
