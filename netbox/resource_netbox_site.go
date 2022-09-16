@@ -17,40 +17,68 @@ func resourceNetboxSite() *schema.Resource {
 		Update: resourceNetboxSiteUpdate,
 		Delete: resourceNetboxSiteDelete,
 
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/sites-and-racks/#sites):
+
+> How you choose to employ sites when modeling your network may vary depending on the nature of your organization, but generally a site will equate to a building or campus. For example, a chain of banks might create a site to represent each of its branches, a site for its corporate headquarters, and two additional sites for its presence in two colocation facilities.
+>
+> Each site must be assigned a unique name and may optionally be assigned to a region and/or tenant.`,
+
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Default:      "active",
 				ValidateFunc: validation.StringInSlice([]string{"planned", "staging", "active", "decommissioning", "retired"}, false),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 200),
 			},
-			"facility": &schema.Schema{
+			"facility": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
-			"region_id": &schema.Schema{
+			"longitude": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"latitude": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"region_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"asn": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			tagsKey: tagsSchema,
+			"timezone": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"asn_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -84,17 +112,41 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Facility = facility.(string)
 	}
 
+	latitudeValue, ok := d.GetOk("latitude")
+	if ok {
+		data.Latitude = float64ToPtr(float64(latitudeValue.(float64)))
+	}
+
+	longitudeValue, ok := d.GetOk("longitude")
+	if ok {
+		data.Longitude = float64ToPtr(float64(longitudeValue.(float64)))
+	}
+
 	regionIDValue, ok := d.GetOk("region_id")
 	if ok {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
 	}
 
-	asnValue, ok := d.GetOk("asn")
+	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
-		data.Asn = int64ToPtr(int64(asnValue.(int)))
+		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
-	data.Tags = []*models.NestedTag{}
+	if timezone, ok := d.GetOk("timezone"); ok {
+		data.TimeZone = timezone.(string)
+	}
+
+	data.Asns = []int64{}
+	if asnsValue, ok := d.GetOk("asn_ids"); ok {
+		data.Asns = toInt64List(asnsValue)
+	}
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
 
 	params := dcim.NewDcimSitesCreateParams().WithData(&data)
 
@@ -125,13 +177,36 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("slug", res.GetPayload().Slug)
-	d.Set("status", res.GetPayload().Status.Value)
-	d.Set("description", res.GetPayload().Description)
-	d.Set("facility", res.GetPayload().Facility)
-	d.Set("region_id", res.GetPayload().Region)
-	d.Set("asn", res.GetPayload().Asn)
+	site := res.GetPayload()
+
+	d.Set("name", site.Name)
+	d.Set("slug", site.Slug)
+	d.Set("status", site.Status.Value)
+	d.Set("description", site.Description)
+	d.Set("facility", site.Facility)
+	d.Set("longitude", site.Longitude)
+	d.Set("latitude", site.Latitude)
+	d.Set("timezone", site.TimeZone)
+	d.Set("asn_ids", getIDsFromNestedASNList(site.Asns))
+
+	if res.GetPayload().Region != nil {
+		d.Set("region_id", res.GetPayload().Region.ID)
+	} else {
+		d.Set("region_id", nil)
+	}
+
+	if res.GetPayload().Tenant != nil {
+		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	} else {
+		d.Set("tenant_id", nil)
+	}
+
+	cf := getCustomFields(res.GetPayload().CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+
 	return nil
 }
 
@@ -162,17 +237,41 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Facility = facility.(string)
 	}
 
+	latitudeValue, ok := d.GetOk("latitude")
+	if ok {
+		data.Latitude = float64ToPtr(float64(latitudeValue.(float64)))
+	}
+
+	longitudeValue, ok := d.GetOk("longitude")
+	if ok {
+		data.Longitude = float64ToPtr(float64(longitudeValue.(float64)))
+	}
+
 	regionIDValue, ok := d.GetOk("region_id")
 	if ok {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
 	}
 
-	asnValue, ok := d.GetOk("asn")
+	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
-		data.Asn = int64ToPtr(int64(asnValue.(int)))
+		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
-	data.Tags = []*models.NestedTag{}
+	if timezone, ok := d.GetOk("timezone"); ok {
+		data.TimeZone = timezone.(string)
+	}
+
+	data.Asns = []int64{}
+	if asnsValue, ok := d.GetOk("asn_ids"); ok {
+		data.Asns = toInt64List(asnsValue)
+	}
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = cf
+	}
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)
 
@@ -195,4 +294,12 @@ func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func getIDsFromNestedASNList(nestedASNs []*models.NestedASN) []int64 {
+	var asns []int64
+	for _, asn := range nestedASNs {
+		asns = append(asns, asn.ID)
+	}
+	return asns
 }

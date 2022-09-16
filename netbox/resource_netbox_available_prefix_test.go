@@ -50,6 +50,8 @@ resource "netbox_available_prefix" "test" {
   description = "%s"
   status = "active"
   tags = [netbox_tag.test.name]
+  mark_utilized = true
+  is_pool = true
 }`, testPrefixLength, testDesc),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "prefix", expectedPrefix),
@@ -57,6 +59,24 @@ resource "netbox_available_prefix" "test" {
 					resource.TestCheckResourceAttr(resourceName, "description", testDesc),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", testName),
+					resource.TestCheckResourceAttr(resourceName, "mark_utilized", "true"),
+					resource.TestCheckResourceAttr(resourceName, "is_pool", "true"),
+				),
+			},
+			{
+				Config: testAccNetboxAvailablePrefixFullDependencies(testName, testParentPrefix) + fmt.Sprintf(`
+resource "netbox_available_prefix" "test" {
+  parent_prefix_id = netbox_prefix.parent.id
+  prefix_length = %d
+  description = "%s"
+  status = "active"
+  tags = [netbox_tag.test.name]
+  mark_utilized = false
+  is_pool = false
+}`, testPrefixLength, testDesc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "mark_utilized", "false"),
+					resource.TestCheckResourceAttr(resourceName, "is_pool", "false"),
 				),
 			},
 			{
@@ -140,7 +160,7 @@ resource "netbox_available_prefix" "test3" {
 					resource.TestCheckResourceAttr("netbox_available_prefix.test1", "prefix", expectedPrefixes[0]),
 					resource.TestCheckResourceAttr("netbox_available_prefix.test2", "prefix", expectedPrefixes[1]),
 				),
-				ExpectError: regexp.MustCompile(".*unexpected success response.*"),
+				ExpectError: regexp.MustCompile(".*Insufficient space is available.*"),
 			},
 		},
 	})

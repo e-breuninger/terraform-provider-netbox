@@ -18,6 +18,11 @@ func resourceNetboxTag() *schema.Resource {
 		Update: resourceNetboxTagUpdate,
 		Delete: resourceNetboxTagDelete,
 
+		Description: `:meta:subcategory:Extras:From the [official documentation](https://docs.netbox.dev/en/stable/models/extras/tag/):
+> Tags are user-defined labels which can be applied to a variety of objects within NetBox. They can be used to establish dimensions of organization beyond the relationships built into NetBox. For example, you might create a tag to identify a particular ownership or condition across several types of objects.
+>
+> Each tag has a label, color, and a URL-friendly slug. For example, the slug for a tag named "Dunder Mifflin, Inc." would be dunder-mifflin-inc. The slug is generated automatically and makes tags easier to work with as URL parameters. Each tag can also be assigned a description indicating its purpose.`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -34,14 +39,11 @@ func resourceNetboxTag() *schema.Resource {
 				Default:      "9e9e9e",
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[0-9a-f]{6}$"), "Must be hex color string"),
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
 				Optional: true,
-				Set:      schema.HashString,
 			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -64,11 +66,13 @@ func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	color := d.Get("color_hex").(string)
+	description := d.Get("description").(string)
 	params := extras.NewExtrasTagsCreateParams().WithData(
 		&models.Tag{
-			Name:  &name,
-			Slug:  &slug,
-			Color: color,
+			Name:        &name,
+			Slug:        &slug,
+			Color:       color,
+			Description: description,
 		},
 	)
 
@@ -102,6 +106,7 @@ func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("color_hex", res.GetPayload().Color)
+	d.Set("description", res.GetPayload().Description)
 	return nil
 }
 
@@ -113,6 +118,7 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	color := d.Get("color_hex").(string)
+	description := d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
@@ -126,6 +132,7 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Slug = &slug
 	data.Name = &name
 	data.Color = color
+	data.Description = description
 
 	params := extras.NewExtrasTagsUpdateParams().WithID(id).WithData(&data)
 

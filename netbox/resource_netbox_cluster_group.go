@@ -17,6 +17,10 @@ func resourceNetboxClusterGroup() *schema.Resource {
 		Update: resourceNetboxClusterGroupUpdate,
 		Delete: resourceNetboxClusterGroupDelete,
 
+		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#cluster-groups):
+
+> Cluster groups may be created for the purpose of organizing clusters. The arrangement of clusters into groups is optional.`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -60,6 +64,8 @@ func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) err
 	if description, ok := d.GetOk("description"); ok {
 		data.Description = description.(string)
 	}
+
+	data.Tags = []*models.NestedTag{}
 
 	params := virtualization.NewVirtualizationClusterGroupsCreateParams().WithData(&data)
 
@@ -122,6 +128,8 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 			data.Description = description.(string)
 		}
 	}
+
+	data.Tags = []*models.NestedTag{}
 
 	params := virtualization.NewVirtualizationClusterGroupsPartialUpdateParams().WithID(id).WithData(&data)
 

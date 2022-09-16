@@ -1,23 +1,23 @@
 terraform {
   required_providers {
     netbox = {
-      source  = "e-breuninger/netbox"
+      source = "e-breuninger/netbox"
     }
   }
 }
 
 # example provider configuration for a local netbox deployment
 # e.g. https://github.com/netbox-community/netbox-docker
-provider "netbox" {
-  server_url = "http://localhost:8000"
-  api_token  = "0123456789abcdef0123456789abcdef01234567"
-}
+#provider "netbox" {
+#  server_url = "http://localhost:8000"
+#  api_token  = "0123456789abcdef0123456789abcdef01234567"
+#}
 
 # example provider configuration for https://netboxdemo.om
-#provider "netbox" {
-#  server_url = "https://netboxdemo.com/"
-#  api_token  = "72830d67beff4ae178b94d8f781842408df8069d"
-#}
+provider "netbox" {
+  server_url = "https://demo.netbox.dev"
+  api_token  = "<your api token>"
+}
 
 resource "netbox_tag" "foo" {
   name      = "foo"
@@ -31,7 +31,7 @@ resource "netbox_tag" "bar" {
 resource "netbox_device_role" "testdevicerole" {
   name      = "my-device-role"
   vm_role   = true
-  color_hex = "ff0000" # beautiful red
+  color_hex = "ff0000"
 }
 
 resource "netbox_site" "testsite" {

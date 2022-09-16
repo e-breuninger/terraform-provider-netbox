@@ -20,6 +20,8 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 		Update: resourceNetboxPrefixUpdate,
 		Delete: resourceNetboxPrefixDelete,
 
+		Description: `:meta:subcategory:IP Address Management (IPAM):`,
+
 		Schema: map[string]*schema.Schema{
 			"parent_prefix_id": {
 				Type:     schema.TypeInt,
@@ -49,6 +51,10 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"mark_utilized": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"vrf_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -57,26 +63,19 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"site_id": &schema.Schema{
+			"site_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vlan_id": &schema.Schema{
+			"vlan_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"role_id": &schema.Schema{
+			"role_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": {
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: func(c context.Context, rd *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

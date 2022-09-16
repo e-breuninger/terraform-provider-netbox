@@ -17,6 +17,12 @@ func resourceNetboxTenant() *schema.Resource {
 		Update: resourceNetboxTenantUpdate,
 		Delete: resourceNetboxTenantDelete,
 
+		Description: `:meta:subcategory:Tenancy:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/tenancy/#tenants):
+
+> A tenant represents a discrete grouping of resources used for administrative purposes. Typically, tenants are used to represent individual customers or internal departments within an organization. 
+>
+> Tenant assignment is used to signify the ownership of an object in NetBox. As such, each object may only be owned by a single tenant. For example, if you have a firewall dedicated to a particular customer, you would assign it to the tenant which represents that customer. However, if the firewall serves multiple customers, it doesn't belong to any particular customer, so tenant assignment would not be appropriate.`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -28,14 +34,7 @@ func resourceNetboxTenant() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 			"group_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -61,7 +60,7 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	data := &models.WritableTenant{}
 
@@ -127,7 +126,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	data.Slug = &slug
 	data.Name = &name

@@ -11,15 +11,20 @@ import (
 
 func dataSourceNetboxTenant() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxTenantRead,
+		Read:        dataSourceNetboxTenantRead,
+		Description: `:meta:subcategory:Tenancy:`,
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				AtLeastOneOf: []string{"name", "slug"},
 			},
 			"slug": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"name", "slug"},
 			},
 			"group_id": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -31,10 +36,16 @@ func dataSourceNetboxTenant() *schema.Resource {
 
 func dataSourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
-
-	name := d.Get("name").(string)
 	params := tenancy.NewTenancyTenantsListParams()
-	params.Name = &name
+
+	if name, ok := d.Get("name").(string); ok && name != "" {
+		params.Name = &name
+	}
+
+	if slug, ok := d.Get("slug").(string); ok && slug != "" {
+		params.Slug = &slug
+	}
+
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 

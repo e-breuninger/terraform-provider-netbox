@@ -17,8 +17,12 @@ func resourceNetboxVlan() *schema.Resource {
 		Update: resourceNetboxVlanUpdate,
 		Delete: resourceNetboxVlanDelete,
 
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/vlans/#vlans):
+
+> A VLAN represents an isolated layer two domain, identified by a name and a numeric ID (1-4094) as defined in IEEE 802.1Q. VLANs are arranged into VLAN groups to define scope and to enforce uniqueness.`,
+
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -26,9 +30,10 @@ func resourceNetboxVlan() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Default:      "active",
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated"}, false),
 			},
 			"tenant_id": {
@@ -45,18 +50,12 @@ func resourceNetboxVlan() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "",
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Required: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -78,7 +77,19 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 	data.Status = status
 	data.Description = description
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	if siteID, ok := d.GetOk("site_id"); ok {
+		data.Site = int64ToPtr(int64(siteID.(int)))
+	}
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
+
+	if roleID, ok := d.GetOk("role_id"); ok {
+		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamVlansCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlansCreate(params, nil)
@@ -87,7 +98,7 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxVlanUpdate(d, m)
+	return resourceNetboxVlanRead(d, m)
 }
 
 func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
@@ -106,35 +117,25 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if res.GetPayload().Name != nil {
-		d.Set("name", res.GetPayload().Name)
-	}
+	vlan := res.GetPayload()
 
-	if res.GetPayload().Vid != nil {
-		d.Set("vid", res.GetPayload().Vid)
-	}
+	d.Set("name", vlan.Name)
+	d.Set("vid", vlan.Vid)
+	d.Set("description", vlan.Description)
+	d.Set(tagsKey, getTagListFromNestedTagList(vlan.Tags))
 
-	if res.GetPayload().Status != nil {
-		d.Set("status", res.GetPayload().Status.Value)
+	if vlan.Status != nil {
+		d.Set("status", vlan.Status.Value)
 	}
-
-	if res.GetPayload().Description != "" {
-		d.Set("description", res.GetPayload().Description)
+	if vlan.Site != nil {
+		d.Set("site_id", vlan.Site.ID)
 	}
-
-	if res.GetPayload().Site != nil {
-		d.Set("site_id", res.GetPayload().Site.ID)
+	if vlan.Tenant != nil {
+		d.Set("tenant_id", vlan.Tenant.ID)
 	}
-
-	if res.GetPayload().Tenant != nil {
-		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	if vlan.Role != nil {
+		d.Set("role_id", vlan.Role.ID)
 	}
-
-	if res.GetPayload().Role != nil {
-		d.Set("role_id", res.GetPayload().Role.ID)
-	}
-
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -150,7 +151,6 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Vid = &vid
-
 	data.Status = status
 	data.Description = description
 
@@ -166,7 +166,7 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamVlansUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamVlansUpdate(params, nil)

@@ -23,6 +23,17 @@ resource "netbox_tag" "test_b" {
 `, testName)
 }
 
+func testAccNetboxVrfTenantDependencies(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_tenant" "test_tenant_a" {
+  name = "%[1]sa"
+}
+resource "netbox_tenant" "test_tenant_b" {
+  name = "%[1]sb"
+}
+`, testName)
+}
+
 func TestAccNetboxVrf_basic(t *testing.T) {
 
 	testSlug := "vrf_basic"
@@ -58,7 +69,7 @@ func TestAccNetboxVrf_tags(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxTenantTagDependencies(testName) + fmt.Sprintf(`
+				Config: testAccNetboxVrfTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vrf" "test_tags" {
   name = "%[1]s"
   tags = ["%[1]sa"]
@@ -88,6 +99,40 @@ resource "netbox_vrf" "test_tags" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vrf.test_tags", "tags.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxVrf_tenant(t *testing.T) {
+
+	testSlug := "vrf_tenant"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVrfTenantDependencies(testName) + fmt.Sprintf(`
+resource "netbox_vrf" "test_tenant" {
+  name = "%[1]s"
+  tenant_id = netbox_tenant.test_tenant_a.id
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vrf.test_tenant", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_vrf.test_tenant", "tenant_id", "netbox_tenant.test_tenant_a", "id"),
+				),
+			},
+			{
+				Config: testAccNetboxVrfTenantDependencies(testName) + fmt.Sprintf(`
+resource "netbox_vrf" "test_tenant" {
+  name = "%[1]s"
+  tenant_id = netbox_tenant.test_tenant_b.id
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vrf.test_tenant", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_vrf.test_tenant", "tenant_id", "netbox_tenant.test_tenant_b", "id"),
 				),
 			},
 		},

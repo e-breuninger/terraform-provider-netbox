@@ -22,21 +22,31 @@ func TestAccNetboxSite_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
+resource "netbox_rir" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_asn" "test" {
+  asn = 1338
+  rir_id = netbox_rir.test.id
+}
+
 resource "netbox_site" "test" {
-  name = "%s"
-  slug = "%s"
-  status = "active"
+  name = "%[1]s"
+  slug = "%[2]s"
+  status = "planned"
   description = "%[1]s"
   facility = "%[1]s"
-  asn = 1337
+  asn_ids = [netbox_asn.test.id]
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "slug", randomSlug),
-					resource.TestCheckResourceAttr("netbox_site.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_site.test", "status", "planned"),
 					resource.TestCheckResourceAttr("netbox_site.test", "description", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "facility", testName),
-					resource.TestCheckResourceAttr("netbox_site.test", "asn", "1337"),
+					resource.TestCheckResourceAttr("netbox_site.test", "asn_ids.#", "1"),
+					resource.TestCheckResourceAttrPair("netbox_site.test", "asn_ids.0", "netbox_asn.test", "id"),
 				),
 			},
 			{
@@ -58,14 +68,59 @@ func TestAccNetboxSite_defaultSlug(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
+resource "netbox_tenant" "test" {
+  name = "%[1]s"
+}
+resource "netbox_tag" "test" {
+  name = "%[1]s"
+}
 resource "netbox_site" "test" {
-  name = "%s"
-  status = "active"
+  name = "%[1]s"
+  tenant_id = netbox_tenant.test.id
+  tags = ["%[1]s"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "slug", testName),
+					resource.TestCheckResourceAttrPair("netbox_site.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttr("netbox_site.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_site.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_site.test", "tags.0", testName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxSite_customFields(t *testing.T) {
+	testSlug := "site_detail"
+	testName := testAccGetTestName(testSlug)
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "%[1]s"
+	type          = "text"
+	content_types = ["dcim.site"]
+}
+resource "netbox_site" "test" {
+  name          = "%[2]s"
+  status        = "decommissioning"
+  latitude      = "12.123456"
+  longitude     = "-13.123456"
+  timezone      = "Africa/Johannesburg"
+  custom_fields = {"${netbox_custom_field.test.name}" = "81"}
+}`, testField, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_site.test", "status", "decommissioning"),
+					resource.TestCheckResourceAttr("netbox_site.test", "custom_fields."+testField, "81"),
+					resource.TestCheckResourceAttr("netbox_site.test", "timezone", "Africa/Johannesburg"),
+					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
+					resource.TestCheckResourceAttr("netbox_site.test", "longitude", "-13.123456"),
 				),
 			},
 		},

@@ -20,12 +20,26 @@ resource "netbox_tenant" "test" {
   name = "%[1]s"
 }
 
-data "netbox_tenant" "test" {
+data "netbox_tenant" "by_name" {
   depends_on = [netbox_tenant.test]
   name = "%[1]s"
-}`, testName),
+}
+
+data "netbox_tenant" "by_slug" {
+  depends_on = [netbox_tenant.test]
+  slug = "%[1]s"
+}
+
+data "netbox_tenant" "by_both" {
+  depends_on = [netbox_tenant.test]
+  name = "%[1]s"
+  slug = "%[1]s"
+}
+`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("data.netbox_tenant.test", "id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_tenant.by_name", "id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_tenant.by_slug", "id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_tenant.by_both", "id", "netbox_tenant.test", "id"),
 				),
 			},
 		},
