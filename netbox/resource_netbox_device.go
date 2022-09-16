@@ -178,7 +178,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	face := d.Get("face").(string)
-	data.AssetTag = &face
+	data.Face = &face
 
 	parentDeviceIDValue, ok := d.GetOk("parent_device_id")
 	if ok {
