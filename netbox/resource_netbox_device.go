@@ -51,6 +51,59 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"asset_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Default:  models.DeviceStatusValueActive,
+				Optional: true,
+			},
+			"cluster_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"face": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"parent_device_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"platform_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"position_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"rack_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"vc_position_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"vc_priority_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"virtual_chassis_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"custom_fields": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Computed: true,
+			},
 			"comments": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -110,6 +163,68 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		siteID := int64(siteIDValue.(int))
 		data.Site = &siteID
+	}
+
+	assetTagValue, ok := d.GetOk("asset_tag")
+	if ok {
+		assetTag := assetTagValue.(string)
+		data.AssetTag = &assetTag
+	}
+
+	clusterIDValue, ok := d.GetOk("cluster_id")
+	if ok {
+		clusterID := int64(clusterIDValue.(int))
+		data.Cluster = &clusterID
+	}
+
+	face := d.Get("face").(string)
+	data.AssetTag = &face
+
+	parentDeviceIDValue, ok := d.GetOk("parent_device_id")
+	if ok {
+		parentDeviceID := int64(parentDeviceIDValue.(int))
+		data.ParentDevice.ID = parentDeviceID
+	}
+
+	platformIDValue, ok := d.GetOk("platform_id")
+	if ok {
+		platformID := int64(platformIDValue.(int))
+		data.Platform = &platformID
+	}
+
+	positionIDValue, ok := d.GetOk("position_id")
+	if ok {
+		positionID := int64(positionIDValue.(int))
+		data.Position = &positionID
+	}
+
+	rackIDValue, ok := d.GetOk("rack_id")
+	if ok {
+		rackID := int64(rackIDValue.(int))
+		data.Rack = &rackID
+	}
+
+	vcPositionIDValue, ok := d.GetOk("vc_position_id")
+	if ok {
+		vcPositionID := int64(vcPositionIDValue.(int))
+		data.VcPosition = &vcPositionID
+	}
+
+	vcPriorityIDValue, ok := d.GetOk("vc_priority_id")
+	if ok {
+		vcPriorityID := int64(vcPriorityIDValue.(int))
+		data.VcPriority = &vcPriorityID
+	}
+
+	vcIDValue, ok := d.GetOk("virtual_chassis_id")
+	if ok {
+		vcID := int64(vcIDValue.(int))
+		data.VirtualChassis = &vcID
+	}
+
+	cfValue, ok := d.GetOk("custom_fields")
+	if ok {
+		data.CustomFields = cfValue.(map[string]interface{})
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
@@ -182,9 +297,63 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("site_id", nil)
 	}
 
+	if res.GetPayload().ParentDevice != nil {
+		d.Set("parent_device_id", res.GetPayload().ParentDevice.ID)
+	} else {
+		d.Set("parent_device_id", nil)
+	}
+
+	if res.GetPayload().Cluster != nil {
+		d.Set("cluster_id", res.GetPayload().Cluster.ID)
+	} else {
+		d.Set("cluster_id", nil)
+	}
+
+	if res.GetPayload().Platform != nil {
+		d.Set("platform_id", res.GetPayload().Platform.ID)
+	} else {
+		d.Set("platform_id", nil)
+	}
+
+	if res.GetPayload().Rack != nil {
+		d.Set("rack_id", res.GetPayload().Rack.ID)
+	} else {
+		d.Set("rack_id", nil)
+	}
+
+	if res.GetPayload().VirtualChassis != nil {
+		d.Set("virtual_chassis_id", res.GetPayload().VirtualChassis.ID)
+	} else {
+		d.Set("virtual_chassis_id", nil)
+	}
+
+	if res.GetPayload().Status != nil {
+		d.Set("status", res.GetPayload().Status.Value)
+	} else {
+		d.Set("status", nil)
+	}
+
+	if res.GetPayload().AssetTag != nil {
+		d.Set("asset_tag", res.GetPayload().AssetTag)
+	}
+
+	if res.GetPayload().Face != nil {
+		d.Set("face", res.GetPayload().Face.Value)
+	} else {
+		d.Set("face", nil)
+	}
+
+	d.Set("position_id", res.GetPayload().Position)
+
+	d.Set("vc_position_id", res.GetPayload().VcPosition)
+
+	d.Set("vc_priority_id", res.GetPayload().VcPriority)
+
 	d.Set("comments", res.GetPayload().Comments)
 
 	d.Set("serial", res.GetPayload().Serial)
+
+	d.Set("custom_fields", res.GetPayload().CustomFields)
 
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return diags
@@ -270,6 +439,64 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 			serial = serialValue.(string)
 		}
 		data.Serial = serial
+	}
+
+	if d.HasChange("status") {
+		status := d.Get("status").(string)
+		data.Status = status
+	}
+
+	if d.HasChange("asset_tag") {
+		assetTag := d.Get("asset_tag").(string)
+		data.AssetTag = &assetTag
+	}
+
+	if d.HasChange("cluster_id") {
+		clusterID := int64(d.Get("cluster_id").(int))
+		data.Cluster = &clusterID
+	}
+
+	if d.HasChange("face") {
+		face := d.Get("face").(string)
+		data.Face = &face
+	}
+
+	if d.HasChange("parent_device_id") {
+		data.ParentDevice.ID = int64(d.Get("parent_device_id").(int))
+	}
+
+	if d.HasChange("platform_id") {
+		platformID := int64(d.Get("platform_id").(int))
+		data.Platform = &platformID
+	}
+
+	if d.HasChange("position_id") {
+		positionID := int64(d.Get("parent_device_id").(int))
+		data.Position = &positionID
+	}
+
+	if d.HasChange("rack_id") {
+		rackID := int64(d.Get("rack_id").(int))
+		data.Rack = &rackID
+	}
+
+	if d.HasChange("vc_position_id") {
+		vcPositionID := int64(d.Get("vc_position_id").(int))
+		data.VcPosition = &vcPositionID
+	}
+
+	if d.HasChange("vc_priority_id") {
+		vcPriorityID := int64(d.Get("vc_priority_id").(int))
+		data.VcPriority = &vcPriorityID
+	}
+
+	if d.HasChange("virtual_chassis_id") {
+		vcID := int64(d.Get("virtual_chassis_id").(int))
+		data.VirtualChassis = &vcID
+	}
+
+	if d.HasChange("custom_fields") {
+		data.CustomFields = d.Get("custom_fields").(map[string]interface{})
 	}
 
 	params := dcim.NewDcimDevicesUpdateParams().WithID(id).WithData(&data)
