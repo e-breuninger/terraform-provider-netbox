@@ -8,7 +8,7 @@ require (
 	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220810141406-61d0056de5b7
 	github.com/go-openapi/runtime v0.24.1
 	github.com/goware/urlx v0.3.2
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.22.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.23.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf
@@ -38,7 +38,7 @@ require (
 	github.com/go-openapi/validate v0.21.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
