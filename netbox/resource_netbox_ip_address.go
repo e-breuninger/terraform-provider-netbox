@@ -17,6 +17,12 @@ func resourceNetboxIPAddress() *schema.Resource {
 		Update: resourceNetboxIPAddressUpdate,
 		Delete: resourceNetboxIPAddressDelete,
 
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#ip-addresses):
+
+> An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
+>
+> Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchy.`,
+
 		Schema: map[string]*schema.Schema{
 			"ip_address": &schema.Schema{
 				Type:         schema.TypeString,
@@ -44,13 +50,15 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+			tagsKey: tagsSchema,
+			"description": {
+				Type:     schema.TypeString,
 				Optional: true,
-				Set:      schema.HashString,
+			},
+			"role": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}, false),
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -66,12 +74,14 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	ipAddress := d.Get("ip_address").(string)
 	data.Address = &ipAddress
 	data.Status = d.Get("status").(string)
+	data.Description = d.Get("description").(string)
+	data.Role = d.Get("role").(string)
 
 	if dnsName, ok := d.GetOk("dns_name"); ok {
 		data.DNSName = dnsName.(string)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamIPAddressesCreateParams().WithData(&data)
 
@@ -102,8 +112,8 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if res.GetPayload().AssignedObject != nil {
-		d.Set("interface_id", res.GetPayload().AssignedObject.ID)
+	if res.GetPayload().AssignedObjectID != nil {
+		d.Set("interface_id", res.GetPayload().AssignedObjectID)
 	} else {
 		d.Set("interface_id", nil)
 	}
@@ -124,13 +134,21 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("dns_name", res.GetPayload().DNSName)
 	}
 
+	if res.GetPayload().Role != nil {
+		d.Set("role", res.GetPayload().Role.Value)
+	} else {
+		d.Set("role", nil)
+	}
+
 	d.Set("ip_address", res.GetPayload().Address)
+	d.Set("description", res.GetPayload().Description)
 	d.Set("status", res.GetPayload().Status.Value)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
 func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
+
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
@@ -138,6 +156,15 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 
 	ipAddress := d.Get("ip_address").(string)
 	status := d.Get("status").(string)
+
+	descriptionValue, ok := d.GetOk("description")
+	if ok {
+		description := descriptionValue.(string)
+		data.Description = description
+	} else {
+		description := " "
+		data.Description = description
+	}
 
 	data.Status = status
 	data.Address = &ipAddress
@@ -165,7 +192,11 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	if role, ok := d.GetOk("role"); ok {
+		data.Role = role.(string)
+	}
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 

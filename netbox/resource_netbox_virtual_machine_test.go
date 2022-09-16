@@ -84,7 +84,8 @@ resource "netbox_virtual_machine" "test" {
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
-  vcpus = "4"
+  vcpus = 4
+  status = "active"
   tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -98,6 +99,7 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName+"a"),
 				),
@@ -113,7 +115,7 @@ resource "netbox_virtual_machine" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", ""),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "0"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "0"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "0"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", ""),
@@ -142,12 +144,12 @@ func TestAccNetboxVirtualMachine_fractionalVcpu(t *testing.T) {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
-  vcpus = "2.50"
+  vcpus = 2.50
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "2.50"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "2.5"),
 				),
 			},
 			{
@@ -155,12 +157,12 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
-  vcpus = "4"
+  vcpus = 4
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"), // netbox will return "4.00", but we parse it to improve usability
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
 				),
 			},
 			{
@@ -243,6 +245,33 @@ resource "netbox_virtual_machine" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxVirtualMachine_customFields(t *testing.T) {
+	testSlug := "vm_cf"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "custom_field"
+	type          = "text"
+	content_types = ["virtualization.virtualmachine"]
+}
+resource "netbox_virtual_machine" "test" {
+  name          = "%[1]s"
+  cluster_id    = netbox_cluster.test.id
+  custom_fields = {"${netbox_custom_field.test.name}" = "76"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "custom_fields.custom_field", "76"),
 				),
 			},
 		},

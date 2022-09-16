@@ -15,6 +15,11 @@ import (
 
 func testAccNetboxInterfaceFullDependencies(testName string) string {
 	return fmt.Sprintf(`
+
+resource "netbox_tag" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
 }
@@ -29,26 +34,110 @@ resource "netbox_virtual_machine" "test" {
   cluster_id = netbox_cluster.test.id
 }
 
-`, testName)
+resource "netbox_vlan" "test1" {
+  name = "%[1]s_vlan1"
+  vid = 1001
+  tags = []
+}
+
+resource "netbox_vlan" "test2" {
+  name = "%[1]s_vlan2"
+  vid = 1002
+  tags = []
+}`, testName)
+}
+
+func testAccNetboxInterface_basic(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_interface" "test" {
+  name = "%s"
+  virtual_machine_id = netbox_virtual_machine.test.id
+  tags = ["%[1]s"]
+}`, testName)
+}
+
+func testAccNetboxInterface_opts(testName string, testMac string) string {
+	return fmt.Sprintf(`
+resource "netbox_interface" "test" {
+  name = "%[1]s"
+  description = "%[1]s"
+  enabled = true
+  mac_address = "%[2]s"
+  mtu = 1440
+  virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName, testMac)
+}
+
+func testAccNetboxInterface_vlans(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_interface" "test1" {
+  name = "%[1]s_1"
+  mode = "access"
+  untagged_vlan = netbox_vlan.test1.id
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+
+resource "netbox_interface" "test2" {
+  name = "%[1]s_2"
+  mode = "tagged"
+  tagged_vlans = [netbox_vlan.test2.id]
+  untagged_vlan = netbox_vlan.test1.id
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+
+resource "netbox_interface" "test3" {
+  name = "%[1]s_3"
+  mode = "tagged-all"
+  tagged_vlans = [netbox_vlan.test1.id, netbox_vlan.test2.id]
+  virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName)
 }
 
 func TestAccNetboxInterface_basic(t *testing.T) {
-
 	testSlug := "iface_basic"
 	testName := testAccGetTestName(testSlug)
+	setUp := testAccNetboxInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxInterfaceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_interface" "test" {
-  name = "%s"
-  virtual_machine_id = netbox_virtual_machine.test.id
-}`, testName),
+				Config: setUp + testAccNetboxInterface_basic(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "tags.0", testName),
+				),
+			},
+			{
+				ResourceName:      "netbox_interface.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxInterface_opts(t *testing.T) {
+	testSlug := "iface_mac"
+	testMac := "00:01:02:03:04:05"
+	testName := testAccGetTestName(testSlug)
+	setUp := testAccNetboxInterfaceFullDependencies(testName)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: setUp + testAccNetboxInterface_opts(testName, testMac),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_interface.test", "description", testName),
+					resource.TestCheckResourceAttr("netbox_interface.test", "enabled", "true"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "mtu", "1440"),
 					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
 				),
 			},
@@ -61,31 +150,39 @@ resource "netbox_interface" "test" {
 	})
 }
 
-func TestAccNetboxInterface_mac(t *testing.T) {
-
-	testSlug := "iface_mac"
-	testMac := "00:01:02:03:04:05"
+func TestAccNetboxInterface_vlans(t *testing.T) {
+	testSlug := "iface_vlan"
 	testName := testAccGetTestName(testSlug)
+	setUp := testAccNetboxInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxInterfaceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_interface" "test" {
-  name = "%[1]s"
-  virtual_machine_id = netbox_virtual_machine.test.id
-  mac_address = "%[2]s"
-}`, testName, testMac),
+				Config: setUp + testAccNetboxInterface_vlans(testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_interface.test1", "mode", "access"),
+					resource.TestCheckResourceAttr("netbox_interface.test2", "mode", "tagged"),
+					resource.TestCheckResourceAttr("netbox_interface.test3", "mode", "tagged-all"),
+					resource.TestCheckResourceAttrPair("netbox_interface.test1", "untagged_vlan", "netbox_vlan.test1", "id"),
+					resource.TestCheckResourceAttrPair("netbox_interface.test2", "untagged_vlan", "netbox_vlan.test1", "id"),
+					resource.TestCheckResourceAttrPair("netbox_interface.test2", "tagged_vlans.0", "netbox_vlan.test2", "id"),
+					resource.TestCheckResourceAttr("netbox_interface.test3", "tagged_vlans.#", "2"),
 				),
 			},
 			{
-				ResourceName:      "netbox_interface.test",
+				ResourceName:      "netbox_interface.test1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_interface.test2",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_interface.test3",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

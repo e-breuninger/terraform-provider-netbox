@@ -15,7 +15,8 @@ import (
 
 func dataSourceNetboxInterfaces() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxInterfaceRead,
+		Read:        dataSourceNetboxInterfaceRead,
+		Description: `:meta:subcategory:Virtualization:`,
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:     schema.TypeSet,

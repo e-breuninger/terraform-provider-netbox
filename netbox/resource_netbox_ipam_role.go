@@ -17,6 +17,10 @@ func resourceNetboxIpamRole() *schema.Resource {
 		Update: resourceNetboxIpamRoleUpdate,
 		Delete: resourceNetboxIpamRoleDelete,
 
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#prefixvlan-roles):
+
+> A role indicates the function of a prefix or VLAN. For example, you might define Data, Voice, and Security roles. Generally, a prefix will be assigned the same functional role as the VLAN to which it is assigned (if any).`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -64,6 +68,7 @@ func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Weight = &weight
 	data.Description = description
+	data.Tags = []*models.NestedTag{}
 
 	params := ipam.NewIpamRolesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamRolesCreate(params, nil)
@@ -132,6 +137,7 @@ func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Weight = &weight
 	data.Description = description
+	data.Tags = []*models.NestedTag{}
 
 	params := ipam.NewIpamRolesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamRolesUpdate(params, nil)

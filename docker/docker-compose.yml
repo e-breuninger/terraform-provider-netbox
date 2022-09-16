@@ -9,7 +9,7 @@ services:
   redis:
     image: redis:6-alpine
   netbox:
-    image: netboxcommunity/netbox:${NETBOX_VERSION-latest}
+    image: netboxcommunity/netbox:${NETBOX_VERSION}
     depends_on:
       - postgres
       - redis
@@ -33,4 +33,18 @@ services:
       - SUPERUSER_NAME=admin
       - SUPERUSER_EMAIL=admin@example.com
       - SUPERUSER_PASSWORD=admin
-      - SUPERUSER_API_TOKEN=0123456789abcdef0123456789abcdef01234567
+      - SUPERUSER_API_TOKEN=${NETBOX_API_TOKEN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/metrics"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 5s
+
+  wait:
+    build:
+      context: .
+      dockerfile: Dockerfile-wait
+    depends_on:
+      - netbox
+    command: wait-for netbox:8080 --timeout 240 -- echo "Netbox is up and running"
