@@ -10,6 +10,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const tagsKey = "tags"
+
+var tagsSchema = &schema.Schema{
+	Type: schema.TypeSet,
+	Elem: &schema.Schema{
+		Type: schema.TypeString,
+	},
+	Optional: true,
+	Set:      schema.HashString,
+}
+
 func getNestedTagListFromResourceDataSet(client *client.NetBoxAPI, d interface{}) ([]*models.NestedTag, diag.Diagnostics) {
 	var diags diag.Diagnostics
 

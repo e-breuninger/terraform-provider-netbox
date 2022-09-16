@@ -7,6 +7,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxManufacturer() *schema.Resource {
@@ -16,24 +17,24 @@ func resourceNetboxManufacturer() *schema.Resource {
 		Update: resourceNetboxManufacturerUpdate,
 		Delete: resourceNetboxManufacturerDelete,
 
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/device-types/#manufacturers):
+
+> A manufacturer represents the "make" of a device; e.g. Cisco or Dell. Each device type must be assigned to a manufacturer. (Inventory items and platforms may also be associated with manufacturers.) Each manufacturer must have a unique name and may have a description assigned to it.`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"slug": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"description": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			State: schema.ImportStatePassthrough,
 		},
 	}
 }
@@ -41,29 +42,25 @@ func resourceNetboxManufacturer() *schema.Resource {
 func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
+	data := models.Manufacturer{}
+
 	name := d.Get("name").(string)
+	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	var slug string
-	// Default slug to name attribute if not given
+	// Default slug to name if not given
 	if !slugOk {
-		slug = name
+		data.Slug = strToPtr(name)
 	} else {
-		slug = slugValue.(string)
+		data.Slug = strToPtr(slugValue.(string))
 	}
 
-	description := d.Get("description").(string)
-	params := dcim.NewDcimManufacturersCreateParams().WithData(
-		&models.Manufacturer{
-			Name:        &name,
-			Slug:        &slug,
-			Description: description,
-		},
-	)
+	data.Tags = []*models.NestedTag{}
+
+	params := dcim.NewDcimManufacturersCreateParams().WithData(&data)
 
 	res, err := api.Dcim.DcimManufacturersCreate(params, nil)
 	if err != nil {
-		//return errors.New(getTextFromError(err))
 		return err
 	}
 
@@ -78,6 +75,7 @@ func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error
 	params := dcim.NewDcimManufacturersReadParams().WithID(id)
 
 	res, err := api.Dcim.DcimManufacturersRead(params, nil)
+
 	if err != nil {
 		errorcode := err.(*dcim.DcimManufacturersReadDefault).Code()
 		if errorcode == 404 {
@@ -90,7 +88,7 @@ func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
-	d.Set("description", res.GetPayload().Description)
+
 	return nil
 }
 
@@ -101,24 +99,21 @@ func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) err
 	data := models.Manufacturer{}
 
 	name := d.Get("name").(string)
-	description := d.Get("description").(string)
+	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	var slug string
 	// Default slug to name if not given
 	if !slugOk {
-		slug = name
+		data.Slug = strToPtr(name)
 	} else {
-		slug = slugValue.(string)
+		data.Slug = strToPtr(slugValue.(string))
 	}
 
-	data.Slug = &slug
-	data.Name = &name
-	data.Description = description
+	data.Tags = []*models.NestedTag{}
 
-	params := dcim.NewDcimManufacturersUpdateParams().WithID(id).WithData(&data)
+	params := dcim.NewDcimManufacturersPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimManufacturersUpdate(params, nil)
+	_, err := api.Dcim.DcimManufacturersPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

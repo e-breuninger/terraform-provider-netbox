@@ -13,7 +13,7 @@ import (
 
 func TestAccNetboxDeviceType_basic(t *testing.T) {
 
-	testSlug := "dvcrl_basic"
+	testSlug := "device_type"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -23,48 +23,27 @@ func TestAccNetboxDeviceType_basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_manufacturer" "test" {
-  name = "%s"
+  name = "%[1]s"
 }
+
 resource "netbox_device_type" "test" {
+  model = "%[1]s"
+  slug = "%[2]s"
+  part_number = "%[2]s"
   manufacturer_id = netbox_manufacturer.test.id
-  model = "%s"
-  slug = "%s"
-}`, testName, testName, randomSlug),
+}`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_type.test", "model", testName),
 					resource.TestCheckResourceAttr("netbox_device_type.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "part_number", randomSlug),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "part_number", randomSlug),
+					resource.TestCheckResourceAttrPair("netbox_device_type.test", "manufacturer_id", "netbox_manufacturer.test", "id"),
 				),
 			},
 			{
 				ResourceName:      "netbox_device_type.test",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccNetboxDeviceType_defaultSlug(t *testing.T) {
-
-	testSlug := "device_type_defSlug"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-resource "netbox_manufacturer" "test" {
-  name = "%s"
-}
-resource "netbox_device_type" "test" {
-  manufacturer_id = netbox_manufacturer.test.id
-  model = "%s"
-}`, testName, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_device_type.test", "model", testName),
-					resource.TestCheckResourceAttr("netbox_device_type.test", "slug", testName),
-				),
 			},
 		},
 	})
@@ -85,14 +64,14 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, device_type := range res.GetPayload().Results {
-				if strings.HasPrefix(*device_type.Model, testPrefix) {
-					deleteParams := dcim.NewDcimDeviceTypesDeleteParams().WithID(device_type.ID)
+			for _, devicetype := range res.GetPayload().Results {
+				if strings.HasPrefix(*devicetype.Model, testPrefix) {
+					deleteParams := dcim.NewDcimDeviceTypesDeleteParams().WithID(devicetype.ID)
 					_, err := api.Dcim.DcimDeviceTypesDelete(deleteParams, nil)
 					if err != nil {
 						return err
 					}
-					log.Print("[DEBUG] Deleted a device_type")
+					log.Print("[DEBUG] Deleted a device type")
 				}
 			}
 			return nil

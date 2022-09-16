@@ -11,7 +11,8 @@ import (
 
 func dataSourceNetboxTag() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxTagRead,
+		Read:        dataSourceNetboxTagRead,
+		Description: `:meta:subcategory:Extras:`,
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -20,6 +21,10 @@ func dataSourceNetboxTag() *schema.Resource {
 			"slug": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
@@ -50,5 +55,6 @@ func dataSourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
+	d.Set("description", result.Description)
 	return nil
 }

@@ -17,6 +17,10 @@ func resourceNetboxPlatform() *schema.Resource {
 		Update: resourceNetboxPlatformUpdate,
 		Delete: resourceNetboxPlatformDelete,
 
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#platforms):
+
+> A platform defines the type of software running on a device or virtual machine. This can be helpful to model when it is necessary to distinguish between different versions or feature sets. Note that two devices of the same type may be assigned different platforms: For example, one Juniper MX240 might run Junos 14 while another runs Junos 15.`,
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -53,6 +57,7 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 		&models.WritablePlatform{
 			Name: &name,
 			Slug: &slug,
+			Tags: []*models.NestedTag{},
 		},
 	)
 
@@ -108,6 +113,7 @@ func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Slug = &slug
 	data.Name = &name
+	data.Tags = []*models.NestedTag{}
 
 	params := dcim.NewDcimPlatformsPartialUpdateParams().WithID(id).WithData(&data)
 

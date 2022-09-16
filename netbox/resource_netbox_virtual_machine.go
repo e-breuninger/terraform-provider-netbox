@@ -9,6 +9,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxVirtualMachine() *schema.Resource {
@@ -17,6 +18,12 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 		ReadContext:   resourceNetboxVirtualMachineRead,
 		UpdateContext: resourceNetboxVirtualMachineUpdate,
 		DeleteContext: resourceNetboxVirtualMachineDelete,
+
+		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#virtual-machines):
+
+> A virtual machine represents a virtual compute instance hosted within a cluster. Each VM must be assigned to exactly one cluster.
+>
+> Like devices, each VM can be assigned a platform and/or functional role`,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -52,21 +59,21 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Optional: true,
 			},
 			"vcpus": &schema.Schema{
-				Type:     schema.TypeString,
+				Type:     schema.TypeFloat,
 				Optional: true,
 			},
 			"disk_size_gb": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
+			"status": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "decommissioning"}, false),
+				Default:      "active",
+				Description:  "Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`",
 			},
+			tagsKey: tagsSchema,
 			"primary_ipv4": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -75,16 +82,18 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"custom_fields": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceNetboxVirtualMachineResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceNetboxVirtualMachineStateUpgradeV0,
+				Version: 0,
+			},
 		},
 	}
 }
@@ -105,7 +114,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	vcpusValue, ok := d.GetOk("vcpus")
 	if ok {
-		vcpus := vcpusValue.(string)
+		vcpus := vcpusValue.(float64)
 		data.Vcpus = &vcpus
 	}
 
@@ -139,12 +148,14 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Role = &roleID
 	}
 
-	customFields, ok := d.GetOk("custom_fields")
-	if ok {
-		data.CustomFields = customFields.(map[string]interface{})
-	}
+	data.Status = d.Get("status").(string)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
 
 	params := virtualization.NewVirtualizationVirtualMachinesCreateParams().WithData(&data)
 
@@ -178,11 +189,13 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("cluster_id", res.GetPayload().Cluster.ID)
+	vm := res.GetPayload()
 
-	if res.GetPayload().PrimaryIp4 != nil {
-		d.Set("primary_ipv4", res.GetPayload().PrimaryIp4.ID)
+	d.Set("name", vm.Name)
+	d.Set("cluster_id", vm.Cluster.ID)
+
+	if vm.PrimaryIp4 != nil {
+		d.Set("primary_ipv4", vm.PrimaryIp4.ID)
 	} else {
 		d.Set("primary_ipv4", nil)
 	}
@@ -195,46 +208,53 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 
 	if res.GetPayload().Tenant != nil {
 		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	}
+
+	if vm.Tenant != nil {
+		d.Set("tenant_id", vm.Tenant.ID)
 	} else {
 		d.Set("tenant_id", nil)
 	}
 
-	if res.GetPayload().Platform != nil {
-		d.Set("platform_id", res.GetPayload().Platform.ID)
+	if vm.Platform != nil {
+		d.Set("platform_id", vm.Platform.ID)
 	} else {
 		d.Set("platform_id", nil)
 	}
 
-	if res.GetPayload().Role != nil {
-		d.Set("role_id", res.GetPayload().Role.ID)
+	if vm.Role != nil {
+		d.Set("role_id", vm.Role.ID)
 	} else {
 		d.Set("role_id", nil)
 	}
 
-	if res.GetPayload().Site != nil {
-		d.Set("site_id", res.GetPayload().Site.ID)
+	if vm.Site != nil {
+		d.Set("site_id", vm.Site.ID)
 	} else {
 		d.Set("site_id", nil)
 	}
 
-	d.Set("comments", res.GetPayload().Comments)
-	vcpus := res.GetPayload().Vcpus
+	d.Set("comments", vm.Comments)
+	vcpus := vm.Vcpus
 	if vcpus != nil {
-		// vcpus comes as string with double digit precision
-		// for usability, we trim the .00 part if its a .00 value
-		// this way, we do not get configuration drift if e.g. vcpus = "4" is set
-		if (*vcpus)[len(*vcpus)-3:] == ".00" {
-			d.Set("vcpus", (*vcpus)[0:len(*vcpus)-3])
-		} else {
-			d.Set("vcpus", res.GetPayload().Vcpus)
-		}
+		d.Set("vcpus", vm.Vcpus)
 	} else {
 		d.Set("vcpus", res.GetPayload().Vcpus)
 	}
-	d.Set("memory_mb", res.GetPayload().Memory)
-	d.Set("disk_size_gb", res.GetPayload().Disk)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
-	d.Set("custom_fields", res.GetPayload().CustomFields)
+	d.Set("memory_mb", vm.Memory)
+	d.Set("disk_size_gb", vm.Disk)
+	if vm.Status != nil {
+		d.Set("status", vm.Status.Value)
+	} else {
+		d.Set("status", nil)
+	}
+	d.Set(tagsKey, getTagListFromNestedTagList(vm.Tags))
+
+	cf := getCustomFields(vm.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+
 	return diags
 }
 
@@ -276,7 +296,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 
 	vcpusValue, ok := d.GetOk("vcpus")
 	if ok {
-		vcpus := vcpusValue.(string)
+		vcpus := vcpusValue.(float64)
 		data.Vcpus = &vcpus
 	}
 
@@ -312,7 +332,12 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.CustomFields = customFields.(map[string]interface{})
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = cf
+	}
 
 	if d.HasChanges("comments") {
 		// check if comment is set
@@ -326,6 +351,12 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		}
 		data.Comments = comments
 	}
+
+	//if d.HasChanges("status") {
+	if status, ok := d.GetOk("status"); ok {
+		data.Status = status.(string)
+	}
+	//}
 
 	params := virtualization.NewVirtualizationVirtualMachinesUpdateParams().WithID(id).WithData(&data)
 

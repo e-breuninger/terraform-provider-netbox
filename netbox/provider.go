@@ -1,14 +1,58 @@
 package netbox
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"golang.org/x/exp/slices"
 )
+
+// This makes the description contain the default value, particularly useful for the docs
+// From https://github.com/hashicorp/terraform-plugin-docs/issues/65#issuecomment-1152842370
+func init() {
+	schema.DescriptionKind = schema.StringMarkdown
+
+	schema.SchemaDescriptionBuilder = func(s *schema.Schema) string {
+		desc := s.Description
+		desc = strings.TrimSpace(desc)
+
+		if !bytes.HasSuffix([]byte(s.Description), []byte(".")) && s.Description != "" {
+			desc += "."
+		}
+
+		if s.AtLeastOneOf != nil && len(s.AtLeastOneOf) > 0 {
+			atLeastOneOf := make([]string, len(s.AtLeastOneOf))
+			for i, l := range s.AtLeastOneOf {
+				atLeastOneOf[i] = fmt.Sprintf("`%s`", l)
+			}
+			desc += fmt.Sprintf(" At least one of %s must be given.", joinStringWithFinalConjunction(atLeastOneOf, ", ", "or"))
+		}
+
+		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
+			conflicts := make([]string, len(s.ConflictsWith))
+			for i, c := range s.ConflictsWith {
+				conflicts[i] = fmt.Sprintf("`%s`", c)
+			}
+			desc += fmt.Sprintf(" Conflicts with %s.", joinStringWithFinalConjunction(conflicts, ", ", "and"))
+		}
+
+		if s.Default != nil {
+			if s.Default == "" {
+				desc += " Defaults to `\"\"`."
+			} else {
+				desc += fmt.Sprintf(" Defaults to `%v`.", s.Default)
+			}
+		}
+
+		return strings.TrimSpace(desc)
+	}
+}
 
 // Provider returns a schema.Provider for Netbox.
 func Provider() *schema.Provider {
@@ -39,40 +83,80 @@ func Provider() *schema.Provider {
 			"netbox_site":                 resourceNetboxSite(),
 			"netbox_vlan":                 resourceNetboxVlan(),
 			"netbox_ipam_role":            resourceNetboxIpamRole(),
+			"netbox_ip_range":             resourceNetboxIpRange(),
+			"netbox_region":               resourceNetboxRegion(),
+			"netbox_aggregate":            resourceNetboxAggregate(),
+			"netbox_rir":                  resourceNetboxRir(),
+			"netbox_circuit":              resourceNetboxCircuit(),
+			"netbox_circuit_type":         resourceNetboxCircuitType(),
+			"netbox_circuit_provider":     resourceNetboxCircuitProvider(),
+			"netbox_circuit_termination":  resourceNetboxCircuitTermination(),
+			"netbox_user":                 resourceNetboxUser(),
+			"netbox_token":                resourceNetboxToken(),
+			"netbox_custom_field":         resourceCustomField(),
+			"netbox_asn":                  resourceNetboxAsn(),
+			"netbox_location":             resourceNetboxLocation(),
+			"netbox_site_group":           resourceNetboxSiteGroup(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_cluster":          dataSourceNetboxCluster(),
 			"netbox_cluster_group":    dataSourceNetboxClusterGroup(),
+			"netbox_cluster_type":     dataSourceNetboxClusterType(),
 			"netbox_tenant":           dataSourceNetboxTenant(),
+			"netbox_tenants":          dataSourceNetboxTenants(),
 			"netbox_tenant_group":     dataSourceNetboxTenantGroup(),
 			"netbox_vrf":              dataSourceNetboxVrf(),
 			"netbox_platform":         dataSourceNetboxPlatform(),
 			"netbox_prefix":           dataSourceNetboxPrefix(),
+			"netbox_devices":          dataSourceNetboxDevices(),
 			"netbox_device_role":      dataSourceNetboxDeviceRole(),
 			"netbox_device_type":      dataSourceNetboxDeviceType(),
 			"netbox_tag":              dataSourceNetboxTag(),
 			"netbox_site":             dataSourceNetboxSite(),
 			"netbox_virtual_machines": dataSourceNetboxVirtualMachine(),
 			"netbox_vm_interfaces":    dataSourceNetboxVMInterfaces(),
+			"netbox_ip_addresses":     dataSourceNetboxIpAddresses(),
+			"netbox_ip_range":         dataSourceNetboxIpRange(),
+			"netbox_region":           dataSourceNetboxRegion(),
+			"netbox_vlan":             dataSourceNetboxVlan(),
+			"netbox_site_group":       dataSourceNetboxSiteGroup(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_SERVER_URL", nil),
-				Description: "Location of Netbox server including scheme and optional port",
+				Description: "Location of Netbox server including scheme (http or https) and optional port, but without trailing slash. Can be set via the `NETBOX_SERVER_URL` environment variable.",
 			},
 			"api_token": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_API_TOKEN", nil),
-				Description: "Netbox API authentication token",
+				Description: "Netbox API authentication token. Can be set via the `NETBOX_API_TOKEN` environment variable.",
 			},
 			"allow_insecure_https": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_ALLOW_INSECURE_HTTPS", false),
-				Description: "Flag to set whether to allow https with invalid certificates",
+				Description: "Flag to set whether to allow https with invalid certificates. Can be set via the `NETBOX_ALLOW_INSECURE_HTTPS` environment variable.",
+			},
+			"headers": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_HEADERS", map[string]interface{}{}),
+				Description: "Set these header on all requests to Netbox. Can be set via the `NETBOX_HEADERS` environment variable.",
+			},
+			"skip_version_check": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_SKIP_VERSION_CHECK", false),
+				Description: "If true, do not try to determine the running Netbox version at provider startup. Disables warnings about possibly unsupported Netbox version. Also useful for local testing on terraform plans. Can be set via the `NETBOX_SKIP_VERSION_CHECK` environment variable.",
+			},
+			"request_timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_REQUEST_TIMEOUT", 10),
+				Description: "Netbox API HTTP request timeout in seconds. Can be set via the `NETBOX_REQUEST_TIMEOUT` environment variable.",
 			},
 		},
 		ConfigureContextFunc: providerConfigure,
@@ -88,6 +172,8 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		ServerURL:          data.Get("server_url").(string),
 		APIToken:           data.Get("api_token").(string),
 		AllowInsecureHttps: data.Get("allow_insecure_https").(bool),
+		Headers:            data.Get("headers").(map[string]interface{}),
+		RequestTimeout:     data.Get("request_timeout").(int),
 	}
 
 	netboxClient, clientError := config.Client()
@@ -95,23 +181,31 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		return nil, diag.FromErr(clientError)
 	}
 
-	req := status.NewStatusListParams()
-	res, err := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
-	if err != nil {
-		return nil, diag.FromErr(err)
-	}
+	// Unless explicitly switched off, use the client to retrieve the Netbox version
+	// so we can determine compatibility of the provider with the used Netbox
+	skipVersionCheck := data.Get("skip_version_check").(bool)
 
-	netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"]
+	if !skipVersionCheck {
+		req := status.NewStatusListParams()
+		res, err := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
 
-	supportedVersion := "2.11.12"
+		if err != nil {
+			return nil, diag.FromErr(err)
+		}
 
-	if netboxVersion != supportedVersion {
+		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  "Possibly unsupported Netbox version",
-			Detail:   fmt.Sprintf("This provider was tested against Netbox v%s. Your Netbox version is v%v. Unexpected errors may occur.", supportedVersion, netboxVersion),
-		})
+		supportedVersions := []string{"3.2.9", "3.2.8", "3.2.7", "3.2.6", "3.2.5", "3.2.4", "3.2.3", "3.2.2", "3.2.1", "3.2.0"}
+
+		if !slices.Contains(supportedVersions, netboxVersion) {
+
+			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Possibly unsupported Netbox version",
+				Detail:   fmt.Sprintf("Your Netbox version is v%v. The provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", netboxVersion, strings.Join(supportedVersions, ", ")),
+			})
+		}
 	}
 
 	return netboxClient, diags

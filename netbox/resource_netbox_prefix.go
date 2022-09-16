@@ -17,18 +17,24 @@ func resourceNetboxPrefix() *schema.Resource {
 		Update: resourceNetboxPrefixUpdate,
 		Delete: resourceNetboxPrefixDelete,
 
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#prefixes):
+
+> A prefix is an IPv4 or IPv6 network and mask expressed in CIDR notation (e.g. 192.0.2.0/24). A prefix entails only the "network portion" of an IP address: All bits in the address not covered by the mask must be zero. (In other words, a prefix cannot be a specific IP address.)
+>
+> Prefixes are automatically organized by their parent aggregates. Additionally, each prefix can be assigned to a particular site and virtual routing and forwarding instance (VRF). Each VRF represents a separate IP space or routing table. All prefixes not assigned to a VRF are considered to be in the "global" table.`,
+
 		Schema: map[string]*schema.Schema{
-			"prefix": &schema.Schema{
+			"prefix": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsCIDR,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "container"}, false),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -36,34 +42,31 @@ func resourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"vrf_id": &schema.Schema{
+			"mark_utilized": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"vrf_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"site_id": &schema.Schema{
+			"site_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vlan_id": &schema.Schema{
+			"vlan_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"role_id": &schema.Schema{
+			"role_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -78,6 +81,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 	status := d.Get("status").(string)
 	description := d.Get("description").(string)
 	is_pool := d.Get("is_pool").(bool)
+	mark_utilized := d.Get("mark_utilized").(bool)
 
 	data.Prefix = &prefix
 	data.Status = status
@@ -85,7 +89,29 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 	data.Description = description
 	data.IsPool = is_pool
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.MarkUtilized = mark_utilized
+
+	if vrfID, ok := d.GetOk("vrf_id"); ok {
+		data.Vrf = int64ToPtr(int64(vrfID.(int)))
+	}
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
+
+	if siteID, ok := d.GetOk("site_id"); ok {
+		data.Site = int64ToPtr(int64(siteID.(int)))
+	}
+
+	if vlanID, ok := d.GetOk("vlan_id"); ok {
+		data.Vlan = int64ToPtr(int64(vlanID.(int)))
+	}
+
+	if roleID, ok := d.GetOk("role_id"); ok {
+		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamPrefixesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamPrefixesCreate(params, nil)
@@ -94,7 +120,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxPrefixUpdate(d, m)
+	return resourceNetboxPrefixRead(d, m)
 }
 
 func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
@@ -115,6 +141,7 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("description", res.GetPayload().Description)
 	d.Set("is_pool", res.GetPayload().IsPool)
+	d.Set("mark_utilized", res.GetPayload().MarkUtilized)
 	if res.GetPayload().Status != nil {
 		d.Set("status", res.GetPayload().Status.Value)
 	}
@@ -152,7 +179,7 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("role_id", nil)
 	}
 
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
 	return nil
@@ -166,12 +193,14 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 	status := d.Get("status").(string)
 	description := d.Get("description").(string)
 	is_pool := d.Get("is_pool").(bool)
+	mark_utilized := d.Get("mark_utilized").(bool)
 
 	data.Prefix = &prefix
 	data.Status = status
 
 	data.Description = description
 	data.IsPool = is_pool
+	data.MarkUtilized = mark_utilized
 
 	if vrfID, ok := d.GetOk("vrf_id"); ok {
 		data.Vrf = int64ToPtr(int64(vrfID.(int)))
@@ -193,7 +222,7 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamPrefixesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamPrefixesUpdate(params, nil)

@@ -81,7 +81,6 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 					models.InterfaceTypeValueNr16gfcDashSfpp,
 					models.InterfaceTypeValueNr32gfcDashSfp28,
 					models.InterfaceTypeValueNr64gfcDashQsfpp,
-					models.InterfaceTypeValueNr128gfcDashSfp28,
 					models.InterfaceTypeValueInfinibandDashSdr,
 					models.InterfaceTypeValueInfinibandDashDdr,
 					models.InterfaceTypeValueInfinibandDashQdr,

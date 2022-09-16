@@ -11,7 +11,8 @@ import (
 
 func dataSourceNetboxClusterGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetboxClusterGroupRead,
+		Read:        dataSourceNetboxClusterGroupRead,
+		Description: `:meta:subcategory:Virtualization:`,
 		Schema: map[string]*schema.Schema{
 			"cluster_group_id": &schema.Schema{
 				Type:     schema.TypeInt,

@@ -13,7 +13,7 @@ import (
 
 func TestAccNetboxManufacturer_basic(t *testing.T) {
 
-	testSlug := "manufacturer_basic"
+	testSlug := "manufacturer"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -25,40 +25,16 @@ func TestAccNetboxManufacturer_basic(t *testing.T) {
 resource "netbox_manufacturer" "test" {
   name = "%s"
   slug = "%s"
-  description = "112233"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_manufacturer.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_manufacturer.test", "slug", randomSlug),
-					resource.TestCheckResourceAttr("netbox_manufacturer.test", "description", "112233"),
 				),
 			},
 			{
 				ResourceName:      "netbox_manufacturer.test",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccNetboxManufacturer_defaultSlug(t *testing.T) {
-
-	testSlug := "manufacturer_defSlug"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-resource "netbox_manufacturer" "test" {
-  name = "%s"
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_manufacturer.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_manufacturer.test", "slug", testName),
-				),
 			},
 		},
 	})
@@ -79,14 +55,14 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, tag := range res.GetPayload().Results {
-				if strings.HasPrefix(*tag.Name, testPrefix) {
-					deleteParams := dcim.NewDcimManufacturersDeleteParams().WithID(tag.ID)
+			for _, manufacturer := range res.GetPayload().Results {
+				if strings.HasPrefix(*manufacturer.Name, testPrefix) {
+					deleteParams := dcim.NewDcimManufacturersDeleteParams().WithID(manufacturer.ID)
 					_, err := api.Dcim.DcimManufacturersDelete(deleteParams, nil)
 					if err != nil {
 						return err
 					}
-					log.Print("[DEBUG] Deleted a tag")
+					log.Print("[DEBUG] Deleted a device type")
 				}
 			}
 			return nil

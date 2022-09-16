@@ -7,6 +7,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxDeviceType() *schema.Resource {
@@ -16,41 +17,33 @@ func resourceNetboxDeviceType() *schema.Resource {
 		Update: resourceNetboxDeviceTypeUpdate,
 		Delete: resourceNetboxDeviceTypeDelete,
 
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/device-types/#device-types_1):
+
+> A device type represents a particular make and model of hardware that exists in the real world. Device types define the physical attributes of a device (rack height and depth) and its individual components (console, power, network interfaces, and so on).`,
+
 		Schema: map[string]*schema.Schema{
-			"manufacturer_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
-			},
-			"model": &schema.Schema{
+			"model": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringLenBetween(0, 30),
+			},
+			"manufacturer_id": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"part_number": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
-			"u_height": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  1,
-			},
-			"is_full_depth": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Set:      schema.HashString,
-			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			State: schema.ImportStatePassthrough,
 		},
 	}
 }
@@ -58,36 +51,34 @@ func resourceNetboxDeviceType() *schema.Resource {
 func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
-	manufacturer_id := int64(d.Get("manufacturer_id").(int))
-	model := d.Get("model").(string)
-	slugValue, slugOk := d.GetOk("slug")
-	var slug string
+	data := models.WritableDeviceType{}
 
+	model := d.Get("model").(string)
+	data.Model = &model
+
+	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to model if not given
 	if !slugOk {
-		slug = model
+		data.Slug = strToPtr(model)
 	} else {
-		slug = slugValue.(string)
+		data.Slug = strToPtr(slugValue.(string))
 	}
 
-	u_height := int64(d.Get("u_height").(int))
-	is_full_depth := d.Get("is_full_depth").(bool)
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	manufacturerIDValue, ok := d.GetOk("manufacturer_id")
+	if ok {
+		data.Manufacturer = int64ToPtr(int64(manufacturerIDValue.(int)))
+	}
 
-	params := dcim.NewDcimDeviceTypesCreateParams().WithData(
-		&models.WritableDeviceType{
-			Manufacturer: &manufacturer_id,
-			Model:        &model,
-			Slug:         &slug,
-			UHeight:      &u_height,
-			IsFullDepth:  is_full_depth,
-			Tags:         tags,
-		},
-	)
+	if partNo, ok := d.GetOk("part_number"); ok {
+		data.PartNumber = partNo.(string)
+	}
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
 
 	res, err := api.Dcim.DcimDeviceTypesCreate(params, nil)
 	if err != nil {
-		//return errors.New(getTextFromError(err))
 		return err
 	}
 
@@ -102,6 +93,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	params := dcim.NewDcimDeviceTypesReadParams().WithID(id)
 
 	res, err := api.Dcim.DcimDeviceTypesRead(params, nil)
+
 	if err != nil {
 		errorcode := err.(*dcim.DcimDeviceTypesReadDefault).Code()
 		if errorcode == 404 {
@@ -112,12 +104,13 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("manufacturer_id", res.GetPayload().Manufacturer.ID)
-	d.Set("model", res.GetPayload().Model)
-	d.Set("slug", res.GetPayload().Slug)
-	d.Set("u_height", res.GetPayload().UHeight)
-	d.Set("is_full_depth", res.GetPayload().IsFullDepth)
-	d.Set("tags", getTagListFromNestedTagList(res.GetPayload().Tags))
+	device_type := res.GetPayload()
+	d.Set("model", device_type.Model)
+	d.Set("slug", device_type.Slug)
+	d.Set("manufacturer_id", device_type.Manufacturer.ID)
+	d.Set("part_number", device_type.PartNumber)
+	d.Set(tagsKey, getTagListFromNestedTagList(device_type.Tags))
+
 	return nil
 }
 
@@ -127,27 +120,27 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableDeviceType{}
 
-	manufacturer_id := int64(d.Get("manufacturer_id").(int))
 	model := d.Get("model").(string)
-	u_height := int64(d.Get("u_height").(int))
-	is_full_depth := d.Get("is_full_depth").(bool)
+	data.Model = &model
 
 	slugValue, slugOk := d.GetOk("slug")
-	var slug string
-
 	// Default slug to model if not given
 	if !slugOk {
-		slug = model
+		data.Slug = strToPtr(model)
 	} else {
-		slug = slugValue.(string)
+		data.Slug = strToPtr(slugValue.(string))
 	}
 
-	data.Slug = &slug
-	data.Model = &model
-	data.Manufacturer = &manufacturer_id
-	data.UHeight = &u_height
-	data.IsFullDepth = is_full_depth
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	manufacturerIDValue, ok := d.GetOk("manufacturer_id")
+	if ok {
+		data.Manufacturer = int64ToPtr(int64(manufacturerIDValue.(int)))
+	}
+
+	if partNo, ok := d.GetOk("part_number"); ok {
+		data.PartNumber = partNo.(string)
+	}
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimDeviceTypesPartialUpdateParams().WithID(id).WithData(&data)
 

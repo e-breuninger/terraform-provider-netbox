@@ -16,19 +16,20 @@ func resourceNetboxVrf() *schema.Resource {
 		Update: resourceNetboxVrfUpdate,
 		Delete: resourceNetboxVrfDelete,
 
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#virtual-routing-and-forwarding-vrf):
+
+> A VRF object in NetBox represents a virtual routing and forwarding (VRF) domain. Each VRF is essentially a separate routing table. VRFs are commonly used to isolate customers or organizations from one another within a network, or to route overlapping address space (e.g. multiple instances of the 10.0.0.0/8 space). Each VRF may be assigned to a specific tenant to aid in organizing the available IP space by customer or internal user.`,
+
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tags": &schema.Schema{
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+			"tenant_id": {
+				Type:     schema.TypeInt,
 				Optional: true,
-				Set:      schema.HashString,
 			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -38,19 +39,22 @@ func resourceNetboxVrf() *schema.Resource {
 
 func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
+	data := models.WritableVRF{}
 
 	name := d.Get("name").(string)
+	tenant_id := int64(d.Get("tenant_id").(int))
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	data.Name = &name
+	if tenant_id != 0 {
+		data.Tenant = &tenant_id
+	}
 
-	params := ipam.NewIpamVrfsCreateParams().WithData(
-		&models.WritableVRF{
-			Name:          &name,
-			Tags:          tags,
-			ExportTargets: []int64{},
-			ImportTargets: []int64{},
-		},
-	)
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	data.ExportTargets = []int64{}
+	data.ImportTargets = []int64{}
+
+	params := ipam.NewIpamVrfsCreateParams().WithData(&data)
 
 	res, err := api.Ipam.IpamVrfsCreate(params, nil)
 	if err != nil {
@@ -79,6 +83,11 @@ func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("name", res.GetPayload().Name)
+	if res.GetPayload().Tenant != nil {
+		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	} else {
+		d.Set("tenant_id", nil)
+	}
 	return nil
 }
 
@@ -90,13 +99,16 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	data.Name = &name
 	data.Tags = tags
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
 
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
 	params := ipam.NewIpamVrfsPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Ipam.IpamVrfsPartialUpdate(params, nil)

@@ -51,6 +51,7 @@ resource "netbox_virtual_machine" "test" {
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
   vcpus = "4"
+  status = "planned"
 
   tags = [netbox_tag.test.name]
 }
@@ -104,6 +105,7 @@ resource "netbox_vm_primary_ip" "test_v4" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "planned"),
 				),
 			},
 		},
@@ -141,6 +143,7 @@ resource "netbox_vm_primary_ip" "test_v6" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "planned"),
 				),
 			},
 		},
