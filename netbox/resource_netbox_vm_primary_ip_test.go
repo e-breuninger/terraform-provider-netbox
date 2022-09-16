@@ -50,7 +50,7 @@ resource "netbox_virtual_machine" "test" {
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
-  vcpus = "4"
+  vcpus = 4
   status = "planned"
 
   tags = [netbox_tag.test.name]

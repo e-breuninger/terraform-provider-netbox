@@ -19,7 +19,7 @@ func TestAccNetboxIpAddressesDataSource_basic(t *testing.T) {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
 	ip_address = "%s"
-	interface_id = netbox_interface.test.id
+	interface_id = netbox_vm_interface.test.id
 	status = "active"
 	tags = [netbox_tag.test.name]
 	role = "anycast"
@@ -49,13 +49,13 @@ func TestAccNetboxIpAddressesDataSource_filter(t *testing.T) {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test_list_0" {
   ip_address = "%s"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_vm_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
 }
 resource "netbox_ip_address" "test_list_1" {
   ip_address = "%s"
-  interface_id = netbox_interface.test.id
+  interface_id = netbox_vm_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
 }
@@ -89,13 +89,13 @@ func TestAccNetboxIpAddressesDataSource_multiple(t *testing.T) {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test_list_0" {
 	ip_address = "%s"
-	interface_id = netbox_interface.test.id
+	interface_id = netbox_vm_interface.test.id
 	status = "active"
 	tags = [netbox_tag.test.name]
 }
 resource "netbox_ip_address" "test_list_1" {
 	ip_address = "%s"
-	interface_id = netbox_interface.test.id
+	interface_id = netbox_vm_interface.test.id
 	status = "active"
 	tags = [netbox_tag.test.name]
 }
@@ -105,7 +105,7 @@ data "netbox_ip_addresses" "test_list" {
 
 	filter {
 		name = "vm_interface_id"
-		value = netbox_interface.test.id
+		value = netbox_vm_interface.test.id
 	}
 }`, testIP_0, testIP_1),
 				Check: resource.ComposeTestCheckFunc(
@@ -131,14 +131,14 @@ func TestAccNetboxIpAddressesDataSource_flattenTenant(t *testing.T) {
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test_list_0" {
 	ip_address = "%s"
-	interface_id = netbox_interface.test.id
+	interface_id = netbox_vm_interface.test.id
 	status = "active"
 	tags = [netbox_tag.test.name]
 	tenant_id = netbox_tenant.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
 	ip_address = "%s"
-	interface_id = netbox_interface.test.id
+	interface_id = netbox_vm_interface.test.id
 	status = "active"
 	tags = [netbox_tag.test.name]
 	tenant_id = netbox_tenant.test.id
@@ -149,7 +149,7 @@ data "netbox_ip_addresses" "test_list" {
 
 	filter {
 		name = "vm_interface_id"
-		value = netbox_interface.test.id
+		value = netbox_vm_interface.test.id
 	}
 }`, testIP_0, testIP_1),
 				Check: resource.ComposeTestCheckFunc(

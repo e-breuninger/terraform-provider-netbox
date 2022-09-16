@@ -98,7 +98,7 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"role_id": {
+						"device_role_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -140,7 +140,7 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			case "region":
 				var regionString = v.(string)
 				params.Region = &regionString
-			case "role_id":
+			case "device_role_id":
 				var roleIdString = v.(string)
 				params.RoleID = &roleIdString
 			case "site_id":
@@ -215,7 +215,7 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			mapping["tenant_id"] = device.Tenant.ID
 		}
 		if device.DeviceRole != nil {
-			mapping["role_id"] = device.DeviceRole.ID
+			mapping["device_role_id"] = device.DeviceRole.ID
 		}
 		if device.Serial != "" {
 			mapping["serial"] = device.Serial

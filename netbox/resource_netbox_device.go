@@ -39,7 +39,7 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"role_id": &schema.Schema{
+			"device_role_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Required: true,
 			},
@@ -100,7 +100,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Location = &locationID
 	}
 
-	roleIDValue, ok := d.GetOk("role_id")
+	roleIDValue, ok := d.GetOk("device_role_id")
 	if ok {
 		roleID := int64(roleIDValue.(int))
 		data.DeviceRole = &roleID
@@ -171,9 +171,9 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 	}
 
 	if res.GetPayload().DeviceRole != nil {
-		d.Set("role_id", res.GetPayload().DeviceRole.ID)
+		d.Set("device_role_id", res.GetPayload().DeviceRole.ID)
 	} else {
-		d.Set("role_id", nil)
+		d.Set("device_role_id", nil)
 	}
 
 	if res.GetPayload().Site != nil {
@@ -217,7 +217,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		data.Location = &locationID
 	}
 
-	roleIDValue, ok := d.GetOk("role_id")
+	roleIDValue, ok := d.GetOk("device_role_id")
 	if ok {
 		roleID := int64(roleIDValue.(int))
 		data.DeviceRole = &roleID

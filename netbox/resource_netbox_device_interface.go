@@ -171,6 +171,14 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Optional: true,
 			},
 
+			"wireless_lans": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Optional: true,
+			},
+
 			"tags": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
@@ -201,11 +209,12 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	}
 
 	params.Data = &models.WritableInterface{
-		Device:      &interfaceID,
-		Type:        &interfaceType,
-		Name:        &name,
-		Tags:        tags,
-		TaggedVlans: expandTaggedVlans(d.Get("tagged_vlan").([]interface{})),
+		Device:       &interfaceID,
+		Type:         &interfaceType,
+		Name:         &name,
+		Tags:         tags,
+		TaggedVlans:  expandTaggedVlans(d.Get("tagged_vlan").([]interface{})),
+		WirelessLans: expandTaggedWirelessLans(d.Get("wireless_lans").([]interface{})),
 	}
 
 	//if v, ok := d.GetOk("connection_status"); ok {
@@ -320,6 +329,7 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("management_only", resp.Payload.MgmtOnly)
 	d.Set("tagged_vlan", flattenTaggedVlans(resp.Payload.TaggedVlans))
 	d.Set("tags", getTagListFromNestedTagList(resp.GetPayload().Tags))
+	d.Set("wireless_lans", resp.GetPayload().WirelessLans)
 
 	return diags
 }
@@ -343,11 +353,12 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	}
 
 	params.Data = &models.WritableInterface{
-		Device:      &deviceID,
-		Type:        &interfaceType,
-		Name:        &name,
-		TaggedVlans: expandTaggedVlans(d.Get("tagged_vlan").([]interface{})),
-		Tags:        tags,
+		Device:       &deviceID,
+		Type:         &interfaceType,
+		Name:         &name,
+		TaggedVlans:  expandTaggedVlans(d.Get("tagged_vlan").([]interface{})),
+		WirelessLans: expandTaggedWirelessLans(d.Get("wireless_lans").([]interface{})),
+		Tags:         tags,
 	}
 
 	//	if d.HasChange("connection_status") {
@@ -448,4 +459,15 @@ func flattenTaggedVlans(input []*models.NestedVLAN) []interface{} {
 	}
 
 	return result
+}
+
+func expandTaggedWirelessLans(input []interface{}) []int64 {
+	results := make([]int64, 0)
+
+	for _, item := range input {
+		value := item.(int)
+		results = append(results, int64(value))
+	}
+
+	return results
 }

@@ -123,6 +123,7 @@ resource "netbox_device" "test-interface" {
   device_type_id = netbox_device_type.test-interface.id
   device_role_id = netbox_device_role.test-interface.id
   site_id = netbox_site.test-interface.id
+  name = "device_%s"
 
   tags = ["test-interface"]
 }
@@ -132,5 +133,5 @@ resource "netbox_device_interface" "test-interface" {
   name = "%s"
 }
 
-`, name)
+`, name, name)
 }

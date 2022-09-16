@@ -121,7 +121,7 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 							Computed: true,
 						},
 						"vcpus": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeFloat,
 							Computed: true,
 						},
 						"vm_id": {

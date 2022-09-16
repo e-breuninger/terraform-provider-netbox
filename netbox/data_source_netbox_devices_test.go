@@ -28,7 +28,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.name", testName+"_0"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.comments", "this is also a comment"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.tenant_id", "netbox_tenant.test", "id"),
-					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.device_role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.device_type_id", "netbox_device_type.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.location_id", "netbox_location.test", "id"),
@@ -50,7 +50,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 				Config: dependencies + testAccNetboxDeviceDataSourceFilterRole,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.#", "4"),
-					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.1.role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.1.device_role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.name", "netbox_device.test0", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.1.name", "netbox_device.test1", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.2.name", "netbox_device.test2", "name"),
@@ -82,7 +82,7 @@ resource "netbox_device" "test0" {
   name = "%[1]s_0"
   comments = "this is also a comment"
   tenant_id = netbox_tenant.test.id
-  role_id = netbox_device_role.test.id
+  device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
   location_id = netbox_location.test.id
@@ -93,7 +93,7 @@ resource "netbox_device" "test1" {
   name = "%[1]s_1"
   comments = "this is also first comment"
   tenant_id = netbox_tenant.test.id
-  role_id = netbox_device_role.test.id
+  device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
   location_id = netbox_location.test.id
@@ -104,7 +104,7 @@ resource "netbox_device" "test2" {
   name = "%[1]s_2_regex"
   comments = "this is also second comment"
   tenant_id = netbox_tenant.test.id
-  role_id = netbox_device_role.test.id
+  device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
   location_id = netbox_location.test.id
@@ -115,7 +115,7 @@ resource "netbox_device" "test3" {
   name = "%[1]s_3_regex"
   comments = "this is also third comment"
   tenant_id = netbox_tenant.test.id
-  role_id = netbox_device_role.test.id
+  device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
   location_id = netbox_location.test.id
@@ -145,7 +145,7 @@ data "netbox_devices" "test" {
 const testAccNetboxDeviceDataSourceFilterRole = `
 data "netbox_devices" "test" {
   filter {
-    name  = "role_id"
+    name  = "device_role_id"
     value = netbox_device_role.test.id
   }
 }`

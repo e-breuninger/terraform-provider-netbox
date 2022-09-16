@@ -49,7 +49,7 @@ resource "netbox_vlan" "test2" {
 
 func testAccNetboxVMInterface_basic(testName string) string {
 	return fmt.Sprintf(`
-resource "netbox_interface" "test" {
+resource "netbox_vm_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
   tags = ["%[1]s"]
@@ -58,7 +58,7 @@ resource "netbox_interface" "test" {
 
 func testAccNetboxVMInterface_opts(testName string, testMac string) string {
 	return fmt.Sprintf(`
-resource "netbox_interface" "test" {
+resource "netbox_vm_interface" "test" {
   name = "%[1]s"
   description = "%[1]s"
   enabled = true
@@ -70,14 +70,14 @@ resource "netbox_interface" "test" {
 
 func testAccNetboxVMInterface_vlans(testName string) string {
 	return fmt.Sprintf(`
-resource "netbox_interface" "test1" {
+resource "netbox_vm_interface" "test1" {
   name = "%[1]s_1"
   mode = "access"
   untagged_vlan = netbox_vlan.test1.id
   virtual_machine_id = netbox_virtual_machine.test.id
 }
 
-resource "netbox_interface" "test2" {
+resource "netbox_vm_interface" "test2" {
   name = "%[1]s_2"
   mode = "tagged"
   tagged_vlans = [netbox_vlan.test2.id]
@@ -85,7 +85,7 @@ resource "netbox_interface" "test2" {
   virtual_machine_id = netbox_virtual_machine.test.id
 }
 
-resource "netbox_interface" "test3" {
+resource "netbox_vm_interface" "test3" {
   name = "%[1]s_3"
   mode = "tagged-all"
   tagged_vlans = [netbox_vlan.test1.id, netbox_vlan.test2.id]
@@ -105,14 +105,14 @@ func TestAccNetboxVMInterface_basic(t *testing.T) {
 			{
 				Config: setUp + testAccNetboxVMInterface_basic(testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_vm_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "tags.0", testName),
 				),
 			},
 			{
-				ResourceName:      "netbox_interface.test",
+				ResourceName:      "netbox_vm_interface.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -133,12 +133,12 @@ func TestAccNetboxVMInterface_opts(t *testing.T) {
 			{
 				Config: setUp + testAccNetboxVMInterface_opts(testName, testMac),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_interface.test", "description", testName),
-					resource.TestCheckResourceAttr("netbox_interface.test", "enabled", "true"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "mtu", "1440"),
-					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "description", testName),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "enabled", "true"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test", "mtu", "1440"),
+					resource.TestCheckResourceAttrPair("netbox_vm_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
 				),
 			},
 			{
@@ -162,27 +162,27 @@ func TestAccNetboxVMInterface_vlans(t *testing.T) {
 			{
 				Config: setUp + testAccNetboxVMInterface_vlans(testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_interface.test1", "mode", "access"),
-					resource.TestCheckResourceAttr("netbox_interface.test2", "mode", "tagged"),
-					resource.TestCheckResourceAttr("netbox_interface.test3", "mode", "tagged-all"),
-					resource.TestCheckResourceAttrPair("netbox_interface.test1", "untagged_vlan", "netbox_vlan.test1", "id"),
-					resource.TestCheckResourceAttrPair("netbox_interface.test2", "untagged_vlan", "netbox_vlan.test1", "id"),
-					resource.TestCheckResourceAttrPair("netbox_interface.test2", "tagged_vlans.0", "netbox_vlan.test2", "id"),
-					resource.TestCheckResourceAttr("netbox_interface.test3", "tagged_vlans.#", "2"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test1", "mode", "access"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test2", "mode", "tagged"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test3", "mode", "tagged-all"),
+					resource.TestCheckResourceAttrPair("netbox_vm_interface.test1", "untagged_vlan", "netbox_vlan.test1", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vm_interface.test2", "untagged_vlan", "netbox_vlan.test1", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vm_interface.test2", "tagged_vlans.0", "netbox_vlan.test2", "id"),
+					resource.TestCheckResourceAttr("netbox_vm_interface.test3", "tagged_vlans.#", "2"),
 				),
 			},
 			{
-				ResourceName:      "netbox_interface.test1",
+				ResourceName:      "netbox_vm_interface.test1",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				ResourceName:      "netbox_interface.test2",
+				ResourceName:      "netbox_vm_interface.test2",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				ResourceName:      "netbox_interface.test3",
+				ResourceName:      "netbox_vm_interface.test3",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
