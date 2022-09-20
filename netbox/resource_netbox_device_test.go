@@ -90,6 +90,10 @@ resource "netbox_device" "test" {
   location_id = netbox_location.test.id
   status = "staged"
   serial = "ABCDEF"
+  custom_fields = {
+    "test_field_1" = "test_field_value_1",
+    "test_field_2" = "test_field_value_2"
+  }
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
@@ -104,6 +108,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
+					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields", "{\n    \"test_field_1\" = \"test_field_value_1\",\n    \"test_field_2\" = \"test_field_value_2\"\n  }"),
 				),
 			},
 			{

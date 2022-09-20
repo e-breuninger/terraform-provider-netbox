@@ -39,6 +39,12 @@ resource "netbox_device" "test" {
   device_type_id = netbox_device_type.test.id
   role_id        = netbox_device_role.test.id
   site_id        = netbox_site.test.id
+
+  # custom fields - optional, not required
+  custom_fields = {
+    "test_field_1" = "test_field_value_1",
+    "test_field_2" = "test_field_value_2"
+  }
 }
 ```
 
@@ -56,6 +62,7 @@ resource "netbox_device" "test" {
 
 - `cluster_id` (Number)
 - `comments` (String)
+- `custom_fields` (Map of String)
 - `location_id` (Number)
 - `platform_id` (Number)
 - `serial` (String)

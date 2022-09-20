@@ -21,4 +21,10 @@ resource "netbox_device" "test" {
   device_type_id = netbox_device_type.test.id
   role_id        = netbox_device_role.test.id
   site_id        = netbox_site.test.id
+
+  # custom fields - optional, not required
+  custom_fields = {
+    "test_field_1" = "test_field_value_1",
+    "test_field_2" = "test_field_value_2"
+  }
 }

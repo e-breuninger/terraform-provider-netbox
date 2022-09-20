@@ -79,6 +79,7 @@ func resourceNetboxDevice() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "inventory"}, false),
 				Default:      "active",
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -147,6 +148,11 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
 
 	params := dcim.NewDcimDevicesCreateParams().WithData(&data)
 
@@ -243,6 +249,12 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 	d.Set("status", device.Status.Value)
 
 	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
+
+	cf := getCustomFields(res.GetPayload().CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+
 	return diags
 }
 
@@ -322,6 +334,11 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = cf
+	}
 
 	if d.HasChanges("comments") {
 		// check if comment is set
