@@ -77,6 +77,11 @@ func TestAccNetboxDevice_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "custom_field"
+	type          = "text"
+	content_types = ["virtualization.virtualmachine"]
+}
 resource "netbox_device" "test" {
   name = "%[1]s"
   comments = "thisisacomment"
@@ -90,10 +95,7 @@ resource "netbox_device" "test" {
   location_id = netbox_location.test.id
   status = "staged"
   serial = "ABCDEF"
-  custom_fields = {
-    "test_field_1" = "test_field_value_1",
-    "test_field_2" = "test_field_value_2"
-  }
+  custom_fields = {"${netbox_custom_field.test.name}" = "test"}
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
@@ -108,7 +110,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
-					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields", "{\n    \"test_field_1\" = \"test_field_value_1\",\n    \"test_field_2\" = \"test_field_value_2\"\n  }"),
+					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields.custom_field", "test"),
 				),
 			},
 			{
