@@ -154,6 +154,33 @@ func testAccCheckDeviceDestroy(s *terraform.State) error {
 	return nil
 }
 
+func TestAccNetboxDevice_customFields(t *testing.T) {
+	testSlug := "device_cf"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "custom_field"
+	type          = "text"
+	content_types = ["dcim.device"]
+}
+resource "netbox_device" "test" {
+  name          = "%[1]s"
+  cluster_id    = netbox_cluster.test.id
+  custom_fields = {"${netbox_custom_field.test.name}" = "test"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields.custom_field", "test"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_device", &resource.Sweeper{
 		Name:         "netbox_device",
