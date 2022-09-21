@@ -45,6 +45,8 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"A", "Z"}, false),
 			},
+			tagsKey:         tagsSchema,
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -80,6 +82,13 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 		data.UpstreamSpeed = int64ToPtr(int64(upstreamspeedValue.(int)))
 	}
 
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
+
 	params := circuits.NewCircuitsCircuitTerminationsCreateParams().WithData(&data)
 
 	res, err := api.Circuits.CircuitsCircuitTerminationsCreate(params, nil)
@@ -109,30 +118,39 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 		return err
 	}
 
-	d.Set("term_side", res.GetPayload().TermSide)
+	term := res.GetPayload()
 
-	if res.GetPayload().Circuit != nil {
-		d.Set("circuit_id", res.GetPayload().Circuit.ID)
+	d.Set("term_side", term.TermSide)
+
+	if term.Circuit != nil {
+		d.Set("circuit_id", term.Circuit.ID)
 	} else {
 		d.Set("circuit_id", nil)
 	}
 
-	if res.GetPayload().Site != nil {
-		d.Set("site_id", res.GetPayload().Site.ID)
+	if term.Site != nil {
+		d.Set("site_id", term.Site.ID)
 	} else {
 		d.Set("site_id", nil)
 	}
 
-	if res.GetPayload().PortSpeed != nil {
-		d.Set("port_speed", res.GetPayload().PortSpeed)
+	if term.PortSpeed != nil {
+		d.Set("port_speed", term.PortSpeed)
 	} else {
 		d.Set("port_speed", nil)
 	}
 
-	if res.GetPayload().UpstreamSpeed != nil {
-		d.Set("upstream_speed", res.GetPayload().UpstreamSpeed)
+	if term.UpstreamSpeed != nil {
+		d.Set("upstream_speed", term.UpstreamSpeed)
 	} else {
 		d.Set("upstream_speed", nil)
+	}
+
+	d.Set(tagsKey, getTagListFromNestedTagList(term.Tags))
+
+	cf := getCustomFields(term.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
 	}
 
 	return nil
@@ -166,6 +184,14 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 	if ok {
 		data.UpstreamSpeed = int64ToPtr(int64(upstreamspeedValue.(int)))
 	}
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = cf
+	}
+
 	params := circuits.NewCircuitsCircuitTerminationsPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Circuits.CircuitsCircuitTerminationsPartialUpdate(params, nil)
