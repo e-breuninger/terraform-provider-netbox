@@ -33,6 +33,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 			"cluster_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
+				AtLeastOneOf: []string{"site_id", "cluster_id"},
 			},
 			"tenant_id": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -53,6 +54,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 			"site_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
+				AtLeastOneOf: []string{"site_id", "cluster_id"},
 			},
 			"comments": &schema.Schema{
 				Type:     schema.TypeString,
