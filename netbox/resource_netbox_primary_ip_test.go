@@ -44,6 +44,7 @@ resource "netbox_site" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%[1]s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
   comments = "thisisacomment"
   memory_mb = 1024
   disk_size_gb = 256
