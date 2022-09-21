@@ -67,6 +67,7 @@ func TestAccNetboxVirtualMachine_basic(t *testing.T) {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
@@ -78,6 +79,7 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%[1]s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
   comments = "thisisacomment"
   memory_mb = 1024
   disk_size_gb = 256
@@ -138,6 +140,7 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
   tenant_id = netbox_tenant.test.id
   platform_id = netbox_platform.test.id
 }`, testName),
@@ -173,6 +176,7 @@ func TestAccNetboxVirtualMachine_fractionalVcpu(t *testing.T) {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
   vcpus = 2.50
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -186,6 +190,7 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
   vcpus = 4
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -247,6 +252,7 @@ func TestAccNetboxVirtualMachine_tags(t *testing.T) {
 resource "netbox_virtual_machine" "test" {
   name = "%[1]s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
   tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -260,6 +266,7 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
   tags = ["%[1]sa", "%[1]sb"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -271,6 +278,7 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "0"),
@@ -297,6 +305,7 @@ resource "netbox_custom_field" "test" {
 resource "netbox_virtual_machine" "test" {
   name          = "%[1]s"
   cluster_id    = netbox_cluster.test.id
+  site_id       = netbox_site.test.id
   custom_fields = {"${netbox_custom_field.test.name}" = "76"}
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
