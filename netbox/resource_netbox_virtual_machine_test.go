@@ -75,6 +75,86 @@ resource "netbox_device" "test" {
 `, testName, randomSlug)
 }
 
+func testAccNetboxVirtualMachineSiteClusterDependencies(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_site" "test" {
+  name = "%[1]s"
+  status = "active"
+}
+
+resource "netbox_cluster_type" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_cluster" "test" {
+  name = "%[1]s"
+  cluster_type_id = netbox_cluster_type.test.id
+  site_id = netbox_site.test.id
+}
+`, testName)
+}
+
+func TestAccNetboxVirtualMachine_NetboxSiteOnly(t *testing.T) {
+
+	testSlug := "vm_site"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVirtualMachineDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVirtualMachineSiteClusterDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "only_site" {
+  name = "%s"
+  site_id = netbox_site.test.id
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					// tbd
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_virtual_machine.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxVirtualMachine_NetboxClusterOnly(t *testing.T) {
+
+	testSlug := "vm_clstr"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVirtualMachineDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVirtualMachineSiteClusterDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "only_cluster" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_virtual_machine.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxVirtualMachine_basic(t *testing.T) {
 
 	testSlug := "vm_basic"
