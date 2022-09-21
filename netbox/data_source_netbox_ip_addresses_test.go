@@ -25,10 +25,6 @@ resource "netbox_ip_address" "test" {
 	role = "anycast"
 }
 data "netbox_ip_addresses" "test" {
-	filter {
-		name = "ip_address"
-		value = netbox_ip_address.test.ip_address
-	}
 	depends_on = [netbox_ip_address.test]
 }`, testIP),
 				Check: resource.ComposeTestCheckFunc(
