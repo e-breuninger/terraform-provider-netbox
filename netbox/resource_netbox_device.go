@@ -35,6 +35,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"cluster_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"location_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -100,6 +104,12 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Location = &locationID
 	}
 
+	clusterIDValue, ok := d.GetOk("cluster_id")
+	if ok {
+		clusterID := int64(clusterIDValue.(int))
+		data.Cluster = &clusterID
+	}
+
 	roleIDValue, ok := d.GetOk("role_id")
 	if ok {
 		roleID := int64(roleIDValue.(int))
@@ -146,47 +156,55 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	d.Set("name", res.GetPayload().Name)
+	device := res.GetPayload()
 
-	if res.GetPayload().DeviceType != nil {
-		d.Set("device_type_id", res.GetPayload().DeviceType.ID)
+	d.Set("name", device.Name)
+
+	if device.DeviceType != nil {
+		d.Set("device_type_id", device.DeviceType.ID)
 	}
 
-	if res.GetPayload().PrimaryIp4 != nil {
-		d.Set("primary_ipv4", res.GetPayload().PrimaryIp4.ID)
+	if device.PrimaryIp4 != nil {
+		d.Set("primary_ipv4", device.PrimaryIp4.ID)
 	} else {
 		d.Set("primary_ipv4", nil)
 	}
 
-	if res.GetPayload().Tenant != nil {
-		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	if device.Tenant != nil {
+		d.Set("tenant_id", device.Tenant.ID)
 	} else {
 		d.Set("tenant_id", nil)
 	}
 
-	if res.GetPayload().Location != nil {
-		d.Set("location_id", res.GetPayload().Location.ID)
+	if device.Location != nil {
+		d.Set("location_id", device.Location.ID)
 	} else {
 		d.Set("location_id", nil)
 	}
 
-	if res.GetPayload().DeviceRole != nil {
-		d.Set("role_id", res.GetPayload().DeviceRole.ID)
+	if device.Cluster != nil {
+		d.Set("cluster_id", device.Cluster.ID)
+	} else {
+		d.Set("cluster_id", nil)
+	}
+
+	if device.DeviceRole != nil {
+		d.Set("role_id", device.DeviceRole.ID)
 	} else {
 		d.Set("role_id", nil)
 	}
 
-	if res.GetPayload().Site != nil {
-		d.Set("site_id", res.GetPayload().Site.ID)
+	if device.Site != nil {
+		d.Set("site_id", device.Site.ID)
 	} else {
 		d.Set("site_id", nil)
 	}
 
-	d.Set("comments", res.GetPayload().Comments)
+	d.Set("comments", device.Comments)
 
-	d.Set("serial", res.GetPayload().Serial)
+	d.Set("serial", device.Serial)
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
 	return diags
 }
 
@@ -215,6 +233,12 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		locationID := int64(locationIDValue.(int))
 		data.Location = &locationID
+	}
+
+	clusterIDValue, ok := d.GetOk("cluster_id")
+	if ok {
+		clusterID := int64(clusterIDValue.(int))
+		data.Cluster = &clusterID
 	}
 
 	roleIDValue, ok := d.GetOk("role_id")
