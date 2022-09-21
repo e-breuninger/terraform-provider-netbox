@@ -14,6 +14,9 @@ import (
 )
 
 func testAccNetboxVirtualMachineFullDependencies(testName string) string {
+	testSlug := "device_type"
+	randomSlug := testAccGetTestName(testSlug)
+
 	return fmt.Sprintf(`
 resource "netbox_cluster_type" "test" {
   name = "%[1]s"
@@ -50,7 +53,26 @@ resource "netbox_tag" "test_a" {
 resource "netbox_tag" "test_b" {
   name = "%[1]sb"
 }
-`, testName)
+
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_device_type" "test" {
+  model = "%[1]s"
+  slug = "%[2]s"
+  part_number = "%[2]s"
+  manufacturer_id = netbox_manufacturer.test.id
+}
+
+resource "netbox_device" "test" {
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+  cluster_id = netbox_cluster.test.id
+}
+`, testName, randomSlug)
 }
 
 func TestAccNetboxVirtualMachine_basic(t *testing.T) {
@@ -86,6 +108,7 @@ resource "netbox_virtual_machine" "test" {
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
+  device_id = netbox_device.test.id
   vcpus = 4
   status = "active"
   tags = ["%[1]sa"]
@@ -96,6 +119,7 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "platform_id", "netbox_platform.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
