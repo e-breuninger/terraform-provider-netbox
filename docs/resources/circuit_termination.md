@@ -29,7 +29,9 @@ From the [official documentation](https://docs.netbox.dev/en/stable/core-functio
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `port_speed` (Number)
+- `tags` (Set of String)
 - `upstream_speed` (Number)
 
 ### Read-Only
