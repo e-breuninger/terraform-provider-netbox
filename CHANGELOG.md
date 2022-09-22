@@ -4,6 +4,7 @@ ENHANCEMENTS
 
 * **New Data Source:** `netbox_site_group` ([#236](https://github.com/e-breuninger/terraform-provider-netbox/pull/236) by [@dipeshsharma](https://github.com/dipeshsharma))
 * provider: Add `request_timeout` attribute ([#227](https://github.com/e-breuninger/terraform-provider-netbox/pull/227) by [@twink0r](https://github.com/twink0r))
+* data-source/netbox-tenants: Added `limit` attribute to allow for larger queries.
 
 ## 2.0.6 (September 9th, 2022)
 

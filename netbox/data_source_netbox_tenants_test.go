@@ -34,6 +34,42 @@ data "netbox_tenants" "test" {
 	})
 }
 
+func testAccNetboxTenantsDataSource_manyTenants(testName string) string {
+	return fmt.Sprintf(`resource "netbox_tenant" "test" {
+  count = 51
+  name = "%s-${count.index}"
+}
+`, testName)
+}
+
+func TestAccNetboxTenantsDataSource_many(t *testing.T) {
+
+	testSlug := "tnt_ds_many"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxTenantsDataSource_manyTenants(testName) + `data "netbox_tenants" "test" {
+  depends_on = [netbox_tenant.test]
+}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_tenants.test", "tenants.#", "51"),
+				),
+			},
+			{
+				Config: testAccNetboxTenantsDataSource_manyTenants(testName) + `data "netbox_tenants" "test" {
+  depends_on = [netbox_tenant.test]
+  limit = 2
+}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_tenants.test", "tenants.#", "2"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccNetboxTenantsDataSource_filter(t *testing.T) {
 
 	testSlug := "tnt_ds_filter"
