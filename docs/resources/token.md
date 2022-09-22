@@ -24,10 +24,13 @@ From the [official documentation](https://docs.netbox.dev/en/stable/rest-api/aut
 
 ### Optional
 
+- `allowed_ips` (List of String)
 - `key` (String, Sensitive)
 
 ### Read-Only
 
+- `expires` (String)
 - `id` (String) The ID of this resource.
+- `last_used` (String)
 
 
