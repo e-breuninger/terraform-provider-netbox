@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -140,15 +141,8 @@ resource "netbox_virtual_machine" "only_cluster" {
   cluster_id = netbox_cluster.test.id
 }
 `, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_virtual_machine.only_cluster", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_virtual_machine.only_cluster", "cluster_id", "netbox_cluster.test", "id"),
-				),
-			},
-			{
-				ResourceName:      "netbox_virtual_machine.only_cluster",
-				ImportState:       true,
-				ImportStateVerify: true,
+
+				ExpectError: regexp.MustCompile(".*The selected cluster.*is not assigned to this site \\(None\\).*"),
 			},
 		},
 	})
