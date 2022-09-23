@@ -70,7 +70,7 @@ resource "netbox_virtual_machine" "full_vm" {
 
 ### Optional
 
-- `cluster_id` (Number) At least one of `site_id` or `cluster_id` must be given.
+- `cluster_id` (Number) If this is set to a cluster that has a site, you have to set `site_id` as well. At least one of `site_id` or `cluster_id` must be given.
 - `comments` (String)
 - `custom_fields` (Map of String)
 - `device_id` (Number)
