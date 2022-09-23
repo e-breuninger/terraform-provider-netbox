@@ -94,7 +94,7 @@ resource "netbox_cluster" "test" {
 `, testName)
 }
 
-func TestAccNetboxVirtualMachine_NetboxSiteOnly(t *testing.T) {
+func TestAccNetboxVirtualMachine_SiteOnly(t *testing.T) {
 
 	testSlug := "vm_site"
 	testName := testAccGetTestName(testSlug)
@@ -111,13 +111,12 @@ resource "netbox_virtual_machine" "only_site" {
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
-					// tbd
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.only_site", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.only_site", "site_id", "netbox_site.test", "id"),
 				),
 			},
 			{
-				ResourceName:      "netbox_virtual_machine.test",
+				ResourceName:      "netbox_virtual_machine.only_site",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -125,7 +124,7 @@ resource "netbox_virtual_machine" "only_site" {
 	})
 }
 
-func TestAccNetboxVirtualMachine_NetboxClusterOnly(t *testing.T) {
+func TestAccNetboxVirtualMachine_ClusterOnly(t *testing.T) {
 
 	testSlug := "vm_clstr"
 	testName := testAccGetTestName(testSlug)
@@ -142,12 +141,51 @@ resource "netbox_virtual_machine" "only_cluster" {
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.only_cluster", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.only_cluster", "cluster_id", "netbox_cluster.test", "id"),
 				),
 			},
 			{
-				ResourceName:      "netbox_virtual_machine.test",
+				ResourceName:      "netbox_virtual_machine.only_cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxVirtualMachine_ClusterWithoutSite(t *testing.T) {
+
+	testSlug := "vm_clstrnosite"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVirtualMachineDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_cluster_type" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_cluster" "test" {
+  name = "%[1]s"
+  cluster_type_id = netbox_cluster_type.test.id
+}
+
+resource "netbox_virtual_machine" "cluster_without_site" {
+  name = "%[1]s"
+  cluster_id = netbox_cluster.test.id
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.cluster_without_site", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.cluster_without_site", "cluster_id", "netbox_cluster.test", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_virtual_machine.cluster_without_site",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
