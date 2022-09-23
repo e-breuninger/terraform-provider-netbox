@@ -1,3 +1,18 @@
+## 3.0.0 (September 23th, 2022)
+
+FEATURES
+
+* provider: Now supports NetBox v3.3
+
+ENHANCEMENTS
+
+* resource/netbox_virtual_machine: In accordance with upstream API changes, VMs can now have `site_id` set directly
+* resource/netbox_virtual_machine: Add `device_id` attribute ([#238](https://github.com/e-breuninger/terraform-provider-netbox/pull/238) by [@ns1pelle](https://github.com/ns1pelle))
+* resource/netbox_circuit_termination: Add `tags` and `custom_fields` attributes ([#238](https://github.com/e-breuninger/terraform-provider-netbox/pull/238) by [@ns1pelle](https://github.com/ns1pelle))
+* resource/netbox_token: Add `allowed_ips`, `last_used` and `expires` attributes ([#238](https://github.com/e-breuninger/terraform-provider-netbox/pull/238) by [@ns1pelle](https://github.com/ns1pelle))
+* resource/netbox_device: Add `cluster_id` attribute ([#238](https://github.com/e-breuninger/terraform-provider-netbox/pull/238) by [@ns1pelle](https://github.com/ns1pelle))
+
+
 ## 2.0.7 (September 23th, 2022)
 
 ENHANCEMENTS
