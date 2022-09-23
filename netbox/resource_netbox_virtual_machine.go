@@ -34,6 +34,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				AtLeastOneOf: []string{"site_id", "cluster_id"},
+				Description:  "If this is set to a cluster that has a site, you have to set `site_id` as well.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:     schema.TypeInt,
