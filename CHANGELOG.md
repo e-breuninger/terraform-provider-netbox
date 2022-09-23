@@ -1,10 +1,10 @@
-## 2.0.7 (unreleased)
+## 2.0.7 (September 23th, 2022)
 
 ENHANCEMENTS
 
-* **New Data Source:** `netbox_site_group` ([#236](https://github.com/e-breuninger/terraform-provider-netbox/pull/236) by [@dipeshsharma](https://github.com/dipeshsharma))
+* **New Data Source:** `netbox_devices` ([#236](https://github.com/e-breuninger/terraform-provider-netbox/pull/236) by [@dipeshsharma](https://github.com/dipeshsharma))
 * provider: Add `request_timeout` attribute ([#227](https://github.com/e-breuninger/terraform-provider-netbox/pull/227) by [@twink0r](https://github.com/twink0r))
-* data-source/netbox-tenants: Added `limit` attribute to allow for larger queries.
+* data-source/netbox-tenants: Added `limit` attribute to allow for larger queries
 
 ## 2.0.6 (September 9th, 2022)
 
@@ -12,8 +12,8 @@ ENHANCEMENTS
 
 * **New Resource:** `netbox_site_group`
 * **New Data Source:** `netbox_site_group`
-* resource/netbox_virtual_machine: Add `status` attribute. The `status` attribute will default to `active`, which matches the implicit behavior of NetBox. If you manually changed the status of your terraform-managed NetBox VMs, be cautious.
-* data-source/netbox_tenant: Allow searching by `slug` attribute.
+* resource/netbox_virtual_machine: Add `status` attribute. The `status` attribute will default to `active`, which matches the implicit behavior of NetBox. If you manually changed the status of your terraform-managed NetBox VMs, be cautious
+* data-source/netbox_tenant: Allow searching by `slug` attribute
 
 ## 2.0.5 (August 10th, 2022)
 
