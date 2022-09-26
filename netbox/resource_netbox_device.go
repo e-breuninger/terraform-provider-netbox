@@ -250,7 +250,7 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := getCustomFields(device.CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
