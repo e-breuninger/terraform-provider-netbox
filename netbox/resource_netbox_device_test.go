@@ -154,42 +154,6 @@ func testAccCheckDeviceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func TestAccNetboxDevice_customFields(t *testing.T) {
-	testSlug := "device_cf"
-	testName := testAccGetTestName(testSlug)
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_custom_field" "test" {
-	name          = "custom_field"
-	type          = "text"
-	content_types = ["dcim.device"]
-}
-resource "netbox_device" "test" {
-  name          = "%[1]s"
-  cluster_id    = netbox_cluster.test.id
-  custom_fields = {"${netbox_custom_field.test.name}" = "test"}
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields.custom_field", "test"),
-					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
-					resource.TestCheckResourceAttrPair("netbox_device.test", "tenant_id", "netbox_tenant.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_device.test", "location_id", "netbox_location.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_device.test", "role_id", "netbox_device_role.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
-					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
-					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
-					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
-				),
-			},
-		},
-	})
-}
-
 func init() {
 	resource.AddTestSweepers("netbox_device", &resource.Sweeper{
 		Name:         "netbox_device",
