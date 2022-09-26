@@ -9,7 +9,7 @@ const customFieldsKey = "custom_fields"
 var customFieldsSchema = &schema.Schema{
 	Type:     schema.TypeMap,
 	Optional: true,
-	Default:  nil,
+	Default:  "",
 	Required: false,
 	Elem: &schema.Schema{
 		Type:    schema.TypeString,
