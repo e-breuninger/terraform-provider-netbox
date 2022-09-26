@@ -70,6 +70,7 @@ func TestAccNetboxDevice_basic(t *testing.T) {
 
 	testSlug := "device_basic"
 	testName := testAccGetTestName(testSlug)
+	//testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "-")
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -77,6 +78,11 @@ func TestAccNetboxDevice_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "custom_field"
+	type          = "text"
+	content_types = ["dcim.device"]
+}
 resource "netbox_device" "test" {
   name = "%[1]s"
   comments = "thisisacomment"
@@ -90,7 +96,7 @@ resource "netbox_device" "test" {
   location_id = netbox_location.test.id
   status = "staged"
   serial = "ABCDEF"
-  custom_fields = {"fqdn" = "test"}
+  custom_fields = {"${netbox_custom_field.test.name}" = "13"}
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
@@ -105,7 +111,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
-					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields.0", "test"),
+					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields.custom_field", "13"),
 				),
 			},
 			{
