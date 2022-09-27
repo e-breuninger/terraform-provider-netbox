@@ -32,6 +32,22 @@ func resourceNetboxToken() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(40, 256),
 			},
+			"allowed_ips": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.IsCIDR,
+				},
+			},
+			"last_used": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expires": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -46,9 +62,15 @@ func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
 	userid := int64(d.Get("user_id").(int))
 
 	key := d.Get("key").(string)
+	allowedIps := d.Get("allowed_ips").([]interface{})
 
 	data.User = &userid
 	data.Key = key
+
+	data.AllowedIps = make([]models.IPNetwork, len(allowedIps))
+	for i, v := range allowedIps {
+		data.AllowedIps[i] = v
+	}
 
 	params := users.NewUsersTokensCreateParams().WithData(&data)
 	res, err := api.Users.UsersTokensCreate(params, nil)
@@ -75,12 +97,16 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 		}
 		return err
 	}
+	token := res.GetPayload()
 
-	if res.GetPayload().User != nil {
-		d.Set("user_id", res.GetPayload().User.ID)
+	if token.User != nil {
+		d.Set("user_id", token.User.ID)
 	}
 
-	d.Set("key", res.GetPayload().Key)
+	d.Set("key", token.Key)
+	d.Set("last_used", token.LastUsed)
+	d.Set("expires", token.Expires)
+	d.Set("allowed_ips", token.AllowedIps)
 
 	return nil
 }
@@ -92,9 +118,15 @@ func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
 
 	userid := int64(d.Get("user_id").(int))
 	key := d.Get("key").(string)
+	allowedIps := d.Get("allowed_ips").([]interface{})
 
 	data.User = &userid
 	data.Key = key
+
+	data.AllowedIps = make([]models.IPNetwork, len(allowedIps))
+	for i, v := range allowedIps {
+		data.AllowedIps[i] = v
+	}
 
 	params := users.NewUsersTokensUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Users.UsersTokensUpdate(params, nil)

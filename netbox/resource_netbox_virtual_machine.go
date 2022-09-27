@@ -31,10 +31,16 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Required: true,
 			},
 			"cluster_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				AtLeastOneOf: []string{"site_id", "cluster_id"},
+				Description:  "If this is set to a cluster that has a site, you have to set `site_id` as well.",
 			},
 			"tenant_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"device_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -47,8 +53,9 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Optional: true,
 			},
 			"site_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				AtLeastOneOf: []string{"site_id", "cluster_id"},
 			},
 			"comments": &schema.Schema{
 				Type:     schema.TypeString,
@@ -98,11 +105,21 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-	clusterID := int64(d.Get("cluster_id").(int))
 
 	data := models.WritableVirtualMachineWithConfigContext{
-		Name:    &name,
-		Cluster: &clusterID,
+		Name: &name,
+	}
+
+	clusterIDValue, ok := d.GetOk("cluster_id")
+	if ok {
+		clusterID := int64(clusterIDValue.(int))
+		data.Cluster = &clusterID
+	}
+
+	siteIDValue, ok := d.GetOk("site_id")
+	if ok {
+		siteID := int64(siteIDValue.(int))
+		data.Site = &siteID
 	}
 
 	comments := d.Get("comments").(string)
@@ -130,6 +147,12 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 	if ok {
 		tenantID := int64(tenantIDValue.(int))
 		data.Tenant = &tenantID
+	}
+
+	deviceIDValue, ok := d.GetOk("device_id")
+	if ok {
+		deviceID := int64(deviceIDValue.(int))
+		data.Device = &deviceID
 	}
 
 	platformIDValue, ok := d.GetOk("platform_id")
@@ -188,7 +211,12 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	vm := res.GetPayload()
 
 	d.Set("name", vm.Name)
-	d.Set("cluster_id", vm.Cluster.ID)
+
+	if vm.Cluster != nil {
+		d.Set("cluster_id", vm.Cluster.ID)
+	} else {
+		d.Set("cluster_id", nil)
+	}
 
 	if vm.PrimaryIp4 != nil {
 		d.Set("primary_ipv4", vm.PrimaryIp4.ID)
@@ -200,6 +228,18 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		d.Set("tenant_id", vm.Tenant.ID)
 	} else {
 		d.Set("tenant_id", nil)
+	}
+
+	if vm.Device != nil {
+		d.Set("device_id", vm.Device.ID)
+	} else {
+		d.Set("device_id", nil)
+	}
+
+	if vm.Role != nil {
+		d.Set("role_id", vm.Role.ID)
+	} else {
+		d.Set("role_id", nil)
 	}
 
 	if vm.Platform != nil {
@@ -253,13 +293,28 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 	name := d.Get("name").(string)
 	data.Name = &name
 
-	clusterID := int64(d.Get("cluster_id").(int))
-	data.Cluster = &clusterID
+	clusterIDValue, ok := d.GetOk("cluster_id")
+	if ok {
+		clusterID := int64(clusterIDValue.(int))
+		data.Cluster = &clusterID
+	}
+
+	siteIDValue, ok := d.GetOk("site_id")
+	if ok {
+		siteID := int64(siteIDValue.(int))
+		data.Site = &siteID
+	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
 		tenantID := int64(tenantIDValue.(int))
 		data.Tenant = &tenantID
+	}
+
+	deviceIDValue, ok := d.GetOk("device_id")
+	if ok {
+		deviceID := int64(deviceIDValue.(int))
+		data.Device = &deviceID
 	}
 
 	platformIDValue, ok := d.GetOk("platform_id")

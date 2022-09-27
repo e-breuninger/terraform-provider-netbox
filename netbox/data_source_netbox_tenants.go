@@ -9,6 +9,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func dataSourceNetboxTenants() *schema.Resource {
@@ -32,7 +33,12 @@ func dataSourceNetboxTenants() *schema.Resource {
 					},
 				},
 			},
-
+			"limit": {
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          1000,
+			},
 			"tenants": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -146,6 +152,10 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	params := tenancy.NewTenancyTenantsListParams()
+
+	if limitValue, ok := d.GetOk("limit"); ok {
+		params.Limit = int64ToPtr(int64(limitValue.(int)))
+	}
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
