@@ -100,7 +100,6 @@ func resourceNetboxVMPrimaryIPUpdate(d *schema.ResourceData, m interface{}) erro
 	// then update the FULL vm with ALL tracked attributes
 	data := models.WritableVirtualMachineWithConfigContext{}
 	data.Name = vm.Name
-	data.Cluster = &vm.Cluster.ID
 	data.Tags = vm.Tags
 	// the netbox API sends the URL property as part of NestedTag, but it does not accept the URL property when we send it back
 	// so set it to empty
@@ -113,6 +112,15 @@ func resourceNetboxVMPrimaryIPUpdate(d *schema.ResourceData, m interface{}) erro
 	data.Memory = vm.Memory
 	data.Vcpus = vm.Vcpus
 	data.Disk = vm.Disk
+
+	if vm.Cluster != nil {
+		data.Cluster = &vm.Cluster.ID
+	}
+
+	if vm.Site != nil {
+		data.Site = &vm.Site.ID
+	}
+
 	if vm.PrimaryIp4 != nil {
 		data.PrimaryIp4 = &vm.PrimaryIp4.ID
 	}

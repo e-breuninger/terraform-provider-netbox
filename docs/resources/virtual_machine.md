@@ -66,17 +66,19 @@ resource "netbox_virtual_machine" "full_vm" {
 
 ### Required
 
-- `cluster_id` (Number)
 - `name` (String)
 
 ### Optional
 
+- `cluster_id` (Number) If this is set to a cluster that has a site, you have to set `site_id` as well. At least one of `site_id` or `cluster_id` must be given.
 - `comments` (String)
 - `custom_fields` (Map of String)
+- `device_id` (Number)
 - `disk_size_gb` (Number)
 - `memory_mb` (Number)
 - `platform_id` (Number)
 - `role_id` (Number)
+- `site_id` (Number) At least one of `site_id` or `cluster_id` must be given.
 - `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
@@ -86,6 +88,5 @@ resource "netbox_virtual_machine" "full_vm" {
 
 - `id` (String) The ID of this resource.
 - `primary_ipv4` (Number)
-- `site_id` (Number)
 
 

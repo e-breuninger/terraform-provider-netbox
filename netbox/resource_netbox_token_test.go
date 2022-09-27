@@ -22,15 +22,19 @@ func TestAccNetboxToken_basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_user" "test" {
-	username = "%s"
-	password = "abcdefghijkl"
+  username = "%s"
+  password = "abcdefghijkl"
 }
+
 resource "netbox_token" "test_basic" {
-  user_id = netbox_user.test.id
-  key = "%s"
+  user_id     = netbox_user.test.id
+  key         = "%s"
+  allowed_ips = ["2.4.8.16/32"]
 }`, testName, testToken),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "key", testToken),
+					resource.TestCheckResourceAttr("netbox_token.test_basic", "allowed_ips.#", "1"),
+					resource.TestCheckResourceAttr("netbox_token.test_basic", "allowed_ips.0", "2.4.8.16/32"),
 				),
 			},
 			{

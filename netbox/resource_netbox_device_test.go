@@ -24,6 +24,16 @@ resource "netbox_site" "test" {
   status = "active"
 }
 
+resource "netbox_cluster_type" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_cluster" "test" {
+  name = "%[1]s"
+  cluster_type_id = netbox_cluster_type.test.id
+  site_id = netbox_site.test.id
+}
+
 resource "netbox_location" "test" {
 	name = "%[1]s"
 	site_id =netbox_site.test.id
@@ -71,6 +81,7 @@ resource "netbox_device" "test" {
   device_type_id = netbox_device_type.test.id
   tags = ["%[1]sa"]
   site_id = netbox_site.test.id
+  cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF"
 }`, testName),
@@ -80,6 +91,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device.test", "location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "device_role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),

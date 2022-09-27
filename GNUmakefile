@@ -1,7 +1,8 @@
 TEST?=netbox/*.go
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+DOCKER_COMPOSE=docker-compose
 
-export NETBOX_VERSION=v3.2.9
+export NETBOX_VERSION=v3.3.4
 export NETBOX_SERVER_URL=http://localhost:8001
 export NETBOX_API_TOKEN=0123456789abcdef0123456789abcdef01234567
 export NETBOX_TOKEN=$(NETBOX_API_TOKEN)
@@ -22,17 +23,17 @@ test:
 .PHONY: docker-up
 docker-up: 
 	@echo "⌛ Startup Netbox $(NETBOX_VERSION) and wait for service to become ready"	
-	docker-compose -f docker/docker-compose.yml up --build wait
-	docker-compose -f docker/docker-compose.yml logs
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml up --build wait
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml logs
 	@echo "🚀 Netbox is up and running!"
 
 .PHONY: docker-logs
 docker-logs:
-	docker-compose -f docker/docker-compose.yml logs
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml logs
 	
 .PHONY: docker-down
 docker-down: 
-	docker-compose -f docker/docker-compose.yml down --volumes
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml down --volumes
 
 #! Development 
 # The following make goals are only for local usage 

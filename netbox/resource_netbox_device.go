@@ -35,6 +35,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"cluster_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"location_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -153,6 +157,12 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Location = &locationID
 	}
 
+	clusterIDValue, ok := d.GetOk("cluster_id")
+	if ok {
+		clusterID := int64(clusterIDValue.(int))
+		data.Cluster = &clusterID
+	}
+
 	roleIDValue, ok := d.GetOk("device_role_id")
 	if ok {
 		roleID := int64(roleIDValue.(int))
@@ -236,7 +246,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		return diag.FromErr(err)
 	}
 
-	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
+	d.SetId(strconv.FormatInt(device.ID, 10))
 
 	return resourceNetboxDeviceRead(ctx, d, m)
 }
@@ -261,101 +271,104 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	d.Set("name", res.GetPayload().Name)
+	device := device
 
-	if res.GetPayload().DeviceType != nil {
-		d.Set("device_type_id", res.GetPayload().DeviceType.ID)
+	d.Set("name", device.Name)
+
+	if device.DeviceType != nil {
+		d.Set("device_type_id", device.DeviceType.ID)
 	}
 
-	if res.GetPayload().PrimaryIp4 != nil {
-		d.Set("primary_ipv4", res.GetPayload().PrimaryIp4.ID)
+	if device.PrimaryIp4 != nil {
+		d.Set("primary_ipv4", device.PrimaryIp4.ID)
 	} else {
 		d.Set("primary_ipv4", nil)
 	}
 
-	if res.GetPayload().Tenant != nil {
-		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	if device.Tenant != nil {
+		d.Set("tenant_id", device.Tenant.ID)
 	} else {
 		d.Set("tenant_id", nil)
 	}
 
-	if res.GetPayload().Location != nil {
-		d.Set("location_id", res.GetPayload().Location.ID)
+	if device.Location != nil {
+		d.Set("location_id", device.Location.ID)
 	} else {
 		d.Set("location_id", nil)
 	}
 
-	if res.GetPayload().DeviceRole != nil {
-		d.Set("device_role_id", res.GetPayload().DeviceRole.ID)
-	} else {
-		d.Set("device_role_id", nil)
-	}
-
-	if res.GetPayload().Site != nil {
-		d.Set("site_id", res.GetPayload().Site.ID)
-	} else {
-		d.Set("site_id", nil)
-	}
-
-	if res.GetPayload().ParentDevice != nil {
-		d.Set("parent_device_id", res.GetPayload().ParentDevice.ID)
-	} else {
-		d.Set("parent_device_id", nil)
-	}
-
-	if res.GetPayload().Cluster != nil {
-		d.Set("cluster_id", res.GetPayload().Cluster.ID)
+	if device.Cluster != nil {
+		d.Set("cluster_id", device.Cluster.ID)
 	} else {
 		d.Set("cluster_id", nil)
 	}
 
-	if res.GetPayload().Platform != nil {
-		d.Set("platform_id", res.GetPayload().Platform.ID)
+	if device.DeviceRole != nil {
+		d.Set("device_role_id", device.DeviceRole.ID)
+	} else {
+		d.Set("device_role_id", nil)
+	}
+
+	if device.Site != nil {
+		d.Set("site_id", device.Site.ID)
+	} else {
+		d.Set("site_id", nil)
+	}
+
+	if device.ParentDevice != nil {
+		d.Set("parent_device_id", device.ParentDevice.ID)
+	} else {
+		d.Set("parent_device_id", nil)
+	}
+
+	if device.Platform != nil {
+		d.Set("platform_id", device.Platform.ID)
 	} else {
 		d.Set("platform_id", nil)
 	}
 
-	if res.GetPayload().Rack != nil {
-		d.Set("rack_id", res.GetPayload().Rack.ID)
+	if device.Rack != nil {
+		d.Set("rack_id", device.Rack.ID)
 	} else {
 		d.Set("rack_id", nil)
 	}
 
-	if res.GetPayload().VirtualChassis != nil {
-		d.Set("virtual_chassis_id", res.GetPayload().VirtualChassis.ID)
+	if device.VirtualChassis != nil {
+		d.Set("virtual_chassis_id", device.VirtualChassis.ID)
 	} else {
 		d.Set("virtual_chassis_id", nil)
 	}
 
-	if res.GetPayload().Status != nil {
-		d.Set("status", res.GetPayload().Status.Value)
+	if device.Status != nil {
+		d.Set("status", device.Status.Value)
 	} else {
 		d.Set("status", nil)
 	}
 
-	if res.GetPayload().AssetTag != nil {
-		d.Set("asset_tag", res.GetPayload().AssetTag)
+	if device.AssetTag != nil {
+		d.Set("asset_tag", device.AssetTag)
 	}
 
-	if res.GetPayload().Face != nil {
-		d.Set("face", res.GetPayload().Face.Value)
+	if device.Face != nil {
+		d.Set("face", device.Face.Value)
 	} else {
 		d.Set("face", nil)
 	}
 
-	d.Set("position_id", res.GetPayload().Position)
+	d.Set("position_id", device.Position)
 
-	d.Set("vc_position_id", res.GetPayload().VcPosition)
+	d.Set("vc_position_id", device.VcPosition)
 
-	d.Set("vc_priority_id", res.GetPayload().VcPriority)
+	d.Set("vc_priority_id", device.VcPriority)
 
-	d.Set("comments", res.GetPayload().Comments)
+	d.Set("comments", device.Comments)
 
-	d.Set("serial", res.GetPayload().Serial)
+	d.Set("serial", device.Serial)
 
-	d.Set("custom_fields", res.GetPayload().CustomFields)
+	d.Set("custom_fields", device.CustomFields)
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
+
 	return diags
 }
 
@@ -384,6 +397,12 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		locationID := int64(locationIDValue.(int))
 		data.Location = &locationID
+	}
+
+	clusterIDValue, ok := d.GetOk("cluster_id")
+	if ok {
+		clusterID := int64(clusterIDValue.(int))
+		data.Cluster = &clusterID
 	}
 
 	roleIDValue, ok := d.GetOk("device_role_id")
