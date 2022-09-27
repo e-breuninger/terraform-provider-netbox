@@ -68,7 +68,7 @@ resource "netbox_device_type" "test" {
 
 resource "netbox_device" "test" {
   name = "%[1]s"
-  role_id = netbox_device_role.test.id
+  device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
