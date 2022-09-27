@@ -35,10 +35,6 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"cluster_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
 			"location_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -157,12 +153,6 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Location = &locationID
 	}
 
-	clusterIDValue, ok := d.GetOk("cluster_id")
-	if ok {
-		clusterID := int64(clusterIDValue.(int))
-		data.Cluster = &clusterID
-	}
-
 	roleIDValue, ok := d.GetOk("device_role_id")
 	if ok {
 		roleID := int64(roleIDValue.(int))
@@ -204,7 +194,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 
 	positionIDValue, ok := d.GetOk("position_id")
 	if ok {
-		positionID := int64(positionIDValue.(int))
+		positionID := float64(positionIDValue.(float64))
 		data.Position = &positionID
 	}
 
@@ -246,6 +236,8 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		return diag.FromErr(err)
 	}
 
+	device := res.GetPayload()
+
 	d.SetId(strconv.FormatInt(device.ID, 10))
 
 	return resourceNetboxDeviceRead(ctx, d, m)
@@ -271,7 +263,7 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
-	device := device
+	device := res.GetPayload()
 
 	d.Set("name", device.Name)
 
@@ -490,7 +482,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	if d.HasChange("position_id") {
-		positionID := int64(d.Get("parent_device_id").(int))
+		positionID := float64(d.Get("parent_device_id").(float64))
 		data.Position = &positionID
 	}
 
