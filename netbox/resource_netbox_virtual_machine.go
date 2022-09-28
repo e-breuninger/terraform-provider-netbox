@@ -124,6 +124,26 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 	if ok {
 		siteID := int64(siteIDValue.(int))
 		data.Site = &siteID
+	} else {
+		c_api := m.(*client.NetBoxAPI)
+		c_params := virtualization.NewVirtualizationClustersListParams()
+		c_clusterID := clusterIDValue.(string)
+		c_params.ID = &c_clusterID
+		c_limit := int64(2)
+		c_params.Limit = &c_limit
+		c_res, c_err := c_api.Virtualization.VirtualizationClustersList(c_params, nil)
+		if c_err != nil {
+			return diag.FromErr(c_err)
+		}
+		if *c_res.GetPayload().Count > int64(1) {
+			return diag.Errorf("More than one result in cluster %s", c_clusterID)
+		}
+		if *c_res.GetPayload().Count == int64(0) {
+			return diag.Errorf("No result in cluster %s", c_clusterID)
+		}
+		c_result := c_res.GetPayload().Results[0]
+		siteID := c_result.ID
+		data.Site = &siteID
 	}
 
 	comments := d.Get("comments").(string)
@@ -316,6 +336,26 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
 		siteID := int64(siteIDValue.(int))
+		data.Site = &siteID
+	} else {
+		c_api := m.(*client.NetBoxAPI)
+		c_params := virtualization.NewVirtualizationClustersListParams()
+		c_clusterID := clusterIDValue.(string)
+		c_params.ID = &c_clusterID
+		c_limit := int64(2)
+		c_params.Limit = &c_limit
+		c_res, c_err := c_api.Virtualization.VirtualizationClustersList(c_params, nil)
+		if c_err != nil {
+			return diag.FromErr(c_err)
+		}
+		if *c_res.GetPayload().Count > int64(1) {
+			return diag.Errorf("More than one result in cluster %s", c_clusterID)
+		}
+		if *c_res.GetPayload().Count == int64(0) {
+			return diag.Errorf("No result in cluster %s", c_clusterID)
+		}
+		c_result := c_res.GetPayload().Results[0]
+		siteID := c_result.ID
 		data.Site = &siteID
 	}
 
