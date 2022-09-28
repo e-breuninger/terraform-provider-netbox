@@ -18,6 +18,8 @@ description: |-
 ### Optional
 
 - `cidr` (String)
+- `vlan_id` (Number)
+- `vlan_vid` (Number)
 - `vrf_id` (Number)
 
 ### Read-Only

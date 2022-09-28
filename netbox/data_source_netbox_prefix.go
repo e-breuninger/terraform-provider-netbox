@@ -28,6 +28,14 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"vlan_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"vlan_vid": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -47,6 +55,15 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	if vrfId, ok := d.Get("vrf_id").(int); ok && vrfId != 0 {
 		// Note that vrf_id is a string pointer in the netbox filter, but we use a number in the provider
 		params.VrfID = strToPtr(strconv.Itoa(vrfId))
+	}
+
+	if vlanId, ok := d.Get("vlan_id").(int); ok && vlanId != 0 {
+		// Note that vlan_id is a string pointer in the netbox filter, but we use a number in the provider
+		params.VlanID = strToPtr(strconv.Itoa(vlanId))
+	}
+
+	if vlanVid, ok := d.Get("vlan_vid").(float64); ok && vlanVid != 0 {
+		params.VlanVid = &vlanVid
 	}
 
 	res, err := api.Ipam.IpamPrefixesList(params, nil)
