@@ -21,6 +21,15 @@ var tagsSchema = &schema.Schema{
 	Set:      schema.HashString,
 }
 
+var tagsSchemaRead = &schema.Schema{
+	Type: schema.TypeSet,
+	Elem: &schema.Schema{
+		Type: schema.TypeString,
+	},
+	Computed: true,
+	Set:      schema.HashString,
+}
+
 func getNestedTagListFromResourceDataSet(client *client.NetBoxAPI, d interface{}) ([]*models.NestedTag, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
