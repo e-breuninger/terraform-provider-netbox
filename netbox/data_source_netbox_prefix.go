@@ -23,18 +23,27 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsCIDR,
+				AtLeastOneOf: []string{"cidr", "vid", "vrf_id", "vlan_id"},
+			},
+			"vid": {
+				Type:         schema.TypeFloat,
+				Optional:     true,
+				AtLeastOneOf: []string{"cidr", "vid", "vrf_id", "vlan_id"},
+				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				AtLeastOneOf: []string{"cidr", "vid", "vrf_id", "vlan_id"},
 			},
 			"vlan_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				AtLeastOneOf: []string{"cidr", "vid", "vrf_id", "vlan_id"},
 			},
-			"vlan_vid": {
-				Type:     schema.TypeFloat,
-				Optional: true,
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -62,7 +71,7 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		params.VlanID = strToPtr(strconv.Itoa(vlanId))
 	}
 
-	if vlanVid, ok := d.Get("vlan_vid").(float64); ok && vlanVid != 0 {
+	if vlanVid, ok := d.Get("vid").(float64); ok && vlanVid != 0 {
 		params.VlanVid = &vlanVid
 	}
 
@@ -77,6 +86,17 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	result := res.GetPayload().Results[0]
 	d.Set("id", result.ID)
+	d.Set("cidr", result.Prefix)
+	d.Set("status", result.Status.Value)
+
+	if result.Vrf != nil {
+		d.Set("vrf_id", result.Vrf.ID)
+	}
+	if result.Vlan != nil {
+		d.Set("vid", result.Vlan.Vid)
+		d.Set("vlan_id", result.Vlan.ID)
+	}
+
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	return nil
 }

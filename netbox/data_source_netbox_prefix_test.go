@@ -72,7 +72,7 @@ data "netbox_prefix" "by_vlan_id" {
 
 data "netbox_prefix" "by_vlan_vid" {
   depends_on = [netbox_prefix.by_vlan_vid]
-  vlan_vid = %[7]d
+  vid = %[7]d
 }
 `, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testVlanVids[0], testVlanVids[1]),
 				Check: resource.ComposeTestCheckFunc(
