@@ -27,7 +27,11 @@ data "netbox_cluster" "vmw_cluster_01" {
 
 ### Read-Only
 
+- `cluster_group_id` (Number)
 - `cluster_id` (Number)
+- `cluster_type_id` (Number)
 - `id` (String) The ID of this resource.
+- `site_id` (Number)
+- `tags` (Set of String)
 
 
