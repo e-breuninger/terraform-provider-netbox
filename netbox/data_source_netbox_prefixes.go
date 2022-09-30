@@ -36,7 +36,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 				Type:             schema.TypeInt,
 				Optional:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
-				Default:          1000,
+				Default:          0,
 			},
 			"prefixes": {
 				Type:     schema.TypeList,

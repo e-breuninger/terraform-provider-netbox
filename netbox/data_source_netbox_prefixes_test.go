@@ -52,7 +52,6 @@ data "netbox_prefixes" "by_vrf" {
 	name  = "vrf_id"
     value = netbox_vrf.test_vrf.id
   }
-  limit = 10
 }
 `, testName, testPrefixes[0], testPrefixes[1], testVlanVids[0], testVlanVids[1]),
 				Check: resource.ComposeTestCheckFunc(
