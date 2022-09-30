@@ -1,3 +1,9 @@
+## 3.0.2 (September 30th, 2022)
+
+ENHANCEMENTS
+
+* data-source/netbox_cluster: Add `site_id`, `cluster_type_id`, `cluster_group_id` and `tags` attribute ([#251](https://github.com/e-breuninger/terraform-provider-netbox/pull/251) by [@ns1pelle](https://github.com/ns1pelle))
+
 ## 3.0.1 (September 25th, 2022)
 
 This is a re-release of 3.0.0 because there seem to be some issues with the checksums in the 3.0.0 version.
@@ -22,7 +28,7 @@ ENHANCEMENTS
 
 * **New Data Source:** `netbox_devices` ([#236](https://github.com/e-breuninger/terraform-provider-netbox/pull/236) by [@dipeshsharma](https://github.com/dipeshsharma))
 * provider: Add `request_timeout` attribute ([#227](https://github.com/e-breuninger/terraform-provider-netbox/pull/227) by [@twink0r](https://github.com/twink0r))
-* data-source/netbox-tenants: Added `limit` attribute to allow for larger queries
+* data-source/netbox_tenants: Add `limit` attribute to allow for larger queries
 
 ## 2.0.6 (September 9th, 2022)
 
