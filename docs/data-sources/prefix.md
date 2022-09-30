@@ -17,13 +17,14 @@ description: |-
 
 ### Optional
 
-- `cidr` (String)
-- `vlan_id` (Number)
-- `vlan_vid` (Number)
-- `vrf_id` (Number)
+- `cidr` (String) At least one of `cidr`, `vid`, `vrf_id` or `vlan_id` must be given.
+- `vid` (Number) At least one of `cidr`, `vid`, `vrf_id` or `vlan_id` must be given.
+- `vlan_id` (Number) At least one of `cidr`, `vid`, `vrf_id` or `vlan_id` must be given.
+- `vrf_id` (Number) At least one of `cidr`, `vid`, `vrf_id` or `vlan_id` must be given.
 
 ### Read-Only
 
 - `id` (Number) The ID of this resource.
+- `status` (String)
 
 
