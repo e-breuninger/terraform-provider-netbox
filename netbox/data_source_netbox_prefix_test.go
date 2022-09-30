@@ -11,7 +11,7 @@ func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 
 	testPrefixes := []string{"10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"}
 	testSlug := "prefix_ds_basic"
-	testVlanVids := []int{4093, 4094}
+	testVlanVids := []int{4091, 4092}
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -24,16 +24,16 @@ resource "netbox_prefix" "by_cidr" {
 }
 
 resource "netbox_vrf" "test" {
-  name = "%[1]s"
+  name = "%[1]s_vrf"
 }
 
 resource "netbox_vlan" "test_id" {
-  name = "%[4]s"
+  name = "%[1]s_vlan_test_id"
   vid  = %[6]d
 }
 
 resource "netbox_vlan" "test_vid" {
-  name = "%[5]s"
+  name = "%[1]s_vlan_test_vid"
   vid  = %[7]d
 }
 
