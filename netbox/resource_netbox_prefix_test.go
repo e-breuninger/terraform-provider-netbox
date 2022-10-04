@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -206,6 +207,35 @@ resource "netbox_prefix" "test" {
 				ResourceName:      "netbox_prefix.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+func TestAccNetboxPrefix_customFields(t *testing.T) {
+	testSlug := "prefix_cf"
+	testName := testAccGetTestName(testSlug)
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "%[1]s"
+	type          = "text"
+	content_types = ["ipam.prefix"]
+}
+resource "netbox_prefix" "test" {
+  status        = "active"
+  prefix		= "10.42.42.0/24"
+  custom_fields = {"${netbox_custom_field.test.name}" = "foo42"}
+}`, testField, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_fields."+testField, "foo42"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "prefix", "10.42.42.0/24"),
+				),
 			},
 		},
 	})

@@ -28,6 +28,7 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 	}
 }
@@ -59,6 +60,12 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	result := res.GetPayload().Results[0]
+
+	cf := getCustomFields(result.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+
 	d.Set("id", result.ID)
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	return nil
