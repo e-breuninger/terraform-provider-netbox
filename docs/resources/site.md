@@ -43,6 +43,7 @@ resource "netbox_site" "example1" {
 - `custom_fields` (Map of String)
 - `description` (String)
 - `facility` (String)
+- `group_id` (Number)
 - `latitude` (Number)
 - `longitude` (Number)
 - `region_id` (Number)
