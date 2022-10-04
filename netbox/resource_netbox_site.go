@@ -62,6 +62,10 @@ func resourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"group_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -125,6 +129,11 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 	regionIDValue, ok := d.GetOk("region_id")
 	if ok {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
+	}
+
+	groupIDValue, ok := d.GetOk("group_id")
+	if ok {
+		data.Group = int64ToPtr(int64(groupIDValue.(int)))
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
@@ -195,6 +204,12 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("region_id", nil)
 	}
 
+	if res.GetPayload().Group != nil {
+		d.Set("group_id", res.GetPayload().Group.ID)
+	} else {
+		d.Set("group_id", nil)
+	}
+
 	if res.GetPayload().Tenant != nil {
 		d.Set("tenant_id", res.GetPayload().Tenant.ID)
 	} else {
@@ -250,6 +265,11 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	regionIDValue, ok := d.GetOk("region_id")
 	if ok {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
+	}
+
+	groupIDValue, ok := d.GetOk("group_id")
+	if ok {
+		data.Group = int64ToPtr(int64(groupIDValue.(int)))
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
