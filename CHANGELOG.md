@@ -1,3 +1,9 @@
+## 3.0.3 (October 4th, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_site: Add `group_id` attribute ([#255](https://github.com/e-breuninger/terraform-provider-netbox/pull/255) by [@arjenvri](https://github.com/arjenvri))
+
 ## 3.0.2 (September 30th, 2022)
 
 ENHANCEMENTS
