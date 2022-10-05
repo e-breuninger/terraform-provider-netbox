@@ -11,7 +11,7 @@ func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 
 	testPrefixes := []string{"10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"}
 	testSlug := "prefix_ds_basic"
-	testVlanVids := []int{4091, 4092}
+	testVlanVids := []int{4090, 4091}
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -57,7 +57,7 @@ resource "netbox_prefix" "by_vlan_vid" {
 
 data "netbox_prefix" "by_cidr" {
   depends_on = [netbox_prefix.by_cidr]
-  cidr = "%[2]s"
+  prefix = "%[2]s"
 }
 
 data "netbox_prefix" "by_vrf_id" {
@@ -72,7 +72,7 @@ data "netbox_prefix" "by_vlan_id" {
 
 data "netbox_prefix" "by_vlan_vid" {
   depends_on = [netbox_prefix.by_vlan_vid]
-  vid = %[7]d
+  vlan_vid = %[7]d
 }
 `, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testVlanVids[0], testVlanVids[1]),
 				Check: resource.ComposeTestCheckFunc(
@@ -81,7 +81,6 @@ data "netbox_prefix" "by_vlan_vid" {
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_id", "id", "netbox_prefix.by_vlan_id", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_vid", "id", "netbox_prefix.by_vlan_vid", "id"),
 				),
-				ExpectNonEmptyPlan: false,
 			},
 		},
 	})

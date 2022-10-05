@@ -39,11 +39,11 @@ Required:
 
 Read-Only:
 
-- `cidr` (String)
 - `id` (Number)
+- `prefix` (String)
 - `status` (String)
-- `vid` (Number)
 - `vlan_id` (Number)
+- `vlan_vid` (Number)
 - `vrf_id` (Number)
 
 

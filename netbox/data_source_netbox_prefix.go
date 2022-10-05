@@ -19,27 +19,27 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"cidr": {
+			"prefix": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsCIDR,
-				AtLeastOneOf: []string{"cidr", "vid", "vrf_id", "vlan_id"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id"},
 			},
-			"vid": {
+			"vlan_vid": {
 				Type:         schema.TypeFloat,
 				Optional:     true,
-				AtLeastOneOf: []string{"cidr", "vid", "vrf_id", "vlan_id"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id"},
 				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"cidr", "vid", "vrf_id", "vlan_id"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id"},
 			},
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"cidr", "vid", "vrf_id", "vlan_id"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id"},
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -57,8 +57,8 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 
-	if cidr, ok := d.Get("cidr").(string); ok && cidr != "" {
-		params.Prefix = &cidr
+	if prefix, ok := d.Get("prefix").(string); ok && prefix != "" {
+		params.Prefix = &prefix
 	}
 
 	if vrfId, ok := d.Get("vrf_id").(int); ok && vrfId != 0 {
@@ -71,7 +71,7 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		params.VlanID = strToPtr(strconv.Itoa(vlanId))
 	}
 
-	if vlanVid, ok := d.Get("vid").(float64); ok && vlanVid != 0 {
+	if vlanVid, ok := d.Get("vlan_vid").(float64); ok && vlanVid != 0 {
 		params.VlanVid = &vlanVid
 	}
 
@@ -86,14 +86,14 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	result := res.GetPayload().Results[0]
 	d.Set("id", result.ID)
-	d.Set("cidr", result.Prefix)
+	d.Set("prefix", result.Prefix)
 	d.Set("status", result.Status.Value)
 
 	if result.Vrf != nil {
 		d.Set("vrf_id", result.Vrf.ID)
 	}
 	if result.Vlan != nil {
-		d.Set("vid", result.Vlan.Vid)
+		d.Set("vlan_vid", result.Vlan.Vid)
 		d.Set("vlan_id", result.Vlan.ID)
 	}
 

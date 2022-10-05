@@ -56,9 +56,8 @@ data "netbox_prefixes" "by_vrf" {
 `, testName, testPrefixes[0], testPrefixes[1], testVlanVids[0], testVlanVids[1]),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_vrf", "prefixes.#", "2"),
-					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vrf", "prefixes.1.vid", "netbox_vlan.test_vlan2", "vid"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vrf", "prefixes.1.vlan_vid", "netbox_vlan.test_vlan2", "vid"),
 				),
-				ExpectNonEmptyPlan: false,
 			},
 		},
 	})

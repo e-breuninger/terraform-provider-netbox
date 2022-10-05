@@ -17,10 +17,10 @@ description: |-
 
 ### Optional
 
-- `cidr` (String) At least one of `cidr`, `vid`, `vrf_id` or `vlan_id` must be given.
-- `vid` (Number) At least one of `cidr`, `vid`, `vrf_id` or `vlan_id` must be given.
-- `vlan_id` (Number) At least one of `cidr`, `vid`, `vrf_id` or `vlan_id` must be given.
-- `vrf_id` (Number) At least one of `cidr`, `vid`, `vrf_id` or `vlan_id` must be given.
+- `prefix` (String) At least one of `prefix`, `vlan_vid`, `vrf_id` or `vlan_id` must be given.
+- `vlan_id` (Number) At least one of `prefix`, `vlan_vid`, `vrf_id` or `vlan_id` must be given.
+- `vlan_vid` (Number) At least one of `prefix`, `vlan_vid`, `vrf_id` or `vlan_id` must be given.
+- `vrf_id` (Number) At least one of `prefix`, `vlan_vid`, `vrf_id` or `vlan_id` must be given.
 
 ### Read-Only
 
