@@ -49,7 +49,7 @@ var customFieldSchema = &schema.Schema{
 			},
 		},
 	},
-	Description: "Existing custom fields to associate to this prefix (ipam module).",
+	Description: "Existing custom fields to associate to this object.",
 }
 
 func getCustomFields(cf interface{}) map[string]interface{} {
