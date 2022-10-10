@@ -19,6 +19,10 @@ resource "netbox_tenant" "test" {
   name = "%[1]s"
 }
 
+resource "netbox_platform" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_site" "test" {
   name = "%[1]s"
   status = "active"
@@ -77,6 +81,7 @@ resource "netbox_device" "test" {
   name = "%[1]s"
   comments = "thisisacomment"
   tenant_id = netbox_tenant.test.id
+  platform_id = netbox_platform.test.id
   role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   tags = ["%[1]sa"]
@@ -88,6 +93,7 @@ resource "netbox_device" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "platform_id", "netbox_platform.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
