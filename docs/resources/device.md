@@ -57,6 +57,7 @@ resource "netbox_device" "test" {
 - `cluster_id` (Number)
 - `comments` (String)
 - `location_id` (Number)
+- `platform_id` (Number)
 - `serial` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
