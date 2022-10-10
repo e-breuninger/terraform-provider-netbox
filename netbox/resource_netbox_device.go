@@ -39,6 +39,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"platform_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"location_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -96,6 +100,12 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		tenantID := int64(tenantIDValue.(int))
 		data.Tenant = &tenantID
+	}
+
+	platformIDValue, ok := d.GetOk("platform_id")
+	if ok {
+		platformID := int64(platformIDValue.(int))
+		data.Platform = &platformID
 	}
 
 	locationIDValue, ok := d.GetOk("location_id")
@@ -176,6 +186,12 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("tenant_id", nil)
 	}
 
+	if device.Platform != nil {
+		d.Set("platform_id", device.Platform.ID)
+	} else {
+		d.Set("platform_id", nil)
+	}
+
 	if device.Location != nil {
 		d.Set("location_id", device.Location.ID)
 	} else {
@@ -227,6 +243,12 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		tenantID := int64(tenantIDValue.(int))
 		data.Tenant = &tenantID
+	}
+
+	platformIDValue, ok := d.GetOk("platform_id")
+	if ok {
+		platformID := int64(platformIDValue.(int))
+		data.Platform = &platformID
 	}
 
 	locationIDValue, ok := d.GetOk("location_id")
