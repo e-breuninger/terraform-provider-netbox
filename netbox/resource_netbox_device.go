@@ -9,6 +9,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+    "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxDevice() *schema.Resource {
@@ -68,6 +69,12 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"status": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "inventory"}, false),
+                Default:      "active",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -95,6 +102,9 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 
 	serial := d.Get("serial").(string)
 	data.Serial = serial
+
+	status := d.Get("status").(string)
+	data.Status = status
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
@@ -216,9 +226,12 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("site_id", nil)
 	}
 
+
 	d.Set("comments", device.Comments)
 
 	d.Set("serial", device.Serial)
+
+    d.Set("status", device.Status.Value)
 
 	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
 	return diags
@@ -232,6 +245,9 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 
 	name := d.Get("name").(string)
 	data.Name = &name
+
+	status := d.Get("status").(string)
+	data.Status = status
 
 	typeIDValue, ok := d.GetOk("device_type_id")
 	if ok {
