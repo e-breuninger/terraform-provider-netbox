@@ -88,6 +88,7 @@ resource "netbox_device" "test" {
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
+  status = "staged"
   serial = "ABCDEF"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -99,6 +100,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
+					resource.TestCheckResourceAttr("netbox_device.test", "status", "staged"),
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
