@@ -1,3 +1,15 @@
+## 3.0.4 (October 11th, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_device: Add `platform_id` attribute ([#264](https://github.com/e-breuninger/terraform-provider-netbox/pull/264) by [@mifrost](https://github.com/mifrost))
+* **New Data Source:** `netbox_prefixes ` ([#253](https://github.com/e-breuninger/terraform-provider-netbox/pull/253) by [@ironashram](https://github.com/ironashram))
+* data-source/netbox_prefix: Add `prefix`, `status`, `vlan_id`, `vlan_vid` attributes ([#253](https://github.com/e-breuninger/terraform-provider-netbox/pull/253) by [@ironashram](https://github.com/ironashram))
+
+CHANGES
+
+* resource/netbox_prefix: Deprecate `cidr` attribute in favor of new canonical `prefix` attribute
+
 ## 3.0.3 (October 4th, 2022)
 
 ENHANCEMENTS

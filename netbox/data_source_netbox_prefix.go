@@ -19,27 +19,36 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"cidr": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Deprecated:    "The `cidr` parameter is deprecated in favor of the canonical `prefix` attribute.",
+				ConflictsWith: []string{"prefix"},
+				ValidateFunc:  validation.IsCIDR,
+				AtLeastOneOf:  []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
+			},
 			"prefix": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.IsCIDR,
-				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id"},
+				Type:          schema.TypeString,
+				Optional:      true,
+				ValidateFunc:  validation.IsCIDR,
+				ConflictsWith: []string{"cidr"},
+				AtLeastOneOf:  []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
 			},
 			"vlan_vid": {
 				Type:         schema.TypeFloat,
 				Optional:     true,
-				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
 				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
 			},
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -56,6 +65,11 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
+
+	// note: cidr is deprecated in favor of prefix
+	if cidr, ok := d.Get("cidr").(string); ok && cidr != "" {
+		params.Prefix = &cidr
+	}
 
 	if prefix, ok := d.Get("prefix").(string); ok && prefix != "" {
 		params.Prefix = &prefix
@@ -86,6 +100,7 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	result := res.GetPayload().Results[0]
 	d.Set("id", result.ID)
+	d.Set("cidr", result.Prefix)
 	d.Set("prefix", result.Prefix)
 	d.Set("status", result.Status.Value)
 
