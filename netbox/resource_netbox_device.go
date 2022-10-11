@@ -9,7 +9,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-    "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxDevice() *schema.Resource {
@@ -73,7 +73,7 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "inventory"}, false),
-                Default:      "active",
+				Default:      "active",
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -226,12 +226,11 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("site_id", nil)
 	}
 
-
 	d.Set("comments", device.Comments)
 
 	d.Set("serial", device.Serial)
 
-    d.Set("status", device.Status.Value)
+	d.Set("status", device.Status.Value)
 
 	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
 	return diags
