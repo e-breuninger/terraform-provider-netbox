@@ -34,8 +34,9 @@ func resourceNetboxService() *schema.Resource {
 				Required: true,
 			},
 			"protocol": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{"tcp", "udp", "sctp"}, false)),
 			},
 			"port": &schema.Schema{
 				Type:         schema.TypeInt,
