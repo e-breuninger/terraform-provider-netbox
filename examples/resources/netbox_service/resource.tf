@@ -6,6 +6,6 @@ data "netbox_virtual_machine" "myvm" {
 resource "netbox_service" "ssh" {
   name               = "ssh"
   ports              = [22]
-  protocol           = "TCP"
+  protocol           = "tcp"
   virtual_machine_id = data.netbox_virtual_machine.myvm.id
 }
