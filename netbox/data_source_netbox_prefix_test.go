@@ -18,7 +18,7 @@ func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_prefix" "by_cidr" {
+resource "netbox_prefix" "by_prefix" {
   prefix = "%[2]s"
   status = "active"
 }
@@ -55,9 +55,14 @@ resource "netbox_prefix" "by_vlan_vid" {
   vlan_id = netbox_vlan.test_vid.id
 }
 
-data "netbox_prefix" "by_cidr" {
-  depends_on = [netbox_prefix.by_cidr]
+data "netbox_prefix" "by_prefix" {
+  depends_on = [netbox_prefix.by_prefix]
   prefix = "%[2]s"
+}
+
+data "netbox_prefix" "by_cidr" {
+  depends_on = [netbox_prefix.by_prefix]
+  cidr = "%[2]s"
 }
 
 data "netbox_prefix" "by_vrf_id" {
@@ -76,7 +81,8 @@ data "netbox_prefix" "by_vlan_vid" {
 }
 `, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testVlanVids[0], testVlanVids[1]),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_cidr", "id", "netbox_prefix.by_cidr", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_prefix", "id", "netbox_prefix.by_prefix", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_cidr", "id", "netbox_prefix.by_prefix", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vrf_id", "id", "netbox_prefix.by_vrf", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_id", "id", "netbox_prefix.by_vlan_id", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_vid", "id", "netbox_prefix.by_vlan_vid", "id"),
