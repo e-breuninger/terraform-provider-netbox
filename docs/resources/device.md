@@ -59,6 +59,7 @@ resource "netbox_device" "test" {
 - `location_id` (Number)
 - `platform_id` (Number)
 - `serial` (String)
+- `status` (String) Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 
