@@ -3,13 +3,13 @@
 page_title: "netbox_cluster_group Resource - terraform-provider-netbox"
 subcategory: "Virtualization"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/virtualization/#cluster-groups:
+  From the official documentation https://docs.netbox.dev/en/stable/features/virtualization/#cluster-groups:
   Cluster groups may be created for the purpose of organizing clusters. The arrangement of clusters into groups is optional.
 ---
 
 # netbox_cluster_group (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#cluster-groups):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#cluster-groups):
 
 > Cluster groups may be created for the purpose of organizing clusters. The arrangement of clusters into groups is optional.
 

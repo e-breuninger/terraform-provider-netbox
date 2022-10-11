@@ -17,7 +17,7 @@ func resourceNetboxTenant() *schema.Resource {
 		Update: resourceNetboxTenantUpdate,
 		Delete: resourceNetboxTenantDelete,
 
-		Description: `:meta:subcategory:Tenancy:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/tenancy/#tenants):
+		Description: `:meta:subcategory:Tenancy:From the [official documentation](https://docs.netbox.dev/en/stable/features/tenancy/#tenants):
 
 > A tenant represents a discrete grouping of resources used for administrative purposes. Typically, tenants are used to represent individual customers or internal departments within an organization. 
 >

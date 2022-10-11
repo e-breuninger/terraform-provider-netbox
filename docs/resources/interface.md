@@ -3,13 +3,13 @@
 page_title: "netbox_interface Resource - terraform-provider-netbox"
 subcategory: "Virtualization"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/virtualization/#interfaces:
+  From the official documentation https://docs.netbox.dev/en/stable/features/virtualization/#interfaces:
   Virtual machine interfaces behave similarly to device interfaces, and can be assigned to VRFs, and may have IP addresses, VLANs, and services attached to them. However, given their virtual nature, they lack properties pertaining to physical attributes. For example, VM interfaces do not have a physical type and cannot have cables attached to them.
 ---
 
 # netbox_interface (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#interfaces):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#interfaces):
 
 > Virtual machine interfaces behave similarly to device interfaces, and can be assigned to VRFs, and may have IP addresses, VLANs, and services attached to them. However, given their virtual nature, they lack properties pertaining to physical attributes. For example, VM interfaces do not have a physical type and cannot have cables attached to them.
 

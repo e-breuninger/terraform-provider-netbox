@@ -16,7 +16,7 @@ func resourceNetboxCluster() *schema.Resource {
 		Update: resourceNetboxClusterUpdate,
 		Delete: resourceNetboxClusterDelete,
 
-		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#clusters):
+		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#clusters):
 
 > A cluster is a logical grouping of physical resources within which virtual machines run. A cluster must be assigned a type (technological classification), and may optionally be assigned to a cluster group, site, and/or tenant. Each cluster must have a unique name within its assigned group and/or site, if any.
 >

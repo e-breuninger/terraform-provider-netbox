@@ -3,13 +3,13 @@
 page_title: "netbox_device_role Resource - terraform-provider-netbox"
 subcategory: "Data Center Inventory Management (DCIM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/devices/#device-roles:
+  From the official documentation https://docs.netbox.dev/en/stable/features/devices/#device-roles:
   Devices can be organized by functional roles, which are fully customizable by the user. For example, you might create roles for core switches, distribution switches, and access switches within your network.
 ---
 
 # netbox_device_role (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#device-roles):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/devices/#device-roles):
 
 > Devices can be organized by functional roles, which are fully customizable by the user. For example, you might create roles for core switches, distribution switches, and access switches within your network.
 

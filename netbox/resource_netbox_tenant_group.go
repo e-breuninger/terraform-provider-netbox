@@ -17,7 +17,7 @@ func resourceNetboxTenantGroup() *schema.Resource {
 		Update: resourceNetboxTenantGroupUpdate,
 		Delete: resourceNetboxTenantGroupDelete,
 
-		Description: `:meta:subcategory:Tenancy:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/tenancy/#tenant-groups):
+		Description: `:meta:subcategory:Tenancy:From the [official documentation](https://docs.netbox.dev/en/stable/features/tenancy/#tenant-groups):
 
 > Tenants can be organized by custom groups. For instance, you might create one group called "Customers" and one called "Departments." The assignment of a tenant to a group is optional.
 >

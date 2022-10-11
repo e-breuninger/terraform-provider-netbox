@@ -17,7 +17,7 @@ func resourceNetboxLocation() *schema.Resource {
 		Update: resourceNetboxLocationUpdate,
 		Delete: resourceNetboxLocationDelete,
 
-		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/sites-and-racks/#locations):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/features/sites-and-racks/#locations):
 
 > Racks and devices can be grouped by location within a site. A location may represent a floor, room, cage, or similar organizational unit. Locations can be nested to form a hierarchy. For example, you may have floors within a site, and rooms within a floor.
 
