@@ -26,6 +26,7 @@ func dataSourceNetboxDeviceRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			tagsKey: tagsSchemaRead,
 		},
 	}
 }
@@ -55,5 +56,6 @@ func dataSourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
 	d.Set("color_hex", result.Color)
+	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))
 	return nil
 }
