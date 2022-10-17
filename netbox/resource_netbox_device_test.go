@@ -90,6 +90,8 @@ resource "netbox_device" "test" {
   location_id = netbox_location.test.id
   status = "staged"
   serial = "ABCDEF"
+  local_context_data = {"testkey"="testvalue"}
+
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
@@ -104,6 +106,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
+					resource.TestCheckResourceAttr("netbox_device.test", "local_context_data.testkey", "testvalue"),
 				),
 			},
 			{

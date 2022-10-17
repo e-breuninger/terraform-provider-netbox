@@ -4,6 +4,7 @@
 package netbox
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 
@@ -59,6 +60,14 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Computed: true,
 						},
 						"comments": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"config_context": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"local_context_data": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -188,6 +197,16 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Comments != "" {
 			mapping["comments"] = device.Comments
+		}
+		if device.ConfigContext != nil {
+			if configContext, err := json.Marshal(device.ConfigContext); err == nil {
+				mapping["config_context"] = string(configContext)
+			}
+		}
+		if device.LocalContextData != nil {
+			if localContextData, err := json.Marshal(device.LocalContextData); err == nil {
+				mapping["local_context_data"] = string(localContextData)
+			}
 		}
 		mapping["device_id"] = device.ID
 		if device.DeviceType != nil {

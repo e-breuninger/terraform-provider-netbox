@@ -64,6 +64,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"local_context_data": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
 			tagsKey: tagsSchema,
 			"primary_ipv4": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -99,6 +103,9 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 
 	comments := d.Get("comments").(string)
 	data.Comments = comments
+
+	local_context_data := d.Get("local_context_data").(map[string]interface{})
+	data.LocalContextData = local_context_data
 
 	serial := d.Get("serial").(string)
 	data.Serial = serial
@@ -227,6 +234,7 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 	}
 
 	d.Set("comments", device.Comments)
+	d.Set("local_context_data", device.LocalContextData)
 
 	d.Set("serial", device.Serial)
 
@@ -297,6 +305,15 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	} else {
 		comments := " "
 		data.Comments = comments
+	}
+
+	LocalContextDataValue, ok := d.GetOk("local_context_data")
+	if ok {
+		local_context_data := LocalContextDataValue.(map[string]interface{})
+		data.LocalContextData = local_context_data
+	} else {
+		local_context_data := map[string]string{}
+		data.LocalContextData = local_context_data
 	}
 
 	primaryIPValue, ok := d.GetOk("primary_ipv4")
