@@ -140,6 +140,7 @@ func Provider() *schema.Provider {
 			"netbox_custom_field_choice_set":    resourceNetboxCustomFieldChoiceSet(),
 			"netbox_virtual_chassis":            resourceNetboxVirtualChassis(),
 			"netbox_event_rule":                 resourceNetboxEventRule(),
+			"netbox_config_context":       resourceNetboxConfigContext(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":               dataSourceNetboxAsn(),
@@ -181,6 +182,8 @@ func Provider() *schema.Provider {
 			"netbox_site_group":        dataSourceNetboxSiteGroup(),
 			"netbox_racks":             dataSourceNetboxRacks(),
 			"netbox_rack_role":         dataSourceNetboxRackRole(),
+			"netbox_config_context":   dataSourceNetboxConfigContext(),
+
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
