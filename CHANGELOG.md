@@ -1,4 +1,9 @@
-## 3.0.5 (unreleased)
+## 3.0.5 (October 18th, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_device_role: Add `tags` attribute ([#269](https://github.com/e-breuninger/terraform-provider-netbox/pull/269) by [@hollow](https://github.com/hollow))
+* data-source/netbox_device_role: Add `tags` attribute ([#269](https://github.com/e-breuninger/terraform-provider-netbox/pull/269) by [@hollow](https://github.com/hollow))
 
 CHANGES
 
