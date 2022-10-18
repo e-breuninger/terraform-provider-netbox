@@ -30,5 +30,6 @@ data "netbox_device_role" "core_sw" {
 - `color_hex` (String)
 - `id` (String) The ID of this resource.
 - `slug` (String)
+- `tags` (Set of String)
 
 
