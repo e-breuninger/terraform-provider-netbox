@@ -19,11 +19,9 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 		UpdateContext: resourceNetboxVirtualMachineUpdate,
 		DeleteContext: resourceNetboxVirtualMachineDelete,
 
-		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#virtual-machines):
+		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#virtual-machines):
 
-> A virtual machine represents a virtual compute instance hosted within a cluster. Each VM must be assigned to exactly one cluster.
->
-> Like devices, each VM can be assigned a platform and/or functional role`,
+> A virtual machine is a virtualized compute instance. These behave in NetBox very similarly to device objects, but without any physical attributes. For example, a VM may have interfaces assigned to it with IP addresses and VLANs, however its interfaces cannot be connected via cables (because they are virtual). Each VM may also define its compute, memory, and storage resources as well.`,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -34,7 +32,6 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				AtLeastOneOf: []string{"site_id", "cluster_id"},
-				Description:  "If this is set to a cluster that has a site, you have to set `site_id` as well.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:     schema.TypeInt,

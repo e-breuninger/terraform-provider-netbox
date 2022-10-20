@@ -3,14 +3,14 @@
 page_title: "netbox_region Resource - terraform-provider-netbox"
 subcategory: "Data Center Inventory Management (DCIM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/sites-and-racks/#regions:
+  From the official documentation https://docs.netbox.dev/en/stable/features/sites-and-racks/#regions:
   Sites can be arranged geographically using regions. A region might represent a continent, country, city, campus, or other area depending on your use case. Regions can be nested recursively to construct a hierarchy. For example, you might define several country regions, and within each of those several state or city regions to which sites are assigned.
   Each region must have a name that is unique within its parent region, if any.
 ---
 
 # netbox_region (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/sites-and-racks/#regions):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/sites-and-racks/#regions):
 
 > Sites can be arranged geographically using regions. A region might represent a continent, country, city, campus, or other area depending on your use case. Regions can be nested recursively to construct a hierarchy. For example, you might define several country regions, and within each of those several state or city regions to which sites are assigned.
 >

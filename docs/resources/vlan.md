@@ -3,13 +3,13 @@
 page_title: "netbox_vlan Resource - terraform-provider-netbox"
 subcategory: "IP Address Management (IPAM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/vlans/#vlans:
+  From the official documentation https://docs.netbox.dev/en/stable/features/vlans/#vlans:
   A VLAN represents an isolated layer two domain, identified by a name and a numeric ID (1-4094) as defined in IEEE 802.1Q. VLANs are arranged into VLAN groups to define scope and to enforce uniqueness.
 ---
 
 # netbox_vlan (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/vlans/#vlans):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/vlans/#vlans):
 
 > A VLAN represents an isolated layer two domain, identified by a name and a numeric ID (1-4094) as defined in IEEE 802.1Q. VLANs are arranged into VLAN groups to define scope and to enforce uniqueness.
 

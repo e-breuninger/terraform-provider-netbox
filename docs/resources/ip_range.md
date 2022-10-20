@@ -3,13 +3,13 @@
 page_title: "netbox_ip_range Resource - terraform-provider-netbox"
 subcategory: "IP Address Management (IPAM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/ipam/#ip-ranges:
+  From the official documentation https://docs.netbox.dev/en/stable/features/ipam/#ip-ranges:
   This model represents an arbitrary range of individual IPv4 or IPv6 addresses, inclusive of its starting and ending addresses. For instance, the range 192.0.2.10 to 192.0.2.20 has eleven members. (The total member count is available as the size property on an IPRange instance.) Like prefixes and IP addresses, each IP range may optionally be assigned to a VRF and/or tenant.
 ---
 
 # netbox_ip_range (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#ip-ranges):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/ipam/#ip-ranges):
 
 > This model represents an arbitrary range of individual IPv4 or IPv6 addresses, inclusive of its starting and ending addresses. For instance, the range 192.0.2.10 to 192.0.2.20 has eleven members. (The total member count is available as the size property on an IPRange instance.) Like prefixes and IP addresses, each IP range may optionally be assigned to a VRF and/or tenant.
 

@@ -3,7 +3,6 @@ package netbox
 import (
 	"fmt"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -120,29 +119,6 @@ resource "netbox_virtual_machine" "only_site" {
 				ResourceName:      "netbox_virtual_machine.only_site",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccNetboxVirtualMachine_ClusterOnly(t *testing.T) {
-
-	testSlug := "vm_clstr"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVirtualMachineDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccNetboxVirtualMachineSiteClusterDependencies(testName) + fmt.Sprintf(`
-resource "netbox_virtual_machine" "only_cluster" {
-  name = "%s"
-  cluster_id = netbox_cluster.test.id
-}
-`, testName),
-
-				ExpectError: regexp.MustCompile(".*The selected cluster.*is not assigned to this site \\(None\\).*"),
 			},
 		},
 	})

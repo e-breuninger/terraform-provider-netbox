@@ -17,7 +17,7 @@ func resourceNetboxCircuit() *schema.Resource {
 		Update: resourceNetboxCircuitUpdate,
 		Delete: resourceNetboxCircuitDelete,
 
-		Description: `:meta:subcategory:Circuits:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/circuits/#circuits_1):
+		Description: `:meta:subcategory:Circuits:From the [official documentation](https://docs.netbox.dev/en/stable/features/circuits/#circuits_1):
 
 > A communications circuit represents a single physical link connecting exactly two endpoints, commonly referred to as its A and Z terminations. A circuit in NetBox may have zero, one, or two terminations defined. It is common to have only one termination defined when you don't necessarily care about the details of the provider side of the circuit, e.g. for Internet access circuits. Both terminations would likely be modeled for circuits which connect one customer site to another.
 > 

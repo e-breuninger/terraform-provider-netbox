@@ -3,14 +3,14 @@
 page_title: "netbox_location Resource - terraform-provider-netbox"
 subcategory: "Data Center Inventory Management (DCIM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/sites-and-racks/#locations:
+  From the official documentation https://docs.netbox.dev/en/stable/features/sites-and-racks/#locations:
   Racks and devices can be grouped by location within a site. A location may represent a floor, room, cage, or similar organizational unit. Locations can be nested to form a hierarchy. For example, you may have floors within a site, and rooms within a floor.
   Each location must have a name that is unique within its parent site and location, if any.
 ---
 
 # netbox_location (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/sites-and-racks/#locations):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/sites-and-racks/#locations):
 
 > Racks and devices can be grouped by location within a site. A location may represent a floor, room, cage, or similar organizational unit. Locations can be nested to form a hierarchy. For example, you may have floors within a site, and rooms within a floor.
 

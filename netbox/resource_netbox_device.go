@@ -9,6 +9,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxDevice() *schema.Resource {
@@ -18,7 +19,7 @@ func resourceNetboxDevice() *schema.Resource {
 		UpdateContext: resourceNetboxDeviceUpdate,
 		DeleteContext: resourceNetboxDeviceDelete,
 
-		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#devices):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/features/devices/#devices):
 
 > Every piece of hardware which is installed within a site or rack exists in NetBox as a device. Devices are measured in rack units (U) and can be half depth or full depth. A device may have a height of 0U: These devices do not consume vertical rack space and cannot be assigned to a particular rack unit. A common example of a 0U device is a vertically-mounted PDU.`,
 
@@ -36,6 +37,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Optional: true,
 			},
 			"cluster_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"platform_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -63,6 +68,12 @@ func resourceNetboxDevice() *schema.Resource {
 			"primary_ipv4": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
+			},
+			"status": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "inventory"}, false),
+				Default:      "active",
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -92,10 +103,19 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	serial := d.Get("serial").(string)
 	data.Serial = serial
 
+	status := d.Get("status").(string)
+	data.Status = status
+
 	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
 		tenantID := int64(tenantIDValue.(int))
 		data.Tenant = &tenantID
+	}
+
+	platformIDValue, ok := d.GetOk("platform_id")
+	if ok {
+		platformID := int64(platformIDValue.(int))
+		data.Platform = &platformID
 	}
 
 	locationIDValue, ok := d.GetOk("location_id")
@@ -176,6 +196,12 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("tenant_id", nil)
 	}
 
+	if device.Platform != nil {
+		d.Set("platform_id", device.Platform.ID)
+	} else {
+		d.Set("platform_id", nil)
+	}
+
 	if device.Location != nil {
 		d.Set("location_id", device.Location.ID)
 	} else {
@@ -204,6 +230,8 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	d.Set("serial", device.Serial)
 
+	d.Set("status", device.Status.Value)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
 	return diags
 }
@@ -217,6 +245,9 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	name := d.Get("name").(string)
 	data.Name = &name
 
+	status := d.Get("status").(string)
+	data.Status = status
+
 	typeIDValue, ok := d.GetOk("device_type_id")
 	if ok {
 		typeID := int64(typeIDValue.(int))
@@ -227,6 +258,12 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		tenantID := int64(tenantIDValue.(int))
 		data.Tenant = &tenantID
+	}
+
+	platformIDValue, ok := d.GetOk("platform_id")
+	if ok {
+		platformID := int64(platformIDValue.(int))
+		data.Platform = &platformID
 	}
 
 	locationIDValue, ok := d.GetOk("location_id")

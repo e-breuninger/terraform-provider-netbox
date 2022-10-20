@@ -3,14 +3,14 @@
 page_title: "netbox_ip_address Resource - terraform-provider-netbox"
 subcategory: "IP Address Management (IPAM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/ipam/#ip-addresses:
+  From the official documentation https://docs.netbox.dev/en/stable/features/ipam/#ip-addresses:
   An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
   Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchy.
 ---
 
 # netbox_ip_address (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#ip-addresses):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/ipam/#ip-addresses):
 
 > An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
 >

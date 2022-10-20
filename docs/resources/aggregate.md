@@ -3,13 +3,13 @@
 page_title: "netbox_aggregate Resource - terraform-provider-netbox"
 subcategory: "IP Address Management (IPAM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/ipam/#aggregates:
+  From the official documentation https://docs.netbox.dev/en/stable/features/ipam/#aggregates:
   NetBox allows us to specify the portions of IP space that are interesting to us by defining aggregates. Typically, an aggregate will correspond to either an allocation of public (globally routable) IP space granted by a regional authority, or a private (internally-routable) designation.
 ---
 
 # netbox_aggregate (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#aggregates):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/ipam/#aggregates):
 
 > NetBox allows us to specify the portions of IP space that are interesting to us by defining aggregates. Typically, an aggregate will correspond to either an allocation of public (globally routable) IP space granted by a regional authority, or a private (internally-routable) designation.
 

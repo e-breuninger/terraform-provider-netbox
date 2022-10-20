@@ -1,3 +1,33 @@
+## 3.0.5 (October 18th, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_device_role: Add `tags` attribute ([#269](https://github.com/e-breuninger/terraform-provider-netbox/pull/269) by [@hollow](https://github.com/hollow))
+* data-source/netbox_device_role: Add `tags` attribute ([#269](https://github.com/e-breuninger/terraform-provider-netbox/pull/269) by [@hollow](https://github.com/hollow))
+
+CHANGES
+
+* resource/netbox_service: Implement provider-side validation on allowed values. Valid values are `tcp`, `udp` and `sctp`.
+
+## 3.0.4 (October 11th, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_device: Add `platform_id` attribute ([#264](https://github.com/e-breuninger/terraform-provider-netbox/pull/264) by [@mifrost](https://github.com/mifrost))
+* **New Data Source:** `netbox_prefixes ` ([#253](https://github.com/e-breuninger/terraform-provider-netbox/pull/253) by [@ironashram](https://github.com/ironashram))
+* data-source/netbox_prefix: Add `prefix`, `status`, `vlan_id`, `vlan_vid` attributes ([#253](https://github.com/e-breuninger/terraform-provider-netbox/pull/253) by [@ironashram](https://github.com/ironashram))
+* resource/netbox_device: Add `status` attribute [#266](https://github.com/e-breuninger/terraform-provider-netbox/pull/266) by [@mifrost](https://github.com/mifrost))
+
+CHANGES
+
+* resource/netbox_prefix: Deprecate `cidr` attribute in favor of new canonical `prefix` attribute
+
+## 3.0.3 (October 4th, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_site: Add `group_id` attribute ([#255](https://github.com/e-breuninger/terraform-provider-netbox/pull/255) by [@arjenvri](https://github.com/arjenvri))
+
 ## 3.0.2 (September 30th, 2022)
 
 ENHANCEMENTS

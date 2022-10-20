@@ -3,7 +3,7 @@
 page_title: "netbox_asn Resource - terraform-provider-netbox"
 subcategory: "IP Address Management (IPAM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/ipam/#asn:
+  From the official documentation https://docs.netbox.dev/en/stable/features/ipam/#asn:
   > ASN is short for Autonomous System Number. This identifier is used in the BGP protocol to identify which "autonomous system" a particular prefix is originating and transiting through.
   >
   > The AS number model within NetBox allows you to model some of this real-world relationship.
@@ -11,7 +11,7 @@ description: |-
 
 # netbox_asn (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#asn):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/ipam/#asn):
 > ASN is short for Autonomous System Number. This identifier is used in the BGP protocol to identify which "autonomous system" a particular prefix is originating and transiting through.
 >
 > The AS number model within NetBox allows you to model some of this real-world relationship.

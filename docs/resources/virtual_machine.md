@@ -3,18 +3,15 @@
 page_title: "netbox_virtual_machine Resource - terraform-provider-netbox"
 subcategory: "Virtualization"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/virtualization/#virtual-machines:
-  A virtual machine represents a virtual compute instance hosted within a cluster. Each VM must be assigned to exactly one cluster.
-  Like devices, each VM can be assigned a platform and/or functional role
+  From the official documentation https://docs.netbox.dev/en/stable/features/virtualization/#virtual-machines:
+  A virtual machine is a virtualized compute instance. These behave in NetBox very similarly to device objects, but without any physical attributes. For example, a VM may have interfaces assigned to it with IP addresses and VLANs, however its interfaces cannot be connected via cables (because they are virtual). Each VM may also define its compute, memory, and storage resources as well.
 ---
 
 # netbox_virtual_machine (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#virtual-machines):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#virtual-machines):
 
-> A virtual machine represents a virtual compute instance hosted within a cluster. Each VM must be assigned to exactly one cluster.
->
-> Like devices, each VM can be assigned a platform and/or functional role
+> A virtual machine is a virtualized compute instance. These behave in NetBox very similarly to device objects, but without any physical attributes. For example, a VM may have interfaces assigned to it with IP addresses and VLANs, however its interfaces cannot be connected via cables (because they are virtual). Each VM may also define its compute, memory, and storage resources as well.
 
 ## Example Usage
 
@@ -70,7 +67,7 @@ resource "netbox_virtual_machine" "full_vm" {
 
 ### Optional
 
-- `cluster_id` (Number) If this is set to a cluster that has a site, you have to set `site_id` as well. At least one of `site_id` or `cluster_id` must be given.
+- `cluster_id` (Number) At least one of `site_id` or `cluster_id` must be given.
 - `comments` (String)
 - `custom_fields` (Map of String)
 - `device_id` (Number)
