@@ -25,6 +25,7 @@ description: |-
 
 ### Read-Only
 
+- `description` (String)
 - `id` (Number) The ID of this resource.
 - `status` (String)
 

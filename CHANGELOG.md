@@ -2,7 +2,7 @@
 
 ENHANCEMENTS
 
-* **New Resource:** `netbox_site_group` ([#273](https://github.com/e-breuninger/terraform-provider-netbox/pull/273) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_contact` ([#273](https://github.com/e-breuninger/terraform-provider-netbox/pull/273) by [@arjenvri](https://github.com/arjenvri))
 * data-source/netbox_prefix: Add `description` attribute ([#277](https://github.com/e-breuninger/terraform-provider-netbox/pull/277) by [@holmesb](https://github.com/holmesb))
 * resource/netbox_cluster: Add `tenant_id` attribute ([#275](https://github.com/e-breuninger/terraform-provider-netbox/pull/275) by [@arjenvri](https://github.com/arjenvri))
 
