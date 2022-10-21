@@ -54,6 +54,10 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -103,6 +107,7 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("cidr", result.Prefix)
 	d.Set("prefix", result.Prefix)
 	d.Set("status", result.Status.Value)
+	d.Set("description", result.Description)
 
 	if result.Vrf != nil {
 		d.Set("vrf_id", result.Vrf.ID)
