@@ -203,6 +203,19 @@ resource "netbox_prefix" "test" {
 				),
 			},
 			{
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  description = "%s 2"
+  status = "active"
+}`, testPrefix, testDesc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "prefix", testPrefix),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "description", fmt.Sprintf("%s 2", testDesc)),
+				),
+			},
+			{
 				ResourceName:      "netbox_prefix.test",
 				ImportState:       true,
 				ImportStateVerify: true,

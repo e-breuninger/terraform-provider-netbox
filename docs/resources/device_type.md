@@ -3,13 +3,13 @@
 page_title: "netbox_device_type Resource - terraform-provider-netbox"
 subcategory: "Data Center Inventory Management (DCIM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/device-types/#device-types_1:
+  From the official documentation https://docs.netbox.dev/en/stable/features/device-types/#device-types_1:
   A device type represents a particular make and model of hardware that exists in the real world. Device types define the physical attributes of a device (rack height and depth) and its individual components (console, power, network interfaces, and so on).
 ---
 
 # netbox_device_type (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/device-types/#device-types_1):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/device-types/#device-types_1):
 
 > A device type represents a particular make and model of hardware that exists in the real world. Device types define the physical attributes of a device (rack height and depth) and its individual components (console, power, network interfaces, and so on).
 

@@ -3,13 +3,13 @@
 page_title: "netbox_cluster_type Resource - terraform-provider-netbox"
 subcategory: "Virtualization"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/core-functionality/virtualization/#cluster-types:
+  From the official documentation https://docs.netbox.dev/en/stable/features/virtualization/#cluster-types:
   A cluster type represents a technology or mechanism by which a cluster is formed. For example, you might create a cluster type named "VMware vSphere" for a locally hosted cluster or "DigitalOcean NYC3" for one hosted by a cloud provider.
 ---
 
 # netbox_cluster_type (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/virtualization/#cluster-types):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#cluster-types):
 
 > A cluster type represents a technology or mechanism by which a cluster is formed. For example, you might create a cluster type named "VMware vSphere" for a locally hosted cluster or "DigitalOcean NYC3" for one hosted by a cloud provider.
 

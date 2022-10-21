@@ -17,7 +17,7 @@ func resourceNetboxService() *schema.Resource {
 		Update: resourceNetboxServiceUpdate,
 		Delete: resourceNetboxServiceDelete,
 
-		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/services/#services):
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/features/services/#services):
 
 > A service represents a layer four TCP or UDP service available on a device or virtual machine. For example, you might want to document that an HTTP service is running on a device. Each service includes a name, protocol, and port number; for example, "SSH (TCP/22)" or "DNS (UDP/53)."
 >
@@ -34,8 +34,9 @@ func resourceNetboxService() *schema.Resource {
 				Required: true,
 			},
 			"protocol": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{"tcp", "udp", "sctp"}, false)),
 			},
 			"port": &schema.Schema{
 				Type:         schema.TypeInt,

@@ -22,6 +22,9 @@ func TestAccNetboxSite_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
+resource "netbox_site_group" "test" {
+  name = "%[1]s"
+}
 resource "netbox_rir" "test" {
   name = "%[1]s"
 }
@@ -38,6 +41,7 @@ resource "netbox_site" "test" {
   description = "%[1]s"
   facility = "%[1]s"
   asn_ids = [netbox_asn.test.id]
+  group_id = netbox_site_group.test.id
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "name", testName),
@@ -47,6 +51,7 @@ resource "netbox_site" "test" {
 					resource.TestCheckResourceAttr("netbox_site.test", "facility", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "asn_ids.#", "1"),
 					resource.TestCheckResourceAttrPair("netbox_site.test", "asn_ids.0", "netbox_asn.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_site.test", "group_id", "netbox_site_group.test", "id"),
 				),
 			},
 			{

@@ -18,10 +18,23 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"site_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"cluster_type_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"cluster_group_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			tagsKey: tagsSchemaRead,
 		},
 	}
 }
@@ -50,5 +63,20 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("cluster_id", result.ID)
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
+	d.Set("cluster_type_id", result.Type.ID)
+
+	if result.Group != nil {
+		d.Set("cluster_group_id", result.Group.ID)
+	} else {
+		d.Set("cluster_group_id", nil)
+	}
+
+	if result.Site != nil {
+		d.Set("site_id", result.Site.ID)
+	} else {
+		d.Set("site_id", nil)
+	}
+
+	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))
 	return nil
 }

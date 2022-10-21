@@ -16,7 +16,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 		Update: resourceNetboxDeviceRoleUpdate,
 		Delete: resourceNetboxDeviceRoleDelete,
 
-		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/devices/#device-roles):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/features/devices/#device-roles):
 
 > Devices can be organized by functional roles, which are fully customizable by the user. For example, you might create roles for core switches, distribution switches, and access switches within your network.`,
 
@@ -39,6 +39,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -63,13 +64,15 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 	color := d.Get("color_hex").(string)
 	vmRole := d.Get("vm_role").(bool)
 
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
 	params := dcim.NewDcimDeviceRolesCreateParams().WithData(
 		&models.DeviceRole{
 			Name:   &name,
 			Slug:   &slug,
 			Color:  color,
 			VMRole: vmRole,
-			Tags:   []*models.NestedTag{},
+			Tags:   tags,
 		},
 	)
 
@@ -104,6 +107,7 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("vm_role", res.GetPayload().VMRole)
 	d.Set("color_hex", res.GetPayload().Color)
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -131,7 +135,9 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	data.Name = &name
 	data.VMRole = vmRole
 	data.Color = color
-	data.Tags = []*models.NestedTag{}
+
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags = tags
 
 	params := dcim.NewDcimDeviceRolesPartialUpdateParams().WithID(id).WithData(&data)
 

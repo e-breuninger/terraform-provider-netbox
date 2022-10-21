@@ -17,11 +17,15 @@ description: |-
 
 ### Optional
 
-- `cidr` (String)
-- `vrf_id` (Number)
+- `cidr` (String, Deprecated) At least one of `prefix`, `vlan_vid`, `vrf_id`, `vlan_id` or `cidr` must be given. Conflicts with `prefix`.
+- `prefix` (String) At least one of `prefix`, `vlan_vid`, `vrf_id`, `vlan_id` or `cidr` must be given. Conflicts with `cidr`.
+- `vlan_id` (Number) At least one of `prefix`, `vlan_vid`, `vrf_id`, `vlan_id` or `cidr` must be given.
+- `vlan_vid` (Number) At least one of `prefix`, `vlan_vid`, `vrf_id`, `vlan_id` or `cidr` must be given.
+- `vrf_id` (Number) At least one of `prefix`, `vlan_vid`, `vrf_id`, `vlan_id` or `cidr` must be given.
 
 ### Read-Only
 
 - `id` (Number) The ID of this resource.
+- `status` (String)
 
 
