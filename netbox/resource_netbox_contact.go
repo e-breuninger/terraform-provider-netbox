@@ -6,8 +6,8 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceNetboxContact() *schema.Resource {
