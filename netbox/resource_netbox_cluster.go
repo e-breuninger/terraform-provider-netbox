@@ -39,6 +39,10 @@ func resourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"tenant_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -66,6 +70,11 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 	if siteIDValue, ok := d.GetOk("site_id"); ok {
 		siteID := int64(siteIDValue.(int))
 		data.Site = &siteID
+	}
+
+	if tenantIDValue, ok := d.GetOk("tenant_id"); ok {
+		tenantID := int64(tenantIDValue.(int))
+		data.Tenant = &tenantID
 	}
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
@@ -115,6 +124,12 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("site_id", nil)
 	}
 
+	if res.GetPayload().Tenant != nil {
+		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	} else {
+		d.Set("tenant_id", nil)
+	}
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
@@ -139,6 +154,11 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 	if siteIDValue, ok := d.GetOk("site_id"); ok {
 		siteID := int64(siteIDValue.(int))
 		data.Site = &siteID
+	}
+
+	if tenantIDValue, ok := d.GetOk("tenant_id"); ok {
+		tenantID := int64(tenantIDValue.(int))
+		data.Tenant = &tenantID
 	}
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
