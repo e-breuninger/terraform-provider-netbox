@@ -62,6 +62,7 @@ func Provider() *schema.Provider {
 			"netbox_virtual_machine":      resourceNetboxVirtualMachine(),
 			"netbox_cluster_type":         resourceNetboxClusterType(),
 			"netbox_cluster":              resourceNetboxCluster(),
+			"netbox_contact":              resourceNetboxContact(),
 			"netbox_device":               resourceNetboxDevice(),
 			"netbox_device_type":          resourceNetboxDeviceType(),
 			"netbox_manufacturer":         resourceNetboxManufacturer(),
