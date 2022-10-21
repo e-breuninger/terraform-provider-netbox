@@ -1,3 +1,8 @@
+## 3.0.6 (October 21st, 2022)
+ENHANCEMENTS
+
+* data-source/netbox_prefix: Add `description` attribute ([#269](https://github.com/e-breuninger/terraform-provider-netbox/pull/277) by [@holmesb](https://github.com/holmesb))
+
 ## 3.0.5 (October 18th, 2022)
 
 ENHANCEMENTS
