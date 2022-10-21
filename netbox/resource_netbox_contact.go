@@ -17,7 +17,7 @@ func resourceNetboxContact() *schema.Resource {
 		Update: resourceNetboxContactUpdate,
 		Delete: resourceNetboxContactDelete,
 
-		Description: `:meta:subcategory:Contacts:From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/tenancy/#contacts):
+		Description: `:meta:subcategory:Tenancy:From the [official documentation](https://docs.netbox.dev/en/stable/features/contacts/#contacts_1):
 
 > A contact should represent an individual or permanent point of contact. Each contact must define a name, and may optionally include a title, phone number, email address, and related details.
 >
