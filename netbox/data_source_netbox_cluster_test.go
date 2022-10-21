@@ -44,38 +44,17 @@ resource "netbox_cluster" "test" {
 }
 
 data "netbox_cluster" "test" {
-	depends_on = [netbox_cluster.test, netbox_cluster_group.test]
-	name = "%[1]s"
+  depends_on = [netbox_cluster.test, netbox_cluster_group.test]
+  name = "%[1]s"
 }
-`, testName1),
+`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_cluster.test", "name", testName1),
+					resource.TestCheckResourceAttr("data.netbox_cluster.test", "name", testName),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.test", "cluster_type_id", "netbox_cluster_type.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.test", "cluster_group_id", "netbox_cluster_group.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("data.netbox_cluster.test", "tags.0", testName1),
-				),
-			},
-			{
-				Config: fmt.Sprintf(`
-resource "netbox_cluster_type" "test1" {
-  name = "%[1]s"
-}
-
-resource "netbox_cluster" "test1" {
-  name = "%[1]s"
-  cluster_type_id = netbox_cluster_type.test1.id
-}
-
-data "netbox_cluster" "test1" {
-	depends_on = [netbox_cluster.test1]
-	name = "%[1]s"
-}
-`, testName2),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_cluster.test1", "name", testName2),
-					resource.TestCheckResourceAttrPair("data.netbox_cluster.test1", "cluster_type_id", "netbox_cluster_type.test1", "id"),
+					resource.TestCheckResourceAttr("data.netbox_cluster.test", "tags.0", testName),
 				),
 			},
 		},

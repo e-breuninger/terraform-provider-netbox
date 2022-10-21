@@ -17,7 +17,7 @@ func resourceNetboxIPAddress() *schema.Resource {
 		Update: resourceNetboxIPAddressUpdate,
 		Delete: resourceNetboxIPAddressDelete,
 
-		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/ipam/#ip-addresses):
+		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/features/ipam/#ip-addresses):
 
 > An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
 >

@@ -31,8 +31,10 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.device_role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.device_type_id", "netbox_device_type.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.platform_id", "netbox_platform.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.serial", "ABCDEF0"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.status", "staged"),
 				),
 			},
 			{
@@ -85,8 +87,10 @@ resource "netbox_device" "test0" {
   device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
+  platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF0"
+  status = "staged"
 }
 
 resource "netbox_device" "test1" {
@@ -96,6 +100,7 @@ resource "netbox_device" "test1" {
   device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
+  platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF1"
 }
@@ -107,6 +112,7 @@ resource "netbox_device" "test2" {
   device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
+  platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF2"
 }
@@ -118,6 +124,7 @@ resource "netbox_device" "test3" {
   device_role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
   site_id = netbox_site.test.id
+  platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF3"
 }

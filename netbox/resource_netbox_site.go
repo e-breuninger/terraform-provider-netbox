@@ -17,7 +17,7 @@ func resourceNetboxSite() *schema.Resource {
 		Update: resourceNetboxSiteUpdate,
 		Delete: resourceNetboxSiteDelete,
 
-		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/core-functionality/sites-and-racks/#sites):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/features/sites-and-racks/#sites):
 
 > How you choose to employ sites when modeling your network may vary depending on the nature of your organization, but generally a site will equate to a building or campus. For example, a chain of banks might create a site to represent each of its branches, a site for its corporate headquarters, and two additional sites for its presence in two colocation facilities.
 >
@@ -59,6 +59,10 @@ func resourceNetboxSite() *schema.Resource {
 				Optional: true,
 			},
 			"region_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"group_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -125,6 +129,11 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 	regionIDValue, ok := d.GetOk("region_id")
 	if ok {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
+	}
+
+	groupIDValue, ok := d.GetOk("group_id")
+	if ok {
+		data.Group = int64ToPtr(int64(groupIDValue.(int)))
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
@@ -195,6 +204,12 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("region_id", nil)
 	}
 
+	if res.GetPayload().Group != nil {
+		d.Set("group_id", res.GetPayload().Group.ID)
+	} else {
+		d.Set("group_id", nil)
+	}
+
 	if res.GetPayload().Tenant != nil {
 		d.Set("tenant_id", res.GetPayload().Tenant.ID)
 	} else {
@@ -250,6 +265,11 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	regionIDValue, ok := d.GetOk("region_id")
 	if ok {
 		data.Region = int64ToPtr(int64(regionIDValue.(int)))
+	}
+
+	groupIDValue, ok := d.GetOk("group_id")
+	if ok {
+		data.Group = int64ToPtr(int64(groupIDValue.(int)))
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
