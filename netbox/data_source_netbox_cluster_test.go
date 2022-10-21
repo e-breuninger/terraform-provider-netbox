@@ -9,10 +9,8 @@ import (
 
 func TestAccNetboxClusterDataSource_basic(t *testing.T) {
 
-	testSlug1 := "clstr_ds_enhanced"
-	testSlug2 := "clstr_ds_basic"
-	testName1 := testAccGetTestName(testSlug1)
-	testName2 := testAccGetTestName(testSlug2)
+	testSlug := "clstr_ds_basic"
+	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

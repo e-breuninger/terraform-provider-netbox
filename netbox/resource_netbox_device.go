@@ -64,11 +64,6 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"status": {
-				Type:     schema.TypeString,
-				Default:  models.DeviceStatusValueActive,
-				Optional: true,
-			},
 			"face": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -202,12 +197,6 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.ParentDevice.ID = parentDeviceID
 	}
 
-	platformIDValue, ok := d.GetOk("platform_id")
-	if ok {
-		platformID := int64(platformIDValue.(int))
-		data.Platform = &platformID
-	}
-
 	positionIDValue, ok := d.GetOk("position_id")
 	if ok {
 		positionID := float64(positionIDValue.(float64))
@@ -333,12 +322,6 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("parent_device_id", device.ParentDevice.ID)
 	} else {
 		d.Set("parent_device_id", nil)
-	}
-
-	if device.Platform != nil {
-		d.Set("platform_id", device.Platform.ID)
-	} else {
-		d.Set("platform_id", nil)
 	}
 
 	if device.Rack != nil {
@@ -505,11 +488,6 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 
 	if d.HasChange("parent_device_id") {
 		data.ParentDevice.ID = int64(d.Get("parent_device_id").(int))
-	}
-
-	if d.HasChange("platform_id") {
-		platformID := int64(d.Get("platform_id").(int))
-		data.Platform = &platformID
 	}
 
 	if d.HasChange("position_id") {
