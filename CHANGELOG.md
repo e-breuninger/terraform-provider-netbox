@@ -1,7 +1,10 @@
 ## 3.0.6 (October 21st, 2022)
+
 ENHANCEMENTS
 
-* data-source/netbox_prefix: Add `description` attribute ([#269](https://github.com/e-breuninger/terraform-provider-netbox/pull/277) by [@holmesb](https://github.com/holmesb))
+* **New Resource:** `netbox_site_group` ([#273](https://github.com/e-breuninger/terraform-provider-netbox/pull/273) by [@arjenvri](https://github.com/arjenvri))
+* data-source/netbox_prefix: Add `description` attribute ([#277](https://github.com/e-breuninger/terraform-provider-netbox/pull/277) by [@holmesb](https://github.com/holmesb))
+* resource/netbox_cluster: Add `tenant_id` attribute ([#275](https://github.com/e-breuninger/terraform-provider-netbox/pull/275) by [@arjenvri](https://github.com/arjenvri))
 
 ## 3.0.5 (October 18th, 2022)
 
