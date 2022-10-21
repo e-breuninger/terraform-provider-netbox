@@ -48,6 +48,7 @@ resource "netbox_cluster" "vmw_cluster_01" {
 - `cluster_group_id` (Number)
 - `site_id` (Number)
 - `tags` (Set of String)
+- `tenant_id` (Number)
 
 ### Read-Only
 
