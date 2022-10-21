@@ -35,6 +35,15 @@ func TestAccNetboxContact_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_contact" "test" {
   name = "%s"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_contact.test", "name", testName),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_contact" "test" {
+  name = "%s"
   email = "test@test.com"
   phone = "123-123123"
 }`, testName),
@@ -48,27 +57,6 @@ resource "netbox_contact" "test" {
 				ResourceName:      "netbox_contact.test",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccNetboxContact_defaultSlug(t *testing.T) {
-
-	testSlug := "contact_defSlug"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-resource "netbox_contact" "test" {
-  name = "%s"
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_contact.test", "name", testName),
-				),
 			},
 		},
 	})
