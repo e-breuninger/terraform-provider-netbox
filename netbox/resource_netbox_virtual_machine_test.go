@@ -200,6 +200,7 @@ resource "netbox_virtual_machine" "test" {
   vcpus = 4
   status = "active"
   tags = ["%[1]sa"]
+  local_context_data = {"testkey"="testvalue"}
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
@@ -215,6 +216,7 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName+"a"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "local_context_data.testkey", "testvalue"),
 				),
 			},
 			{

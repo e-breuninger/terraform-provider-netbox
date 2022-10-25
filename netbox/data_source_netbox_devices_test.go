@@ -4,6 +4,7 @@
 package netbox
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -14,6 +15,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 
 	testSlug := "device_ds_basic"
 	testName := testAccGetTestName(testSlug)
+	testLocalContextData, _ := json.Marshal(map[string]string{"testkey0": "testvalue0"})
 	dependencies := testAccNetboxDeviceDataSourceDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -35,6 +37,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.serial", "ABCDEF0"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.status", "staged"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.local_context_data", string(testLocalContextData)),
 				),
 			},
 			{
@@ -91,6 +94,7 @@ resource "netbox_device" "test0" {
   location_id = netbox_location.test.id
   serial = "ABCDEF0"
   status = "staged"
+  local_context_data = {"testkey0"="testvalue0"}
 }
 
 resource "netbox_device" "test1" {
@@ -103,6 +107,7 @@ resource "netbox_device" "test1" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF1"
+  local_context_data = {"testkey1"="testvalue1"}
 }
 
 resource "netbox_device" "test2" {
@@ -115,6 +120,7 @@ resource "netbox_device" "test2" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF2"
+  local_context_data = {"testkey2"="testvalue2"}
 }
 
 resource "netbox_device" "test3" {
@@ -127,6 +133,7 @@ resource "netbox_device" "test3" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF3"
+  local_context_data = {"testkey3"="testvalue3"}
 }
 `, testName)
 }
