@@ -37,7 +37,7 @@ func testAccGetTestToken() string {
 
 func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("NETBOX_SERVER_URL"); v == "" {
-		t.Fatal("NETBOX_SERVER must be set for acceptance tests.")
+		t.Fatal("NETBOX_SERVER_URL must be set for acceptance tests.")
 	}
 	if v := os.Getenv("NETBOX_API_TOKEN"); v == "" {
 		t.Fatal("NETBOX_API_TOKEN must be set for acceptance tests.")
