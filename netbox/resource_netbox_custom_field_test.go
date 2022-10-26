@@ -49,6 +49,7 @@ resource "netbox_custom_field" "test" {
   name = "%s"
   type = "integer"
   content_types = ["virtualization.vminterface"]
+  groupname = "mygroup"
   weight = 100
   validation_maximum = 1000
   validation_minimum = 10
@@ -57,6 +58,7 @@ resource "netbox_custom_field" "test" {
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "integer"),
 					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "content_types.*", "virtualization.vminterface"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "groupname", "mygroup"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "100"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "validation_maximum", "1000"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "validation_minimum", "10"),
