@@ -73,6 +73,10 @@ func resourceCustomField() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"groupname": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"label": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -109,6 +113,7 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 		Name:            strToPtr(d.Get("name").(string)),
 		Type:            d.Get("type").(string),
 		Description:     d.Get("description").(string),
+		GroupName:       d.Get("groupname").(string),
 		Label:           d.Get("label").(string),
 		Required:        d.Get("required").(bool),
 		ValidationRegex: d.Get("validation_regex").(string),
@@ -159,6 +164,7 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 		Name:            strToPtr(d.Get("name").(string)),
 		Type:            d.Get("type").(string),
 		Description:     d.Get("description").(string),
+		GroupName:       d.Get("groupname").(string),
 		Label:           d.Get("label").(string),
 		Required:        d.Get("required").(bool),
 		ValidationRegex: d.Get("validation_regex").(string),
@@ -238,6 +244,7 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	d.Set("description", res.GetPayload().Description)
+	d.Set("groupname", res.GetPayload().GroupName)
 	d.Set("label", res.GetPayload().Label)
 	d.Set("required", res.GetPayload().Required)
 
