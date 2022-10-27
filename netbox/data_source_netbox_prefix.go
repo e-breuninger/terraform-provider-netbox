@@ -25,30 +25,39 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Deprecated:    "The `cidr` parameter is deprecated in favor of the canonical `prefix` attribute.",
 				ConflictsWith: []string{"prefix"},
 				ValidateFunc:  validation.IsCIDR,
-				AtLeastOneOf:  []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
+				AtLeastOneOf:  []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag_include"},
 			},
 			"prefix": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ValidateFunc:  validation.IsCIDR,
 				ConflictsWith: []string{"cidr"},
-				AtLeastOneOf:  []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
+				AtLeastOneOf:  []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag_include"},
 			},
 			"vlan_vid": {
 				Type:         schema.TypeFloat,
 				Optional:     true,
-				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag_include"},
 				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag_include"},
 			},
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr"},
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag_include"},
+			},
+			"tag_include": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag_include"},
+			},
+			"tag_exclude": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -58,6 +67,7 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"tags": tagsSchemaRead,
 		},
 	}
 }
@@ -92,6 +102,12 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	if vlanVid, ok := d.Get("vlan_vid").(float64); ok && vlanVid != 0 {
 		params.VlanVid = &vlanVid
 	}
+	if tag, ok := d.Get("tag_include").(string); ok && tag != "" {
+		params.Tag = &tag
+	}
+	if tagn, ok := d.Get("tag_exclude").(string); ok && tagn != "" {
+		params.Tagn = &tagn
+	}
 
 	res, err := api.Ipam.IpamPrefixesList(params, nil)
 	if err != nil {
@@ -108,6 +124,7 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("prefix", result.Prefix)
 	d.Set("status", result.Status.Value)
 	d.Set("description", result.Description)
+	d.Set("tags", getTagListFromNestedTagList(result.Tags))
 
 	if result.Vrf != nil {
 		d.Set("vrf_id", result.Vrf.ID)
