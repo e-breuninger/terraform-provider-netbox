@@ -69,6 +69,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"primary_ipv6": &schema.Schema{
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"status": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -190,6 +194,12 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("primary_ipv4", nil)
 	}
 
+	if device.PrimaryIp6 != nil {
+		d.Set("primary_ipv6", device.PrimaryIp6.ID)
+	} else {
+		d.Set("primary_ipv6", nil)
+	}
+
 	if device.Tenant != nil {
 		d.Set("tenant_id", device.Tenant.ID)
 	} else {
@@ -299,10 +309,16 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		data.Comments = comments
 	}
 
-	primaryIPValue, ok := d.GetOk("primary_ipv4")
+	primaryIP4Value, ok := d.GetOk("primary_ipv4")
 	if ok {
-		primaryIP := int64(primaryIPValue.(int))
-		data.PrimaryIp4 = &primaryIP
+		primaryIP4 := int64(primaryIP4Value.(int))
+		data.PrimaryIp4 = &primaryIP4
+	}
+
+	primaryIP6Value, ok := d.GetOk("primary_ipv6")
+	if ok {
+		primaryIP6 := int64(primaryIP6Value.(int))
+		data.PrimaryIp6 = &primaryIP6
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
