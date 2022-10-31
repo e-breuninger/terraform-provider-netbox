@@ -18,21 +18,25 @@ func dataSourceNetboxVlan() *schema.Resource {
 			"vid": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"name", "vid"},
 				ValidateFunc: validation.IntBetween(1, 4094),
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				AtLeastOneOf: []string{"name", "vid"},
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"group_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+			},
 			"role": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
 			"site": {
 				Type:     schema.TypeInt,
@@ -45,6 +49,7 @@ func dataSourceNetboxVlan() *schema.Resource {
 			"tenant": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
 		},
 	}
@@ -60,6 +65,15 @@ func dataSourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	}
 	if vid, ok := d.Get("vid").(int); ok && vid != 0 {
 		params.Vid = strToPtr(strconv.Itoa(vid))
+	}
+	if groupID, ok := d.Get("group_id").(int); ok && groupID != 0 {
+		params.GroupID = strToPtr(strconv.Itoa(groupID))
+	}
+	if roleID, ok := d.Get("role").(int); ok && roleID != 0 {
+		params.RoleID = strToPtr(strconv.Itoa(roleID))
+	}
+	if tenantID, ok := d.Get("tenant").(int); ok && tenantID != 0 {
+		params.TenantID = strToPtr(strconv.Itoa(tenantID))
 	}
 
 	res, err := api.Ipam.IpamVlansList(params, nil)
@@ -78,6 +92,9 @@ func dataSourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("status", vlan.Status.Value)
 	d.Set("description", vlan.Description)
 
+	if vlan.Group != nil {
+		d.Set("group_id", vlan.Group.ID)
+	}
 	if vlan.Role != nil {
 		d.Set("role", vlan.Role.ID)
 	}
