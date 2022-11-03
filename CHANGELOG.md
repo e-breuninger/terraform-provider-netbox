@@ -1,3 +1,13 @@
+## 3.0.7 (November 3rd, 2022)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_contact_role` ([#279](https://github.com/e-breuninger/terraform-provider-netbox/pull/279) by [@arjenvri](https://github.com/arjenvri))
+* **New Resource:** `netbox_contact_assignment` ([#279](https://github.com/e-breuninger/terraform-provider-netbox/pull/279) by [@arjenvri](https://github.com/arjenvri))
+* resource/netbox_device: Add `primary_ipv6` attribute ([#282](https://github.com/e-breuninger/terraform-provider-netbox/pull/282) by [@arjenvri](https://github.com/arjenvri))
+* resource/netbox_virtual_machine: Add `primary_ipv6` attribute ([#283](https://github.com/e-breuninger/terraform-provider-netbox/pull/283) by [@arjenvri](https://github.com/arjenvri))
+* resource/netbox_custom_field: Add `group_name` atribute ([#280](https://github.com/e-breuninger/terraform-provider-netbox/pull/280) by [@arjenvri](https://github.com/arjenvri))
+
 ## 3.0.6 (October 21st, 2022)
 
 ENHANCEMENTS
