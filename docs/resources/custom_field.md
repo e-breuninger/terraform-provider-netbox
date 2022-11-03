@@ -32,7 +32,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/customizatio
 - `choices` (Set of String)
 - `default` (String)
 - `description` (String)
-- `groupname` (String)
+- `group_name` (String)
 - `label` (String)
 - `required` (Boolean)
 - `validation_maximum` (Number)
