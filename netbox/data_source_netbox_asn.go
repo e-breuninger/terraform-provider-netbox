@@ -2,10 +2,11 @@ package netbox
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strconv"
 )
 
 func dataSourceNetboxAsn() *schema.Resource {
@@ -20,18 +21,20 @@ func dataSourceNetboxAsn() *schema.Resource {
 			"asn": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"asn", "tag_include"},
+				AtLeastOneOf: []string{"asn", "tag"},
 			},
-			"tag_include": {
+			"tag": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"asn", "tag_include"},
-				Description:  "Tag to include in the data source filter (must match the tag's slug)",
+				AtLeastOneOf: []string{"asn", "tag"},
+				Description:  "Tag to include in the data source filter (must match the tag's slug).",
 			},
-			"tag_exclude": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Tag to exclude from the data source filter (must match the tag's slug)",
+			"tag__n": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Tag to exclude from the data source filter (must match the tag's slug).
+Refer to [Netbox's documentation](https://demo.netbox.dev/static/docs/rest-api/filtering/#lookup-expressions)
+for more information on available lookup expressions.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -54,10 +57,10 @@ func dataSourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 		params.Asn = &asn
 	}
 
-	if tag, ok := d.Get("tag_include").(string); ok && tag != "" {
+	if tag, ok := d.Get("tag").(string); ok && tag != "" {
 		params.Tag = &tag
 	}
-	if tagn, ok := d.Get("tag_exclude").(string); ok && tagn != "" {
+	if tagn, ok := d.Get("tag__n").(string); ok && tagn != "" {
 		params.Tagn = &tagn
 	}
 

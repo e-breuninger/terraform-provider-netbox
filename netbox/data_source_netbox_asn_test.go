@@ -40,7 +40,7 @@ data "netbox_asn" "test" {
 func testAccNetboxAsnByTag(testName string) string {
 	return fmt.Sprintf(`
 data "netbox_asn" "test" {
-  tag_include = "%[1]s"
+  tag = "%[1]s"
 }`, testName)
 }
 
