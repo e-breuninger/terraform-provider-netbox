@@ -43,10 +43,10 @@ func resourceNetboxInterface() *schema.Resource {
 				Default:  true,
 			},
 			"mac_address": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
-				ForceNew: true,
+				ForceNew:     true,
 			},
 			"mode": {
 				Type:         schema.TypeString,

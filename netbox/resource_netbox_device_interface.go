@@ -43,10 +43,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Default:  true,
 			},
 			"mac_address": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
-				ForceNew: true,
+				ForceNew:     true,
 			},
 			"mgmtonly": {
 				Type:     schema.TypeBool,
@@ -63,8 +63,8 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				ValidateFunc: validation.IntBetween(1, 65536),
 			},
 			"type": {
-				Type:       schema.TypeString,
-				Required:   true,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			tagsKey: tagsSchema,
 			"tagged_vlans": {
@@ -104,16 +104,16 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	deviceID := int64(d.Get("device_id").(int))
 
 	data := models.WritableInterface{
-		Name:           &name,
-		Description:    description,
-		Type:           &interface_type,
-		Enabled:        enabled,
-		MgmtOnly:       mgmtonly,
-		Mode:           mode,
-		Tags:           tags,
-		TaggedVlans:    taggedVlans,
-		Device:         &deviceID,
-		WirelessLans:   []int64{},
+		Name:         &name,
+		Description:  description,
+		Type:         &interface_type,
+		Enabled:      enabled,
+		MgmtOnly:     mgmtonly,
+		Mode:         mode,
+		Tags:         tags,
+		TaggedVlans:  taggedVlans,
+		Device:       &deviceID,
+		WirelessLans: []int64{},
 	}
 	if macAddress := d.Get("mac_address").(string); macAddress != "" {
 		data.MacAddress = &macAddress
@@ -200,16 +200,16 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	deviceID := int64(d.Get("device_id").(int))
 
 	data := models.WritableInterface{
-		Name:           &name,
-		Description:    description,
-		Type:           &interface_type,
-		Enabled:        enabled,
-		MgmtOnly:       mgmtonly,
-		Mode:           mode,
-		Tags:           tags,
-		TaggedVlans:    taggedVlans,
-		Device:         &deviceID,
-		WirelessLans:   []int64{},
+		Name:         &name,
+		Description:  description,
+		Type:         &interface_type,
+		Enabled:      enabled,
+		MgmtOnly:     mgmtonly,
+		Mode:         mode,
+		Tags:         tags,
+		TaggedVlans:  taggedVlans,
+		Device:       &deviceID,
+		WirelessLans: []int64{},
 	}
 
 	if d.HasChange("mac_address") {
