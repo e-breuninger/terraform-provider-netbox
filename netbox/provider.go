@@ -101,6 +101,7 @@ func Provider() *schema.Provider {
 			"netbox_site_group":           resourceNetboxSiteGroup(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
+			"netbox_asn":              dataSourceNetboxAsn(),
 			"netbox_cluster":          dataSourceNetboxCluster(),
 			"netbox_cluster_group":    dataSourceNetboxClusterGroup(),
 			"netbox_cluster_type":     dataSourceNetboxClusterType(),
