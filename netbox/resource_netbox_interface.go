@@ -2,7 +2,6 @@ package netbox
 
 import (
 	"context"
-	"regexp"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -46,9 +45,7 @@ func resourceNetboxInterface() *schema.Resource {
 			"mac_address": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^([A-Z0-9]{2}:){5}[A-Z0-9]{2}$"),
-					"Must be like AA:AA:AA:AA:AA"),
+				ValidateFunc: validation.IsMACAddress,
 				ForceNew: true,
 			},
 			"mode": {

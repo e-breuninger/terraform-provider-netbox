@@ -31,7 +31,7 @@ resource "netbox_device_role" "test" {
 }
 
 resource "netbox_manufacturer" "test" {
-	name = "%[1]s"
+  name = "%[1]s"
 }
 
 resource "netbox_device_type" "test" {
