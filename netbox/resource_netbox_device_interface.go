@@ -5,31 +5,31 @@ import (
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
-	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
+	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxInterface() *schema.Resource {
+func resourceNetboxDeviceInterface() *schema.Resource {
 	validModes := []string{"access", "tagged", "tagged-all"}
 
 	return &schema.Resource{
-		CreateContext: resourceNetboxInterfaceCreate,
-		ReadContext:   resourceNetboxInterfaceRead,
-		UpdateContext: resourceNetboxInterfaceUpdate,
-		DeleteContext: resourceNetboxInterfaceDelete,
+		CreateContext: resourceNetboxDeviceInterfaceCreate,
+		ReadContext:   resourceNetboxDeviceInterfaceRead,
+		UpdateContext: resourceNetboxDeviceInterfaceUpdate,
+		DeleteContext: resourceNetboxDeviceInterfaceDelete,
 
-		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#interfaces):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/features/device/#interface):
 
-> Virtual machine interfaces behave similarly to device interfaces, and can be assigned to VRFs, and may have IP addresses, VLANs, and services attached to them. However, given their virtual nature, they lack properties pertaining to physical attributes. For example, VM interfaces do not have a physical type and cannot have cables attached to them.`,
+> Interfaces in NetBox represent network interfaces used to exchange data with connected devices. On modern networks, these are most commonly Ethernet, but other types are supported as well. IP addresses and VLANs can be assigned to interfaces.`,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"virtual_machine_id": {
+			"device_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
@@ -48,6 +48,10 @@ func resourceNetboxInterface() *schema.Resource {
 				ValidateFunc: validation.IsMACAddress,
 				ForceNew:     true,
 			},
+			"mgmtonly": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -59,9 +63,8 @@ func resourceNetboxInterface() *schema.Resource {
 				ValidateFunc: validation.IntBetween(1, 65536),
 			},
 			"type": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "This attribute is not supported by netbox any longer. It will be removed in future versions of this provider.",
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			tagsKey: tagsSchema,
 			"tagged_vlans": {
@@ -82,30 +85,35 @@ func resourceNetboxInterface() *schema.Resource {
 	}
 }
 
-func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
+	interface_type := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
+	mgmtonly := d.Get("mgmtonly").(bool)
 	mode := d.Get("mode").(string)
 	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	if diagnostics != nil {
 		diags = append(diags, diagnostics...)
 	}
 	taggedVlans := toInt64List(d.Get("tagged_vlans"))
-	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
+	deviceID := int64(d.Get("device_id").(int))
 
-	data := models.WritableVMInterface{
-		Name:           &name,
-		Description:    description,
-		Enabled:        enabled,
-		Mode:           mode,
-		Tags:           tags,
-		TaggedVlans:    taggedVlans,
-		VirtualMachine: &virtualMachineID,
+	data := models.WritableInterface{
+		Name:         &name,
+		Description:  description,
+		Type:         &interface_type,
+		Enabled:      enabled,
+		MgmtOnly:     mgmtonly,
+		Mode:         mode,
+		Tags:         tags,
+		TaggedVlans:  taggedVlans,
+		Device:       &deviceID,
+		WirelessLans: []int64{},
 	}
 	if macAddress := d.Get("mac_address").(string); macAddress != "" {
 		data.MacAddress = &macAddress
@@ -116,9 +124,10 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	if untaggedVlan, ok := d.Get("untagged_vlan").(int); ok && untaggedVlan != 0 {
 		data.UntaggedVlan = int64ToPtr(int64(untaggedVlan))
 	}
-	params := virtualization.NewVirtualizationInterfacesCreateParams().WithData(&data)
 
-	res, err := api.Virtualization.VirtualizationInterfacesCreate(params, nil)
+	params := dcim.NewDcimInterfacesCreateParams().WithData(&data)
+
+	res, err := api.Dcim.DcimInterfacesCreate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -128,17 +137,17 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	return diags
 }
 
-func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	var diags diag.Diagnostics
 
-	params := virtualization.NewVirtualizationInterfacesReadParams().WithID(id)
+	params := dcim.NewDcimInterfacesReadParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationInterfacesRead(params, nil)
+	res, err := api.Dcim.DcimInterfacesRead(params, nil)
 	if err != nil {
-		errorcode := err.(*virtualization.VirtualizationInterfacesReadDefault).Code()
+		errorcode := err.(*dcim.DcimInterfacesReadDefault).Code()
 		if errorcode == 404 {
 			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 			d.SetId("")
@@ -151,12 +160,14 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 
 	d.Set("name", iface.Name)
 	d.Set("description", iface.Description)
+	d.Set("type", iface.Type.Value)
 	d.Set("enabled", iface.Enabled)
+	d.Set("mgmtonly", iface.MgmtOnly)
 	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
 	d.Set(tagsKey, getTagListFromNestedTagList(iface.Tags))
-	d.Set("tagged_vlans", getIDsFromNestedVLAN(iface.TaggedVlans))
-	d.Set("virtual_machine_id", iface.VirtualMachine.ID)
+	d.Set("tagged_vlans", getIDsFromNestedVLANDevice(iface.TaggedVlans))
+	d.Set("device_id", iface.Device.ID)
 
 	if iface.Mode != nil {
 		d.Set("mode", iface.Mode.Value)
@@ -168,7 +179,7 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	return diags
 }
 
-func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
 
 	var diags diag.Diagnostics
@@ -177,23 +188,28 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
+	interface_type := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
+	mgmtonly := d.Get("mgmtonly").(bool)
 	mode := d.Get("mode").(string)
 	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	if diagnostics != nil {
 		diags = append(diags, diagnostics...)
 	}
 	taggedVlans := toInt64List(d.Get("tagged_vlans"))
-	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
+	deviceID := int64(d.Get("device_id").(int))
 
-	data := models.WritableVMInterface{
-		Name:           &name,
-		Description:    description,
-		Enabled:        enabled,
-		Mode:           mode,
-		Tags:           tags,
-		TaggedVlans:    taggedVlans,
-		VirtualMachine: &virtualMachineID,
+	data := models.WritableInterface{
+		Name:         &name,
+		Description:  description,
+		Type:         &interface_type,
+		Enabled:      enabled,
+		MgmtOnly:     mgmtonly,
+		Mode:         mode,
+		Tags:         tags,
+		TaggedVlans:  taggedVlans,
+		Device:       &deviceID,
+		WirelessLans: []int64{},
 	}
 
 	if d.HasChange("mac_address") {
@@ -209,8 +225,8 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 		data.UntaggedVlan = &untaggedvlan
 	}
 
-	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil)
+	params := dcim.NewDcimInterfacesPartialUpdateParams().WithID(id).WithData(&data)
+	_, err := api.Dcim.DcimInterfacesPartialUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -218,20 +234,20 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	return diags
 }
 
-func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetboxDeviceInterfaceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationInterfacesDeleteParams().WithID(id)
+	params := dcim.NewDcimInterfacesDeleteParams().WithID(id)
 
-	_, err := api.Virtualization.VirtualizationInterfacesDelete(params, nil)
+	_, err := api.Dcim.DcimInterfacesDelete(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
 }
 
-func getIDsFromNestedVLAN(nestedvlans []*models.NestedVLAN) []int64 {
+func getIDsFromNestedVLANDevice(nestedvlans []*models.NestedVLAN) []int64 {
 	var vlans []int64
 	for _, vlan := range nestedvlans {
 		vlans = append(vlans, vlan.ID)
