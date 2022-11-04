@@ -21,7 +21,7 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 		UpdateContext: resourceNetboxDeviceInterfaceUpdate,
 		DeleteContext: resourceNetboxDeviceInterfaceDelete,
 
-		Description: `:meta:subcategory:Dcim:From the [official documentation](https://docs.netbox.dev/en/stable/features/device/#interface):
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/features/device/#interface):
 
 > Interfaces in NetBox represent network interfaces used to exchange data with connected devices. On modern networks, these are most commonly Ethernet, but other types are supported as well. IP addresses and VLANs can be assigned to interfaces.`,
 		Schema: map[string]*schema.Schema{
