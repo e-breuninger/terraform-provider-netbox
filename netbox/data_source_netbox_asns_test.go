@@ -40,6 +40,16 @@ data "netbox_asns" "test" {
 }`)
 }
 
+func testAccNetboxAsnsByAsnN() string {
+	return fmt.Sprintf(`
+data "netbox_asns" "test" {
+  filter {
+	name = "asn__n"
+	value = "123"
+  }
+}`)
+}
+
 func testAccNetboxAsnsByRange(testName string) string {
 	return fmt.Sprintf(`
 data "netbox_asns" "test" {
@@ -72,6 +82,13 @@ func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_asns.test", "asns.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.0.id", "netbox_asn.test_1", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxAsnsByAsnN(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_asns.test", "asns.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.0.id", "netbox_asn.test_2", "id"),
 				),
 			},
 			{
