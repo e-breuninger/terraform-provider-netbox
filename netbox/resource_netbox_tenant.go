@@ -39,6 +39,10 @@ func resourceNetboxTenant() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -51,6 +55,8 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	group_id := int64(d.Get("group_id").(int))
+	description := d.Get("description").(string)
+
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 	// Default slug to name attribute if not given
@@ -66,6 +72,7 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Slug = &slug
+	data.Description = description
 	data.Tags = tags
 
 	if group_id != 0 {
@@ -102,6 +109,7 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	d.Set("description", res.GetPayload().Description)
 	if res.GetPayload().Group != nil {
 		d.Set("group_id", res.GetPayload().Group.ID)
 	}
@@ -116,6 +124,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritableTenant{}
 
 	name := d.Get("name").(string)
+	description := d.Get("description").(string)
 	group_id := int64(d.Get("group_id").(int))
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
@@ -130,6 +139,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Slug = &slug
 	data.Name = &name
+	data.Description = description
 	data.Tags = tags
 	if group_id != 0 {
 		data.Group = &group_id
