@@ -1,3 +1,8 @@
+## 3.0.8 (November 9th, 2022)
+
+BUG FIXES
+* data-source/netbox_prefixes: FIx kernel panic when finding prefixes without vlan or vrf
+
 ## 3.0.7 (November 3rd, 2022)
 
 ENHANCEMENTS

@@ -121,9 +121,13 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 
 		mapping["id"] = v.ID
 		mapping["prefix"] = v.Prefix
-		mapping["vlan_vid"] = v.Vlan.Vid
-		mapping["vrf_id"] = v.Vrf.ID
-		mapping["vlan_id"] = v.Vlan.ID
+		if v.Vlan != nil {
+			mapping["vlan_vid"] = v.Vlan.Vid
+			mapping["vlan_id"] = v.Vlan.ID
+		}
+		if v.Vrf != nil {
+			mapping["vrf_id"] = v.Vrf.ID
+		}
 		mapping["status"] = v.Status.Value
 
 		s = append(s, mapping)
