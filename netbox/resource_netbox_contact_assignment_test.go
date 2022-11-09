@@ -86,12 +86,12 @@ func init() {
 				return err
 			}
 			for _, contactassignment := range res.GetPayload().Results {
-					deleteParams := tenancy.NewTenancyContactAssignmentsDeleteParams().WithID(contactassignment.ID)
-					_, err := api.Tenancy.TenancyContactAssignmentsDelete(deleteParams, nil)
-					if err != nil {
-						return err
-					}
-					log.Print("[DEBUG] Deleted a contact assignment")
+				deleteParams := tenancy.NewTenancyContactAssignmentsDeleteParams().WithID(contactassignment.ID)
+				_, err := api.Tenancy.TenancyContactAssignmentsDelete(deleteParams, nil)
+				if err != nil {
+					return err
+				}
+				log.Print("[DEBUG] Deleted a contact assignment")
 			}
 			return nil
 		},
