@@ -1,5 +1,12 @@
 ## 3.0.8 (November 9th, 2022)
 
+ENHANCEMENTS
+
+* **New Resource:** `netbox_device_interface` ([#286](https://github.com/e-breuninger/terraform-provider-netbox/pull/286) by [@arjenvri](https://github.com/arjenvri))
+* **New Data Source:** `netbox_asn` ([#285](https://github.com/e-breuninger/terraform-provider-netbox/pull/285) by [@kyle-burnett](https://github.com/kyle-burnett))
+* **New Data Source:** `netbox_asns` ([#292](https://github.com/e-breuninger/terraform-provider-netbox/pull/292) by [@kyle-burnett](https://github.com/kyle-burnett))
+* data-source/netbox_prefix: Add `tags` and tag filter attributes ([#284](https://github.com/e-breuninger/terraform-provider-netbox/pull/284) by [@kyle-burnett](https://github.com/kyle-burnett))
+
 BUG FIXES
 * data-source/netbox_prefixes: FIx kernel panic when finding prefixes without vlan or vrf
 
