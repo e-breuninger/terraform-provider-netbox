@@ -27,6 +27,7 @@ func TestAccNetboxTenant_basic(t *testing.T) {
 
 	testSlug := "tenant_basic"
 	testName := testAccGetTestName(testSlug)
+	testDescription := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -37,10 +38,12 @@ func TestAccNetboxTenant_basic(t *testing.T) {
 resource "netbox_tenant" "test" {
   name = "%s"
   slug = "%s"
-}`, testName, randomSlug),
+  description = "%s"
+}`, testName, randomSlug, testDescription),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tenant.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_tenant.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_tenant.test", "description", testDescription),
 				),
 			},
 			{

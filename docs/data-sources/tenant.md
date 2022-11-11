@@ -23,6 +23,7 @@ data "netbox_tenant" "customer_a" {
 
 ### Optional
 
+- `description` (String)
 - `name` (String) At least one of `name` or `slug` must be given.
 - `slug` (String) At least one of `name` or `slug` must be given.
 
