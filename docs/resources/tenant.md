@@ -33,6 +33,7 @@ resource "netbox_tenant" "customer_a" {
 
 ### Optional
 
+- `description` (String)
 - `group_id` (Number)
 - `slug` (String)
 - `tags` (Set of String)
