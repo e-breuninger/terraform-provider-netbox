@@ -1,3 +1,10 @@
+## 3.0.9 (November 17th, 2022)
+
+ENHANCEMENTS
+
+* data-source/netbox_vlan: Allow querying by `group_id`, `role` and `tenant` ([#287](https://github.com/e-breuninger/terraform-provider-netbox/pull/287) by [@tstarck](https://github.com/tstarck))
+* data-source/netbox_prefix: Allow querying by `description` ([#298](https://github.com/e-breuninger/terraform-provider-netbox/pull/298) by [@luispcoutinho](https://github.com/luispcoutinho))
+
 ## 3.0.8 (November 9th, 2022)
 
 ENHANCEMENTS
@@ -8,7 +15,7 @@ ENHANCEMENTS
 * data-source/netbox_prefix: Add `tags` and tag filter attributes ([#284](https://github.com/e-breuninger/terraform-provider-netbox/pull/284) by [@kyle-burnett](https://github.com/kyle-burnett))
 
 BUG FIXES
-* data-source/netbox_prefixes: FIx kernel panic when finding prefixes without vlan or vrf
+* data-source/netbox_prefixes: Fix kernel panic when finding prefixes without vlan or vrf
 
 ## 3.0.7 (November 3rd, 2022)
 
