@@ -9,7 +9,7 @@ import (
 
 func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 
-	testPrefixes := []string{"10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"}
+	testPrefixes := []string{"10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", "10.0.4.0/24"}
 	testSlug := "prefix_ds_basic"
 	testVlanVids := []int{4090, 4091}
 	testName := testAccGetTestName(testSlug)
@@ -23,18 +23,24 @@ resource "netbox_prefix" "by_prefix" {
   status = "active"
 }
 
+resource "netbox_prefix" "by_description" {
+  prefix = "%[6]s"
+  status = "active"
+  description = "%[6]s_description_test_id"
+}
+
 resource "netbox_vrf" "test" {
   name = "%[1]s_vrf"
 }
 
 resource "netbox_vlan" "test_id" {
   name = "%[1]s_vlan_test_id"
-  vid  = %[6]d
+  vid  = %[7]d
 }
 
 resource "netbox_vlan" "test_vid" {
   name = "%[1]s_vlan_test_vid"
-  vid  = %[7]d
+  vid  = %[8]d
 }
 
 resource "netbox_prefix" "by_vrf" {
@@ -60,6 +66,11 @@ data "netbox_prefix" "by_prefix" {
   prefix = "%[2]s"
 }
 
+data "netbox_prefix" "by_description" {
+  depends_on = [netbox_prefix.by_description]
+  description = netbox_prefix.by_description.description
+}
+
 data "netbox_prefix" "by_cidr" {
   depends_on = [netbox_prefix.by_prefix]
   cidr = "%[2]s"
@@ -77,11 +88,12 @@ data "netbox_prefix" "by_vlan_id" {
 
 data "netbox_prefix" "by_vlan_vid" {
   depends_on = [netbox_prefix.by_vlan_vid]
-  vlan_vid = %[7]d
+  vlan_vid = %[8]d
 }
-`, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testVlanVids[0], testVlanVids[1]),
+`, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testPrefixes[4], testVlanVids[0], testVlanVids[1]),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_prefix", "id", "netbox_prefix.by_prefix", "id"),
+          resource.TestCheckResourceAttrPair("data.netbox_prefix.by_description", "id", "netbox_prefix.by_description", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_cidr", "id", "netbox_prefix.by_prefix", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vrf_id", "id", "netbox_prefix.by_vrf", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_id", "id", "netbox_prefix.by_vlan_id", "id"),
