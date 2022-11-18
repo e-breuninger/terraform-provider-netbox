@@ -40,6 +40,7 @@ resource "netbox_device_type" "test" {
 - `part_number` (String)
 - `slug` (String)
 - `tags` (Set of String)
+- `u_height` (Number) Defaults to `1.0`.
 
 ### Read-Only
 
