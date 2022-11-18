@@ -40,6 +40,11 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"u_height": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+				Default:  "1.0",
+			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -71,6 +76,10 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 
 	if partNo, ok := d.GetOk("part_number"); ok {
 		data.PartNumber = partNo.(string)
+	}
+
+	if uHeightValue, ok := d.GetOk("u_height"); ok {
+		data.UHeight = float64ToPtr(float64(uHeightValue.(float64)))
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
@@ -109,6 +118,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", device_type.Slug)
 	d.Set("manufacturer_id", device_type.Manufacturer.ID)
 	d.Set("part_number", device_type.PartNumber)
+	d.Set("u_height", device_type.UHeight)
 	d.Set(tagsKey, getTagListFromNestedTagList(device_type.Tags))
 
 	return nil
@@ -138,6 +148,10 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 
 	if partNo, ok := d.GetOk("part_number"); ok {
 		data.PartNumber = partNo.(string)
+	}
+
+	if uHeightValue, ok := d.GetOk("u_height"); ok {
+		data.UHeight = float64ToPtr(float64(uHeightValue.(float64)))
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))

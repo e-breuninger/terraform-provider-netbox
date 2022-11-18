@@ -39,7 +39,7 @@ func dataSourceNetboxDeviceType() *schema.Resource {
 				Optional: true,
 			},
 			"u_height": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeFloat,
 				Computed: true,
 			},
 		},
