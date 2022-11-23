@@ -103,7 +103,7 @@ func dataSourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
-	d.Set("slug", result.Name)
+	d.Set("slug", result.Slug)
 	d.Set("description", result.Description)
 	if result.Parent != nil {
 		d.Set("parent_region_id", result.Parent.ID)
