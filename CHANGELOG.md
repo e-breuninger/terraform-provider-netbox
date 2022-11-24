@@ -4,6 +4,10 @@ ENHANCEMENTS
 
 * provider: Add `strip_trailing_slashes_from_url` attribute
 
+BUG FIXES
+
+* data-source/netbox_region: Use correct field for slug attribute ([#302](https://github.com/e-breuninger/terraform-provider-netbox/pull/302) by [@paulexyz](https://github.com/paulexyz))
+
 ## 3.0.9 (November 17th, 2022)
 
 ENHANCEMENTS
