@@ -15,6 +15,7 @@ ENHANCEMENTS
 * data-source/netbox_prefix: Add `tags` and tag filter attributes ([#284](https://github.com/e-breuninger/terraform-provider-netbox/pull/284) by [@kyle-burnett](https://github.com/kyle-burnett))
 
 BUG FIXES
+
 * data-source/netbox_prefixes: Fix kernel panic when finding prefixes without vlan or vrf
 
 ## 3.0.7 (November 3rd, 2022)
