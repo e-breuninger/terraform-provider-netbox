@@ -13,11 +13,12 @@ import (
 
 // Config struct for the netbox provider
 type Config struct {
-	APIToken           string
-	ServerURL          string
-	AllowInsecureHttps bool
-	Headers            map[string]interface{}
-	RequestTimeout     int
+	APIToken                    string
+	ServerURL                   string
+	AllowInsecureHttps          bool
+	Headers                     map[string]interface{}
+	RequestTimeout              int
+	StripTrailingSlashesFromURL bool
 }
 
 // customHeaderTransport is a transport that adds the specified headers on
