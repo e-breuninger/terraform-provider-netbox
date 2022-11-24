@@ -31,8 +31,8 @@ func dataSourceNetboxTenant() *schema.Resource {
 				Computed: true,
 			},
 			"description": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
