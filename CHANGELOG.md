@@ -1,3 +1,9 @@
+## 3.0.10 (November 24th, 2022)
+
+ENHANCEMENTS
+
+* provider: Add `strip_trailing_slashes_from_url` attribute
+
 ## 3.0.9 (November 17th, 2022)
 
 ENHANCEMENTS

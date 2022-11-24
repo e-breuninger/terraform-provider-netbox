@@ -131,7 +131,7 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_SERVER_URL", nil),
-				Description: "Location of Netbox server including scheme (http or https) and optional port, but without trailing slash. Can be set via the `NETBOX_SERVER_URL` environment variable.",
+				Description: "Location of Netbox server including scheme (http or https) and optional port. Can be set via the `NETBOX_SERVER_URL` environment variable.",
 			},
 			"api_token": {
 				Type:        schema.TypeString,
@@ -150,6 +150,12 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_HEADERS", map[string]interface{}{}),
 				Description: "Set these header on all requests to Netbox. Can be set via the `NETBOX_HEADERS` environment variable.",
+			},
+			"strip_trailing_slashes_from_url": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_STRIP_TRAILING_SLASHES_FROM_URL", true),
+				Description: "If true, strip trailing slashes from the `server_url` parameter and print a warning when doing so. Note that using trailing slashes in the `server_url` parameter will usually lead to errors. Can be set via the `NETBOX_STRIP_TRAILING_SLASHES_FROM_URL` environment variable.",
 			},
 			"skip_version_check": {
 				Type:        schema.TypeBool,
@@ -174,12 +180,38 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	var diags diag.Diagnostics
 
 	config := Config{
-		ServerURL:          data.Get("server_url").(string),
-		APIToken:           data.Get("api_token").(string),
-		AllowInsecureHttps: data.Get("allow_insecure_https").(bool),
-		Headers:            data.Get("headers").(map[string]interface{}),
-		RequestTimeout:     data.Get("request_timeout").(int),
+		APIToken:                    data.Get("api_token").(string),
+		AllowInsecureHttps:          data.Get("allow_insecure_https").(bool),
+		Headers:                     data.Get("headers").(map[string]interface{}),
+		RequestTimeout:              data.Get("request_timeout").(int),
+		StripTrailingSlashesFromURL: data.Get("strip_trailing_slashes_from_url").(bool),
 	}
+
+	serverURL := data.Get("server_url").(string)
+
+	// Unless explicitly switched off, strip trailing slashes from the server url
+	// Trailing slashes cause errors as seen in https://github.com/e-breuninger/terraform-provider-netbox/issues/198
+	// and https://github.com/e-breuninger/terraform-provider-netbox/issues/300
+	stripTrailingSlashesFromURL := data.Get("strip_trailing_slashes_from_url").(bool)
+
+	if stripTrailingSlashesFromURL {
+		var trimmed bool = false
+
+		// This is Go's poor man's while loop
+		for strings.HasSuffix(serverURL, "/") {
+			serverURL = strings.TrimRight(serverURL, "/")
+			trimmed = true
+		}
+		if trimmed {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Stripped trailing slashes from the `server_url` parameter",
+				Detail:   "Trailing slashes in the `server_url` parameter lead to problems in most setups, so all trailing slashes were stripped. Use the `strip_trailing_slashes_from_url` parameter to disable this feature or remove all trailing slashes in the `server_url` to disable this warning.",
+			})
+		}
+	}
+
+	config.ServerURL = serverURL
 
 	netboxClient, clientError := config.Client()
 	if clientError != nil {
