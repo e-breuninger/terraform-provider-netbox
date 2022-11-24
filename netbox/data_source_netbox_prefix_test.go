@@ -93,7 +93,7 @@ data "netbox_prefix" "by_vlan_vid" {
 `, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testPrefixes[4], testVlanVids[0], testVlanVids[1]),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_prefix", "id", "netbox_prefix.by_prefix", "id"),
-          resource.TestCheckResourceAttrPair("data.netbox_prefix.by_description", "id", "netbox_prefix.by_description", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_description", "id", "netbox_prefix.by_description", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_cidr", "id", "netbox_prefix.by_prefix", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vrf_id", "id", "netbox_prefix.by_vrf", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_id", "id", "netbox_prefix.by_vlan_id", "id"),
