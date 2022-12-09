@@ -156,6 +156,11 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Slug = strToPtr(slugValue.(string))
 	}
 
+	siteIDValue, ok := d.GetOk("site_id")
+	if ok {
+		data.Site = int64ToPtr(int64(siteIDValue.(int)))
+	}
+
 	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
