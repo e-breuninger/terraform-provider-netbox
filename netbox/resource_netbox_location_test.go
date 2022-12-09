@@ -22,7 +22,6 @@ func TestAccNetboxLocation_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-
 resource "netbox_site" "test" {
   name = "%[1]s"
 }
@@ -42,6 +41,31 @@ resource "netbox_location" "test" {
 					resource.TestCheckResourceAttr("netbox_location.test", "slug", randomSlug),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "tenant_id", "netbox_tenant.test", "id"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_site" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_site" "test_2" {
+  name = "%[1]s_b"
+}
+
+resource "netbox_tenant" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_location" "test" {
+  name = "%[1]s"
+  slug = "%[2]s"
+  site_id = netbox_site.test_2.id
+  tenant_id = netbox_tenant.test.id
+}`, testName, randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_location.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_location.test", "slug", randomSlug),
 				),
 			},
 			{
