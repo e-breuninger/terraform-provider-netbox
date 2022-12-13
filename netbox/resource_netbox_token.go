@@ -40,6 +40,10 @@ func resourceNetboxToken() *schema.Resource {
 					ValidateFunc: validation.IsCIDR,
 				},
 			},
+			"write_enabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"last_used": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -71,6 +75,8 @@ func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
 	for i, v := range allowedIps {
 		data.AllowedIps[i] = v
 	}
+
+	data.WriteEnabled = d.Get("write_enabled").(bool)
 
 	params := users.NewUsersTokensCreateParams().WithData(&data)
 	res, err := api.Users.UsersTokensCreate(params, nil)
@@ -107,6 +113,7 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("last_used", token.LastUsed)
 	d.Set("expires", token.Expires)
 	d.Set("allowed_ips", token.AllowedIps)
+	d.Set("write_enabled", token.WriteEnabled)
 
 	return nil
 }
@@ -127,6 +134,8 @@ func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
 	for i, v := range allowedIps {
 		data.AllowedIps[i] = v
 	}
+
+	data.WriteEnabled = d.Get("write_enabled").(bool)
 
 	params := users.NewUsersTokensUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Users.UsersTokensUpdate(params, nil)
