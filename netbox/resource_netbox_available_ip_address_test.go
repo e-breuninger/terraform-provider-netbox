@@ -29,11 +29,13 @@ resource "netbox_available_ip_address" "test" {
   prefix_id = netbox_prefix.test.id
   status = "active"
   dns_name = "test.mydomain.local"
+  role = "loopback"
 }`, testPrefix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "dns_name", "test.mydomain.local"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "role", "loopback"),
 				),
 			},
 		},
