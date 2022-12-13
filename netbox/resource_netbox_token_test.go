@@ -27,14 +27,16 @@ resource "netbox_user" "test" {
 }
 
 resource "netbox_token" "test_basic" {
-  user_id     = netbox_user.test.id
-  key         = "%s"
-  allowed_ips = ["2.4.8.16/32"]
+  user_id       = netbox_user.test.id
+  key           = "%s"
+  allowed_ips   = ["2.4.8.16/32"]
+  write_enabled = false
 }`, testName, testToken),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "key", testToken),
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "allowed_ips.#", "1"),
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "allowed_ips.0", "2.4.8.16/32"),
+					resource.TestCheckResourceAttr("netbox_token.test_basic", "write_enabled", "false"),
 				),
 			},
 			{

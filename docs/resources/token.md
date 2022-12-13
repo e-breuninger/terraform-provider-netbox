@@ -26,6 +26,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/rest-api/aut
 
 - `allowed_ips` (List of String)
 - `key` (String, Sensitive)
+- `write_enabled` (Boolean)
 
 ### Read-Only
 
