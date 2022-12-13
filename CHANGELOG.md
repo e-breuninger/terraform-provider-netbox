@@ -1,3 +1,13 @@
+## 3.0.11 (December 13th, 2022)
+
+ENHANCEMENTS
+
+* resource/netbox_available_ip_address: Add `role` attribute
+
+BUG FIXES
+
+* resource/netbox_location: Fix updates of the `site_id` attribute ([#307](https://github.com/e-breuninger/terraform-provider-netbox/pull/307) by [@nneul](https://github.com/nneul))
+
 ## 3.0.10 (November 24th, 2022)
 
 ENHANCEMENTS
