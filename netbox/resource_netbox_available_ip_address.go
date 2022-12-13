@@ -71,6 +71,11 @@ This resource will retrieve the next available IP address from a given prefix or
 				Optional: true,
 			},
 			tagsKey: tagsSchema,
+			"role": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}, false),
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -162,10 +167,12 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	ipAddress := d.Get("ip_address").(string)
 	status := d.Get("status").(string)
 	description := d.Get("description").(string)
+	role := d.Get("role").(string)
 
 	data.Status = status
 	data.Description = description
 	data.Address = &ipAddress
+	data.Role = role
 
 	if d.HasChange("dns_name") {
 		// WritableIPAddress omits empty values so set to ' '
