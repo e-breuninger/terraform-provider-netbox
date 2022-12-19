@@ -132,6 +132,36 @@ resource "netbox_site" "test" {
 	})
 }
 
+func TestAccNetboxSite_fieldUpdate(t *testing.T) {
+	testSlug := "site_field_update"
+	testName := testAccGetTestName(testSlug)
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_site" "test" {
+	name        = "%[2]s"
+	description = "Test site description"
+}`, testField, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_site.test", "description", "Test site description"),
+				)},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_site" "test" {
+	name = "%[2]s"
+}`, testField, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_site.test", "description", ""),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_site", &resource.Sweeper{
 		Name:         "netbox_site",
