@@ -246,6 +246,9 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if description, ok := d.GetOk("description"); ok {
 		data.Description = description.(string)
+	} else if d.HasChange("description") {
+		// If GetOK returned unset description and its value changed, set it as a space string to delete it ...
+		data.Description = " "
 	}
 
 	if facility, ok := d.GetOk("facility"); ok {
