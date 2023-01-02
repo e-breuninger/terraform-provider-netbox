@@ -46,7 +46,7 @@ Each location must have a name that is unique within its parent site and locatio
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

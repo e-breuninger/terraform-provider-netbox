@@ -78,7 +78,7 @@ This resource will retrieve the next available IP address from a given prefix or
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
