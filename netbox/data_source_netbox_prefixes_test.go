@@ -13,7 +13,7 @@ func TestAccNetboxPrefixesDataSource_basic(t *testing.T) {
 	testSlug := "prefixes_ds_basic"
 	testVlanVids := []int{4093, 4094}
 	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -52,7 +52,7 @@ resource "netbox_vlan" "test_vlan2" {
 }
 
 data "netbox_prefixes" "by_vrf" {
-  depends_on = [netbox_prefix.test_prefix1]
+  depends_on = [netbox_prefix.test_prefix1, netbox_prefix.test_prefix2]
   filter {
     name  = "vrf_id"
     value = netbox_vrf.test_vrf.id
