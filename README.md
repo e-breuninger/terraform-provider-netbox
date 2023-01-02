@@ -11,21 +11,22 @@ See: [Official documentation](https://registry.terraform.io/providers/e-breuning
 - [Go](https://golang.org/doc/install) >= 1.14
 
 ## Supported netbox versions
+
 Netbox often makes breaking API changes even in non-major releases. Check the table below to see which version a provider was tested against. It is generally recommended to use the provider version matching your Netbox version. We aim to always support the latest minor version of Netbox.
 
 Since version [1.6.6](https://github.com/e-breuninger/terraform-provider-netbox/commit/0b0b2fffa54d4ab2e5f1677e948b01e56ba211c8), each version of the provider has a built-in list of all Netbox versions it supports at release time. Upon initialization, the provider will probe your Netbox version and include a (non-blocking) warning if the used Netbox version is not supported.
 
-Provider version | Netbox version
---- | ---
-v3.0.x | v3.3.0 and up
-v2.0.x | v3.2.0 and up
-v1.6.x and up| v3.1.9
-v1.1.x and up | v3.1.3
-v1.0.x | v3.0.9
-v0.3.x | v2.11.12
-v0.2.x | v2.10.10
-v0.1.x | v2.9
-v0.0.x | v2.9
+| Provider version | Netbox version |
+| ---------------- | -------------- |
+| v3.0.x           | v3.3.0 and up  |
+| v2.0.x           | v3.2.0 and up  |
+| v1.6.x and up    | v3.1.9         |
+| v1.1.x and up    | v3.1.3         |
+| v1.0.x           | v3.0.9         |
+| v0.3.x           | v2.11.12       |
+| v0.2.x           | v2.10.10       |
+| v0.1.x           | v2.9           |
+| v0.0.x           | v2.9           |
 
 ## Building The Provider
 
@@ -34,7 +35,7 @@ v0.0.x | v2.9
 1. Build the provider using the Go `install` command:
 
 ```sh
-$ go install
+go install
 ```
 
 ## Installation
@@ -77,9 +78,10 @@ In order to run the full suite of acceptance tests, run `make testacc`.
 _Note:_ Acceptance tests create a docker compose stack on port 8001.
 
 ```sh
-$ make testacc
+make testacc
 ```
-If you notice a failed test, it might be due to a stale netbox data volume.  Before concluding there is a problem, 
+
+If you notice a failed test, it might be due to a stale netbox data volume. Before concluding there is a problem,
 refresh the docker containers by running `docker-compose down --volumes` in the `docker` directory. Then run the tests again.
 
 If you get `too many open files` errors when running the acceptance test suite locally on Linux, your user limit for open file descriptors might be too low. You can increase that limit with `ulimit -n 2048`.
