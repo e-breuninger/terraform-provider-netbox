@@ -14,11 +14,11 @@ func dataSourceNetboxClusterType() *schema.Resource {
 		Read:        dataSourceNetboxClusterTypeRead,
 		Description: `:meta:subcategory:Virtualization:`,
 		Schema: map[string]*schema.Schema{
-			"cluster_type_id": &schema.Schema{
+			"cluster_type_id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

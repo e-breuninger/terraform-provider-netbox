@@ -14,15 +14,15 @@ func dataSourceNetboxDeviceRole() *schema.Resource {
 		Read:        dataSourceNetboxDeviceRoleRead,
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):`,
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"color_hex": &schema.Schema{
+			"color_hex": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

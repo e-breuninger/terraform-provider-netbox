@@ -21,21 +21,21 @@ func resourceNetboxDeviceRole() *schema.Resource {
 > Devices can be organized by functional roles, which are fully customizable by the user. For example, you might create roles for core switches, distribution switches, and access switches within your network.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"vm_role": &schema.Schema{
+			"vm_role": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"color_hex": &schema.Schema{
+			"color_hex": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

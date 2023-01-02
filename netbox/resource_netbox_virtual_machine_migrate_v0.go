@@ -11,48 +11,48 @@ import (
 func resourceNetboxVirtualMachineResourceV0() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"cluster_id": &schema.Schema{
+			"cluster_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"platform_id": &schema.Schema{
+			"platform_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"role_id": &schema.Schema{
+			"role_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"site_id": &schema.Schema{
+			"site_id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"comments": &schema.Schema{
+			"comments": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"memory_mb": &schema.Schema{
+			"memory_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vcpus": &schema.Schema{
+			"vcpus": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"disk_size_gb": &schema.Schema{
+			"disk_size_gb": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
 			tagsKey: tagsSchema,
-			"primary_ipv4": &schema.Schema{
+			"primary_ipv4": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},

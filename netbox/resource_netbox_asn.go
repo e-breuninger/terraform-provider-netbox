@@ -22,11 +22,11 @@ func resourceNetboxAsn() *schema.Resource {
 > The AS number model within NetBox allows you to model some of this real-world relationship.`,
 
 		Schema: map[string]*schema.Schema{
-			"asn": &schema.Schema{
+			"asn": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"rir_id": &schema.Schema{
+			"rir_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},

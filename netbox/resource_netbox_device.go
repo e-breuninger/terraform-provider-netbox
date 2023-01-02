@@ -24,56 +24,56 @@ func resourceNetboxDevice() *schema.Resource {
 > Every piece of hardware which is installed within a site or rack exists in NetBox as a device. Devices are measured in rack units (U) and can be half depth or full depth. A device may have a height of 0U: These devices do not consume vertical rack space and cannot be assigned to a particular rack unit. A common example of a 0U device is a vertically-mounted PDU.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"device_type_id": &schema.Schema{
+			"device_type_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"cluster_id": &schema.Schema{
+			"cluster_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"platform_id": &schema.Schema{
+			"platform_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"location_id": &schema.Schema{
+			"location_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"role_id": &schema.Schema{
+			"role_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"serial": &schema.Schema{
+			"serial": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"site_id": &schema.Schema{
+			"site_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"comments": &schema.Schema{
+			"comments": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			tagsKey: tagsSchema,
-			"primary_ipv4": &schema.Schema{
+			"primary_ipv4": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"primary_ipv6": &schema.Schema{
+			"primary_ipv6": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "inventory"}, false),

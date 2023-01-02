@@ -21,19 +21,19 @@ func resourceNetboxContactAssignment() *schema.Resource {
 > Much like tenancy, contact assignment enables you to track ownership of resources modeled in NetBox.`,
 
 		Schema: map[string]*schema.Schema{
-			"content_type": &schema.Schema{
+			"content_type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"object_id": &schema.Schema{
+			"object_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"contact_id": &schema.Schema{
+			"contact_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"role_id": &schema.Schema{
+			"role_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},

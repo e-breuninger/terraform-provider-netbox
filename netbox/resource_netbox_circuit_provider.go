@@ -24,11 +24,11 @@ func resourceNetboxCircuitProvider() *schema.Resource {
 > Each provider may be assigned an autonomous system number (ASN), an account number, and contact information.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,

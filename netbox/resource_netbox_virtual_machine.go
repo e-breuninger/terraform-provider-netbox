@@ -24,53 +24,53 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 > A virtual machine is a virtualized compute instance. These behave in NetBox very similarly to device objects, but without any physical attributes. For example, a VM may have interfaces assigned to it with IP addresses and VLANs, however its interfaces cannot be connected via cables (because they are virtual). Each VM may also define its compute, memory, and storage resources as well.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"cluster_id": &schema.Schema{
+			"cluster_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				AtLeastOneOf: []string{"site_id", "cluster_id"},
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"device_id": &schema.Schema{
+			"device_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"platform_id": &schema.Schema{
+			"platform_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"role_id": &schema.Schema{
+			"role_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"site_id": &schema.Schema{
+			"site_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				AtLeastOneOf: []string{"site_id", "cluster_id"},
 			},
-			"comments": &schema.Schema{
+			"comments": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"memory_mb": &schema.Schema{
+			"memory_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vcpus": &schema.Schema{
+			"vcpus": {
 				Type:     schema.TypeFloat,
 				Optional: true,
 			},
-			"disk_size_gb": &schema.Schema{
+			"disk_size_gb": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "decommissioning"}, false),
@@ -78,11 +78,11 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Description:  "Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`",
 			},
 			tagsKey: tagsSchema,
-			"primary_ipv4": &schema.Schema{
+			"primary_ipv4": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"primary_ipv6": &schema.Schema{
+			"primary_ipv6": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
