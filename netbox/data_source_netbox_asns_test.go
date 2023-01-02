@@ -68,7 +68,9 @@ data "netbox_asns" "test" {
 func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("asns_ds_basic")
 	setUp := testAccNetboxAsnsSetUp(testName)
-	resource.ParallelTest(t, resource.TestCase{
+	// This test cannot be run in parallel with other tests, because other tests create also ASNs
+	// These ASNs then interfere with the __n filter test
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{

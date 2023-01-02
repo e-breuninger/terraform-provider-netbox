@@ -19,7 +19,7 @@ resource "netbox_tag" "test" {
 }
 
 resource "netbox_asn" "test" {
-  asn    = "123"
+  asn    = "456"
   rir_id = netbox_rir.test.id
   tags   = [netbox_tag.test.slug]
 }`, testName)
@@ -33,7 +33,7 @@ data "netbox_asn" "test" {
 func testAccNetboxAsnByAsn() string {
 	return `
 data "netbox_asn" "test" {
-  asn = "123"
+  asn = "456"
 }`
 }
 
@@ -53,7 +53,7 @@ func TestAccNetboxAsnDataSource_basic(t *testing.T) {
 			{
 				Config: setUp,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_asn.test", "asn", "123"),
+					resource.TestCheckResourceAttr("netbox_asn.test", "asn", "456"),
 				),
 			},
 			{
@@ -70,7 +70,7 @@ func TestAccNetboxAsnDataSource_basic(t *testing.T) {
 				Config: setUp + testAccNetboxAsnByTag(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_asn.test", "id", "netbox_asn.test", "id"),
-					resource.TestCheckResourceAttr("data.netbox_asn.test", "asn", "123"),
+					resource.TestCheckResourceAttr("data.netbox_asn.test", "asn", "456"),
 				),
 			},
 		},
