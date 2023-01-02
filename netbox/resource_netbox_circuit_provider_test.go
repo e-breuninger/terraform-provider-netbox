@@ -32,7 +32,7 @@ resource "netbox_circuit_provider" "test" {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`	  
+				Config: fmt.Sprintf(`
 resource "netbox_circuit_provider" "test" {
   name = "%[1]s"
   slug = "%[2]s"

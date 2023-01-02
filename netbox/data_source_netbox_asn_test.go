@@ -31,10 +31,10 @@ data "netbox_asn" "test" {
 }`
 
 func testAccNetboxAsnByAsn() string {
-	return fmt.Sprintf(`
+	return `
 data "netbox_asn" "test" {
   asn = "123"
-}`)
+}`
 }
 
 func testAccNetboxAsnByTag(testName string) string {
