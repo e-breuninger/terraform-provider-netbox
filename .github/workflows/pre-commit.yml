@@ -1,0 +1,22 @@
+---
+name: pre-commit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: read-all
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup pre-commit
+        run: python -m pip install pre-commit
+
+      - name: Run pre-commit checks
+        uses: pre-commit/action@v3.0.0
