@@ -31,32 +31,32 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)`,
 
 		Schema: map[string]*schema.Schema{
-			"prefix_id": &schema.Schema{
+			"prefix_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
-			"ip_range_id": &schema.Schema{
+			"ip_range_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"ip_address": &schema.Schema{
+			"ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"interface_id": &schema.Schema{
+			"interface_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"vrf_id": &schema.Schema{
+			"vrf_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp", "slaac"}, false),

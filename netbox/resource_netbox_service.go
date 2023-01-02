@@ -24,27 +24,27 @@ func resourceNetboxService() *schema.Resource {
 > A service may optionally be bound to one or more specific IP addresses belonging to its parent device or VM. (If no IP addresses are bound, the service is assumed to be reachable via any assigned IP address.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
-			"virtual_machine_id": &schema.Schema{
+			"virtual_machine_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"protocol": &schema.Schema{
+			"protocol": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{"tcp", "udp", "sctp"}, false)),
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ExactlyOneOf: []string{"port", "ports"},
 				Deprecated:   "This field is deprecated. Please use the new \"ports\" attribute instead.",
 			},
-			"ports": &schema.Schema{
+			"ports": {
 				Type:         schema.TypeSet,
 				Optional:     true,
 				ExactlyOneOf: []string{"port", "ports"},

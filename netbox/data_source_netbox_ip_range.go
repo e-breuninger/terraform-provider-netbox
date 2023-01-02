@@ -15,11 +15,11 @@ func dataSourceNetboxIpRange() *schema.Resource {
 		Read:        dataSourceNetboxIpRangeRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"contains": &schema.Schema{
+			"contains": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsCIDR,

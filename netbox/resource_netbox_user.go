@@ -19,21 +19,21 @@ func resourceNetboxUser() *schema.Resource {
 		Description: `:meta:subcategory:Authentication:This resource is used to manage users.`,
 
 		Schema: map[string]*schema.Schema{
-			"username": &schema.Schema{
+			"username": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
-			"active": &schema.Schema{
+			"active": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"staff": &schema.Schema{
+			"staff": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,

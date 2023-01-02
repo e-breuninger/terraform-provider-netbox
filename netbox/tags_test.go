@@ -10,11 +10,11 @@ import (
 func TestGetTagListFromNestedTagList(t *testing.T) {
 
 	tags := []*models.NestedTag{
-		&models.NestedTag{
+		{
 			Name: strToPtr("Foo"),
 			Slug: strToPtr("foo"),
 		},
-		&models.NestedTag{
+		{
 			Name: strToPtr("Bar"),
 			Slug: strToPtr("bar"),
 		},

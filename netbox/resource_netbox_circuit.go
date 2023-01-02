@@ -24,23 +24,23 @@ func resourceNetboxCircuit() *schema.Resource {
 > Each circuit is associated with a provider and a user-defined type. For example, you might have Internet access circuits delivered to each site by one provider, and private MPLS circuits delivered by another. Each circuit must be assigned a circuit ID, each of which must be unique per provider.`,
 
 		Schema: map[string]*schema.Schema{
-			"provider_id": &schema.Schema{
+			"provider_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"cid": &schema.Schema{
+			"cid": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"type_id": &schema.Schema{
+			"type_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"planned", "provisioning", "active", "offline", "deprovisioning", "decommissioning"}, false),
