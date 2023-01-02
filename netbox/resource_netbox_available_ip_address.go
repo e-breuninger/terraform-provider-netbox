@@ -1,12 +1,13 @@
 package netbox
 
 import (
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"strconv"
 )
 
 func resourceNetboxAvailableIPAddress() *schema.Resource {
@@ -21,7 +22,7 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 > An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
 > Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchya.
 >
-> Each IP address can also be assigned an operational status and a functional role. Statuses are hard-coded in NetBox and include the following: 
+> Each IP address can also be assigned an operational status and a functional role. Statuses are hard-coded in NetBox and include the following:
 > * Active
 > * Reserved
 > * Deprecated

@@ -31,27 +31,27 @@ resource "netbox_asn" "test_2" {
 }
 
 func testAccNetboxAsnsByAsn() string {
-	return fmt.Sprintf(`
+	return `
 data "netbox_asns" "test" {
   filter {
 	name = "asn"
 	value = "123"
   }
-}`)
+}`
 }
 
 func testAccNetboxAsnsByAsnN() string {
-	return fmt.Sprintf(`
+	return `
 data "netbox_asns" "test" {
   filter {
 	name = "asn__n"
 	value = "123"
   }
-}`)
+}`
 }
 
 func testAccNetboxAsnsByRange(testName string) string {
-	return fmt.Sprintf(`
+	return `
 data "netbox_asns" "test" {
   filter {
 	name = "asn__gte"
@@ -62,7 +62,7 @@ data "netbox_asns" "test" {
 	name = "asn__lte"
 	value = "2000"
   }
-}`)
+}`
 }
 
 func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
