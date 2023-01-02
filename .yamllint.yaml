@@ -1,0 +1,13 @@
+---
+extends: default
+
+rules:
+  comments:
+    min-spaces-from-content: 1
+  line-length: disable
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false
+  comments-indentation:
+    ignore: |
+      .goreleaser.yml
