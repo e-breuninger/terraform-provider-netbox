@@ -14,19 +14,19 @@ func dataSourceNetboxTenantGroup() *schema.Resource {
 		Read:        dataSourceNetboxTenantGroupRead,
 		Description: `:meta:subcategory:Tenancy:`,
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"parent_id": &schema.Schema{
+			"parent_id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

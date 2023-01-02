@@ -22,7 +22,7 @@ func resourceNetboxContactRole() *schema.Resource {
 > A contact role defines the relationship of a contact to an assigned object. For example, you might define roles for administrative, operational, and emergency contacts`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

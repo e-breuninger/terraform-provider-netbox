@@ -24,20 +24,20 @@ func resourceNetboxContact() *schema.Resource {
 > Contacts are reused for assignments, so each unique contact must be created only once and can be assigned to any number of NetBox objects, and there is no limit to the number of assigned contacts an object may have. Most core objects in NetBox can have contacts assigned to them.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			tagsKey: tagsSchema,
-			"group_id": &schema.Schema{
+			"group_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"email": &schema.Schema{
+			"email": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"phone": &schema.Schema{
+			"phone": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

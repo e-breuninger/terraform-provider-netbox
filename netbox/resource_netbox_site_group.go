@@ -24,21 +24,21 @@ func resourceNetboxSiteGroup() *schema.Resource {
 > The use of both regions and site groups affords to independent but complementary dimensions across which sites can be organized.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"parent_id": &schema.Schema{
+			"parent_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

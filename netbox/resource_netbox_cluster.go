@@ -23,23 +23,23 @@ func resourceNetboxCluster() *schema.Resource {
 > Physical devices may be associated with clusters as hosts. This allows users to track on which host(s) a particular virtual machine may reside. However, NetBox does not support pinning a specific VM within a cluster to a particular host device.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"cluster_type_id": &schema.Schema{
+			"cluster_type_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"cluster_group_id": &schema.Schema{
+			"cluster_group_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"site_id": &schema.Schema{
+			"site_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},

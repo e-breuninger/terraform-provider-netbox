@@ -24,21 +24,21 @@ func resourceNetboxTenantGroup() *schema.Resource {
 > Tenant groups may be nested recursively to achieve a multi-level hierarchy. For example, you might have a group called "Customers" containing subgroups of individual tenants grouped by product or account team.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"parent_id": &schema.Schema{
+			"parent_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

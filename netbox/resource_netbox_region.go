@@ -24,26 +24,26 @@ func resourceNetboxRegion() *schema.Resource {
 > Each region must have a name that is unique within its parent region, if any.`,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
-			"parent_region_id": &schema.Schema{
+			"parent_region_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 200),
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

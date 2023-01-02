@@ -20,15 +20,15 @@ func resourceNetboxPrimaryIP() *schema.Resource {
 		Description: `:meta:subcategory:Virtualization:This resource is used to define the primary IP for a given virtual machine. The primary IP is reflected in the Virtual machine Netbox UI, which identifies the Primary IPv4 and IPv6 addresses.`,
 
 		Schema: map[string]*schema.Schema{
-			"virtual_machine_id": &schema.Schema{
+			"virtual_machine_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"ip_address_id": &schema.Schema{
+			"ip_address_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"ip_address_version": &schema.Schema{
+			"ip_address_version": {
 				Type:         schema.TypeInt,
 				ValidateFunc: validation.IntInSlice([]int{4, 6}),
 				Optional:     true,

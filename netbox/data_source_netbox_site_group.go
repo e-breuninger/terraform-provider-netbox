@@ -14,13 +14,13 @@ func dataSourceNetboxSiteGroup() *schema.Resource {
 		Read:        dataSourceNetboxSiteGroupRead,
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):`,
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
 				AtLeastOneOf: []string{"name", "slug"},
 			},
-			"slug": &schema.Schema{
+			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
