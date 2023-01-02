@@ -36,13 +36,13 @@ func (cfg *Config) Client() (interface{}, error) {
 	}).Debug("Initializing Netbox client")
 
 	if cfg.APIToken == "" {
-		return nil, fmt.Errorf("Missing netbox API key")
+		return nil, fmt.Errorf("missing netbox API key")
 	}
 
 	// parse serverUrl
 	parsedURL, urlParseError := urlx.Parse(cfg.ServerURL)
 	if urlParseError != nil {
-		return nil, fmt.Errorf("Error while trying to parse URL: %s", urlParseError)
+		return nil, fmt.Errorf("error while trying to parse URL: %s", urlParseError)
 	}
 
 	desiredRuntimeClientSchemes := []string{parsedURL.Scheme}
