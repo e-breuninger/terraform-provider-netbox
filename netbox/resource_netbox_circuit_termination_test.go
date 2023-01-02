@@ -25,7 +25,7 @@ resource "netbox_site" "test" {
 	name = "%[1]s"
 	slug = "%[2]s"
 	status = "active"
-}	
+}
 resource "netbox_circuit_provider" "test" {
 	name = "%[1]s"
 	slug = "%[2]s"
@@ -33,7 +33,7 @@ resource "netbox_circuit_provider" "test" {
 resource "netbox_circuit_type" "test" {
 	name = "%[1]s"
 	slug = "%[2]s"
-}									  
+}
 resource "netbox_circuit" "test" {
   cid = "%[1]s"
   status = "active"
