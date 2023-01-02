@@ -85,7 +85,7 @@ func resourceNetboxSite() *schema.Resource {
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

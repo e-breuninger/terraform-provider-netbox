@@ -58,7 +58,7 @@ func resourceNetboxVlan() *schema.Resource {
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
