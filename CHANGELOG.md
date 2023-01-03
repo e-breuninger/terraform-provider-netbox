@@ -1,3 +1,15 @@
+## 3.0.12 (January 3rd, 2023)
+
+ENHANCEMENTS
+
+* resource/netbox_token: Add `write_enabled` attribute ([#309](https://github.com/e-breuninger/terraform-provider-netbox/pull/309) by [@keshy7](https://github.com/keshy7))
+* data-source/netbox_interfaces: The resulting interfaces now have their interface ID set
+
+BUG FIXES
+
+* resource/site: Allow unsetting `description` attribute ([#314](https://github.com/e-breuninger/terraform-provider-netbox/pull/314) by [@keshy7](https://github.com/keshy7))
+* resource/site: Set max length of the `slug` attribute to 100 ([#317](https://github.com/e-breuninger/terraform-provider-netbox/pull/317) by [@keshy7](https://github.com/keshy7))
+
 ## 3.0.11 (December 13th, 2022)
 
 ENHANCEMENTS
