@@ -26,6 +26,7 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(testResource, "interfaces.0.name", testName+"_0"),
 					resource.TestCheckResourceAttr(testResource, "interfaces.0.enabled", "true"),
 					resource.TestCheckResourceAttrPair(testResource, "interfaces.0.vm_id", "netbox_virtual_machine.test0", "id"),
+					resource.TestCheckResourceAttrPair(testResource, "interfaces.0.id", "netbox_interface.vm0_1", "id"),
 				),
 			},
 			{
