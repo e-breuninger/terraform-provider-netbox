@@ -13,7 +13,7 @@ description: |-
 From the [official documentation](https://docs.netbox.dev/en/stable/features/facilities/#site-groups):
 
 > Like regions, site groups can be arranged in a recursive hierarchy for grouping sites. However, whereas regions are intended for geographic organization, site groups may be used for functional grouping. For example, you might classify sites as corporate, branch, or customer sites in addition to where they are physically located.
-> 
+>
 > The use of both regions and site groups affords to independent but complementary dimensions across which sites can be organized.
 
 ## Example Usage
