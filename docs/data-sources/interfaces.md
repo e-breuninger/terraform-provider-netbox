@@ -51,6 +51,7 @@ Read-Only:
 
 - `description` (String)
 - `enabled` (Boolean)
+- `id` (Number)
 - `mac_address` (String)
 - `mode` (Map of String)
 - `mtu` (Number)

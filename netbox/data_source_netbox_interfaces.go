@@ -44,6 +44,10 @@ func dataSourceNetboxInterfaces() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -183,6 +187,7 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 	var s []map[string]interface{}
 	for _, v := range filteredInterfaces {
 		var mapping = make(map[string]interface{})
+		mapping["id"] = v.ID
 		if v.Description != "" {
 			mapping["description"] = v.Description
 		}
