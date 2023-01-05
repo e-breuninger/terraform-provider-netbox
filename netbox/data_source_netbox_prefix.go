@@ -25,13 +25,13 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Deprecated:    "The `cidr` parameter is deprecated in favor of the canonical `prefix` attribute.",
 				ConflictsWith: []string{"prefix"},
 				ValidateFunc:  validation.IsCIDR,
-				AtLeastOneOf:  []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag"},
+				AtLeastOneOf:  []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
 				Description:  "Description to include in the data source filter.",
 			},
 			"prefix": {
@@ -39,28 +39,33 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Optional:      true,
 				ValidateFunc:  validation.IsCIDR,
 				ConflictsWith: []string{"cidr"},
-				AtLeastOneOf:  []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag"},
+				AtLeastOneOf:  []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
 			},
 			"vlan_vid": {
 				Type:         schema.TypeFloat,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
 				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
 			},
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+			},
+			"site_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
 			},
 			"tag": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
 				Description:  "Tag to include in the data source filter (must match the tag's slug).",
 			},
 			"tag__n": {
@@ -113,6 +118,12 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	if vlanVid, ok := d.Get("vlan_vid").(float64); ok && vlanVid != 0 {
 		params.VlanVid = &vlanVid
 	}
+
+	if siteId, ok := d.Get("site_id").(int); ok && siteId != 0 {
+		// Note that site_id is a string pointer in the netbox filter, but we use a number in the provider
+		params.SiteID = strToPtr(strconv.Itoa(siteId))
+	}
+
 	if tag, ok := d.Get("tag").(string); ok && tag != "" {
 		params.Tag = &tag
 	}
@@ -144,7 +155,9 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("vlan_vid", result.Vlan.Vid)
 		d.Set("vlan_id", result.Vlan.ID)
 	}
-
+	if result.Site != nil {
+		d.Set("site_id", result.Site.ID)
+	}
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	return nil
 }
