@@ -61,6 +61,16 @@ resource "netbox_prefix" "by_vlan_vid" {
   vlan_id = netbox_vlan.test_vid.id
 }
 
+resource "netbox_site" "test_site" {
+  name = "%[1]s_site"
+}
+
+resource "netbox_prefix" "by_site_id" {
+  prefix   = "%[6]s"
+  status   = "active"
+  site_id = netbox_site.test_site.id
+}
+
 data "netbox_prefix" "by_prefix" {
   depends_on = [netbox_prefix.by_prefix]
   prefix = "%[2]s"
@@ -90,6 +100,12 @@ data "netbox_prefix" "by_vlan_vid" {
   depends_on = [netbox_prefix.by_vlan_vid]
   vlan_vid = %[8]d
 }
+
+data "netbox_prefix" "by_site_id" {
+  depends_on = [netbox_prefix.by_site_id]
+  site_id = netbox_site.test_site.id
+}
+
 `, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testPrefixes[4], testVlanVids[0], testVlanVids[1]),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_prefix", "id", "netbox_prefix.by_prefix", "id"),
@@ -98,6 +114,7 @@ data "netbox_prefix" "by_vlan_vid" {
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vrf_id", "id", "netbox_prefix.by_vrf", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_id", "id", "netbox_prefix.by_vlan_id", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_vid", "id", "netbox_prefix.by_vlan_vid", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_site_id", "id", "netbox_prefix.by_site_id", "id"),
 				),
 			},
 		},
