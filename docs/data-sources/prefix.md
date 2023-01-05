@@ -17,16 +17,17 @@ description: |-
 
 ### Optional
 
-- `cidr` (String, Deprecated) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `cidr` or `tag` must be given. Conflicts with `prefix`.
-- `description` (String) Description to include in the data source filter. At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `cidr` or `tag` must be given.
-- `prefix` (String) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `cidr` or `tag` must be given. Conflicts with `cidr`.
-- `tag` (String) Tag to include in the data source filter (must match the tag's slug). At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `cidr` or `tag` must be given.
+- `cidr` (String, Deprecated) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `site_id`, `cidr` or `tag` must be given. Conflicts with `prefix`.
+- `description` (String) Description to include in the data source filter. At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `site_id`, `cidr` or `tag` must be given.
+- `prefix` (String) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `site_id`, `cidr` or `tag` must be given. Conflicts with `cidr`.
+- `site_id` (Number) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `site_id`, `cidr` or `tag` must be given.
+- `tag` (String) Tag to include in the data source filter (must match the tag's slug). At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `site_id`, `cidr` or `tag` must be given.
 - `tag__n` (String) Tag to exclude from the data source filter (must match the tag's slug).
 Refer to [Netbox's documentation](https://demo.netbox.dev/static/docs/rest-api/filtering/#lookup-expressions)
 for more information on available lookup expressions.
-- `vlan_id` (Number) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `cidr` or `tag` must be given.
-- `vlan_vid` (Number) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `cidr` or `tag` must be given.
-- `vrf_id` (Number) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `cidr` or `tag` must be given.
+- `vlan_id` (Number) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `site_id`, `cidr` or `tag` must be given.
+- `vlan_vid` (Number) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `site_id`, `cidr` or `tag` must be given.
+- `vrf_id` (Number) At least one of `description`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `site_id`, `cidr` or `tag` must be given.
 
 ### Read-Only
 
