@@ -224,8 +224,6 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			var tagsSlugs []string
 			for _, t := range device.Tags {
 				tagsIds = append(tagsIds, t.ID)
-			}
-			for _, t := range device.Tags {
 				tagsSlugs = append(tagsSlugs, *t.Slug)
 			}
 			mapping["tag_ids"] = tagsIds
