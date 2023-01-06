@@ -260,8 +260,6 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			var tagsSlugs []string
 			for _, t := range v.Tags {
 				tagsIds = append(tagsIds, t.ID)
-			}
-			for _, t := range v.Tags {
 				tagsSlugs = append(tagsSlugs, *t.Slug)
 			}
 			mapping["tag_ids"] = tagsIds
