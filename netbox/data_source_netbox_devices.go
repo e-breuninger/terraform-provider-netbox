@@ -62,6 +62,10 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"custom_fields": {
+							Type:     schema.TypeMap,
+							Computed: true,
+						},
 						"device_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -222,6 +226,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Status != nil {
 			mapping["status"] = *device.Status.Value
+		}
+		if device.CustomFields != nil {
+			mapping["custom_fields"] = device.CustomFields
 		}
 		s = append(s, mapping)
 	}
