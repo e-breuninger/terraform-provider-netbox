@@ -79,6 +79,7 @@ func resourceNetboxDevice() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "inventory"}, false),
 				Default:      "active",
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -144,6 +145,11 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		siteID := int64(siteIDValue.(int))
 		data.Site = &siteID
+	}
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
@@ -236,6 +242,11 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("site_id", nil)
 	}
 
+	cf := getCustomFields(res.GetPayload().CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+
 	d.Set("comments", device.Comments)
 
 	d.Set("serial", device.Serial)
@@ -319,6 +330,11 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		primaryIP6 := int64(primaryIP6Value.(int))
 		data.PrimaryIp6 = &primaryIP6
+	}
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = cf
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
