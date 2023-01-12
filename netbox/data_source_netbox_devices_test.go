@@ -5,6 +5,7 @@ package netbox
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -15,7 +16,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 	testSlug := "device_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxDeviceDataSourceDependencies(testName)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -172,3 +173,66 @@ data "netbox_devices" "test" {
     value = netbox_tenant.test.id
   }
 }`
+
+func TestAccNetboxDevicesDataSource_CustomFields(t *testing.T) {
+	testSlug := "device_ds_customfields"
+	testName := testAccGetTestName(testSlug)
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+data "netbox_devices" "test" {
+	depends_on = [
+		netbox_device.test,
+		netbox_custom_field.test,
+	]
+
+	filter {
+		name  = "name"
+		value = "%[2]s"
+	}
+}
+
+resource "netbox_custom_field" "test" {
+	name          = "%[1]s"
+	type          = "text"
+	content_types = ["dcim.device"]
+}
+
+resource "netbox_device" "test" {
+  name = "%[2]s"
+  comments = "thisisacomment"
+  tenant_id = netbox_tenant.test.id
+  platform_id = netbox_platform.test.id
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  tags = ["%[2]sa"]
+  site_id = netbox_site.test.id
+  cluster_id = netbox_cluster.test.id
+  location_id = netbox_location.test.id
+  status = "staged"
+  serial = "ABCDEF"
+	custom_fields = {"${netbox_custom_field.test.name}" = "81"}
+}
+`, testField, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.name", testName),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.comments", "thisisacomment"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.device_type_id", "netbox_device_type.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.platform_id", "netbox_platform.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.location_id", "netbox_location.test", "id"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.serial", "ABCDEF"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.status", "staged"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.custom_fields."+testField, "81"),
+				),
+			},
+		},
+	})
+}
