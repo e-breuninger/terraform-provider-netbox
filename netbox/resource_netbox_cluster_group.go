@@ -53,9 +53,9 @@ func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) err
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name attribute if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}
@@ -112,9 +112,9 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}

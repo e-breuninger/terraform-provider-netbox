@@ -59,7 +59,7 @@ resource "netbox_tag" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tag.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_tag.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_tag.test", "slug", getSlug(testName)),
 				),
 			},
 		},

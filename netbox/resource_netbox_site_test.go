@@ -86,7 +86,7 @@ resource "netbox_site" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_site.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_site.test", "slug", getSlug(testName)),
 					resource.TestCheckResourceAttrPair("netbox_site.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttr("netbox_site.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_site.test", "tags.#", "1"),
