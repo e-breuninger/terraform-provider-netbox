@@ -1,3 +1,9 @@
+## 3.0.13 (January 24th, 2023)
+
+ENHANCEMENTS
+
+* data-source/netbox_prefix: Add `site_id` attribute ([#320](https://github.com/e-breuninger/terraform-provider-netbox/pull/320) by [@TGM](https://github.com/TGM))
+
 ## 3.0.12 (January 3rd, 2023)
 
 ENHANCEMENTS
