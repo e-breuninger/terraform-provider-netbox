@@ -55,7 +55,7 @@ resource "netbox_tenant_group" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tenant_group.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_tenant_group.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_tenant_group.test", "slug", getSlug(testName)),
 				),
 			},
 		},

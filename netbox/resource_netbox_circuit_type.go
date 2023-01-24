@@ -48,9 +48,9 @@ func resourceNetboxCircuitTypeCreate(d *schema.ResourceData, m interface{}) erro
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to model if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
@@ -102,9 +102,9 @@ func resourceNetboxCircuitTypeUpdate(d *schema.ResourceData, m interface{}) erro
 	data.Name = &name
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to model if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(name)
+		data.Slug = strToPtr(getSlug(name))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}

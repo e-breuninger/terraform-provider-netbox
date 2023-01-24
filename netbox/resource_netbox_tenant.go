@@ -59,9 +59,9 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name attribute if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}
@@ -128,9 +128,9 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 	group_id := int64(d.Get("group_id").(int))
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}

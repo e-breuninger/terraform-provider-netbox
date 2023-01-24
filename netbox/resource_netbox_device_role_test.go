@@ -58,7 +58,7 @@ resource "netbox_device_role" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_role.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_device_role.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_device_role.test", "slug", getSlug(testName)),
 				),
 			},
 		},
