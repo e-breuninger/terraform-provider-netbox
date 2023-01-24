@@ -62,9 +62,9 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 	data.Model = &model
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to model if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(model)
+		data.Slug = strToPtr(getSlug(model))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}
@@ -134,9 +134,9 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	data.Model = &model
 
 	slugValue, slugOk := d.GetOk("slug")
-	// Default slug to model if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		data.Slug = strToPtr(model)
+		data.Slug = strToPtr(getSlug(model))
 	} else {
 		data.Slug = strToPtr(slugValue.(string))
 	}

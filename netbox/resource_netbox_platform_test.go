@@ -55,7 +55,7 @@ resource "netbox_platform" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_platform.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_platform.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_platform.test", "slug", getSlug(testName)),
 				),
 			},
 		},

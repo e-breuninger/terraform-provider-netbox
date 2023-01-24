@@ -70,7 +70,7 @@ resource "netbox_tenant" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tenant.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_tenant.test", "slug", testName),
+					resource.TestCheckResourceAttr("netbox_tenant.test", "slug", getSlug(testName)),
 				),
 			},
 		},

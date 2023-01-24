@@ -54,9 +54,9 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}
@@ -124,9 +124,9 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 
-	// Default slug to name if not given
+	// Default slug to generated slug if not given
 	if !slugOk {
-		slug = name
+		slug = getSlug(name)
 	} else {
 		slug = slugValue.(string)
 	}
