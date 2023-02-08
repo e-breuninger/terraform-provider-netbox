@@ -40,6 +40,8 @@ resource "netbox_site" "test" {
   status = "planned"
   description = "%[1]s"
   facility = "%[1]s"
+  physical_address = "%[1]s"
+  shipping_address = "%[1]s"
   asn_ids = [netbox_asn.test.id]
   group_id = netbox_site_group.test.id
 }`, testName, randomSlug),
@@ -49,6 +51,8 @@ resource "netbox_site" "test" {
 					resource.TestCheckResourceAttr("netbox_site.test", "status", "planned"),
 					resource.TestCheckResourceAttr("netbox_site.test", "description", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "facility", testName),
+					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", testName),
+					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "asn_ids.#", "1"),
 					resource.TestCheckResourceAttrPair("netbox_site.test", "asn_ids.0", "netbox_asn.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_site.test", "group_id", "netbox_site_group.test", "id"),
@@ -145,9 +149,14 @@ func TestAccNetboxSite_fieldUpdate(t *testing.T) {
 resource "netbox_site" "test" {
 	name        = "%[2]s"
 	description = "Test site description"
+	physical_address = "Physical address"
+	shipping_address = "Shipping address"
+
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "description", "Test site description"),
+					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", "Physical address"),
+					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", "Shipping address"),
 				)},
 			{
 				Config: fmt.Sprintf(`
@@ -156,6 +165,8 @@ resource "netbox_site" "test" {
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "description", ""),
+					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", ""),
+					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", ""),
 				),
 			},
 		},
