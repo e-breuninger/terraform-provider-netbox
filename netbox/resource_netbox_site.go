@@ -58,6 +58,16 @@ func resourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Optional: true,
 			},
+			"physical_address": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(0, 200),
+			},
+			"shipping_address": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(0, 200),
+			},
 			"region_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -124,6 +134,16 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 	longitudeValue, ok := d.GetOk("longitude")
 	if ok {
 		data.Longitude = float64ToPtr(float64(longitudeValue.(float64)))
+	}
+
+	physicalAddressValue, ok := d.GetOk("physical_address")
+	if ok {
+		data.PhysicalAddress = physicalAddressValue.(string)
+	}
+
+	shippingAddressValue, ok := d.GetOk("shipping_address")
+	if ok {
+		data.ShippingAddress = shippingAddressValue.(string)
 	}
 
 	regionIDValue, ok := d.GetOk("region_id")
@@ -195,6 +215,8 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("facility", site.Facility)
 	d.Set("longitude", site.Longitude)
 	d.Set("latitude", site.Latitude)
+	d.Set("physical_address", site.PhysicalAddress)
+	d.Set("shipping_address", site.ShippingAddress)
 	d.Set("timezone", site.TimeZone)
 	d.Set("asn_ids", getIDsFromNestedASNList(site.Asns))
 
@@ -263,6 +285,22 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	longitudeValue, ok := d.GetOk("longitude")
 	if ok {
 		data.Longitude = float64ToPtr(float64(longitudeValue.(float64)))
+	}
+
+	physicalAddressValue, ok := d.GetOk("physical_address")
+	if ok {
+		data.PhysicalAddress = physicalAddressValue.(string)
+	} else if d.HasChange("physical_address") {
+		// If GetOK returned unset description and its value changed, set it as a space string to delete it ...
+		data.PhysicalAddress = " "
+	}
+
+	shippingAddressValue, ok := d.GetOk("shipping_address")
+	if ok {
+		data.ShippingAddress = shippingAddressValue.(string)
+	} else if d.HasChange("shipping_address") {
+		// If GetOK returned unset description and its value changed, set it as a space string to delete it ...
+		data.ShippingAddress = " "
 	}
 
 	regionIDValue, ok := d.GetOk("region_id")
