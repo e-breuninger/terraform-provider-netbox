@@ -54,6 +54,7 @@ resource "netbox_ip_address" "myvm_ip" {
 - `description` (String)
 - `dns_name` (String)
 - `interface_id` (Number)
+- `object_type` (String) Defaults to `virtualization.vminterface`.
 - `role` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
