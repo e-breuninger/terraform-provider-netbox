@@ -43,6 +43,7 @@ Read-Only:
 - `asset_tag` (String)
 - `cluster_id` (Number)
 - `comments` (String)
+- `custom_fields` (Map of String)
 - `device_id` (Number)
 - `device_type_id` (Number)
 - `location_id` (Number)
