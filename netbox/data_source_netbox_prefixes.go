@@ -43,6 +43,10 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -90,6 +94,8 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			v := f.(map[string]interface{})["value"]
 			vString := v.(string)
 			switch k {
+			case "description":
+				params.Description = &vString
 			case "prefix":
 				params.Prefix = &vString
 			case "vlan_vid":
@@ -121,6 +127,9 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 
 		mapping["id"] = v.ID
 		mapping["prefix"] = v.Prefix
+		if v.Description != "" {
+			mapping["description"] = v.Description
+		}
 		if v.Vlan != nil {
 			mapping["vlan_vid"] = v.Vlan.Vid
 			mapping["vlan_id"] = v.Vlan.ID
