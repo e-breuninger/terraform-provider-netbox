@@ -1,3 +1,15 @@
+## 3.1.0 (February 19th, 2023)
+
+CHANGES:
+
+* provider: `slug` fields are now generated to match the netbox GUI behavior
+
+ENHANCEMENTS
+
+* resource/netbox_interface: Updating `mac_address` no longer forces resource recreation ([#336](https://github.com/e-breuninger/terraform-provider-netbox/pull/336) by [@johann8384](https://github.com/johann8384))
+* resource/netbox_site: Add `physical_address` and `shipping_address` ([#337](https://github.com/e-breuninger/terraform-provider-netbox/pull/337) by [@Ikke](https://github.com/Ikke))
+* resource/netbox_ip_address: IP addresses can now be assigned to devices via the `object_type` field ([#341](https://github.com/e-breuninger/terraform-provider-netbox/pull/341) by [@arjenvri](https://github.com/arjenvri))
+
 ## 3.0.13 (January 24th, 2023)
 
 ENHANCEMENTS
