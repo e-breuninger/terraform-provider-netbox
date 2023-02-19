@@ -56,6 +56,7 @@ resource "netbox_device" "test" {
 
 - `cluster_id` (Number)
 - `comments` (String)
+- `custom_fields` (Map of String)
 - `location_id` (Number)
 - `platform_id` (Number)
 - `serial` (String)
