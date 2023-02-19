@@ -32,6 +32,7 @@ jobs:
     strategy:
       matrix:
         netbox-version:
+          - "v3.4.4"
           - "v3.4.3"
           - "v3.4.2"
           - "v3.4.1"
