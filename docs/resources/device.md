@@ -59,6 +59,9 @@ resource "netbox_device" "test" {
 - `custom_fields` (Map of String)
 - `location_id` (Number)
 - `platform_id` (Number)
+- `rack_face` (String)
+- `rack_id` (Number)
+- `rack_position` (Number)
 - `serial` (String)
 - `status` (String) Defaults to `active`.
 - `tags` (Set of String)
