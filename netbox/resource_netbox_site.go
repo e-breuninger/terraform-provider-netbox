@@ -162,7 +162,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if timezone, ok := d.GetOk("timezone"); ok {
-		data.TimeZone = timezone.(string)
+		data.TimeZone = strToPtr(timezone.(string))
 	}
 
 	data.Asns = []int64{}
@@ -319,7 +319,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if timezone, ok := d.GetOk("timezone"); ok {
-		data.TimeZone = timezone.(string)
+		data.TimeZone = strToPtr(timezone.(string))
 	}
 
 	data.Asns = []int64{}

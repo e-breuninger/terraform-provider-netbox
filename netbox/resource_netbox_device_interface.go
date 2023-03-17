@@ -114,6 +114,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		TaggedVlans:  taggedVlans,
 		Device:       &deviceID,
 		WirelessLans: []int64{},
+		Vdcs:         []int64{},
 	}
 	if macAddress := d.Get("mac_address").(string); macAddress != "" {
 		data.MacAddress = &macAddress
@@ -210,6 +211,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		TaggedVlans:  taggedVlans,
 		Device:       &deviceID,
 		WirelessLans: []int64{},
+		Vdcs:         []int64{},
 	}
 
 	if d.HasChange("mac_address") {
