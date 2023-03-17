@@ -100,6 +100,9 @@ func Provider() *schema.Provider {
 			"netbox_asn":                  resourceNetboxAsn(),
 			"netbox_location":             resourceNetboxLocation(),
 			"netbox_site_group":           resourceNetboxSiteGroup(),
+			"netbox_rack":                 resourceNetboxRack(),
+			"netbox_rack_role":            resourceNetboxRackRole(),
+			"netbox_rack_reservation":     resourceNetboxRackReservation(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":              dataSourceNetboxAsn(),
@@ -128,6 +131,8 @@ func Provider() *schema.Provider {
 			"netbox_region":           dataSourceNetboxRegion(),
 			"netbox_vlan":             dataSourceNetboxVlan(),
 			"netbox_site_group":       dataSourceNetboxSiteGroup(),
+			"netbox_racks":            dataSourceNetboxRacks(),
+			"netbox_rack_role":        dataSourceNetboxRackRole(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {

@@ -79,6 +79,20 @@ func resourceNetboxDevice() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "inventory"}, false),
 				Default:      "active",
 			},
+			"rack_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"rack_face": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"rack_position"},
+				ValidateFunc: validation.StringInSlice([]string{"front", "rear"}, false),
+			},
+			"rack_position": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -145,6 +159,16 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		siteID := int64(siteIDValue.(int))
 		data.Site = &siteID
+	}
+
+	data.Rack = getOptionalInt(d, "rack_id")
+	data.Face = getOptionalStr(d, "rack_face", false)
+
+	rackPosition, ok := d.GetOk("rack_position")
+	if ok && rackPosition.(float64) > 0 {
+		data.Position = float64ToPtr(rackPosition.(float64))
+	} else {
+		data.Position = nil
 	}
 
 	ct, ok := d.GetOk(customFieldsKey)
@@ -253,6 +277,16 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	d.Set("status", device.Status.Value)
 
+	if device.Rack != nil {
+		d.Set("rack_id", device.Rack.ID)
+	}
+
+	if device.Face != nil {
+		d.Set("rack_face", device.Face.Value)
+	}
+
+	d.Set("rack_position", device.Position)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
 	return diags
 }
@@ -331,6 +365,10 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		primaryIP6 := int64(primaryIP6Value.(int))
 		data.PrimaryIp6 = &primaryIP6
 	}
+
+	data.Rack = getOptionalInt(d, "rack_id")
+	data.Face = getOptionalStr(d, "rack_face", false)
+	data.Position = getOptionalFloat(d, "rack_position")
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
