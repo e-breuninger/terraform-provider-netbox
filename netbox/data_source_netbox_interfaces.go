@@ -154,7 +154,7 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 			case "name":
 				params.Name = &vString
 			case "tag":
-				params.Tag = &vString
+				params.Tag = []string{vString} //TODO: switch schema to list?
 			case "vm_id":
 				params.VirtualMachineID = &vString
 			default:
