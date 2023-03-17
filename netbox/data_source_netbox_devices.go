@@ -114,6 +114,18 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"rack_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"rack_face": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"rack_position": {
+							Type:     schema.TypeFloat,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -229,6 +241,15 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.CustomFields != nil {
 			mapping["custom_fields"] = device.CustomFields
+		}
+		if device.Rack != nil {
+			mapping["rack_id"] = device.Rack.ID
+		}
+		if device.Position != nil {
+			mapping["rack_position"] = device.Position
+		}
+		if device.Face != nil {
+			mapping["rack_face"] = device.Face.Value
 		}
 		s = append(s, mapping)
 	}
