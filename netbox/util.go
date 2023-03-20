@@ -61,9 +61,9 @@ func joinStringWithFinalConjunction(elems []string, sep, con string) string {
 
 func getOptionalStr(d *schema.ResourceData, key string, useSpace bool) string {
 	strVal := ""
-	if d.HasChange(key) {
-		// check if key is set
-		strValInterface, ok := d.GetOk(key)
+	// check if key is set
+	strValInterface, ok := d.GetOk(key)
+	if ok || d.HasChange(key) {
 		if !ok && useSpace {
 			// Setting an space string deletes the value
 			// Ideally we would have the ability to determine if a struct value was set to the zero-value or not
