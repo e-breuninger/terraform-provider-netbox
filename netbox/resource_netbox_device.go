@@ -279,10 +279,14 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	if device.Rack != nil {
 		d.Set("rack_id", device.Rack.ID)
+	} else {
+		d.Set("rack_id", nil)
 	}
 
 	if device.Face != nil {
 		d.Set("rack_face", device.Face.Value)
+	} else {
+		d.Set("rack_face", nil)
 	}
 
 	d.Set("rack_position", device.Position)
