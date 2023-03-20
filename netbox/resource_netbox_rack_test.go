@@ -74,7 +74,16 @@ resource "netbox_rack" "test" {
 	mounting_depth = 11
 	description = "%[1]sdescription"
 	comments = "%[1]scomments"
-}`, testName),
+}
+resource "netbox_rack" "test2" {
+  name = "%[1]s2"
+	site_id = netbox_site.test.id
+	location_id = netbox_location.test.id
+	status = "reserved"
+	width = 19
+	u_height = 48
+}
+`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_rack.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_rack.test", "site_id", "netbox_site.test", "id"),
@@ -100,6 +109,13 @@ resource "netbox_rack" "test" {
 					resource.TestCheckResourceAttr("netbox_rack.test", "mounting_depth", "11"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "description", testName+"description"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "comments", testName+"comments"),
+
+					resource.TestCheckResourceAttr("netbox_rack.test2", "name", testName+"2"),
+					resource.TestCheckResourceAttrPair("netbox_rack.test2", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_rack.test2", "location_id", "netbox_location.test", "id"),
+					resource.TestCheckResourceAttr("netbox_rack.test2", "status", "reserved"),
+					resource.TestCheckResourceAttr("netbox_rack.test2", "width", "19"),
+					resource.TestCheckResourceAttr("netbox_rack.test2", "u_height", "48"),
 				),
 			},
 			{

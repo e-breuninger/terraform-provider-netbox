@@ -163,7 +163,9 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tenant = getOptionalInt(d, "tenant_id")
-	data.FacilityID = strToPtr(getOptionalStr(d, "facility_id", false))
+	if facilityId := getOptionalStr(d, "facility_id", false); facilityId != "" {
+		data.FacilityID = strToPtr(facilityId)
+	}
 	data.Location = getOptionalInt(d, "location_id")
 	data.Role = getOptionalInt(d, "role_id")
 	data.Serial = getOptionalStr(d, "serial", false)
@@ -327,7 +329,11 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tenant = getOptionalInt(d, "tenant_id")
-	data.FacilityID = strToPtr(getOptionalStr(d, "facility_id", true))
+
+	if facilityId := getOptionalStr(d, "facility_id", false); facilityId != "" {
+		data.FacilityID = strToPtr(facilityId)
+	}
+
 	data.Location = getOptionalInt(d, "location_id")
 	data.Role = getOptionalInt(d, "role_id")
 	data.Serial = getOptionalStr(d, "serial", true)
