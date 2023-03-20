@@ -43,6 +43,21 @@ resource "netbox_location" "test" {
 	site_id =netbox_site.test.id
 }
 
+resource "netbox_rack_role" "test" {
+  name = "%[1]s"
+  color_hex = "123456"
+}
+
+resource "netbox_rack" "test" {
+  name = "%[1]s"
+	site_id = netbox_site.test.id
+	status = "reserved"
+	width = 19
+	u_height = 48
+	tenant_id = netbox_tenant.test.id
+	location_id = netbox_location.test.id
+}
+
 resource "netbox_device_role" "test" {
   name = "%[1]s"
   color_hex = "123456"
@@ -90,6 +105,78 @@ resource "netbox_device" "test" {
   location_id = netbox_location.test.id
   status = "staged"
   serial = "ABCDEF"
+	rack_id = netbox_rack.test.id
+	rack_face = "front"
+	rack_position = 10
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "platform_id", "netbox_platform.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "location_id", "netbox_location.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "rack_id", "netbox_rack.test", "id"),
+					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
+					resource.TestCheckResourceAttr("netbox_device.test", "status", "staged"),
+					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
+					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
+					resource.TestCheckResourceAttr("netbox_device.test", "rack_face", "front"),
+					resource.TestCheckResourceAttr("netbox_device.test", "rack_position", "10"),
+				),
+			},
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_device" "test" {
+  name = "%[1]s"
+  comments = "thisisacomment"
+  tenant_id = netbox_tenant.test.id
+  platform_id = netbox_platform.test.id
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  tags = ["%[1]sa"]
+  site_id = netbox_site.test.id
+  cluster_id = netbox_cluster.test.id
+  location_id = netbox_location.test.id
+	rack_id = netbox_rack.test.id
+  status = "staged"
+  serial = "ABCDEF"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "platform_id", "netbox_platform.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "location_id", "netbox_location.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "rack_id", "netbox_rack.test", "id"),
+					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
+					resource.TestCheckResourceAttr("netbox_device.test", "status", "staged"),
+					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
+					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
+					resource.TestCheckResourceAttr("netbox_device.test", "rack_face", ""),
+					resource.TestCheckResourceAttr("netbox_device.test", "rack_position", "0"),
+				),
+			},
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_device" "test" {
+  name = "%[1]s"
+  comments = "thisisacomment"
+  tenant_id = netbox_tenant.test.id
+  platform_id = netbox_platform.test.id
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  tags = ["%[1]sa"]
+  site_id = netbox_site.test.id
+  cluster_id = netbox_cluster.test.id
+  location_id = netbox_location.test.id
+  status = "staged"
+  serial = "ABCDEF"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
@@ -104,6 +191,9 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
+					resource.TestCheckResourceAttr("netbox_device.test", "rack_id", "0"),
+					resource.TestCheckResourceAttr("netbox_device.test", "rack_face", ""),
+					resource.TestCheckResourceAttr("netbox_device.test", "rack_position", "0"),
 				),
 			},
 			{
