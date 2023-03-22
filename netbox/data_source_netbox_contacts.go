@@ -52,14 +52,6 @@ func dataSourceNetboxContacts() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"slug": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"created": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -74,47 +66,6 @@ func dataSourceNetboxContacts() *schema.Resource {
 						},
 						"custom_fields": {
 							Type:     schema.TypeMap,
-							Computed: true,
-						},
-
-						"site_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"rack_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"device_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"vrf_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"prefix_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"ip_address_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"vlan_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"vm_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"circuit_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"cluster_count": {
-							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"contact_group": {
