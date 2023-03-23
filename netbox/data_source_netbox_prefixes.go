@@ -113,10 +113,6 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	// if *res.GetPayload().Count == int64(0) {
-	// 	return errors.New("no result")
-	// }
-
 	filteredPrefixes := res.GetPayload().Results
 
 	var s []map[string]interface{}
