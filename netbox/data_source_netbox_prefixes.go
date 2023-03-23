@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -67,6 +66,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"tags": tagsSchemaRead,
 					},
 				},
 			},
@@ -98,6 +98,10 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 				params.VrfID = &vString
 			case "vlan_id":
 				params.VlanID = &vString
+			case "status":
+				params.Status = &vString
+			case "tag":
+				params.Tag = &vString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -109,9 +113,9 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
-	}
+	// if *res.GetPayload().Count == int64(0) {
+	// 	return errors.New("no result")
+	// }
 
 	filteredPrefixes := res.GetPayload().Results
 
@@ -129,6 +133,7 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			mapping["vrf_id"] = v.Vrf.ID
 		}
 		mapping["status"] = v.Status.Value
+		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
 
 		s = append(s, mapping)
 	}
