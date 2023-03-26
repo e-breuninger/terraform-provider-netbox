@@ -42,6 +42,7 @@ Read-Only:
 - `id` (Number)
 - `prefix` (String)
 - `status` (String)
+- `tags` (Set of String)
 - `vlan_id` (Number)
 - `vlan_vid` (Number)
 - `vrf_id` (Number)
