@@ -50,6 +50,10 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"vlan_vid": {
 							Type:     schema.TypeFloat,
 							Computed: true,
@@ -121,6 +125,7 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 
 		mapping["id"] = v.ID
 		mapping["prefix"] = v.Prefix
+		mapping["description"] = v.Description
 		if v.Vlan != nil {
 			mapping["vlan_vid"] = v.Vlan.Vid
 			mapping["vlan_id"] = v.Vlan.ID
