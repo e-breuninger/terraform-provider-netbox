@@ -18,6 +18,7 @@ description: |-
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
+- `limit` (Number) Defaults to `1000`.
 
 ### Read-Only
 
