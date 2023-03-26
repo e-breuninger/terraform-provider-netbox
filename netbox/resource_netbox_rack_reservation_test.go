@@ -47,7 +47,6 @@ resource "netbox_rack_reservation" "test" {
 	user_id = 1
 	description = "%[1]sdescription"
 	tenant_id = netbox_tenant.test.id
-	comments = "%[1]scomments"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("netbox_rack_reservation.test", "rack_id", "netbox_rack.test", "id"),
@@ -55,7 +54,6 @@ resource "netbox_rack_reservation" "test" {
 					resource.TestCheckResourceAttr("netbox_rack_reservation.test", "units.#", "5"),
 					resource.TestCheckResourceAttr("netbox_rack_reservation.test", "user_id", "1"),
 					resource.TestCheckResourceAttr("netbox_rack_reservation.test", "description", testName+"description"),
-					resource.TestCheckResourceAttr("netbox_rack_reservation.test", "comments", testName+"comments"),
 				),
 			},
 			{

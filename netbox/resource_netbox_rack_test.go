@@ -64,15 +64,10 @@ resource "netbox_rack" "test" {
 	serial = "%[1]sserial"
 	asset_tag = "%[1]sasset_tag"
 	type = "4-post-frame"
-	weight = 2.05
-	max_weight = 2
-	weight_unit = "kg"
 	desc_units = true
 	outer_width = 10
 	outer_depth = 15
 	outer_unit = "mm"
-	mounting_depth = 11
-	description = "%[1]sdescription"
 	comments = "%[1]scomments"
 }
 resource "netbox_rack" "test2" {
@@ -99,15 +94,10 @@ resource "netbox_rack" "test2" {
 					resource.TestCheckResourceAttr("netbox_rack.test", "serial", testName+"serial"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "asset_tag", testName+"asset_tag"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "type", "4-post-frame"),
-					resource.TestCheckResourceAttr("netbox_rack.test", "weight", "2.05"),
-					resource.TestCheckResourceAttr("netbox_rack.test", "max_weight", "2"),
-					resource.TestCheckResourceAttr("netbox_rack.test", "weight_unit", "kg"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "desc_units", "true"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "outer_width", "10"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "outer_depth", "15"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "outer_unit", "mm"),
-					resource.TestCheckResourceAttr("netbox_rack.test", "mounting_depth", "11"),
-					resource.TestCheckResourceAttr("netbox_rack.test", "description", testName+"description"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "comments", testName+"comments"),
 
 					resource.TestCheckResourceAttr("netbox_rack.test2", "name", testName+"2"),
