@@ -39,6 +39,7 @@ Required:
 
 Read-Only:
 
+- `description` (String)
 - `id` (Number)
 - `prefix` (String)
 - `status` (String)
