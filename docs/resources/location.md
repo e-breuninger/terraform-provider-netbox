@@ -28,6 +28,7 @@ Each location must have a name that is unique within its parent site and locatio
 ### Optional
 
 - `custom_fields` (Map of String)
+- `description` (String)
 - `site_id` (Number)
 - `slug` (String)
 - `tags` (Set of String)
