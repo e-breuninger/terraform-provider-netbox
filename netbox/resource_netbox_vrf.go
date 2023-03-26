@@ -25,6 +25,10 @@ func resourceNetboxVrf() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -48,6 +52,8 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 	if tenant_id != 0 {
 		data.Tenant = &tenant_id
 	}
+
+	data.Description = getOptionalStr(d, "description", true)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -82,9 +88,11 @@ func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	if res.GetPayload().Tenant != nil {
-		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	vrf := res.GetPayload()
+	d.Set("name", vrf.Name)
+	d.Set("description", vrf.Description)
+	if vrf.Tenant != nil {
+		d.Set("tenant_id", vrf.Tenant.ID)
 	} else {
 		d.Set("tenant_id", nil)
 	}
@@ -105,6 +113,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Tags = tags
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
+	data.Description = getOptionalStr(d, "description", true)
 
 	if tenantID, ok := d.GetOk("tenant_id"); ok {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
