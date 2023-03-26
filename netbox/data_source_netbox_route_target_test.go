@@ -9,23 +9,23 @@ import (
 
 func getNetboxDataSourceRouteTargetConfig(testName string) string {
 	return fmt.Sprintf(`
-resource "netbox_tenant" "acctest_ds_rts" {
+resource "netbox_tenant" "acctest_ds_rt" {
 	name = "%[1]s"
 }
 
-resource "netbox_route_targets" "acctest_ds_rts" {
+resource "netbox_route_target" "acctest_ds_rt" {
 	name = "%[1]s"
-	tenant_id = netbox_tenant.acctest_ds_rts.id
+	tenant_id = netbox_tenant.acctest_ds_rt.id
 }
 
-data "netbox_route_targets" "acctest_ds_rts" {
+data "netbox_route_target" "acctest_ds_rt" {
 	name = "%[1]s"
-	depends_on = [netbox_route_targets.acctest_ds_rts]
+	depends_on = [netbox_route_target.acctest_ds_rt]
 }`, testName)
 }
 
-func TestAccNetboxRouteTargets_basic(t *testing.T) {
-	testSlug := "rtsds"
+func TestAccNetboxRouteTarget_basic(t *testing.T) {
+	testSlug := "rtds"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -33,7 +33,7 @@ func TestAccNetboxRouteTargets_basic(t *testing.T) {
 			{
 				Config: getNetboxDataSourceRouteTargetConfig(testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("data.netbox_route_targets.acctest_ds_rts", "id", "netbox_route_targets.acctest_ds_rts", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_route_target.acctest_ds_rt", "id", "netbox_route_target.acctest_ds_rt", "id"),
 				),
 			},
 		},
