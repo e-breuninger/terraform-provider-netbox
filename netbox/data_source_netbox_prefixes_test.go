@@ -19,17 +19,18 @@ func TestAccNetboxPrefixesDataSource_basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_prefix" "test_prefix1" {
-  prefix = "%[2]s"
-  status = "active"
-  vrf_id = netbox_vrf.test_vrf.id
-  vlan_id = netbox_vlan.test_vlan1.id
-  tags   = [netbox_tag.test_tag1.slug]
+  prefix      = "%[2]s"
+  status      = "active"
+  description = "my-description"
+  vrf_id      = netbox_vrf.test_vrf.id
+  vlan_id     = netbox_vlan.test_vlan1.id
+  tags        = [netbox_tag.test_tag1.slug]
 }
 
 resource "netbox_prefix" "test_prefix2" {
-  prefix = "%[3]s"
-  status = "active"
-  vrf_id = netbox_vrf.test_vrf.id
+  prefix  = "%[3]s"
+  status  = "active"
+  vrf_id  = netbox_vrf.test_vrf.id
   vlan_id = netbox_vlan.test_vlan2.id
 }
 
@@ -96,6 +97,7 @@ data "netbox_prefixes" "find_prefix_without_vrf_and_vlan" {
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_vrf", "prefixes.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vrf", "prefixes.1.vlan_vid", "netbox_vlan.test_vlan2", "vid"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_tag", "prefixes.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.by_tag", "prefixes.0.description", "my-description"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.no_results", "prefixes.#", "0"),
 				),
 			},
