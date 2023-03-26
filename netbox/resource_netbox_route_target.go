@@ -10,12 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxRouteTargets() *schema.Resource {
+func resourceNetboxRouteTarget() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxRouteTargetsCreate,
-		Read:   resourceNetboxRouteTargetsRead,
-		Update: resourceNetboxRouteTargetsUpdate,
-		Delete: resourceNetboxRouteTargetsDelete,
+		Create: resourceNetboxRouteTargetCreate,
+		Read:   resourceNetboxRouteTargetRead,
+		Update: resourceNetboxRouteTargetUpdate,
+		Delete: resourceNetboxRouteTargetDelete,
 
 		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/models/ipam/routetarget/):
 
@@ -43,7 +43,7 @@ func resourceNetboxRouteTargets() *schema.Resource {
 		},
 	}
 }
-func resourceNetboxRouteTargetsCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxRouteTargetCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	data := models.WritableRouteTarget{}
 
@@ -59,10 +59,10 @@ func resourceNetboxRouteTargetsCreate(d *schema.ResourceData, m interface{}) err
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxRouteTargetsUpdate(d, m)
+	return resourceNetboxRouteTargetUpdate(d, m)
 }
 
-func resourceNetboxRouteTargetsRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRouteTargetsReadParams().WithID(id)
@@ -97,7 +97,7 @@ func resourceNetboxRouteTargetsRead(d *schema.ResourceData, m interface{}) error
 	return nil
 }
 
-func resourceNetboxRouteTargetsUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxRouteTargetUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableRouteTarget{}
@@ -116,10 +116,10 @@ func resourceNetboxRouteTargetsUpdate(d *schema.ResourceData, m interface{}) err
 	if err != nil {
 		return err
 	}
-	return resourceNetboxRouteTargetsRead(d, m)
+	return resourceNetboxRouteTargetRead(d, m)
 }
 
-func resourceNetboxRouteTargetsDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxRouteTargetDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRouteTargetsDeleteParams().WithID(id)

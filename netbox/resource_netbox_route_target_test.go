@@ -12,20 +12,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func getNetboxRouteTargetsResource(rtName, tenantName string) string {
+func getNetboxRouteTargetResource(rtName, tenantName string) string {
 	return fmt.Sprintf(`
 resource "netbox_tenant" "rt_acctest_basic" {
 	name = %[2]s
 }
-resource "netbox_ipam_route_targets" "rt_acctest_basic" {
+resource "netbox_ipam_route_target" "rt_acctest_basic" {
 	name = "%[1]s",
-	description = "rts for acctest",
+	description = "rt for acctest",
 	tenant_id = netbox_tenant.test.id
 }`, rtName, tenantName)
 }
 
-func resourceNetboxRouteTargets_test(t *testing.T) {
-	testSlug := "rts"
+func resourceNetboxRouteTarget_test(t *testing.T) {
+	testSlug := "rt"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -33,13 +33,13 @@ func resourceNetboxRouteTargets_test(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 
-				Config: getNetboxRouteTargetsResource(testName, testName),
+				Config: getNetboxRouteTargetResource(testName, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_route_targets.rt_acctest_basic", "name", testName),
-					resource.TestCheckResourceAttr("netbox_route_targets.rt_acctest_basic", "description", "rts for acctest"),
-					resource.TestCheckResourceAttrPair("netbox_route_targets.rt_acc_test_basic", "tenant_id", "netbox_tenant.rt_acc_test_basic", "id"),
+					resource.TestCheckResourceAttr("netbox_route_target.rt_acctest_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_route_target.rt_acctest_basic", "description", "rt for acctest"),
+					resource.TestCheckResourceAttrPair("netbox_route_target.rt_acc_test_basic", "tenant_id", "netbox_tenant.rt_acc_test_basic", "id"),
 				),
-				ResourceName:      "netbox_route_targets.rt_acctest_basic",
+				ResourceName:      "netbox_route_target.rt_acctest_basic",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,29 +48,29 @@ func resourceNetboxRouteTargets_test(t *testing.T) {
 resource "netbox_tenant" "rt_acctest_basic" {
 	name = %[2]s
 }
-resource "netbox_ipam_route_targets" "rt_acctest_basic" {
+resource "netbox_ipam_route_target" "rt_acctest_basic" {
 	name = "%[1]s",
 	description = "change description",
 	tenant_id = netbox_tenant.test.id
 }`, testName, fmt.Sprintf("new%s", testName)),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_route_targets.rt_acctest_basic", "name", testName),
-					resource.TestCheckResourceAttr("netbox_route_targets.rt_acctest_basic", "description", "change description"),
-					resource.TestCheckResourceAttrPair("netbox_route_targets.rt_acc_test_basic", "tenant_id", "netbox_tenant.rt_acc_test_basic", "id"),
+					resource.TestCheckResourceAttr("netbox_route_target.rt_acctest_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_route_target.rt_acctest_basic", "description", "change description"),
+					resource.TestCheckResourceAttrPair("netbox_route_target.rt_acc_test_basic", "tenant_id", "netbox_tenant.rt_acc_test_basic", "id"),
 				),
-				ResourceName:      "netbox_route_targets.rt_acctest_basic",
+				ResourceName:      "netbox_route_target.rt_acctest_basic",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_ipam_route_targets" "rt_acctest_basic" {
+resource "netbox_ipam_route_target" "rt_acctest_basic" {
 	name = "%[1]s",
 	description = "change description",
 	tenant_id = "10001"
 }`, testName, fmt.Sprintf(testName)),
 				ExpectError:       regexp.MustCompile("tenant_id does not exist.*"),
-				ResourceName:      "netbox_route_targets.rt_acctest_basic",
+				ResourceName:      "netbox_route_target.rt_acctest_basic",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,8 +79,8 @@ resource "netbox_ipam_route_targets" "rt_acctest_basic" {
 }
 
 func init() {
-	resource.AddTestSweepers("netbox_route_targets", &resource.Sweeper{
-		Name:         "netbox_route_targets",
+	resource.AddTestSweepers("netbox_route_target", &resource.Sweeper{
+		Name:         "netbox_route_target",
 		Dependencies: []string{},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)
