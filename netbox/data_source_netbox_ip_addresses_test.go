@@ -163,3 +163,52 @@ data "netbox_ip_addresses" "test_list" {
 		},
 	})
 }
+
+func testAccNetboxIpAddressesDataSourceDependencies_many(testName string) string {
+	return testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+}`, testName) + `
+resource "netbox_interface" "test" {
+  name = "test"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+
+resource "netbox_ip_address" "test" {
+  count       = 51
+  ip_address  = "10.11.12.${count.index}/32"
+  status      = "active"
+  interface_id = netbox_interface.test.id
+}
+`
+}
+
+func TestAccNetboxIpAddressessDataSource_many(t *testing.T) {
+
+	testSlug := "ip_adrs_ds_many"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIpAddressesDataSourceDependencies_many(testName) + `data "netbox_ip_addresses" "test" {
+  depends_on = [netbox_ip_address.test]
+}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.#", "51"),
+				),
+			},
+			{
+				Config: testAccNetboxIpAddressesDataSourceDependencies_many(testName) + `data "netbox_ip_addresses" "test" {
+  depends_on = [netbox_ip_address.test]
+  limit = 2
+}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.#", "2"),
+				),
+			},
+		},
+	})
+}
