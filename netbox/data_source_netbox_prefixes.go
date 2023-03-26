@@ -101,7 +101,7 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			case "status":
 				params.Status = &vString
 			case "tag":
-				params.Tag = &vString
+				params.Tag = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
