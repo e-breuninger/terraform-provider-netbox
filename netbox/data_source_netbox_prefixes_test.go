@@ -23,6 +23,7 @@ resource "netbox_prefix" "test_prefix1" {
   status = "active"
   vrf_id = netbox_vrf.test_vrf.id
   vlan_id = netbox_vlan.test_vlan1.id
+  tags   = [netbox_tag.test_tag1.slug]
 }
 
 resource "netbox_prefix" "test_prefix2" {
@@ -51,11 +52,35 @@ resource "netbox_vlan" "test_vlan2" {
   vid  = %[6]d
 }
 
+resource "netbox_tag" "test_tag1" {
+  name = "%[1]s"
+}
+
+resource "netbox_tag" "test_tag2" {
+  name = "tag-with-no-associtions"
+}
+
 data "netbox_prefixes" "by_vrf" {
   depends_on = [netbox_prefix.test_prefix1, netbox_prefix.test_prefix2]
   filter {
     name  = "vrf_id"
     value = netbox_vrf.test_vrf.id
+  }
+}
+
+data "netbox_prefixes" "by_tag" {
+  depends_on = [netbox_prefix.test_prefix1]
+  filter {
+    name  = "tag"
+    value = "%[1]s"
+  }
+}
+
+data "netbox_prefixes" "no_results" {
+  depends_on = [netbox_prefix.test_prefix1]
+  filter {
+    name  = "tag"
+    value = "tag-with-no-associtions"
   }
 }
 
@@ -70,6 +95,8 @@ data "netbox_prefixes" "find_prefix_without_vrf_and_vlan" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_vrf", "prefixes.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vrf", "prefixes.1.vlan_vid", "netbox_vlan.test_vlan2", "vid"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.by_tag", "prefixes.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.no_results", "prefixes.#", "0"),
 				),
 			},
 		},
