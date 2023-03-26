@@ -10,9 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func dataSourceNetboxRouteTargets() *schema.Resource {
+func dataSourceNetboxRouteTarget() *schema.Resource {
 	return &schema.Resource{
-		Read:        dataSourceNetboxRouteTargetsRead,
+		Read:        dataSourceNetboxRouteTargetRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -33,7 +33,7 @@ func dataSourceNetboxRouteTargets() *schema.Resource {
 	}
 }
 
-func dataSourceNetboxRouteTargetsRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
