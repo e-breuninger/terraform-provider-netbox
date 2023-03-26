@@ -20,8 +20,8 @@ func testAccNetboxRackReservationFullDependencies(testName string) string {
 
 	resource "netbox_tenant" "test" {
 		name = "%[1]s"
-	}	
-	
+	}
+
 	resource "netbox_rack" "test" {
 		name     = "%[1]s"
 		site_id  = netbox_site.test.id
