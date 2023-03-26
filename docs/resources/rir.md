@@ -24,6 +24,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/ipa
 
 ### Optional
 
+- `description` (String)
 - `slug` (String)
 
 ### Read-Only
