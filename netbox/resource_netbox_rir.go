@@ -32,6 +32,10 @@ func resourceNetboxRir() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -54,6 +58,7 @@ func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Slug = &slug
+	data.Description = getOptionalStr(d, "description", true)
 	data.Tags = []*models.NestedTag{}
 
 	params := ipam.NewIpamRirsCreateParams().WithData(&data)
@@ -82,13 +87,11 @@ func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if res.GetPayload().Name != nil {
-		d.Set("name", res.GetPayload().Name)
-	}
+	rir := res.GetPayload()
 
-	if res.GetPayload().Slug != nil {
-		d.Set("slug", res.GetPayload().Slug)
-	}
+	d.Set("name", rir.Name)
+	d.Set("slug", rir.Slug)
+	d.Set("description", rir.Description)
 
 	return nil
 }
@@ -110,6 +113,7 @@ func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Name = &name
 	data.Slug = &slug
+	data.Description = getOptionalStr(d, "description", true)
 	data.Tags = []*models.NestedTag{}
 
 	params := ipam.NewIpamRirsUpdateParams().WithID(id).WithData(&data)
