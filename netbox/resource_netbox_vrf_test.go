@@ -45,10 +45,12 @@ func TestAccNetboxVrf_basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_vrf" "test" {
-  name = "%s"
+  name        = "%s"
+  description = "my-description"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vrf.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vrf.test", "description", "my-description"),
 				),
 			},
 			{
