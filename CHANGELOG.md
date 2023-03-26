@@ -1,6 +1,27 @@
+## 3.2.0 (March 26th, 2023)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_route_target` ([#344](https://github.com/e-breuninger/terraform-provider-netbox/pull/344) by [@imdhruva](https://github.com/imdhruva))
+* **New Resource:** `netbox_rack` ([#358](https://github.com/e-breuninger/terraform-provider-netbox/pull/358) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_rack_reservation` ([#358](https://github.com/e-breuninger/terraform-provider-netbox/pull/358) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_rack_role` ([#358](https://github.com/e-breuninger/terraform-provider-netbox/pull/358) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Data Source:** `netbox_ipam_role` ([#344](https://github.com/e-breuninger/terraform-provider-netbox/pull/344) by [@imdhruva](https://github.com/imdhruva))
+* **New Data Source:** `netbox_route_target` ([#344](https://github.com/e-breuninger/terraform-provider-netbox/pull/344) by [@imdhruva](https://github.com/imdhruva))
+* **New Data Source:** `netbox_racks` ([#358](https://github.com/e-breuninger/terraform-provider-netbox/pull/358) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Data Source:** `netbox_rack_role` ([#358](https://github.com/e-breuninger/terraform-provider-netbox/pull/358) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* resource/netbox_device: Add `rack_face`,  `rack_id` and `rack_position` attributes ([#358](https://github.com/e-breuninger/terraform-provider-netbox/pull/358) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* data-source/netbox_device: Add `rack_face`,  `rack_id` and `rack_position` attributes ([#358](https://github.com/e-breuninger/terraform-provider-netbox/pull/358) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* data-source/netbox_prefixes: Add support for filtering by `status` and `tag` ([#367](https://github.com/e-breuninger/terraform-provider-netbox/pull/367) by [@kyle-burnett](https://github.com/kyle-burnett))
+* resource/netbox_location: Add `description` attribute
+* resource/netbox_rir: Add `description` attribute
+* resource/netbox_vrf: Add `description` attribute
+* data-source/netbox_prefixes: Include `description` attribute in search results
+* data-source/netbox_ip_addresses: Add `limit` attribute (default 1000)
+
 ## 3.1.0 (February 19th, 2023)
 
-CHANGES:
+CHANGES
 
 * provider: `slug` fields are now generated to match the netbox GUI behavior
 
