@@ -27,18 +27,20 @@ resource "netbox_site" "test" {
 }
 
 resource "netbox_tenant" "test" {
-	name = "%[1]s"
+  name = "%[1]s"
 }
 
 resource "netbox_location" "test" {
-  name = "%[1]s"
-  slug = "%[2]s"
-  site_id = netbox_site.test.id
-  tenant_id = netbox_tenant.test.id
+  name        = "%[1]s"
+  slug        = "%[2]s"
+  description = "my-description"
+  site_id     = netbox_site.test.id
+  tenant_id   = netbox_tenant.test.id
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_location.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_location.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_location.test", "description", "my-description"),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "tenant_id", "netbox_tenant.test", "id"),
 				),
@@ -66,6 +68,7 @@ resource "netbox_location" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_location.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_location.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_location.test", "description", ""),
 				),
 			},
 			{
