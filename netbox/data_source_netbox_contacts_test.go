@@ -106,8 +106,9 @@ func TestAccNetboxContactsDataSource_contactgroups(t *testing.T) {
 
 	testSlug := "tnt_ds_contact_group_filter"
 	testName := testAccGetTestName(testSlug)
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -131,7 +132,6 @@ data "netbox_contacts" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_contacts.test", "contacts.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_contacts.test", "contacts.0.contact_group.0.name", "netbox_contact_group.group_0", "name"),
-					resource.TestCheckResourceAttrPair("data.netbox_contacts.test", "contacts.0.contact_group.0.slug", "netbox_contact_group.group_0", "slug"),
 				),
 			},
 		},

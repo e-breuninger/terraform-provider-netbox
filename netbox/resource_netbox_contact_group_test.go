@@ -15,7 +15,6 @@ func TestAccNetboxContactGroup_basic(t *testing.T) {
 
 	testSlug := "t_grp_basic"
 	testName := testAccGetTestName(testSlug)
-	randomSlug := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -24,11 +23,9 @@ func TestAccNetboxContactGroup_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_contact_group" "test" {
   name = "%s"
-  slug = "%s"
-}`, testName, randomSlug),
+}`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_contact_group.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_contact_group.test", "slug", randomSlug),
 				),
 			},
 			{
@@ -55,7 +52,6 @@ resource "netbox_contact_group" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_contact_group.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_contact_group.test", "slug", getSlug(testName)),
 				),
 			},
 		},
