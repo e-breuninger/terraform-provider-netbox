@@ -6,7 +6,7 @@ require (
 	github.com/fbreckle/go-netbox v0.0.0-20230326103042-6505ee5a8182
 	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3
 	github.com/go-openapi/runtime v0.25.0
-	github.com/go-openapi/strfmt v0.21.5
+	github.com/go-openapi/strfmt v0.21.7
 	github.com/goware/urlx v0.3.2
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.1
 	github.com/sirupsen/logrus v1.9.0
@@ -22,7 +22,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
-	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
+	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
@@ -82,7 +82,7 @@ require (
 	github.com/vmihailenco/msgpack/v4 v4.3.12 // indirect
 	github.com/vmihailenco/tagparser v0.1.2 // indirect
 	github.com/zclconf/go-cty v1.13.1 // indirect
-	go.mongodb.org/mongo-driver v1.11.1 // indirect
+	go.mongodb.org/mongo-driver v1.11.3 // indirect
 	go.opentelemetry.io/otel v1.11.2 // indirect
 	go.opentelemetry.io/otel/trace v1.11.2 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
