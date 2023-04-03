@@ -59,6 +59,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"asset_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"site_id": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -132,6 +136,9 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	data.Serial = d.Get("serial").(string)
 
 	data.Status = d.Get("status").(string)
+
+	assetTag := d.Get("asset_tag").(string)
+	data.AssetTag = &assetTag
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
@@ -287,6 +294,8 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	d.Set("serial", device.Serial)
 
+	d.Set("asset_tag", device.AssetTag)
+
 	d.Set("status", device.Status.Value)
 
 	if device.Rack != nil {
@@ -412,6 +421,19 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 			serial = serialValue.(string)
 		}
 		data.Serial = serial
+	}
+
+	if d.HasChanges("asset_tag") {
+		// check if asset_tag is set
+		assetTagValue, ok := d.GetOk("asset_tag")
+		assetTag := ""
+		if !ok {
+			// Setting an space string deletes the asset_tag
+			assetTag = " "
+		} else {
+			assetTag = assetTagValue.(string)
+		}
+		data.Serial = assetTag
 	}
 
 	params := dcim.NewDcimDevicesUpdateParams().WithID(id).WithData(&data)
