@@ -54,6 +54,7 @@ resource "netbox_device" "test" {
 
 ### Optional
 
+- `asset_tag` (String)
 - `cluster_id` (Number)
 - `comments` (String)
 - `custom_fields` (Map of String)
