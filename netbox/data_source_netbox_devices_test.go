@@ -35,6 +35,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.platform_id", "netbox_platform.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.serial", "ABCDEF0"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.asset_tag", "QWERTY0"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.status", "staged"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.tags.#", "1"),
 				),
@@ -93,6 +94,7 @@ resource "netbox_device" "test0" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF0"
+  asset_tag = "QWERTY0"
   status = "staged"
   tags = ["%[1]sa"]
 }
@@ -107,6 +109,7 @@ resource "netbox_device" "test1" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF1"
+  asset_tag = "QWERTY1"
 }
 
 resource "netbox_device" "test2" {
@@ -119,6 +122,7 @@ resource "netbox_device" "test2" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF2"
+  asset_tag = "QWERTY2"
 }
 
 resource "netbox_device" "test3" {
@@ -131,6 +135,7 @@ resource "netbox_device" "test3" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF3"
+  asset_tag = "QWERTY3"
 }
 `, testName)
 }
@@ -220,6 +225,7 @@ resource "netbox_device" "test" {
   status = "staged"
   serial = "ABCDEF"
   custom_fields = {"${netbox_custom_field.test.name}" = "81"}
+  asset_tag = "QWERTY"
 }
 `, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -234,6 +240,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.platform_id", "netbox_platform.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.serial", "ABCDEF"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.asset_tag", "QWERTY"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.status", "staged"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.custom_fields."+testField, "81"),
 				),
