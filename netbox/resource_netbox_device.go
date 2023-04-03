@@ -433,7 +433,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		} else {
 			assetTag = assetTagValue.(string)
 		}
-		data.Serial = assetTag
+		data.AssetTag = &assetTag
 	}
 
 	params := dcim.NewDcimDevicesUpdateParams().WithID(id).WithData(&data)
