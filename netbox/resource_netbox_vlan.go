@@ -36,6 +36,10 @@ func resourceNetboxVlan() *schema.Resource {
 				Default:      "active",
 				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated"}, false),
 			},
+			"group_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -76,6 +80,10 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 	data.Vid = &vid
 	data.Status = status
 	data.Description = description
+
+	if groupID, ok := d.GetOk("group_id"); ok {
+		data.Group = int64ToPtr(int64(groupID.(int)))
+	}
 
 	if siteID, ok := d.GetOk("site_id"); ok {
 		data.Site = int64ToPtr(int64(siteID.(int)))
@@ -127,6 +135,9 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	if vlan.Status != nil {
 		d.Set("status", vlan.Status.Value)
 	}
+	if vlan.Group != nil {
+		d.Set("group_id", vlan.Group.ID)
+	}
 	if vlan.Site != nil {
 		d.Set("site_id", vlan.Site.ID)
 	}
@@ -153,6 +164,10 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Vid = &vid
 	data.Status = status
 	data.Description = description
+
+	if groupID, ok := d.GetOk("group_id"); ok {
+		data.Group = int64ToPtr(int64(groupID.(int)))
+	}
 
 	if siteID, ok := d.GetOk("site_id"); ok {
 		data.Site = int64ToPtr(int64(siteID.(int)))

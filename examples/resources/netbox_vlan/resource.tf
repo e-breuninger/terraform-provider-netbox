@@ -12,5 +12,6 @@ resource "netbox_vlan" "example2" {
   description = "Reserved example VLAN"
   tenant_id   = netbox_tenant.ex.id
   site_id     = netbox_site.ex.id
+  group_id = netbox_vlan_group.ex.id
   tags        = [netbox_tag.ex.name]
 }
