@@ -81,14 +81,14 @@ resource "netbox_tenant" "test" {
 }
 
 resource "netbox_vlan" "test" {
-	vid = %[1]d
-	name = "%[2]s"
+	vid         = %[1]d
+	name        = "%[2]s"
 	description = "Test"
-	role_id = netbox_ipam_role.test.id
-	site_id = netbox_site.test.id
-	status = "active"
-	tags = []
-	tenant_id = netbox_tenant.test.id
+	role_id     = netbox_ipam_role.test.id
+	site_id     = netbox_site.test.id
+	status      = "active"
+	tags        = []
+	tenant_id   = netbox_tenant.test.id
 }
 `, testVid, testName)
 }
@@ -96,12 +96,12 @@ resource "netbox_vlan" "test" {
 func testAccNetboxVlanSetUpMore(testVid int, anotherVid int, testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_vlan" "same_name" {
-	vid = %[1]d
+	vid  = %[1]d
 	name = "%[3]s"
 }
 
 resource "netbox_vlan" "not_same" {
-	vid = %[2]d
+	vid  = %[2]d
 	name = "%[3]s_unique"
 }
 `, testVid, anotherVid, testName)
@@ -137,7 +137,7 @@ data "netbox_vlan" "test" {
 func testAccNetboxVlanDataByVidAndTenant(testVid int) string {
 	return fmt.Sprintf(`
 data "netbox_vlan" "test" {
-	vid = "%[1]d"
+	vid    = "%[1]d"
 	tenant = netbox_tenant.test.id
 }`, testVid)
 }

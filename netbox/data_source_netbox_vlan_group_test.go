@@ -81,14 +81,14 @@ resource "netbox_site" "test" {
 }
 
 resource "netbox_vlan_group" "test" {
-	slug = "%[1]s"
-	name = "%[2]s"
+	slug        = "%[1]s"
+	name        = "%[2]s"
 	description = "Test"
-	min_vid = 20
-	max_vid = 200
-	scope_type = "dcim.site"
-	scope_id = netbox_site.test.id
-	tags = []
+	min_vid     = 20
+	max_vid     = 200
+	scope_type  = "dcim.site"
+	scope_id    = netbox_site.test.id
+	tags        = []
 }
 `, testSlug, testName)
 }
@@ -96,15 +96,15 @@ resource "netbox_vlan_group" "test" {
 func testAccNetboxVlanGroupSetUpMore(testSlug, anotherSlug, testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_vlan_group" "same_name" {
-	slug = "%[1]s"
-	name = "%[3]s"
+	slug    = "%[1]s"
+	name    = "%[3]s"
 	min_vid = 20
 	max_vid = 200
 }
 
 resource "netbox_vlan_group" "not_same" {
-	slug = "%[2]s"
-	name = "%[3]s_unique"
+	slug    = "%[2]s"
+	name    = "%[3]s_unique"
 	min_vid = 20
 	max_vid = 200
 }
@@ -133,17 +133,17 @@ data "netbox_vlan_group" "test" {
 func testAccNetboxVlanGroupDataByNameAndScope(testName string) string {
 	return fmt.Sprintf(`
 data "netbox_vlan_group" "test" {
-	name = "%[1]s"
+	name       = "%[1]s"
 	scope_type = "dcim.site"
-	scope_id = netbox_site.test.id
+	scope_id   = netbox_site.test.id
 }`, testName)
 }
 
 func testAccNetboxVlanGroupDataBySlugAndScope(testSlug string) string {
 	return fmt.Sprintf(`
 data "netbox_vlan_group" "test" {
-	slug = "%[1]s"
+	slug       = "%[1]s"
 	scope_type = "dcim.site"
-	scope_id = netbox_site.test.id
+	scope_id   = netbox_site.test.id
 }`, testSlug)
 }
