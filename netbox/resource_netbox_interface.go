@@ -225,6 +225,11 @@ func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, 
 
 	_, err := api.Virtualization.VirtualizationInterfacesDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*virtualization.VirtualizationInterfacesDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return diag.FromErr(err)
 	}
 	return nil

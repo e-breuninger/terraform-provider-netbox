@@ -159,6 +159,11 @@ func resourceNetboxSiteGroupDelete(d *schema.ResourceData, m interface{}) error 
 
 	_, err := api.Dcim.DcimSiteGroupsDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*dcim.DcimSiteGroupsDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 	return nil

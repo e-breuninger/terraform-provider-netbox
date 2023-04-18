@@ -125,6 +125,11 @@ func resourceNetboxRouteTargetDelete(d *schema.ResourceData, m interface{}) erro
 	params := ipam.NewIpamRouteTargetsDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamRouteTargetsDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*ipam.IpamRouteTargetsDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 	d.SetId("")

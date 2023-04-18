@@ -157,6 +157,11 @@ func resourceNetboxDeviceRoleDelete(d *schema.ResourceData, m interface{}) error
 
 	_, err := api.Dcim.DcimDeviceRolesDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*dcim.DcimDeviceRolesDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 	return nil
