@@ -120,6 +120,11 @@ func resourceNetboxAsnDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Ipam.IpamAsnsDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*ipam.IpamAsnsDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 	return nil

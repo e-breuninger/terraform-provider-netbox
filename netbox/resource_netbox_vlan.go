@@ -182,6 +182,11 @@ func resourceNetboxVlanDelete(d *schema.ResourceData, m interface{}) error {
 	params := ipam.NewIpamVlansDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamVlansDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*ipam.IpamVlansDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 
