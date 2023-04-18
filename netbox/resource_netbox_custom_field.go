@@ -260,5 +260,12 @@ func resourceNetboxCustomFieldDelete(d *schema.ResourceData, m interface{}) erro
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldsDeleteParams().WithID(id)
 	_, err := api.Extras.ExtrasCustomFieldsDelete(params, nil)
-	return err
+	if err != nil {
+		errorcode := err.(*extras.ExtrasCustomFieldsDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+		}
+		return err
+	}
+	return nil
 }

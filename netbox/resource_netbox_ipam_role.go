@@ -153,6 +153,11 @@ func resourceNetboxIpamRoleDelete(d *schema.ResourceData, m interface{}) error {
 	params := ipam.NewIpamRolesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamRolesDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*ipam.IpamRolesDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 	d.SetId("")

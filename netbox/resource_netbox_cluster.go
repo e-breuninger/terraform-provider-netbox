@@ -182,6 +182,11 @@ func resourceNetboxClusterDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Virtualization.VirtualizationClustersDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*virtualization.VirtualizationClustersDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 	return nil
