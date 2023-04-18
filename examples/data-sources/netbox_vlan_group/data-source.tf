@@ -10,7 +10,7 @@ data "netbox_vlan_group" "example2" {
 
 # Get VLAN group by name and scope_type/id
 data "netbox_vlan_group" "example3" {
-  name = "example"
+  name       = "example"
   scope_type = "dcim.site"
-  scope_id = netbox_site.example.id
+  scope_id   = netbox_site.example.id
 }

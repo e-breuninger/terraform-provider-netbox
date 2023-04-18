@@ -18,7 +18,7 @@ resource "netbox_tag" "test" {
 }
 
 resource "netbox_site" "test" {
-  name = "%[1]s"
+  name   = "%[1]s"
   status = "active"
 }
 `, testName)
@@ -36,11 +36,11 @@ func TestAccNetboxVlanGroup_basic(t *testing.T) {
 			{
 				Config: testAccNetboxVlanGroupFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vlan_group" "test_basic" {
-  name = "%s"
-  slug = "%s"
+  name    = "%s"
+  slug    = "%s"
   min_vid = "%s"
   max_vid = "%s"
-  tags = []
+  tags    = []
 }`, testName, testSlug, testMinVid, testMaxVid),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "name", testName),
@@ -74,14 +74,14 @@ func TestAccNetboxVlanGroup_with_dependencies(t *testing.T) {
 			{
 				Config: testAccNetboxVlanGroupFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vlan_group" "test_with_dependencies" {
-  name = "%s"
-  slug = "%s"
+  name        = "%s"
+  slug        = "%s"
   description = "%s"
-  min_vid = "%s"
-  max_vid = "%s"
-  scope_type = "dcim.site"
-  scope_id = netbox_site.test.id
-  tags = [netbox_tag.test.name]
+  min_vid     = "%s"
+  max_vid     = "%s"
+  scope_type  = "dcim.site"
+  scope_id    = netbox_site.test.id
+  tags        = [netbox_tag.test.name]
 }`, testName, testSlug, testDescription, testMinVid, testMaxVid),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_with_dependencies", "name", testName),
