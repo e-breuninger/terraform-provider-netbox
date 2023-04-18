@@ -210,6 +210,11 @@ func resourceNetboxCircuitTerminationDelete(d *schema.ResourceData, m interface{
 
 	_, err := api.Circuits.CircuitsCircuitTerminationsDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*circuits.CircuitsCircuitTerminationsDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 	return nil

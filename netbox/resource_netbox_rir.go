@@ -130,6 +130,11 @@ func resourceNetboxRirDelete(d *schema.ResourceData, m interface{}) error {
 	params := ipam.NewIpamRirsDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamRirsDelete(params, nil)
 	if err != nil {
+		errorcode := err.(*ipam.IpamRirsDeleteDefault).Code()
+		if errorcode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 	d.SetId("")
