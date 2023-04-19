@@ -129,10 +129,11 @@ func resourceNetboxContactRoleDelete(d *schema.ResourceData, m interface{}) erro
 
 	_, err := api.Tenancy.TenancyContactRolesDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*tenancy.TenancyContactRolesDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*tenancy.TenancyContactRolesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

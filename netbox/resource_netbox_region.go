@@ -166,10 +166,11 @@ func resourceNetboxRegionDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Dcim.DcimRegionsDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*dcim.DcimRegionsDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*dcim.DcimRegionsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

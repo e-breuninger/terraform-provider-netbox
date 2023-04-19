@@ -381,10 +381,11 @@ func resourceNetboxRackDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Dcim.DcimRacksDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*dcim.DcimRacksDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*dcim.DcimRacksDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

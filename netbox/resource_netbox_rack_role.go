@@ -156,10 +156,11 @@ func resourceNetboxRackRoleDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Dcim.DcimRackRolesDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*dcim.DcimRackRolesDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*dcim.DcimRackRolesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
