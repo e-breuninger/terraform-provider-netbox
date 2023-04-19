@@ -129,10 +129,11 @@ func resourceNetboxUserDelete(d *schema.ResourceData, m interface{}) error {
 	params := users.NewUsersUsersDeleteParams().WithID(id)
 	_, err := api.Users.UsersUsersDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*users.UsersUsersDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*users.UsersUsersDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

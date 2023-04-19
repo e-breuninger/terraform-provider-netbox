@@ -427,10 +427,11 @@ func resourceNetboxDeviceDelete(ctx context.Context, d *schema.ResourceData, m i
 
 	_, err := api.Dcim.DcimDevicesDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*dcim.DcimDevicesDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*dcim.DcimDevicesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return diag.FromErr(err)
 	}

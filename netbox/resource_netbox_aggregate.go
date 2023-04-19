@@ -148,10 +148,11 @@ func resourceNetboxAggregateDelete(d *schema.ResourceData, m interface{}) error 
 	params := ipam.NewIpamAggregatesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamAggregatesDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*ipam.IpamAggregatesDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*ipam.IpamAggregatesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

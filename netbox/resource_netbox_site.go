@@ -352,10 +352,11 @@ func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Dcim.DcimSitesDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*dcim.DcimSitesDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*dcim.DcimSitesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
