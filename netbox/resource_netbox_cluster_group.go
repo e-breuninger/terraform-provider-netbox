@@ -149,10 +149,11 @@ func resourceNetboxClusterGroupDelete(d *schema.ResourceData, m interface{}) err
 
 	_, err := api.Virtualization.VirtualizationClusterGroupsDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*virtualization.VirtualizationClusterGroupsDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*virtualization.VirtualizationClusterGroupsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

@@ -178,10 +178,11 @@ func resourceNetboxIpRangeDelete(d *schema.ResourceData, m interface{}) error {
 	params := ipam.NewIpamIPRangesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamIPRangesDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*ipam.IpamIPRangesDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*ipam.IpamIPRangesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

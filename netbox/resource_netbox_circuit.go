@@ -178,10 +178,11 @@ func resourceNetboxCircuitDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Circuits.CircuitsCircuitsDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*circuits.CircuitsCircuitsDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*circuits.CircuitsCircuitsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

@@ -151,10 +151,11 @@ func resourceNetboxTokenDelete(d *schema.ResourceData, m interface{}) error {
 	params := users.NewUsersTokensDeleteParams().WithID(id)
 	_, err := api.Users.UsersTokensDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*users.UsersTokensDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*users.UsersTokensDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

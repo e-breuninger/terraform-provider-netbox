@@ -200,10 +200,11 @@ func resourceNetboxLocationDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := api.Dcim.DcimLocationsDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*dcim.DcimLocationsDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*dcim.DcimLocationsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

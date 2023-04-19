@@ -217,10 +217,11 @@ func resourceNetboxAvailableIPAddressDelete(d *schema.ResourceData, m interface{
 
 	_, err := api.Ipam.IpamIPAddressesDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*ipam.IpamIPAddressesDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*ipam.IpamIPAddressesDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}

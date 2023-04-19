@@ -158,10 +158,11 @@ func resourceNetboxTenantGroupDelete(d *schema.ResourceData, m interface{}) erro
 
 	_, err := api.Tenancy.TenancyTenantGroupsDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*tenancy.TenancyTenantGroupsDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*tenancy.TenancyTenantGroupsDeleteDefault); ok {
+			if errresp.Code() == 404 {
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
