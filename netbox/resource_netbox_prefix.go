@@ -191,16 +191,20 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritablePrefix{}
 	prefix := d.Get("prefix").(string)
 	status := d.Get("status").(string)
-	description := d.Get("description").(string)
 	is_pool := d.Get("is_pool").(bool)
 	mark_utilized := d.Get("mark_utilized").(bool)
 
 	data.Prefix = &prefix
 	data.Status = status
 
-	data.Description = description
 	data.IsPool = is_pool
 	data.MarkUtilized = mark_utilized
+
+	if description, ok := d.GetOk("description"); ok {
+		data.Description = description.(string)
+	} else {
+		data.Description = " "
+	}
 
 	if vrfID, ok := d.GetOk("vrf_id"); ok {
 		data.Vrf = int64ToPtr(int64(vrfID.(int)))
