@@ -69,6 +69,14 @@ data "netbox_prefixes" "by_vrf" {
   }
 }
 
+data "netbox_prefixes" "by_vid" {
+  depends_on = [netbox_prefix.test_prefix1, netbox_prefix.test_prefix2]
+  filter {
+    name  = "vlan_vid"
+    value = "%[5]d"
+  }
+}
+
 data "netbox_prefixes" "by_tag" {
   depends_on = [netbox_prefix.test_prefix1]
   filter {
@@ -96,6 +104,7 @@ data "netbox_prefixes" "find_prefix_without_vrf_and_vlan" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_vrf", "prefixes.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vrf", "prefixes.1.vlan_vid", "netbox_vlan.test_vlan2", "vid"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vid", "prefixes.0.vlan_vid", "netbox_vlan.test_vlan1", "vid"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_tag", "prefixes.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_tag", "prefixes.0.description", "my-description"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.no_results", "prefixes.#", "0"),
