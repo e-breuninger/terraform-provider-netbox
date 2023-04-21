@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -97,7 +98,11 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			case "prefix":
 				params.Prefix = &vString
 			case "vlan_vid":
-				params.VlanVid = v.(*float64)
+				float, err := strconv.ParseFloat(vString, 64)
+				if err != nil {
+					return err
+				}
+				params.VlanVid = &float
 			case "vrf_id":
 				params.VrfID = &vString
 			case "vlan_id":
