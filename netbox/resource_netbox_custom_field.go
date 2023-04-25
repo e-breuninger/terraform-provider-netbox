@@ -227,7 +227,6 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 		}
 		return err
 	}
-
 	d.Set("name", res.GetPayload().Name)
 	d.Set("type", *res.GetPayload().Type.Value)
 
@@ -261,9 +260,11 @@ func resourceNetboxCustomFieldDelete(d *schema.ResourceData, m interface{}) erro
 	params := extras.NewExtrasCustomFieldsDeleteParams().WithID(id)
 	_, err := api.Extras.ExtrasCustomFieldsDelete(params, nil)
 	if err != nil {
-		errorcode := err.(*extras.ExtrasCustomFieldsDeleteDefault).Code()
-		if errorcode == 404 {
-			d.SetId("")
+		if errresp, ok := err.(*extras.ExtrasCustomFieldsDeleteDefault); ok {
+			errorcode := errresp.Code()
+			if errorcode == 404 {
+				d.SetId("")
+			}
 		}
 		return err
 	}

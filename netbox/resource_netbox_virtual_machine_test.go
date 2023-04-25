@@ -341,9 +341,11 @@ func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 		}
 
 		if err != nil {
-			errorcode := err.(*virtualization.VirtualizationVirtualMachinesReadDefault).Code()
-			if errorcode == 404 {
-				return nil
+			if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesReadDefault); ok {
+				errorcode := errresp.Code()
+				if errorcode == 404 {
+					return nil
+				}
 			}
 			return err
 		}
