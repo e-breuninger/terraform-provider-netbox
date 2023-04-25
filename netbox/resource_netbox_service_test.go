@@ -87,9 +87,11 @@ func testAccCheckServiceDestroy(s *terraform.State) error {
 		}
 
 		if err != nil {
-			errorcode := err.(*ipam.IpamServicesReadDefault).Code()
-			if errorcode == 404 {
-				return nil
+			if errresp, ok := err.(*ipam.IpamServicesReadDefault); ok {
+				errorcode := errresp.Code()
+				if errorcode == 404 {
+					return nil
+				}
 			}
 			return err
 		}
