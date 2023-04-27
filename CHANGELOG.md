@@ -1,3 +1,15 @@
+## 3.2.1 (April 27th, 2023)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_vlan_group` ([#377](https://github.com/e-breuninger/terraform-provider-netbox/pull/377) by [@zeddD1abl0](https://github.com/zeddD1abl0))
+* **New Data Source:** `netbox_vlan_group` ([#377](https://github.com/e-breuninger/terraform-provider-netbox/pull/377) by [@zeddD1abl0](https://github.com/zeddD1abl0))
+* resource/netbox_vlan: Add `group_id` attribute ([#377](https://github.com/e-breuninger/terraform-provider-netbox/pull/377) by [@zeddD1abl0](https://github.com/zeddD1abl0))
+
+BUG FIXES
+
+* data-source/netbox_prefixes: Fix error when filtering by `vlan_vid` ([#381](https://github.com/e-breuninger/terraform-provider-netbox/pull/381) by [@zeddD1abl0](https://github.com/zeddD1abl0))
+
 ## 3.2.0 (March 26th, 2023)
 
 ENHANCEMENTS
