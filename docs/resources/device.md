@@ -66,11 +66,11 @@ resource "netbox_device" "test" {
 - `status` (String) Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
+- `primary_ipv4` (Number)
+- `primary_ipv6` (Number)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `primary_ipv4` (Number)
-- `primary_ipv6` (Number)
 
 

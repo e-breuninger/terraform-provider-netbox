@@ -161,6 +161,18 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Site = &siteID
 	}
 
+	primaryIP4Value, ok := d.GetOk("primary_ipv4")
+	if ok {
+		primaryIP4 := int64(primaryIP4Value.(int))
+		data.PrimaryIp4 = &primaryIP4
+	}
+
+	primaryIP6Value, ok := d.GetOk("primary_ipv6")
+	if ok {
+		primaryIP6 := int64(primaryIP6Value.(int))
+		data.PrimaryIp6 = &primaryIP6
+	}
+
 	data.Rack = getOptionalInt(d, "rack_id")
 	data.Face = getOptionalStr(d, "rack_face", false)
 
