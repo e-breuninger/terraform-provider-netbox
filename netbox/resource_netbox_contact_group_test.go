@@ -39,7 +39,7 @@ resource "netbox_contact_group" "test" {
 
 func TestAccNetboxContactGroup_defaultSlug(t *testing.T) {
 
-	testSlug := "contact_defSlug"
+	testSlug := "contactgrp_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -73,9 +73,9 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, contact := range res.GetPayload().Results {
-				if strings.HasPrefix(*contact.Name, testPrefix) {
-					deleteParams := tenancy.NewTenancyContactGroupsDeleteParams().WithID(contact.ID)
+			for _, contactGroup := range res.GetPayload().Results {
+				if strings.HasPrefix(*contactGroup.Name, testPrefix) {
+					deleteParams := tenancy.NewTenancyContactGroupsDeleteParams().WithID(contactGroup.ID)
 					_, err := api.Tenancy.TenancyContactGroupsDelete(deleteParams, nil)
 					if err != nil {
 						return err

@@ -63,7 +63,7 @@ func Provider() *schema.Provider {
 			"netbox_cluster_type":         resourceNetboxClusterType(),
 			"netbox_cluster":              resourceNetboxCluster(),
 			"netbox_contact":              resourceNetboxContact(),
-			"netbox_contact_group":        resourceNetboxContact(),
+			"netbox_contact_group":        resourceNetboxContactGroup(),
 			"netbox_contact_assignment":   resourceNetboxContactAssignment(),
 			"netbox_contact_role":         resourceNetboxContactRole(),
 			"netbox_device":               resourceNetboxDevice(),
