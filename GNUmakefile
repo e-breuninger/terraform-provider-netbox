@@ -37,7 +37,7 @@ docker-down:
 
 .PHONY: docs
 docs:
-	go generate ./...
+	NETBOX_API_TOKEN="" NETBOX_SERVER_URL="" go generate ./...
 
 #! Development
 # The following make goals are only for local usage
