@@ -26,7 +26,6 @@ Since version [1.6.6](https://github.com/e-breuninger/terraform-provider-netbox/
 | v2.11.12        | v0.3.x           |
 | v2.10.10        | v0.2.x           |
 | v2.9            | v0.1.x           |
-| v2.9            | v0.0.x           |
 
 ## Building The Provider
 
