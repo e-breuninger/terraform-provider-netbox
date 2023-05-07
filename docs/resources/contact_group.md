@@ -3,18 +3,15 @@
 page_title: "netbox_contact_group Resource - terraform-provider-netbox"
 subcategory: "Tenancy"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/features/contacts/#contacts_1:
-  A contact should represent an individual or permanent point of contact. Each contact must define a name, and may optionally include a title, phone number, email address, and related details.
-  Contacts are reused for assignments, so each unique contact must be created only once and can be assigned to any number of NetBox objects, and there is no limit to the number of assigned contacts an object may have. Most core objects in NetBox can have contacts assigned to them.
+  From the official documentation https://docs.netbox.dev/en/stable/features/contacts/#contact-groups:
+  Contacts can be grouped arbitrarily into a recursive hierarchy, and a contact can be assigned to a group at any level within the hierarchy.
 ---
 
 # netbox_contact_group (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/features/contacts/#contacts_1):
+From the [official documentation](https://docs.netbox.dev/en/stable/features/contacts/#contact-groups):
 
-> A contact should represent an individual or permanent point of contact. Each contact must define a name, and may optionally include a title, phone number, email address, and related details.
->
-> Contacts are reused for assignments, so each unique contact must be created only once and can be assigned to any number of NetBox objects, and there is no limit to the number of assigned contacts an object may have. Most core objects in NetBox can have contacts assigned to them.
+> Contacts can be grouped arbitrarily into a recursive hierarchy, and a contact can be assigned to a group at any level within the hierarchy.
 
 
 
@@ -27,10 +24,9 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/con
 
 ### Optional
 
-- `email` (String)
-- `group_id` (Number)
-- `phone` (String)
-- `tags` (Set of String)
+- `description` (String)
+- `parent_id` (Number)
+- `slug` (String)
 
 ### Read-Only
 

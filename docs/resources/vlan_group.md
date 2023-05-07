@@ -3,36 +3,34 @@
 page_title: "netbox_vlan_group Resource - terraform-provider-netbox"
 subcategory: "IP Address Management (IPAM)"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/features/vlans/#vlans:
-  A VLAN represents an isolated layer two domain, identified by a name and a numeric ID (1-4094) as defined in IEEE 802.1Q. VLANs are arranged into VLAN groups to define scope and to enforce uniqueness.
+  A VLAN Group represents a collection of VLANs. Generally, these are limited by one of a number of scopes such as "Site" or "Virtualization Cluster".
 ---
 
 # netbox_vlan_group (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/features/vlans/#vlans):
-
-> A VLAN represents an isolated layer two domain, identified by a name and a numeric ID (1-4094) as defined in IEEE 802.1Q. VLANs are arranged into VLAN groups to define scope and to enforce uniqueness.
+> A VLAN Group represents a collection of VLANs. Generally, these are limited by one of a number of scopes such as "Site" or "Virtualization Cluster".
 
 ## Example Usage
 
 ```terraform
+#Basic VLAN Group example
 resource "netbox_vlan_group" "example1" {
-  name = "VLAN Group 1"
-  min_vid  = "777"
-  max_vid  = "1777"
-  tags = []
+  name    = "example1"
+  slug    = "example1"
+  min_vid = 1
+  max_vid = 4094
 }
 
-# Assume netbox_site resource exists
+#Full VLAN Group example
 resource "netbox_vlan_group" "example2" {
-  name        = "VLAN Group 2"
-  min_vid         = "778"
-  max_vid         = "1778"
-  status      = "reserved"
-  description = "Site-specific VLAN Group"
-  scope_type = "dcim.site"
-  scope_id     = netbox_site.ex.id
-  tags        = [netbox_tag.ex.name]
+  name        = "Second Example"
+  slug        = "example2"
+  min_vid     = 1
+  max_vid     = 4094
+  scope_type  = "dcim.site"
+  scope_id    = netbox_site.example.id
+  description = "Second Example VLAN Group"
+  tags        = [netbox_tag.example.id]
 }
 ```
 
@@ -41,16 +39,16 @@ resource "netbox_vlan_group" "example2" {
 
 ### Required
 
+- `max_vid` (Number)
+- `min_vid` (Number)
 - `name` (String)
 - `slug` (String)
-- `min_vid` (Number) Minimum VLAN ID of group between 1 and 4093
-- `max_vid` (Number) Maximum VLAN ID of group between 2 and 4094
 
 ### Optional
 
 - `description` (String) Defaults to `""`.
-- `scope_type` (String) One of the following values: `dcim.location`, `dcim.site`, `dcim.sitegroup`, `dcim.region`, `dcim.rack`, `virtualization.cluster`, `virtualization.clustergroup`
-- `scope_id` (Number) Required if `scope_type` is set.
+- `scope_id` (Number)
+- `scope_type` (String)
 - `tags` (Set of String)
 
 ### Read-Only
