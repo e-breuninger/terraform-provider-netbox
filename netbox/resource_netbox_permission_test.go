@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccNetboxUsePermissions_basic(t *testing.T) {
+func TestAccNetboxPermission_basic(t *testing.T) {
 	testSlug := "user_permissions"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -20,7 +20,7 @@ func TestAccNetboxUsePermissions_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_user_permissions" "test_basic" {
+resource "netbox_permission" "test_basic" {
   name = "%s"
   description = "This is a terraform test."
   enabled = true
@@ -33,21 +33,21 @@ resource "netbox_user_permissions" "test_basic" {
     )
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "name", testName),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "description", "This is a terraform test."),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "enabled", "true"),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "object_types.#", "1"),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "object_types.0", "ipam.prefix"),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "actions.#", "2"),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "actions.0", "add"),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "actions.1", "change"),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "users.#", "1"),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "users.0", "1"),
-					resource.TestCheckResourceAttr("netbox_user_permissions.test_basic", "constraints", "[{\"status\":\"active\"}]"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "description", "This is a terraform test."),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "enabled", "true"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "object_types.#", "1"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "object_types.0", "ipam.prefix"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "actions.#", "2"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "actions.0", "add"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "actions.1", "change"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "users.#", "1"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "users.0", "1"),
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "constraints", "[{\"status\":\"active\"}]"),
 				),
 			},
 			{
-				ResourceName:      "netbox_user_permissions.test_basic",
+				ResourceName:      "netbox_permission.test_basic",
 				ImportState:       true,
 				ImportStateVerify: false,
 			},
@@ -56,8 +56,8 @@ resource "netbox_user_permissions" "test_basic" {
 }
 
 func init() {
-	resource.AddTestSweepers("netbox_user_permissions", &resource.Sweeper{
-		Name:         "netbox_user_permissions",
+	resource.AddTestSweepers("netbox_permission", &resource.Sweeper{
+		Name:         "netbox_permission",
 		Dependencies: []string{},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)

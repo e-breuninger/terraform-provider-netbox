@@ -11,13 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-// a
-func resourceNetboxUserPermissions() *schema.Resource {
+func resourceNetboxPermission() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxUserPermissionsCreate,
-		Read:   resourceNetboxUserPermissionsRead,
-		Update: resourceNetboxUserPermissionsUpdate,
-		Delete: resourceNetboxUserPermissionsDelete,
+		Create: resourceNetboxPermissionCreate,
+		Read:   resourceNetboxPermissionRead,
+		Update: resourceNetboxPermissionUpdate,
+		Delete: resourceNetboxPermissionDelete,
 		Description: `:meta:subcategory:Authentication:This resource manages the object-based permissions for Netbox users, built into the application.
 
 > Object-based permissions enable an administrator to grant users or groups the ability to perform an action on arbitrary subsets of objects in NetBox, rather than all objects of a certain type.
@@ -26,17 +25,17 @@ func resourceNetboxUserPermissions() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
-				Description: "The name of the permissions object.",
+				Description: "The name of the permission object.",
 				Required:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "The description of the permissions object.",
+				Description: "The description of the permission object.",
 				Optional:    true,
 			},
 			"enabled": {
 				Type:        schema.TypeBool,
-				Description: "Whether the permissions object is enabled or not.",
+				Description: "Whether the permission object is enabled or not.",
 				Optional:    true,
 				Default:     true,
 			},
@@ -52,7 +51,7 @@ func resourceNetboxUserPermissions() *schema.Resource {
 			"groups": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Description: "A list of group IDs that have been assigned to this permissions object.",
+				Description: "A list of group IDs that have been assigned to this permission object.",
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
@@ -60,7 +59,7 @@ func resourceNetboxUserPermissions() *schema.Resource {
 			"users": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Description: "A list of user IDs that have been assigned to this permissions object.",
+				Description: "A list of user IDs that have been assigned to this permission object.",
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
@@ -87,7 +86,7 @@ func resourceNetboxUserPermissions() *schema.Resource {
 		},
 	}
 }
-func resourceNetboxUserPermissionsCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxPermissionCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	data := models.WritableObjectPermission{}
 
@@ -126,10 +125,10 @@ func resourceNetboxUserPermissionsCreate(d *schema.ResourceData, m interface{}) 
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxUserPermissionsRead(d, m)
+	return resourceNetboxPermissionRead(d, m)
 }
 
-func resourceNetboxUserPermissionsRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxPermissionRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersPermissionsReadParams().WithID(id)
@@ -175,7 +174,7 @@ func resourceNetboxUserPermissionsRead(d *schema.ResourceData, m interface{}) er
 	return nil
 }
 
-func resourceNetboxUserPermissionsUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxPermissionUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableObjectPermission{}
@@ -211,10 +210,10 @@ func resourceNetboxUserPermissionsUpdate(d *schema.ResourceData, m interface{}) 
 	if err != nil {
 		return err
 	}
-	return resourceNetboxUserPermissionsRead(d, m)
+	return resourceNetboxPermissionRead(d, m)
 }
 
-func resourceNetboxUserPermissionsDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxPermissionDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersPermissionsDeleteParams().WithID(id)
