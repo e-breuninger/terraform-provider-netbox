@@ -16,17 +16,17 @@ Netbox often makes breaking API changes even in non-major releases. Check the ta
 
 Since version [1.6.6](https://github.com/e-breuninger/terraform-provider-netbox/commit/0b0b2fffa54d4ab2e5f1677e948b01e56ba211c8), each version of the provider has a built-in list of all Netbox versions it supports at release time. Upon initialization, the provider will probe your Netbox version and include a (non-blocking) warning if the used Netbox version is not supported.
 
-| Netbox version | Provider version |
-| -------------- | ---------------- |
-| v3.3.0 - 3.4.8 | v3.0.x and up    |
-| v3.2.0 - 3.2.9 | v2.0.x           |
-| v3.1.9         | v1.6.x and up    |
-| v3.1.3         | v1.1.x and up    |
-| v3.0.9         | v1.0.x           |
-| v2.11.12       | v0.3.x           |
-| v2.10.10       | v0.2.x           |
-| v2.9           | v0.1.x           |
-| v2.9           | v0.0.x           |
+| Netbox version  | Provider version |
+| --------------- | ---------------- |
+| v3.3.0 - 3.4.10 | v3.0.x and up    |
+| v3.2.0 - 3.2.9  | v2.0.x           |
+| v3.1.9          | v1.6.x and up    |
+| v3.1.3          | v1.1.x and up    |
+| v3.0.9          | v1.0.x           |
+| v2.11.12        | v0.3.x           |
+| v2.10.10        | v0.2.x           |
+| v2.9            | v0.1.x           |
+| v2.9            | v0.0.x           |
 
 ## Building The Provider
 
