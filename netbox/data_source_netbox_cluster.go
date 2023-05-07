@@ -19,12 +19,15 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Computed: true,
 			},
 			"site_id": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				AtLeastOneOf: []string{"name", "site_id"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"name", "site_id"},
 			},
 			"cluster_type_id": {
 				Type:     schema.TypeInt,
@@ -42,9 +45,16 @@ func dataSourceNetboxCluster() *schema.Resource {
 func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
-	name := d.Get("name").(string)
 	params := virtualization.NewVirtualizationClustersListParams()
-	params.Name = &name
+
+	if name, ok := d.Get("name").(string); ok && name != "" {
+		params.Name = &name
+	}
+
+	if site_id, ok := d.Get("site_id").(int); ok && site_id != 0 {
+		params.SiteID = strToPtr(strconv.FormatInt(int64(site_id), 10))
+	}
+
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 

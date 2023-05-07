@@ -41,18 +41,23 @@ resource "netbox_cluster" "test" {
   tags = [netbox_tag.test.name]
 }
 
-data "netbox_cluster" "test" {
-  depends_on = [netbox_cluster.test, netbox_cluster_group.test]
-  name = "%[1]s"
+data "netbox_cluster" "by_name" {
+  name = netbox_cluster.test.name
+}
+
+data "netbox_cluster" "by_site_id" {
+  site_id = netbox_cluster.test.site_id
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_cluster.test", "name", testName),
-					resource.TestCheckResourceAttrPair("data.netbox_cluster.test", "cluster_type_id", "netbox_cluster_type.test", "id"),
-					resource.TestCheckResourceAttrPair("data.netbox_cluster.test", "cluster_group_id", "netbox_cluster_group.test", "id"),
-					resource.TestCheckResourceAttrPair("data.netbox_cluster.test", "site_id", "netbox_site.test", "id"),
-					resource.TestCheckResourceAttr("data.netbox_cluster.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("data.netbox_cluster.test", "tags.0", testName),
+					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_site_id", "id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "name", testName),
+					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "cluster_type_id", "netbox_cluster_type.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "cluster_group_id", "netbox_cluster_group.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "tags.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "tags.0", testName),
 				),
 			},
 		},
