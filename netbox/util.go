@@ -19,6 +19,14 @@ func float64ToPtr(i float64) *float64 {
 	return &i
 }
 
+func toStringList(a interface{}) []string {
+	strList := []string{}
+	for _, str := range a.(*schema.Set).List() {
+		strList = append(strList, str.(string))
+	}
+	return strList
+}
+
 func toInt64List(a interface{}) []int64 {
 	intList := []int64{}
 	for _, number := range a.(*schema.Set).List() {
