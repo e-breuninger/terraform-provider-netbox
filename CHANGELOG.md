@@ -1,3 +1,17 @@
+## 3.3.0 (May 7th, 2023)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_permission` ([#390](https://github.com/e-breuninger/terraform-provider-netbox/pull/390) by [@tagur87](https://github.com/tagur87))
+* **New Resource:** `netbox_contact_group` ([#366](https://github.com/e-breuninger/terraform-provider-netbox/pull/366) by [@leasley199](https://github.com/leasley199))
+* **New Data Source:** `netbox_contact_group` ([#366](https://github.com/e-breuninger/terraform-provider-netbox/pull/366) by [@leasley199](https://github.com/leasley199))
+* **New Data Source:** `netbox_contact` ([#366](https://github.com/e-breuninger/terraform-provider-netbox/pull/366) by [@leasley199](https://github.com/leasley199))
+* data-source/netbox_cluster: Allow searching by `site_id`
+
+BUG FIXES
+
+* resource/netbox_prefix: Allow unsetting `description` attribute ([#382](https://github.com/e-breuninger/terraform-provider-netbox/pull/382) by [@DevOpsFu](https://github.com/DevOpsFu))
+
 ## 3.2.1 (April 27th, 2023)
 
 ENHANCEMENTS
