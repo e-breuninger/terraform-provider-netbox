@@ -22,8 +22,7 @@ resource "netbox_contact_group" "test" {
 }
 
 data "netbox_contact_group" "test" {
-  depends_on = [netbox_contact_group.test]
-  name = "%[1]s"
+  name = netbox_contact_group.test.name
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_contact_group.test", "id", "netbox_contact_group.test", "id"),
