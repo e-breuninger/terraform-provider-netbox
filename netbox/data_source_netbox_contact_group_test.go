@@ -7,9 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccNetboxContactDataGroupSource_basic(t *testing.T) {
+func TestAccNetboxContactGroupDataSource_basic(t *testing.T) {
 
-	testSlug := "tntgrp_ds_basic"
+	testSlug := "cntctgrp_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,

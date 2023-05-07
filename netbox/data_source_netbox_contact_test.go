@@ -9,7 +9,7 @@ import (
 
 func TestAccNetboxContactDataSource_basic(t *testing.T) {
 
-	testSlug := "tnt_ds_basic"
+	testSlug := "cntct_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
