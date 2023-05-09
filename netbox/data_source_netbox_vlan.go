@@ -51,6 +51,10 @@ func dataSourceNetboxVlan() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"custom_fields": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
 		},
 	}
 }
