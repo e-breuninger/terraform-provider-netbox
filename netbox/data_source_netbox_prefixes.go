@@ -109,6 +109,8 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 				params.VlanID = &vString
 			case "status":
 				params.Status = &vString
+			case "site_id":
+				params.SiteID = &vString
 			case "tag":
 				params.Tag = []string{vString}
 			default:
