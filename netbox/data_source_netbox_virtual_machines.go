@@ -9,7 +9,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -267,6 +267,6 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		s = append(s, mapping)
 	}
 
-	d.SetId(resource.UniqueId())
+	d.SetId(id.UniqueId())
 	return d.Set("vms", s)
 }
