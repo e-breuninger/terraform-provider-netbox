@@ -7,11 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func resources() string {
-	return `
-`
-}
-
 func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 
 	testPrefix := "10.0.0.0/24"
