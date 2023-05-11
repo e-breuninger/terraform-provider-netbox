@@ -170,8 +170,8 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	data.Status = d.Get("status").(string)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
-
+	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags = tags
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
 		data.CustomFields = ct
@@ -186,7 +186,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxVirtualMachineRead(ctx, d, m)
+	return append(resourceNetboxVirtualMachineRead(ctx, d, m), diags...)
 }
 
 func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -377,8 +377,8 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.PrimaryIp6 = &primaryIP6
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
-
+	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags = tags
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
 		data.CustomFields = cf
@@ -410,7 +410,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	return resourceNetboxVirtualMachineRead(ctx, d, m)
+	return append(resourceNetboxVirtualMachineRead(ctx, d, m), diags...)
 }
 
 func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
