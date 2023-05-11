@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -238,7 +237,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	if !skipVersionCheck {
 		req := status.NewStatusListParams()
-		res, err := netboxClient.(*client.NetBoxAPI).Status.StatusList(req, nil)
+		res, err := netboxClient.Status.StatusList(req, nil)
 
 		if err != nil {
 			return nil, diag.FromErr(err)
