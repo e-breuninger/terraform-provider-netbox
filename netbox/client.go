@@ -29,7 +29,7 @@ type customHeaderTransport struct {
 }
 
 // Client does the heavy lifting of establishing a base Open API client to Netbox.
-func (cfg *Config) Client() (interface{}, error) {
+func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 
 	log.WithFields(log.Fields{
 		"server_url": cfg.ServerURL,

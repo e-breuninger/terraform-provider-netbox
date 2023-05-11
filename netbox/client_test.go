@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	netboxClient "github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/stretchr/testify/assert"
 )
@@ -91,7 +90,7 @@ func TestAdditionalHeadersSet(t *testing.T) {
 	assert.NoError(t, err)
 
 	req := status.NewStatusListParams()
-	client.(*netboxClient.NetBoxAPI).Status.StatusList(req, nil)
+	client.Status.StatusList(req, nil)
 }
 
 /* TODO
