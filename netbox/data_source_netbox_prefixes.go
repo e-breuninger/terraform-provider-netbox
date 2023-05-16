@@ -17,17 +17,20 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"filter": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "A list of filters to apply to the API query when requesting prefixes.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The name of the field to filter on. Supported fields are: `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `site_id`, & `tag`.",
 						},
 						"value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The value to pass to the specified filter.",
 						},
 					},
 				},
@@ -37,6 +40,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 				Optional:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
 				Default:          0,
+				Description:      "The limit of objects to return from the API lookup.",
 			},
 			"prefixes": {
 				Type:     schema.TypeList,
