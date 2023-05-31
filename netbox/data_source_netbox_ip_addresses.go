@@ -105,6 +105,30 @@ func dataSourceNetboxIpAddresses() *schema.Resource {
 								},
 							},
 						},
+						"tags": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"display": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"slug": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -157,6 +181,7 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 
 	var s []map[string]interface{}
 	for _, v := range filteredIpAddresses {
+
 		var mapping = make(map[string]interface{})
 
 		mapping["id"] = v.ID
@@ -170,7 +195,16 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 		mapping["status"] = v.Status.Value
 		mapping["dns_name"] = v.DNSName
 		mapping["tenant"] = flattenTenant(v.Tenant)
-
+		var stags []map[string]interface{}
+		for _,t := range v.Tags {
+			var tagmapping = make(map[string]interface{})
+			tagmapping["name"] = t.Name
+			tagmapping["display"] = t.Display
+			tagmapping["slug"] = t.Slug
+			tagmapping["id"] = t.ID
+			stags = append(stags, tagmapping)
+		}
+		mapping["tags"] = stags
 		if v.Role != nil {
 			mapping["role"] = v.Role.Value
 		}
@@ -180,7 +214,6 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 
 	d.SetId(resource.UniqueId())
 	return d.Set("ip_addresses", s)
-
 }
 
 func flattenTenant(tenant *models.NestedTenant) []map[string]interface{} {

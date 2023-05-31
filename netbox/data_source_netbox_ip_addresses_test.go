@@ -30,6 +30,7 @@ data "netbox_ip_addresses" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.ip_address", "netbox_ip_address.test", "ip_address"),
 					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.0.role", "anycast"),
+					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.tags.0.name", "netbox_tag.test", "name"),
 				),
 			},
 		},
