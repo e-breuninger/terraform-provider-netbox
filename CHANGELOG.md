@@ -1,3 +1,11 @@
+## 3.3.1 (May 31th, 2023)
+
+ENHANCEMENTS
+
+* data-source/netbox_prefixes: Allow filtering by `site_id` ([#397](https://github.com/e-breuninger/terraform-provider-netbox/pull/397) by [@tagur87](https://github.com/tagur87))
+* data-source/netbox_ip_addresses: Add `tags` attributes to output ([#406](https://github.com/e-breuninger/terraform-provider-netbox/pull/406) by [@pier-nl](https://github.com/pier-nl))
+* Improved error handling for tags ([#400](https://github.com/e-breuninger/terraform-provider-netbox/pull/400) by [@tagur87](https://github.com/tagur87))
+
 ## 3.3.0 (May 7th, 2023)
 
 ENHANCEMENTS
