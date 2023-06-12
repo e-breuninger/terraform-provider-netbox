@@ -40,6 +40,7 @@ func resourceCustomField() *schema.Resource {
 					models.CustomFieldTypeValueURL,
 					models.CustomFieldTypeValueSelect,
 					models.CustomFieldTypeValueMultiselect,
+					models.CustomFieldTypeLabelJSON,
 				}, false),
 			},
 			"content_types": {
