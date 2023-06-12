@@ -1,3 +1,9 @@
+## 3.3.2 (June 12th, 2023)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_contact_role` ([#414](https://github.com/e-breuninger/terraform-provider-netbox/pull/414) by [@Ikke](https://github.com/Ikke))
+
 ## 3.3.1 (May 31th, 2023)
 
 ENHANCEMENTS
