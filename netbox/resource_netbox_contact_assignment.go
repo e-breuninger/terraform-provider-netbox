@@ -7,6 +7,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxContactAssignment() *schema.Resource {
@@ -37,6 +38,11 @@ func resourceNetboxContactAssignment() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"priority": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"primary", "secondary", "tertiary", "inactive"}, false),
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -51,6 +57,7 @@ func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}
 	object_id := int64(d.Get("object_id").(int))
 	contact_id := int64(d.Get("contact_id").(int))
 	role_id := int64(d.Get("role_id").(int))
+	priority := d.Get("priority").(string)
 
 	data := &models.WritableContactAssignment{}
 
@@ -58,6 +65,7 @@ func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}
 	data.ObjectID = &object_id
 	data.Contact = &contact_id
 	data.Role = &role_id
+	data.Priority = priority
 
 	params := tenancy.NewTenancyContactAssignmentsCreateParams().WithData(data)
 
@@ -100,6 +108,9 @@ func resourceNetboxContactAssignmentRead(d *schema.ResourceData, m interface{}) 
 	if res.GetPayload().Role != nil {
 		d.Set("role_id", res.GetPayload().Role.ID)
 	}
+	if res.GetPayload().Priority != nil {
+		d.Set("priority", res.GetPayload().Priority.Value)
+	}
 
 	return nil
 }
@@ -114,6 +125,7 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	object_id := int64(d.Get("object_id").(int))
 	contact_id := int64(d.Get("contact_id").(int))
 	role_id := int64(d.Get("role_id").(int))
+	priority := d.Get("priority").(string)
 
 	data.ContentType = &content_type
 	if object_id != 0 {
@@ -125,6 +137,7 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	if role_id != 0 {
 		data.Role = &role_id
 	}
+	data.Priority = priority
 
 	params := tenancy.NewTenancyContactAssignmentsPartialUpdateParams().WithID(id).WithData(&data)
 

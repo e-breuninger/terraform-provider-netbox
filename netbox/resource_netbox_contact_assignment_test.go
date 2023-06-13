@@ -53,12 +53,14 @@ resource "netbox_contact_assignment" "test" {
   object_id = netbox_device.test.id
   contact_id = netbox_contact.test.id
   role_id = netbox_contact_role.test.id
+  priority = "primary"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_contact_assignment.test", "content_type", "dcim.device"),
 					resource.TestCheckResourceAttrPair("netbox_contact_assignment.test", "object_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_contact_assignment.test", "contact_id", "netbox_contact.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_contact_assignment.test", "role_id", "netbox_contact_role.test", "id"),
+					resource.TestCheckResourceAttr("netbox_contact_assignment.test", "priority", "primary"),
 				),
 			},
 			{
