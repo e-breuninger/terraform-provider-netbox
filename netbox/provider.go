@@ -135,6 +135,7 @@ func Provider() *schema.Provider {
 			"netbox_ip_range":         dataSourceNetboxIpRange(),
 			"netbox_region":           dataSourceNetboxRegion(),
 			"netbox_vlan":             dataSourceNetboxVlan(),
+			"netbox_vlans":            dataSourceNetboxVlans(),
 			"netbox_vlan_group":       dataSourceNetboxVlanGroup(),
 			"netbox_site_group":       dataSourceNetboxSiteGroup(),
 			"netbox_racks":            dataSourceNetboxRacks(),
