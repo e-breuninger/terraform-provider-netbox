@@ -68,7 +68,7 @@ If you wish to work on the provider, you need [Go](http://www.golang.org) instal
 
 To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
-To generate or update documentation, run `go generate`.
+To generate or update documentation, run `make docs`.
 
 In order to run the suite of unit tests, run `make test`.
 
