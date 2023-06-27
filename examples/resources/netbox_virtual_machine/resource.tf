@@ -37,4 +37,8 @@ resource "netbox_virtual_machine" "full_vm" {
   vcpus        = "2"
   role_id      = 31 // This corresponds to the Netbox ID for a given role
   tenant_id    = data.netbox_tenant.customer_a.id
+  local_context_data = jsonencode({
+    "setting_a" = "Some Setting"
+    "setting_b" = 42
+  })
 }

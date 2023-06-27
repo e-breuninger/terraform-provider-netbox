@@ -2,6 +2,8 @@ package netbox
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -86,6 +88,10 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"local_context_data": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -166,6 +172,15 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 	if ok {
 		roleID := int64(roleIDValue.(int))
 		data.Role = &roleID
+	}
+
+	localContextValue, ok := d.GetOk("local_context_data")
+	if ok {
+		var jsonObj any
+		localContextBA := []byte(localContextValue.(string))
+		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
+			data.LocalContextData = jsonObj
+		}
 	}
 
 	data.Status = d.Get("status").(string)
@@ -267,6 +282,13 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		d.Set("site_id", vm.Site.ID)
 	} else {
 		d.Set("site_id", nil)
+	}
+
+	if vm.LocalContextData != nil {
+		fmt.Printf("%+v\n", vm.LocalContextData)
+		if jsonArr, err := json.Marshal(vm.LocalContextData); err == nil {
+			d.Set("local_context_data", string(jsonArr))
+		}
 	}
 
 	d.Set("comments", vm.Comments)
@@ -377,6 +399,15 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.PrimaryIp6 = &primaryIP6
 	}
 
+	localContextValue, ok := d.GetOk("local_context_data")
+	if ok {
+		var jsonObj any
+		localContextBA := []byte(localContextValue.(string))
+		if err := json.Unmarshal(localContextBA, jsonObj); err == nil {
+			data.LocalContextData = jsonObj
+		}
+	}
+
 	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	data.Tags = tags
 	cf, ok := d.GetOk(customFieldsKey)
@@ -397,7 +428,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.Comments = comments
 	}
 
-	//if d.HasChanges("status") {
+	// if d.HasChanges("status") {
 	if status, ok := d.GetOk("status"); ok {
 		data.Status = status.(string)
 	}
