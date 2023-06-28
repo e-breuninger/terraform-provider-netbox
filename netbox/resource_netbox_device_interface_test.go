@@ -35,8 +35,8 @@ resource "netbox_manufacturer" "test" {
 }
 
 resource "netbox_device_type" "test" {
-	model = "%[1]s"
-	manufacturer_id = netbox_manufacturer.test.id
+  model = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
 }
 
 resource "netbox_device" "test" {
