@@ -1,3 +1,10 @@
+## 3.3.3 (June 28th, 2023)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_vlans` ([#420](https://github.com/e-breuninger/terraform-provider-netbox/pull/420) by [@danischm](https://github.com/danischm))
+* resource/netbox_contact_assignment: Add `priority` attribute ([#418](https://github.com/e-breuninger/terraform-provider-netbox/pull/418) by [@Ikke](https://github.com/Ikke))
+
 ## 3.3.2 (June 12th, 2023)
 
 ENHANCEMENTS
