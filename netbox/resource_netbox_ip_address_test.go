@@ -400,6 +400,60 @@ resource "netbox_ip_address" "test" {
 	})
 }
 
+func TestAccNetboxIPAddress_nat(t *testing.T) {
+
+	testIP := "1.1.1.8/32"
+	testIP_inside := "1.1.1.9/32"
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  status = "active"
+}
+
+resource "netbox_ip_address" "inside" {
+  ip_address = "%s"
+  status = "active"
+  nat_inside_address_id = netbox_ip_address.test.id
+}
+`, testIP, testIP_inside),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "status", "active"),
+					resource.TestCheckResourceAttrPair("netbox_ip_address.inside", "nat_inside_address_id", "netbox_ip_address.test", "id"),
+				),
+			},
+			// we have to make another step because netbox_ip_address.test.nat_outside_addresses needs a refresh
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  status = "active"
+}
+
+resource "netbox_ip_address" "inside" {
+  ip_address = "%s"
+  status = "active"
+  nat_inside_address_id = netbox_ip_address.test.id
+}
+`, testIP, testIP_inside),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "nat_outside_addresses.#", "1"),
+					resource.TestCheckResourceAttrPair("netbox_ip_address.test", "nat_outside_addresses.0.id", "netbox_ip_address.inside", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_ip_address.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxIPAddress_invalidConfig(t *testing.T) {
 
 	testIP := "1.1.1.7/32"

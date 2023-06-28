@@ -116,7 +116,8 @@ resource "netbox_ip_address" "this" {
 - `device_interface_id` (Number) Conflicts with `interface_id` and `virtual_machine_interface_id`.
 - `dns_name` (String)
 - `interface_id` (Number)
-- `object_type` (String) Defaults to `""`.
+- `nat_inside_address_id` (Number)
+- `object_type` (String)
 - `role` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
@@ -126,5 +127,15 @@ resource "netbox_ip_address" "this" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `nat_outside_addresses` (List of Object) (see [below for nested schema](#nestedatt--nat_outside_addresses))
+
+<a id="nestedatt--nat_outside_addresses"></a>
+### Nested Schema for `nat_outside_addresses`
+
+Read-Only:
+
+- `address_family` (Number)
+- `id` (Number)
+- `ip_address` (String)
 
 

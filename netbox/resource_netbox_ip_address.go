@@ -77,6 +77,30 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}, false),
 			},
+			"nat_inside_address_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"nat_outside_addresses": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"ip_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"address_family": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -97,6 +121,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	data.DNSName = getOptionalStr(d, "dns_name", false)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")
+	data.NatInside = getOptionalInt(d, "nat_inside_address_id")
 
 	vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
 	deviceInterfaceId := getOptionalInt(d, "device_interface_id")
@@ -212,6 +237,31 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("role", nil)
 	}
 
+	if ipAddress.NatInside != nil {
+		d.Set("nat_inside_address_id", ipAddress.NatInside.ID)
+	} else {
+		d.Set("nat_inside_address_id", nil)
+	}
+
+	if ipAddress.NatOutside != nil {
+		natOutsideIpAddresses := ipAddress.NatOutside
+
+		var s []map[string]interface{}
+		for _, v := range natOutsideIpAddresses {
+
+			var mapping = make(map[string]interface{})
+
+			mapping["id"] = v.ID
+			mapping["ip_address"] = v.Address
+			mapping["address_family"] = v.Family
+
+			s = append(s, mapping)
+		}
+		d.Set("nat_outside_addresses", s)
+	} else {
+		d.Set("nat_outside_addresses", nil)
+	}
+
 	d.Set("ip_address", ipAddress.Address)
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
@@ -234,6 +284,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	data.DNSName = getOptionalStr(d, "dns_name", true)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")
+	data.NatInside = getOptionalInt(d, "nat_inside_address_id")
 
 	vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
 	deviceInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
