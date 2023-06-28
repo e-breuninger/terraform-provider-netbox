@@ -46,8 +46,25 @@ This resource will retrieve the next available IP address from a given prefix or
 				Computed: true,
 			},
 			"interface_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"object_type"},
+			},
+			"object_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"virtualization.vminterface", "dcim.interface"}, false),
+				RequiredWith: []string{"interface_id"},
+			},
+			"virtual_machine_interface_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"interface_id", "device_interface_id"},
+			},
+			"device_interface_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"interface_id", "virtual_machine_interface_id"},
 			},
 			"vrf_id": {
 				Type:     schema.TypeInt,
@@ -98,14 +115,14 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	if prefixId != 0 {
 		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixId).WithData([]*models.AvailableIP{&data})
 		res, _ := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
-		// Since we generated the ip_address set that now
+		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
 	}
 	if rangeId != 0 {
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeId).WithData([]*models.AvailableIP{&data})
 		res, _ := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
-		// Since we generated the ip_address set that now
+		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
 	}
@@ -131,32 +148,48 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 		return err
 	}
 
-	if res.GetPayload().AssignedObjectID != nil {
-		d.Set("interface_id", res.GetPayload().AssignedObjectID)
+	ipAddress := res.GetPayload()
+	if ipAddress.AssignedObjectID != nil {
+
+		vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
+		deviceInterfaceId := getOptionalInt(d, "device_interface_id")
+		interfaceId := getOptionalInt(d, "interface_id")
+
+		switch {
+		case vmInterfaceId != nil:
+			d.Set("virtual_machine_interface_id", ipAddress.AssignedObjectID)
+		case deviceInterfaceId != nil:
+			d.Set("device_interface_id", ipAddress.AssignedObjectID)
+		// if interfaceId is given, object_type must be set as well
+		case interfaceId != nil:
+			d.Set("object_type", ipAddress.AssignedObjectType)
+			d.Set("interface_id", ipAddress.AssignedObjectID)
+		}
 	} else {
 		d.Set("interface_id", nil)
+		d.Set("object_type", "")
 	}
 
-	if res.GetPayload().Vrf != nil {
-		d.Set("vrf_id", res.GetPayload().Vrf.ID)
+	if ipAddress.Vrf != nil {
+		d.Set("vrf_id", ipAddress.Vrf.ID)
 	} else {
 		d.Set("vrf_id", nil)
 	}
 
-	if res.GetPayload().Tenant != nil {
-		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	if ipAddress.Tenant != nil {
+		d.Set("tenant_id", ipAddress.Tenant.ID)
 	} else {
 		d.Set("tenant_id", nil)
 	}
 
-	if res.GetPayload().DNSName != "" {
-		d.Set("dns_name", res.GetPayload().DNSName)
+	if ipAddress.DNSName != "" {
+		d.Set("dns_name", ipAddress.DNSName)
 	}
 
-	d.Set("ip_address", res.GetPayload().Address)
-	d.Set("description", res.GetPayload().Description)
-	d.Set("status", res.GetPayload().Status.Value)
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set("ip_address", ipAddress.Address)
+	d.Set("description", ipAddress.Description)
+	d.Set("status", ipAddress.Status.Value)
+	d.Set(tagsKey, getTagListFromNestedTagList(ipAddress.Tags))
 	return nil
 }
 
@@ -167,24 +200,14 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPAddress{}
 
-	ipAddress := d.Get("ip_address").(string)
-	status := d.Get("status").(string)
-	description := d.Get("description").(string)
-	role := d.Get("role").(string)
+	data.Address = strToPtr(d.Get("ip_address").(string))
+	data.Status = d.Get("status").(string)
 
-	data.Status = status
-	data.Description = description
-	data.Address = &ipAddress
-	data.Role = role
-
-	if d.HasChange("dns_name") {
-		// WritableIPAddress omits empty values so set to ' '
-		if dnsName := d.Get("dns_name"); dnsName.(string) == "" {
-			data.DNSName = " "
-		} else {
-			data.DNSName = dnsName.(string)
-		}
-	}
+	data.Description = getOptionalStr(d, "description", false)
+	data.Role = getOptionalStr(d, "role", false)
+	data.DNSName = getOptionalStr(d, "dns_name", false)
+	data.Vrf = getOptionalInt(d, "vrf_id")
+	data.Tenant = getOptionalInt(d, "tenant_id")
 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
 		// The other possible type is dcim.interface for devices
@@ -192,12 +215,25 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
 	}
 
-	if vrfID, ok := d.GetOk("vrf_id"); ok {
-		data.Vrf = int64ToPtr(int64(vrfID.(int)))
-	}
+	vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
+	deviceInterfaceId := getOptionalInt(d, "device_interface_id")
+	interfaceId := getOptionalInt(d, "interface_id")
 
-	if tenantID, ok := d.GetOk("tenant_id"); ok {
-		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	switch {
+	case vmInterfaceId != nil:
+		data.AssignedObjectType = strToPtr("virtualization.vminterface")
+		data.AssignedObjectID = vmInterfaceId
+	case deviceInterfaceId != nil:
+		data.AssignedObjectType = strToPtr("dcim.interface")
+		data.AssignedObjectID = deviceInterfaceId
+	// if interfaceId is given, object_type must be set as well
+	case interfaceId != nil:
+		data.AssignedObjectType = strToPtr(d.Get("object_type").(string))
+		data.AssignedObjectID = interfaceId
+	// default = ip is not linked to anything
+	default:
+		data.AssignedObjectType = strToPtr("")
+		data.AssignedObjectID = nil
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
