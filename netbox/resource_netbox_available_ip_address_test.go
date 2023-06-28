@@ -21,9 +21,9 @@ func TestAccNetboxAvailableIPAddress_basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_prefix" "test" {
-	prefix = "%s"
-	status = "active"
-	is_pool = false
+  prefix = "%s"
+  status = "active"
+  is_pool = false
 }
 resource "netbox_available_ip_address" "test" {
   prefix_id = netbox_prefix.test.id
@@ -51,8 +51,8 @@ func TestAccNetboxAvailableIPAddress_basic_range(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_ip_range" "test" {
-    start_address = "%s"
-    end_address = "%s"
+  start_address = "%s"
+  end_address = "%s"
 }
 resource "netbox_available_ip_address" "test_range" {
   ip_range_id = netbox_ip_range.test.id
@@ -77,9 +77,9 @@ func TestAccNetboxAvailableIPAddress_multipleIpsParallel(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_prefix" "test" {
-	prefix = "%s"
-	status = "active"
-	is_pool = false
+  prefix = "%s"
+  status = "active"
+  is_pool = false
 }
 resource "netbox_available_ip_address" "test1" {
   prefix_id = netbox_prefix.test.id
@@ -116,8 +116,8 @@ func TestAccNetboxAvailableIPAddress_multipleIpsParallel_range(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_ip_range" "test_range" {
-    start_address = "%s"
-    end_address = "%s"
+  start_address = "%s"
+  end_address = "%s"
 }
 resource "netbox_available_ip_address" "test_range1" {
   ip_range_id = test_range.test_range.id
@@ -154,9 +154,9 @@ func TestAccNetboxAvailableIPAddress_multipleIpsSerial(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_prefix" "test" {
-	prefix = "%s"
-	status = "active"
-	is_pool = false
+  prefix = "%s"
+  status = "active"
+  is_pool = false
 }
 resource "netbox_available_ip_address" "test1" {
   prefix_id = netbox_prefix.test.id
@@ -195,8 +195,8 @@ func TestAccNetboxAvailableIPAddress_multipleIpsSerial_range(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_ip_range" "test_range" {
-    start_address = "%s"
-    end_address = "%s"
+  start_address = "%s"
+  end_address = "%s"
 }
 resource "netbox_available_ip_address" "test_range1" {
   ip_range_id = netbox_ip_range.test_range.id
@@ -219,6 +219,68 @@ resource "netbox_available_ip_address" "test_range3" {
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range1", "ip_address", testIP[0]),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range2", "ip_address", testIP[1]),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range3", "ip_address", testIP[2]),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxAvailableIPAddress_deviceByObjectType(t *testing.T) {
+
+	startAddress := "1.2.7.1/24"
+	endAddress := "1.2.7.50/24"
+	testSlug := "av_ipa_dev_ot"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_range" {
+  start_address = "%s"
+  end_address = "%s"
+}
+resource "netbox_available_ip_address" "test" {
+  ip_range_id = netbox_ip_range.test_range.id
+  status = "active"
+  dns_name = "test_range.mydomain.local"
+  object_type = "dcim.interface"
+  interface_id = netbox_device_interface.test.id
+}`, startAddress, endAddress),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "object_type", "dcim.interface"),
+					resource.TestCheckResourceAttrPair("netbox_available_ip_address.test", "interface_id", "netbox_device_interface.test", "id"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxAvailableIPAddress_deviceByFieldName(t *testing.T) {
+
+	startAddress := "1.3.7.1/24"
+	endAddress := "1.3.7.50/24"
+	testSlug := "av_ipa_dev_fn"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_range" {
+  start_address = "%s"
+  end_address = "%s"
+}
+resource "netbox_available_ip_address" "test" {
+  ip_range_id = netbox_ip_range.test_range.id
+  status = "active"
+  dns_name = "test_range.mydomain.local"
+  device_interface_id = netbox_device_interface.test.id
+}`, startAddress, endAddress),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "status", "active"),
+					resource.TestCheckResourceAttrPair("netbox_available_ip_address.test", "device_interface_id", "netbox_device_interface.test", "id"),
 				),
 			},
 		},

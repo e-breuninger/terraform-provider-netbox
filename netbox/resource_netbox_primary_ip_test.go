@@ -83,13 +83,13 @@ resource "netbox_interface" "test" {
 resource "netbox_ip_address" "test_v4" {
   ip_address = "1.1.1.1/32"
   status = "active"
-  interface_id = netbox_interface.test.id
+  virtual_machine_interface_id = netbox_interface.test.id
 }
 
 resource "netbox_ip_address" "test_v6" {
   ip_address = "2000::1/128"
   status = "active"
-  interface_id = netbox_interface.test.id
+  virtual_machine_interface_id = netbox_interface.test.id
 }
 `, testName)
 }
