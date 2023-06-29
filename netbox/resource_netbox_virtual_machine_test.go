@@ -95,7 +95,6 @@ resource "netbox_cluster" "test" {
 }
 
 func TestAccNetboxVirtualMachine_SiteOnly(t *testing.T) {
-
 	testSlug := "vm_site"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -125,7 +124,6 @@ resource "netbox_virtual_machine" "only_site" {
 }
 
 func TestAccNetboxVirtualMachine_ClusterWithoutSite(t *testing.T) {
-
 	testSlug := "vm_clstrnosite"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -164,7 +162,6 @@ resource "netbox_virtual_machine" "cluster_without_site" {
 }
 
 func TestAccNetboxVirtualMachine_basic(t *testing.T) {
-
 	testSlug := "vm_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -275,7 +272,6 @@ resource "netbox_virtual_machine" "test" {
 }
 
 func TestAccNetboxVirtualMachine_fractionalVcpu(t *testing.T) {
-
 	testSlug := "vm_fracVcpu"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -354,7 +350,6 @@ func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 }
 
 func TestAccNetboxVirtualMachine_tags(t *testing.T) {
-
 	testSlug := "vm_tags"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -424,6 +419,29 @@ resource "netbox_virtual_machine" "test" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "custom_fields.custom_field", "76"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxVirtualMachine_localContext(t *testing.T) {
+	testSlug := "vm_lc"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name               = "%[1]s"
+  cluster_id         = netbox_cluster.test.id
+  site_id            = netbox_site.test.id
+  local_context_data = jsonencode({"context_string"="context_value"})
+  }`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "local_context_data", "{\"context_string\":\"context_value\"}"),
 				),
 			},
 		},
