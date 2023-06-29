@@ -80,6 +80,7 @@ resource "netbox_virtual_machine" "full_vm" {
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vcpus` (Number)
+- `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 
 ### Read-Only
 
