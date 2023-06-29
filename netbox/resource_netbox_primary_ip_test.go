@@ -36,6 +36,23 @@ resource "netbox_device_role" "test" {
   color_hex = "123456"
 }
 
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_device_type" "test" {
+  model = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+}
+
+resource "netbox_device" "test" {
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  site_id = netbox_site.test.id
+  device_type_id = netbox_device_type.test.id
+  cluster_id = netbox_cluster.test.id
+}
+
 resource "netbox_site" "test" {
   name = "%[1]s"
   status = "active"
@@ -53,6 +70,7 @@ resource "netbox_virtual_machine" "test" {
   platform_id = netbox_platform.test.id
   vcpus = "4"
   status = "planned"
+  device_id = netbox_device.test.id
 
   tags = [netbox_tag.test.name]
 }
