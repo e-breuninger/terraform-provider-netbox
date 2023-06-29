@@ -126,6 +126,7 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 	if vm.PrimaryIp4 != nil {
 		data.PrimaryIp4 = &vm.PrimaryIp4.ID
 	}
+
 	if vm.PrimaryIp6 != nil {
 		data.PrimaryIp6 = &vm.PrimaryIp6.ID
 	}
@@ -140,6 +141,10 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 
 	if vm.Role != nil {
 		data.Role = &vm.Role.ID
+	}
+
+	if vm.Device != nil {
+		data.Device = &vm.Device.ID
 	}
 
 	// unset primary ip address if -1 is passed as id
