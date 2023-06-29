@@ -3,7 +3,6 @@ package netbox
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -285,7 +284,6 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	}
 
 	if vm.LocalContextData != nil {
-		fmt.Printf("%+v\n", vm.LocalContextData)
 		if jsonArr, err := json.Marshal(vm.LocalContextData); err == nil {
 			d.Set("local_context_data", string(jsonArr))
 		}
