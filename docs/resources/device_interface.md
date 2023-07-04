@@ -30,7 +30,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/dev
 - `enabled` (Boolean) Defaults to `true`.
 - `mac_address` (String)
 - `mgmtonly` (Boolean)
-- `mode` (String)
+- `mode` (String) Valid values are `access`, `tagged` and `tagged-all`.
 - `mtu` (Number)
 - `tagged_vlans` (Set of Number)
 - `tags` (Set of String)

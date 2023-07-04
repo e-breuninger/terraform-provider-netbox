@@ -31,7 +31,7 @@ resource "netbox_available_prefix" "test" {
 
 - `parent_prefix_id` (Number)
 - `prefix_length` (Number)
-- `status` (String)
+- `status` (String) Valid values are `active`, `container`, `reserved` and `deprecated`.
 
 ### Optional
 

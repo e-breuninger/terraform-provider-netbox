@@ -49,7 +49,7 @@ resource "netbox_vlan" "example2" {
 - `group_id` (Number)
 - `role_id` (Number)
 - `site_id` (Number)
-- `status` (String) Defaults to `active`.
+- `status` (String) Valid values are `active`, `reserved` and `deprecated`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 

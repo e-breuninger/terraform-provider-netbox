@@ -19,23 +19,12 @@ description: |-
 ### Marking an IP active and assigning to interface
 {{ tffile "examples/resources/netbox_available_ip_address/assign_to_interface.tf" }}
 
-## Schema
+{{ .SchemaMarkdown | trimspace }}
 
-### Required
+{{ if .HasImport -}}
+## Import
 
-- Either **prefix_id** or **ip_range_id** (String)
+Import is supported using the following syntax:
 
-### Optional
-
-- **description** (String)
-- **dns_name** (String)
-- **interface_id** (Number)
-- **status** (String) Defaults to "active".  Choose from "active", "reserved", "deprecated", "dhcp", or "slaac"
-- **tags** (Set of String)
-- **tenant_id** (Number)
-- **vrf_id** (Number)
-
-### Read-Only
-
-- **id** (String) The ID of this resource.
-- **ip_address** (String)
+{{ printf "{{codefile \"shell\" %q}}" .ImportFile }}
+{{- end }}

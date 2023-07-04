@@ -48,7 +48,7 @@ resource "netbox_vlan_group" "example2" {
 
 - `description` (String) Defaults to `""`.
 - `scope_id` (Number) Required when `scope_type` is set.
-- `scope_type` (String)
+- `scope_type` (String) Valid values are `active`, `container`, `reserved` and `deprecated`.
 - `tags` (Set of String)
 
 ### Read-Only

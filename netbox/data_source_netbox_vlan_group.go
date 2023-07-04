@@ -30,7 +30,8 @@ func dataSourceNetboxVlanGroup() *schema.Resource {
 			"scope_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"dcim.location", "dcim.site", "dcim.sitegroup", "dcim.region", "dcim.rack", "virtualization.cluster", "virtualization.clustergroup"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxVlanGroupScopeTypeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxVlanGroupScopeTypeOptions),
 			},
 			"scope_id": {
 				Type:         schema.TypeInt,

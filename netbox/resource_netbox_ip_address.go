@@ -10,6 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxIPAddressObjectTypeOptions = []string{"virtualization.vminterface", "dcim.interface"}
+var resourceNetboxIPAddressStatusOptions = []string{"active", "reserved", "deprecated", "dhcp", "slaac"}
+var resourceNetboxIPAddressRoleOptions = []string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}
+
 func resourceNetboxIPAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxIPAddressCreate,
@@ -37,7 +41,8 @@ func resourceNetboxIPAddress() *schema.Resource {
 			"object_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"virtualization.vminterface", "dcim.interface"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressObjectTypeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxIPAddressObjectTypeOptions),
 				RequiredWith: []string{"interface_id"},
 			},
 			"virtual_machine_interface_id": {
@@ -61,7 +66,8 @@ func resourceNetboxIPAddress() *schema.Resource {
 			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp", "slaac"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxIPAddressStatusOptions),
 			},
 			"dns_name": {
 				Type:     schema.TypeString,
@@ -75,7 +81,8 @@ func resourceNetboxIPAddress() *schema.Resource {
 			"role": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressRoleOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxIPAddressRoleOptions),
 			},
 			"nat_inside_address_id": {
 				Type:     schema.TypeInt,
@@ -178,22 +185,6 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	ipAddress := res.GetPayload()
-	//spew.Dump(ipAddress)
-	// set all attributes all the time
-	//	if ipAddress.AssignedObjectID != nil {
-	//		d.Set("interface_id", ipAddress.AssignedObjectID)
-	//		d.Set("object_type", ipAddress.AssignedObjectType)
-	//		switch *ipAddress.AssignedObjectType {
-	//			case "virtualization.vminterface":
-	//				d.Set("virtual_machine_interface_id", ipAddress.AssignedObjectID)
-	//			case "dcim.interface":
-	//				d.Set("device_interface_id", ipAddress.AssignedObjectID)
-	//		}
-	//	} else {
-	//		d.Set("interface_id", nil)
-	//		d.Set("object_type", "")
-	//	}
-	// set only given attributes
 	if ipAddress.AssignedObjectID != nil {
 
 		vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
