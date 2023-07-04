@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxVlanStatusOptions = []string{"active", "reserved", "deprecated"}
+
 func resourceNetboxVlan() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxVlanCreate,
@@ -34,7 +36,8 @@ func resourceNetboxVlan() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "active",
-				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxVlanStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxVlanStatusOptions),
 			},
 			"group_id": {
 				Type:     schema.TypeInt,

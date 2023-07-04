@@ -24,7 +24,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/ipa
 ### Required
 
 - `prefix` (String)
-- `status` (String)
+- `status` (String) Valid values are `active`, `container`, `reserved` and `deprecated`.
 
 ### Optional
 

@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxVirtualMachineStatusOptions = []string{"offline", "active", "planned", "staged", "failed", "decommissioning"}
+
 func resourceNetboxVirtualMachine() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetboxVirtualMachineCreate,
@@ -74,9 +76,9 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "decommissioning"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxVirtualMachineStatusOptions, false),
 				Default:      "active",
-				Description:  "Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`",
+				Description:  buildValidValueDescription(resourceNetboxVirtualMachineStatusOptions),
 			},
 			tagsKey: tagsSchema,
 			"primary_ipv4": {

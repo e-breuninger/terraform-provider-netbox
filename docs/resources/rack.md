@@ -28,9 +28,9 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 
 - `name` (String)
 - `site_id` (Number)
-- `status` (String) One of [reserved available planned active deprecated].
+- `status` (String) Valid values are `reserved`, `available`, `planned`, `active` and `deprecated`.
 - `u_height` (Number)
-- `width` (Number) One of [10, 19, 21, 23].
+- `width` (Number) Valid values are `10`, `19`, `21` and `23`.
 
 ### Optional
 
@@ -44,15 +44,15 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 - `max_weight` (Number)
 - `mounting_depth` (Number)
 - `outer_depth` (Number)
-- `outer_unit` (String) One of [mm, in]. Required when `outer_width` and `outer_depth` is set.
+- `outer_unit` (String) Valid values are `mm` and `in`. Required when `outer_width` and `outer_depth` is set.
 - `outer_width` (Number)
 - `role_id` (Number)
 - `serial` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
-- `type` (String) One of [2-post-frame 4-post-frame 4-post-cabinet wall-frame wall-frame-vertical wall-cabinet wall-cabinet-vertical].
+- `type` (String) Valid values are `2-post-frame`, `4-post-frame`, `4-post-cabinet`, `wall-frame`, `wall-frame-vertical`, `wall-cabinet` and `wall-cabinet-vertical`.
 - `weight` (Number)
-- `weight_unit` (String) One of [kg, g, lb, oz]. Required when `weight` and `max_weight` is set.
+- `weight_unit` (String) Valid values are `kg`, `g`, `lb` and `oz`. Required when `weight` and `max_weight` is set.
 
 ### Read-Only
 

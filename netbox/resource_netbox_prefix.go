@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxPrefixStatusOptions = []string{"active", "container", "reserved", "deprecated"}
+
 func resourceNetboxPrefix() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxPrefixCreate,
@@ -32,7 +34,8 @@ func resourceNetboxPrefix() *schema.Resource {
 			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "container"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxPrefixStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxPrefixStatusOptions),
 			},
 			"description": {
 				Type:     schema.TypeString,

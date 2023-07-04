@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxIPRangeStatusOptions = []string{"active", "reserved", "deprecated"}
+
 func resourceNetboxIpRange() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxIpRangeCreate,
@@ -34,7 +36,8 @@ func resourceNetboxIpRange() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "active",
-				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxIPRangeStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxIPRangeStatusOptions),
 			},
 			"tenant_id": {
 				Type:     schema.TypeInt,

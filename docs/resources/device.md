@@ -59,11 +59,11 @@ resource "netbox_device" "test" {
 - `custom_fields` (Map of String)
 - `location_id` (Number)
 - `platform_id` (Number)
-- `rack_face` (String) Required when `rack_position` is set.
+- `rack_face` (String) Valid values are `front` and `rear`. Required when `rack_position` is set.
 - `rack_id` (Number)
 - `rack_position` (Number)
 - `serial` (String)
-- `status` (String) Defaults to `active`.
+- `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `inventory`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 

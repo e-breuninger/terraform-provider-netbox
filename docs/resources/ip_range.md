@@ -35,7 +35,7 @@ resource "netbox_ip_range" "cust_a_prod" {
 
 - `description` (String)
 - `role_id` (Number)
-- `status` (String) Defaults to `active`.
+- `status` (String) Valid values are `active`, `reserved` and `deprecated`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vrf_id` (Number)

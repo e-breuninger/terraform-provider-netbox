@@ -25,7 +25,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/cir
 
 - `circuit_id` (Number)
 - `site_id` (Number)
-- `term_side` (String)
+- `term_side` (String) Valid values are `A` and `Z`.
 
 ### Optional
 

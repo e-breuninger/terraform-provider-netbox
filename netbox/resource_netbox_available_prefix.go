@@ -41,7 +41,8 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"active", "container", "reserved", "deprecated"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxPrefixStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxPrefixStatusOptions),
 			},
 			"description": {
 				Type:     schema.TypeString,

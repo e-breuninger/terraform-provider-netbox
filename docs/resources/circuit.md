@@ -25,7 +25,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/cir
 
 - `cid` (String)
 - `provider_id` (Number)
-- `status` (String)
+- `status` (String) Valid values are `planned`, `provisioning`, `active`, `offline`, `deprovisioning` and `decommissioning`.
 - `type_id` (Number)
 
 ### Optional

@@ -38,7 +38,7 @@ data "netbox_vlan_group" "example3" {
 
 - `name` (String) At least one of `name` or `slug` must be given.
 - `scope_id` (Number) Required when `scope_type` is set.
-- `scope_type` (String)
+- `scope_type` (String) Valid values are `dcim.location`, `dcim.site`, `dcim.sitegroup`, `dcim.region`, `dcim.rack`, `virtualization.cluster` and `virtualization.clustergroup`.
 - `slug` (String) At least one of `name` or `slug` must be given.
 
 ### Read-Only
