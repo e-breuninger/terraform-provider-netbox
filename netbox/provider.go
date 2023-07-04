@@ -33,6 +33,14 @@ func init() {
 			desc += fmt.Sprintf(" At least one of %s must be given.", joinStringWithFinalConjunction(atLeastOneOf, ", ", "or"))
 		}
 
+		if s.RequiredWith != nil && len(s.RequiredWith) > 0 {
+			requires := make([]string, len(s.RequiredWith))
+			for i, c := range s.RequiredWith {
+				requires[i] = fmt.Sprintf("`%s`", c)
+			}
+			desc += fmt.Sprintf(" Required when %s is set.", joinStringWithFinalConjunction(requires, ", ", "and"))
+		}
+
 		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
 			conflicts := make([]string, len(s.ConflictsWith))
 			for i, c := range s.ConflictsWith {
