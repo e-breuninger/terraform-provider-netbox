@@ -44,7 +44,7 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 - `max_weight` (Number)
 - `mounting_depth` (Number)
 - `outer_depth` (Number)
-- `outer_unit` (String) One of [mm, in].
+- `outer_unit` (String) One of [mm, in]. Required when `outer_width` and `outer_depth` is set.
 - `outer_width` (Number)
 - `role_id` (Number)
 - `serial` (String)
@@ -52,7 +52,7 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 - `tenant_id` (Number)
 - `type` (String) One of [2-post-frame 4-post-frame 4-post-cabinet wall-frame wall-frame-vertical wall-cabinet wall-cabinet-vertical].
 - `weight` (Number)
-- `weight_unit` (String) One of [kg, g, lb, oz].
+- `weight_unit` (String) One of [kg, g, lb, oz]. Required when `weight` and `max_weight` is set.
 
 ### Read-Only
 

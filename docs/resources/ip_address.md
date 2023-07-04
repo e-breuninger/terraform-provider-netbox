@@ -115,9 +115,9 @@ resource "netbox_ip_address" "this" {
 - `description` (String)
 - `device_interface_id` (Number) Conflicts with `interface_id` and `virtual_machine_interface_id`.
 - `dns_name` (String)
-- `interface_id` (Number)
+- `interface_id` (Number) Required when `object_type` is set.
 - `nat_inside_address_id` (Number)
-- `object_type` (String)
+- `object_type` (String) Required when `interface_id` is set.
 - `role` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)

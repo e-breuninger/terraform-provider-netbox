@@ -47,7 +47,7 @@ resource "netbox_vlan_group" "example2" {
 ### Optional
 
 - `description` (String) Defaults to `""`.
-- `scope_id` (Number)
+- `scope_id` (Number) Required when `scope_type` is set.
 - `scope_type` (String)
 - `tags` (Set of String)
 
