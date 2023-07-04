@@ -38,8 +38,9 @@ This resource will retrieve the next available IP address from a given prefix or
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
 			"ip_range_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
@@ -53,7 +54,8 @@ This resource will retrieve the next available IP address from a given prefix or
 			"object_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"virtualization.vminterface", "dcim.interface"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressObjectTypeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxIPAddressObjectTypeOptions),
 				RequiredWith: []string{"interface_id"},
 			},
 			"virtual_machine_interface_id": {
@@ -77,7 +79,8 @@ This resource will retrieve the next available IP address from a given prefix or
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"active", "reserved", "deprecated", "dhcp", "slaac"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxIPAddressStatusOptions),
 				Default:      "active",
 			},
 			"dns_name": {
@@ -92,7 +95,8 @@ This resource will retrieve the next available IP address from a given prefix or
 			"role": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressRoleOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxIPAddressRoleOptions),
 			},
 		},
 		Importer: &schema.ResourceImporter{

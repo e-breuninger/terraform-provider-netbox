@@ -12,8 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxInterfaceModeOptions = []string{"access", "tagged", "tagged-all"}
+
 func resourceNetboxInterface() *schema.Resource {
-	validModes := []string{"access", "tagged", "tagged-all"}
 
 	return &schema.Resource{
 		CreateContext: resourceNetboxInterfaceCreate,
@@ -50,7 +51,8 @@ func resourceNetboxInterface() *schema.Resource {
 			"mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice(validModes, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxInterfaceModeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxInterfaceModeOptions),
 			},
 			"mtu": {
 				Type:         schema.TypeInt,

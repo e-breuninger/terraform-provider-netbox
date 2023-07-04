@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxContactAssignmentPriorityOptions = []string{"primary", "secondary", "tertiary", "inactive"}
+
 func resourceNetboxContactAssignment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxContactAssignmentCreate,
@@ -41,7 +43,8 @@ func resourceNetboxContactAssignment() *schema.Resource {
 			"priority": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"primary", "secondary", "tertiary", "inactive"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxContactAssignmentPriorityOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxContactAssignmentPriorityOptions),
 			},
 		},
 		Importer: &schema.ResourceImporter{

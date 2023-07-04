@@ -33,6 +33,14 @@ func init() {
 			desc += fmt.Sprintf(" At least one of %s must be given.", joinStringWithFinalConjunction(atLeastOneOf, ", ", "or"))
 		}
 
+		if s.ExactlyOneOf != nil && len(s.ExactlyOneOf) > 0 {
+			exactlyOneOf := make([]string, len(s.ExactlyOneOf))
+			for i, l := range s.ExactlyOneOf {
+				exactlyOneOf[i] = fmt.Sprintf("`%s`", l)
+			}
+			desc += fmt.Sprintf(" Exactly one of %s must be given.", joinStringWithFinalConjunction(exactlyOneOf, ", ", "or"))
+		}
+
 		if s.RequiredWith != nil && len(s.RequiredWith) > 0 {
 			requires := make([]string, len(s.RequiredWith))
 			for i, c := range s.RequiredWith {

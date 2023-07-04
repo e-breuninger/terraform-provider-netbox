@@ -108,7 +108,7 @@ resource "netbox_ip_address" "this" {
 ### Required
 
 - `ip_address` (String)
-- `status` (String)
+- `status` (String) Valid values are `active`, `reserved`, `deprecated`, `dhcp` and `slaac`.
 
 ### Optional
 
@@ -117,8 +117,8 @@ resource "netbox_ip_address" "this" {
 - `dns_name` (String)
 - `interface_id` (Number) Required when `object_type` is set.
 - `nat_inside_address_id` (Number)
-- `object_type` (String) Required when `interface_id` is set.
-- `role` (String)
+- `object_type` (String) Valid values are `virtualization.vminterface` and `dcim.interface`. Required when `interface_id` is set.
+- `role` (String) Valid values are `loopback`, `secondary`, `anycast`, `vip`, `vrrp`, `hsrp`, `glbp` and `carp`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `virtual_machine_interface_id` (Number) Conflicts with `interface_id` and `device_interface_id`.

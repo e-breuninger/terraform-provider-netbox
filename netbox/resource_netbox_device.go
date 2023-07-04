@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxDeviceStatusOptions = []string{"offline", "active", "planned", "staged", "failed", "inventory"}
+var resourceNetboxDeviceRackFaceOptions = []string{"front", "rear"}
+
 func resourceNetboxDevice() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetboxDeviceCreate,
@@ -76,7 +79,8 @@ func resourceNetboxDevice() *schema.Resource {
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "inventory"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxDeviceStatusOptions),
 				Default:      "active",
 			},
 			"rack_id": {
@@ -87,7 +91,8 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"rack_position"},
-				ValidateFunc: validation.StringInSlice([]string{"front", "rear"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceRackFaceOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxDeviceRackFaceOptions),
 			},
 			"rack_position": {
 				Type:     schema.TypeFloat,

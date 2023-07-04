@@ -52,7 +52,7 @@ resource "netbox_interface" "myvm_eth1" {
 - `description` (String)
 - `enabled` (Boolean) Defaults to `true`.
 - `mac_address` (String)
-- `mode` (String)
+- `mode` (String) Valid values are `access`, `tagged` and `tagged-all`.
 - `mtu` (Number)
 - `tagged_vlans` (Set of Number)
 - `tags` (Set of String)

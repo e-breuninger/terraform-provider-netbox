@@ -67,6 +67,14 @@ func joinStringWithFinalConjunction(elems []string, sep, con string) string {
 	return b.String()
 }
 
+func buildValidValueDescription(options []string) string {
+	var quoted []string
+	for _, option := range options {
+		quoted = append(quoted, fmt.Sprintf("`%s`", option))
+	}
+	return "Valid values are " + joinStringWithFinalConjunction(quoted, ", ", "and")
+}
+
 func getOptionalStr(d *schema.ResourceData, key string, useSpace bool) string {
 	strVal := ""
 	// check if key is set

@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxVlanGroupScopeTypeOptions = []string{"dcim.location", "dcim.site", "dcim.sitegroup", "dcim.region", "dcim.rack", "virtualization.cluster", "virtualization.clustergroup"}
+
 func resourceNetboxVlanGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxVlanGroupCreate,
@@ -43,7 +45,8 @@ func resourceNetboxVlanGroup() *schema.Resource {
 			"scope_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"dcim.location", "dcim.site", "dcim.sitegroup", "dcim.region", "dcim.rack", "virtualization.cluster", "virtualization.clustergroup"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxVlanGroupScopeTypeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxPrefixStatusOptions),
 			},
 			"scope_id": {
 				Type:         schema.TypeInt,

@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxServiceProtocolOptions = []string{"tcp", "udp", "sctp"}
+
 func resourceNetboxService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxServiceCreate,
@@ -36,7 +38,8 @@ func resourceNetboxService() *schema.Resource {
 			"protocol": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{"tcp", "udp", "sctp"}, false)),
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice(resourceNetboxServiceProtocolOptions, false)),
+				Description:      buildValidValueDescription(resourceNetboxServiceProtocolOptions),
 			},
 			"port": {
 				Type:         schema.TypeInt,

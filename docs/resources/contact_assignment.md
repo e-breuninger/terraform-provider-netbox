@@ -27,7 +27,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/con
 
 ### Optional
 
-- `priority` (String)
+- `priority` (String) Valid values are `primary`, `secondary`, `tertiary` and `inactive`.
 
 ### Read-Only
 

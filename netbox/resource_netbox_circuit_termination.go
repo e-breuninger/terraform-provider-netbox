@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxCircuitTerminationTermSideOptions = []string{"A", "Z"}
+
 func resourceNetboxCircuitTermination() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxCircuitTerminationCreate,
@@ -43,7 +45,8 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 			"term_side": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"A", "Z"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxCircuitTerminationTermSideOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxCircuitTerminationTermSideOptions),
 			},
 			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,

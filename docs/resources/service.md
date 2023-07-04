@@ -38,13 +38,13 @@ resource "netbox_service" "ssh" {
 ### Required
 
 - `name` (String)
-- `protocol` (String)
+- `protocol` (String) Valid values are `tcp`, `udp` and `sctp`.
 - `virtual_machine_id` (Number)
 
 ### Optional
 
-- `port` (Number, Deprecated)
-- `ports` (Set of Number)
+- `port` (Number, Deprecated) Exactly one of `port` or `ports` must be given.
+- `ports` (Set of Number) Exactly one of `port` or `ports` must be given.
 
 ### Read-Only
 
