@@ -2,13 +2,15 @@ package netbox
 
 import (
 	"fmt"
-	"strconv"
+	"reflect"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/iancoleman/strcase"
 )
 
 func dataSourceNetboxPrefixes() *schema.Resource {
@@ -98,37 +100,21 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
 			vString := v.(string)
-			switch k {
-			case "prefix":
-				params.Prefix = &vString
-			case "vlan_vid":
-				float, err := strconv.ParseFloat(vString, 64)
-				if err != nil {
-					return err
-				}
-				params.VlanVid = &float
-			case "vrf_id":
-				params.VrfID = &vString
-			case "vlan_id":
-				params.VlanID = &vString
-			case "status":
-				params.Status = &vString
-			case "site_id":
-				params.SiteID = &vString
-			case "tag":
-				if params.Tag == nil {
-					params.Tag = []string{vString}
-				} else {
-					params.Tag = append(params.Tag, vString)
-				}
-			case "tag__n":
-				params.Tagn = &vString
-			case "mask_length":
-				params.MaskLength = &vString
-			case "children__lt":
-				params.ChildrenLt = &vString
-			default:
-				return fmt.Errorf("'%s' is not a supported filter parameter", k)
+			paramName := strcase.ToCamel(strings.Replace(k.(string), "__n", "n", -1))
+
+			params_reflect := reflect.ValueOf(params).Elem()
+			field := params_reflect.FieldByName(paramName)
+
+			if !(field.IsValid()) {
+				return fmt.Errorf("'%s' is not a supported filter parameter.  Netbox go SDK does not have the associated parameter [(%s)]", k, paramName)
+			}
+
+			if field.Kind() == reflect.Slice {
+				//Param is an array/slice
+				reflect.Append(field, reflect.ValueOf(vString))
+			} else {
+				//Param is a scalar
+				field.Set(reflect.ValueOf(&vString))
 			}
 		}
 	}
