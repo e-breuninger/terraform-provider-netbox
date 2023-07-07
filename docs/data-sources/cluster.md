@@ -31,6 +31,8 @@ data "netbox_cluster" "vmw_cluster_01" {
 - `cluster_group_id` (Number)
 - `cluster_id` (Number)
 - `cluster_type_id` (Number)
+- `comments` (String)
+- `description` (String)
 - `id` (String) The ID of this resource.
 - `tags` (Set of String)
 

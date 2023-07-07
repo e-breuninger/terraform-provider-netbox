@@ -46,6 +46,8 @@ resource "netbox_cluster" "vmw_cluster_01" {
 ### Optional
 
 - `cluster_group_id` (Number)
+- `comments` (String)
+- `description` (String)
 - `site_id` (Number)
 - `tags` (Set of String)
 - `tenant_id` (Number)
