@@ -55,6 +55,10 @@ resource "netbox_virtual_machine" "full_vm" {
   vcpus        = "2"
   role_id      = 31 // This corresponds to the Netbox ID for a given role
   tenant_id    = data.netbox_tenant.customer_a.id
+  local_context_data = jsonencode({
+    "setting_a" = "Some Setting"
+    "setting_b" = 42
+  })
 }
 ```
 
@@ -72,6 +76,7 @@ resource "netbox_virtual_machine" "full_vm" {
 - `custom_fields` (Map of String)
 - `device_id` (Number)
 - `disk_size_gb` (Number)
+- `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 - `memory_mb` (Number)
 - `platform_id` (Number)
 - `role_id` (Number)
@@ -80,7 +85,6 @@ resource "netbox_virtual_machine" "full_vm" {
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vcpus` (Number)
-- `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 
 ### Read-Only
 
