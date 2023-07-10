@@ -196,7 +196,7 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 		mapping["dns_name"] = v.DNSName
 		mapping["tenant"] = flattenTenant(v.Tenant)
 		var stags []map[string]interface{}
-		for _,t := range v.Tags {
+		for _, t := range v.Tags {
 			var tagmapping = make(map[string]interface{})
 			tagmapping["name"] = t.Name
 			tagmapping["display"] = t.Display

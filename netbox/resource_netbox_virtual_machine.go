@@ -88,8 +88,9 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Computed: true,
 			},
 			"local_context_data": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "This is best managed through the use of `jsonencode` and a map of settings.",
 			},
 			customFieldsKey: customFieldsSchema,
 		},
