@@ -1,3 +1,14 @@
+## 3.4.0 (July 10th, 2023)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_device_primary_ip` [#424](https://github.com/e-breuninger/terraform-provider-netbox/pull/424) by [@Ikke](https://github.com/Ikke)
+* resource/netbox_virtual_machine: Add `local_context_data` attribute ([#421](https://github.com/e-breuninger/terraform-provider-netbox/pull/421) by [@zeddD1abl0](https://github.com/zeddD1abl0))
+
+BUG FIXES
+
+* resource/netbox_primary_ip: Fix a bug where setting the primary ip of a VM unsets the device id
+
 ## 3.3.3 (June 28th, 2023)
 
 ENHANCEMENTS
