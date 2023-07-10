@@ -76,7 +76,7 @@ resource "netbox_virtual_machine" "full_vm" {
 - `custom_fields` (Map of String)
 - `device_id` (Number)
 - `disk_size_gb` (Number)
-- `local_context_data` (String)
+- `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 - `memory_mb` (Number)
 - `platform_id` (Number)
 - `role_id` (Number)
