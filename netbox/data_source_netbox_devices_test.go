@@ -158,6 +158,14 @@ data "netbox_devices" "test" {
   }
 }`
 
+const testAccNetboxDeviceDataSourceFilterStatus = `
+data "netbox_devices" "test" {
+  filter {
+    name  = "status"
+    value = devices.0.status
+  }
+}`
+
 func testAccNetboxDeviceDataSourceNameRegex(testName string) string {
 	return fmt.Sprintf(`
 data "netbox_devices" "test" {
