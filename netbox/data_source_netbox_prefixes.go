@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -101,6 +102,7 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			v := f.(map[string]interface{})["value"]
 			vString := v.(string)
 			paramName := strcase.ToCamel(strings.Replace(k.(string), "__n", "n", -1))
+			paramName = strings.Replace(paramName, "Id", "ID", -1)
 
 			params_reflect := reflect.ValueOf(params).Elem()
 			field := params_reflect.FieldByName(paramName)
@@ -111,7 +113,13 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 
 			if field.Kind() == reflect.Slice {
 				//Param is an array/slice
-				reflect.Append(field, reflect.ValueOf(vString))
+				field.Set(reflect.Append(field, reflect.ValueOf(vString)))
+			} else if (reflect.PtrTo(field.Type().Elem()).Elem().Kind()) == reflect.Float64 {
+				// ^ This CANT be the best way to do this, but it works
+				vFloat, err := strconv.ParseFloat(vString, 64)
+				if field.Set(reflect.ValueOf(&vFloat)); err != nil {
+					return fmt.Errorf("Failed to set parameter [(%s)] with error [(%s)]", paramName, err)
+				}
 			} else {
 				//Param is a scalar
 				field.Set(reflect.ValueOf(&vString))
