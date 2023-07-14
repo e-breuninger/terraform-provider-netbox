@@ -22,10 +22,6 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"site_id": {
 				Type:         schema.TypeInt,
 				Computed:     true,
@@ -89,7 +85,6 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("cluster_group_id", nil)
 	}
 	d.Set("comments", result.Comments)
-	d.Set("description", result.Description)
 	if result.Site != nil {
 		d.Set("site_id", result.Site.ID)
 	} else {
