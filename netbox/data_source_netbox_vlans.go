@@ -118,6 +118,12 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 				params.GroupID = &vString
 			case "group_id__n":
 				params.GroupIDn = &vString
+			case "q":
+				params.Q = &vString
+			case "status":
+				params.Status = &vString
+			case "status__n":
+				params.Statusn = &vString
 			case "tenant":
 				params.Tenant = &vString
 			case "tenant__n":
