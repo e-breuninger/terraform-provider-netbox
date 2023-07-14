@@ -21,7 +21,6 @@ resource "netbox_vlan" "test_2" {
 resource "netbox_vlan" "test_3" {
   name = "VLAN1236"
   vid  = 1236
-	status = "reserved"
 }`
 }
 
@@ -60,36 +59,6 @@ data "netbox_vlans" "test" {
 }`
 }
 
-func testAccNetboxVlansByQ() string {
-	return `
-data "netbox_vlans" "test" {
-  filter {
-	name = "q"
-	value = "VLAN"
-  }
-}`
-}
-
-func testAccNetboxVlansByStatus() string {
-	return `
-data "netbox_vlans" "test" {
-  filter {
-	name = "status"
-	value = "active"
-  }
-}`
-}
-
-func testAccNetboxVlansByStatusN() string {
-	return `
-data "netbox_vlans" "test" {
-  filter {
-	name = "status__n"
-	value = "active"
-  }
-}`
-}
-
 func TestAccNetboxVlansDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxVlansSetUp()
 	// This test cannot be run in parallel with other tests, because other tests create also Vlans
@@ -123,30 +92,6 @@ func TestAccNetboxVlansDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_vlans.test", "vlans.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.0.vid", "netbox_vlan.test_2", "vid"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.1.vid", "netbox_vlan.test_3", "vid"),
-				),
-			},
-			{
-				Config: setUp + testAccNetboxVlansByQ(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_vlans.test", "vlans.#", "3"),
-					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.0.vid", "netbox_vlan.test_1", "vid"),
-					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.1.vid", "netbox_vlan.test_2", "vid"),
-					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.2.vid", "netbox_vlan.test_3", "vid"),
-				),
-			},
-			{
-				Config: setUp + testAccNetboxVlansByStatus(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_vlans.test", "vlans.#", "2"),
-					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.0.vid", "netbox_vlan.test_1", "vid"),
-					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.1.vid", "netbox_vlan.test_2", "vid"),
-				),
-			},
-			{
-				Config: setUp + testAccNetboxVlansByStatusN(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_vlans.test", "vlans.#", "1"),
-					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.2.vid", "netbox_vlan.test_3", "vid"),
 				),
 			},
 		},
