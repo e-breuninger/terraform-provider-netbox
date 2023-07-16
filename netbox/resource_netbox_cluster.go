@@ -35,6 +35,10 @@ func resourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"comments": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"site_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -66,6 +70,8 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 		clusterGroupID := int64(clusterGroupIDValue.(int))
 		data.Group = &clusterGroupID
 	}
+
+	data.Comments = getOptionalStr(d, "comments", false)
 
 	if siteIDValue, ok := d.GetOk("site_id"); ok {
 		siteID := int64(siteIDValue.(int))
@@ -120,6 +126,8 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("cluster_group_id", nil)
 	}
 
+	d.Set("comments", res.GetPayload().Comments)
+
 	if res.GetPayload().Site != nil {
 		d.Set("site_id", res.GetPayload().Site.ID)
 	} else {
@@ -152,6 +160,8 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 		clusterGroupID := int64(clusterGroupIDValue.(int))
 		data.Group = &clusterGroupID
 	}
+
+	data.Comments = getOptionalStr(d, "comments", true)
 
 	if siteIDValue, ok := d.GetOk("site_id"); ok {
 		siteID := int64(siteIDValue.(int))
