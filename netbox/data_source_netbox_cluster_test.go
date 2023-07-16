@@ -38,6 +38,7 @@ resource "netbox_cluster" "test" {
   cluster_type_id = netbox_cluster_type.test.id
   cluster_group_id = netbox_cluster_group.test.id
   site_id = netbox_site.test.id
+  comments = "%[1]scomments"
   tags = [netbox_tag.test.name]
 }
 
@@ -55,6 +56,7 @@ data "netbox_cluster" "by_site_id" {
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "name", testName),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "cluster_type_id", "netbox_cluster_type.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "cluster_group_id", "netbox_cluster_group.test", "id"),
+					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "comments", testName+"comments"),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "tags.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "tags.0", testName),
