@@ -402,7 +402,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 	if ok {
 		var jsonObj any
 		localContextBA := []byte(localContextValue.(string))
-		if err := json.Unmarshal(localContextBA, jsonObj); err == nil {
+		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
 			data.LocalContextData = jsonObj
 		}
 	}
