@@ -288,6 +288,8 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		if jsonArr, err := json.Marshal(vm.LocalContextData); err == nil {
 			d.Set("local_context_data", string(jsonArr))
 		}
+	} else {
+		d.Set("local_context_data", nil)
 	}
 
 	d.Set("comments", vm.Comments)
