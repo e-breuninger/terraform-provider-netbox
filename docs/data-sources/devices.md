@@ -44,6 +44,7 @@ Read-Only:
 - `cluster_id` (Number)
 - `comments` (String)
 - `custom_fields` (Map of String)
+- `description` (String)
 - `device_id` (Number)
 - `device_type_id` (Number)
 - `location_id` (Number)

@@ -66,6 +66,10 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeMap,
 							Computed: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"device_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -204,6 +208,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Comments != "" {
 			mapping["comments"] = device.Comments
+		}
+		if device.Description != "" {
+			mapping["description"] = device.Description
 		}
 		mapping["device_id"] = device.ID
 		if device.DeviceType != nil {

@@ -57,6 +57,7 @@ resource "netbox_device" "test" {
 - `cluster_id` (Number)
 - `comments` (String)
 - `custom_fields` (Map of String)
+- `description` (String)
 - `location_id` (Number)
 - `platform_id` (Number)
 - `rack_face` (String) Valid values are `front` and `rear`. Required when `rack_position` is set.
