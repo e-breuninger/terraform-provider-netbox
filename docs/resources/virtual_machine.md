@@ -74,6 +74,7 @@ resource "netbox_virtual_machine" "full_vm" {
 - `cluster_id` (Number) At least one of `site_id` or `cluster_id` must be given.
 - `comments` (String)
 - `custom_fields` (Map of String)
+- `description` (String)
 - `device_id` (Number)
 - `disk_size_gb` (Number)
 - `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.

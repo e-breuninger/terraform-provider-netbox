@@ -59,6 +59,7 @@ Read-Only:
 - `comments` (String)
 - `config_context` (String)
 - `custom_fields` (Map of String)
+- `description` (String)
 - `disk_size_gb` (Number)
 - `local_context_data` (String)
 - `memory_mb` (Number)

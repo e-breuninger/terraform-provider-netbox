@@ -27,6 +27,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.name", testName+"_0"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.comments", "this is also a comment"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.description", "this is also a description"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.device_type_id", "netbox_device_type.test", "id"),
@@ -83,6 +84,7 @@ func testAccNetboxDeviceDataSourceDependencies(testName string) string {
 resource "netbox_device" "test0" {
   name = "%[1]s_0"
   comments = "this is also a comment"
+  description = "this is also a description"
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
@@ -204,6 +206,7 @@ resource "netbox_custom_field" "test" {
 resource "netbox_device" "test" {
   name = "%[2]s"
   comments = "thisisacomment"
+  description = "thisisadescription"
   tenant_id = netbox_tenant.test.id
   platform_id = netbox_platform.test.id
   role_id = netbox_device_role.test.id
@@ -214,13 +217,14 @@ resource "netbox_device" "test" {
   location_id = netbox_location.test.id
   status = "staged"
   serial = "ABCDEF"
-	custom_fields = {"${netbox_custom_field.test.name}" = "81"}
+  custom_fields = {"${netbox_custom_field.test.name}" = "81"}
 }
 `, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.name", testName),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.comments", "thisisacomment"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.description", "thisisadescription"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.device_type_id", "netbox_device_type.test", "id"),

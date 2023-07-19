@@ -94,6 +94,7 @@ func TestAccNetboxDevice_basic(t *testing.T) {
 resource "netbox_device" "test" {
   name = "%[1]s"
   comments = "thisisacomment"
+  description = "thisisadescription"
   tenant_id = netbox_tenant.test.id
   platform_id = netbox_platform.test.id
   role_id = netbox_device_role.test.id
@@ -118,6 +119,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "rack_id", "netbox_rack.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
+					resource.TestCheckResourceAttr("netbox_device.test", "description", "thisisadescription"),
 					resource.TestCheckResourceAttr("netbox_device.test", "status", "staged"),
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
@@ -131,6 +133,7 @@ resource "netbox_device" "test" {
 resource "netbox_device" "test" {
   name = "%[1]s"
   comments = "thisisacomment"
+  description = "thisisadescription"
   tenant_id = netbox_tenant.test.id
   platform_id = netbox_platform.test.id
   role_id = netbox_device_role.test.id
@@ -153,6 +156,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "rack_id", "netbox_rack.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
+					resource.TestCheckResourceAttr("netbox_device.test", "description", "thisisadescription"),
 					resource.TestCheckResourceAttr("netbox_device.test", "status", "staged"),
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),
@@ -166,6 +170,7 @@ resource "netbox_device" "test" {
 resource "netbox_device" "test" {
   name = "%[1]s"
   comments = "thisisacomment"
+  description = "thisisadescription"
   tenant_id = netbox_tenant.test.id
   platform_id = netbox_platform.test.id
   role_id = netbox_device_role.test.id
@@ -186,6 +191,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
+					resource.TestCheckResourceAttr("netbox_device.test", "description", "thisisadescription"),
 					resource.TestCheckResourceAttr("netbox_device.test", "status", "staged"),
 					resource.TestCheckResourceAttr("netbox_device.test", "serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.#", "1"),

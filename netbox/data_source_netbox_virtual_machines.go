@@ -65,6 +65,10 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 							Type:     schema.TypeMap,
 							Computed: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"disk_size_gb": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -204,6 +208,9 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		}
 		if v.Comments != "" {
 			mapping["comments"] = v.Comments
+		}
+		if v.Description != "" {
+			mapping["description"] = v.Description
 		}
 		if v.ConfigContext != nil {
 			if configContext, err := json.Marshal(v.ConfigContext); err == nil {
