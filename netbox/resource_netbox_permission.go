@@ -77,7 +77,6 @@ func resourceNetboxPermission() *schema.Resource {
 				Description: "A JSON string of an arbitrary filter used to limit the granted action(s) to a specific subset of objects. " +
 					"For more information on correct syntax, see https://docs.netbox.dev/en/stable/administration/permissions/#constraints ",
 				Optional:     true,
-				Default:      nil,
 				ValidateFunc: validation.StringIsJSON,
 			},
 		},
@@ -164,6 +163,11 @@ func resourceNetboxPermissionRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("users", users)
 
 	d.Set("actions", res.GetPayload().Actions)
+
+	if res.GetPayload().Constraints == nil {
+		d.Set("constraints", "")
+		return nil
+	}
 
 	b, err := json.Marshal(res.GetPayload().Constraints)
 	if err != nil {
