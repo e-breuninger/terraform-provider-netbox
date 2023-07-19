@@ -1,3 +1,14 @@
+## 3.4.1 (July 19th, 2023)
+
+ENHANCEMENTS
+
+* resource/netbox_cluster: Add `comments` attribute [#429](https://github.com/e-breuninger/terraform-provider-netbox/pull/429) by [@edwin-bruurs](https://github.com/edwin-bruurs)
+* data-source/netbox_prefix: Add `family` attribute [#431](https://github.com/e-breuninger/terraform-provider-netbox/pull/431) by [@tagur87](https://github.com/tagur87)
+
+BUG FIXES
+
+* resource/netbox_virtual_machine: Fix `local_context_data` attribute ([#430](https://github.com/e-breuninger/terraform-provider-netbox/pull/430) by [@zeddD1abl0](https://github.com/zeddD1abl0))
+
 ## 3.4.0 (July 10th, 2023)
 
 ENHANCEMENTS
