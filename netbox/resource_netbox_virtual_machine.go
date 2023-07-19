@@ -61,6 +61,10 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"memory_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -131,8 +135,8 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Site = &siteID
 	}
 
-	comments := d.Get("comments").(string)
-	data.Comments = comments
+	data.Comments = d.Get("comments").(string)
+	data.Description = d.Get("description").(string)
 
 	vcpusValue, ok := d.GetOk("vcpus")
 	if ok {
@@ -295,6 +299,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	}
 
 	d.Set("comments", vm.Comments)
+	d.Set("description", vm.Description)
 	vcpus := vm.Vcpus
 	if vcpus != nil {
 		d.Set("vcpus", vm.Vcpus)
@@ -381,15 +386,6 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.Disk = &diskSize
 	}
 
-	commentsValue, ok := d.GetOk("comments")
-	if ok {
-		comments := commentsValue.(string)
-		data.Comments = comments
-	} else {
-		comments := " "
-		data.Comments = comments
-	}
-
 	primaryIP4Value, ok := d.GetOk("primary_ipv4")
 	if ok {
 		primaryIP4 := int64(primaryIP4Value.(int))
@@ -420,15 +416,19 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 
 	if d.HasChanges("comments") {
 		// check if comment is set
-		commentsValue, ok := d.GetOk("comments")
-		comments := ""
-		if !ok {
-			// Setting an space string deletes the comment
-			comments = " "
+		if commentsValue, ok := d.GetOk("comments"); ok {
+			data.Comments = commentsValue.(string)
 		} else {
-			comments = commentsValue.(string)
+			data.Comments = " "
 		}
-		data.Comments = comments
+	}
+	if d.HasChanges("description") {
+		// check if description is set
+		if descriptionValue, ok := d.GetOk("description"); ok {
+			data.Description = descriptionValue.(string)
+		} else {
+			data.Description = " "
+		}
 	}
 
 	// if d.HasChanges("status") {

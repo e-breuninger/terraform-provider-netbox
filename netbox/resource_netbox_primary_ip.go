@@ -111,6 +111,7 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 		tag.Display = ""
 	}
 	data.Comments = vm.Comments
+	data.Description = vm.Description
 	data.Memory = vm.Memory
 	data.Vcpus = vm.Vcpus
 	data.Disk = vm.Disk

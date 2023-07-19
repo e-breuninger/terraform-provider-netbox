@@ -67,6 +67,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			tagsKey: tagsSchema,
 			"primary_ipv4": {
 				Type:     schema.TypeInt,
@@ -121,14 +125,13 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.DeviceType = &typeID
 	}
 
-	comments := d.Get("comments").(string)
-	data.Comments = comments
+	data.Comments = d.Get("comments").(string)
 
-	serial := d.Get("serial").(string)
-	data.Serial = serial
+	data.Description = d.Get("description").(string)
 
-	status := d.Get("status").(string)
-	data.Status = status
+	data.Serial = d.Get("serial").(string)
+
+	data.Status = d.Get("status").(string)
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
@@ -280,6 +283,8 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	d.Set("comments", device.Comments)
 
+	d.Set("description", device.Description)
+
 	d.Set("serial", device.Serial)
 
 	d.Set("status", device.Status.Value)
@@ -356,15 +361,6 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		data.Site = &siteID
 	}
 
-	commentsValue, ok := d.GetOk("comments")
-	if ok {
-		comments := commentsValue.(string)
-		data.Comments = comments
-	} else {
-		comments := " "
-		data.Comments = comments
-	}
-
 	primaryIP4Value, ok := d.GetOk("primary_ipv4")
 	if ok {
 		primaryIP4 := int64(primaryIP4Value.(int))
@@ -390,15 +386,19 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 
 	if d.HasChanges("comments") {
 		// check if comment is set
-		commentsValue, ok := d.GetOk("comments")
-		comments := ""
-		if !ok {
-			// Setting an space string deletes the comment
-			comments = " "
+		if commentsValue, ok := d.GetOk("comments"); ok {
+			data.Comments = commentsValue.(string)
 		} else {
-			comments = commentsValue.(string)
+			data.Comments = " "
 		}
-		data.Comments = comments
+	}
+	if d.HasChanges("description") {
+		// check if description is set
+		if descriptionValue, ok := d.GetOk("description"); ok {
+			data.Description = descriptionValue.(string)
+		} else {
+			data.Description = " "
+		}
 	}
 
 	if d.HasChanges("serial") {
