@@ -55,6 +55,36 @@ resource "netbox_permission" "test_basic" {
 	})
 }
 
+func TestAccNetboxPermission_noConstraint(t *testing.T) {
+	testSlug := "user_perms_nocnstrnt"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_permission" "test_basic" {
+  name = "%s"
+  description = "This is a terraform test."
+  enabled = true
+  object_types = ["ipam.prefix"]
+  actions = ["add", "change"]
+  users = [1]
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "name", testName),
+				),
+			},
+			{
+				ResourceName:      "netbox_permission.test_basic",
+				ImportState:       true,
+				ImportStateVerify: false,
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_permission", &resource.Sweeper{
 		Name:         "netbox_permission",
