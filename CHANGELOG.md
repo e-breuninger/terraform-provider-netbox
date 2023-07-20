@@ -1,3 +1,27 @@
+## 3.5.0 (July 20th, 2023)
+
+**BREAKING CHANGES**
+Historically, this provider primarily handled virtual machines, so when linking a `netbox_ip_address` resource to an interface, the interface was initially assumed to always be a virtual machine interface. In [v3.1.0](https://github.com/e-breuninger/terraform-provider-netbox/commit/76f11292a162d88eb1616d9a5b7d70d986b2db3f), support was added for device interfaces by setting the newly introduced `object_type` attribute, once again defaulting to virtual machine interfaces. The valid values for `object_type` directly reflect the API values of NetBox, which are very unintuitive.
+
+In this version, we make the type of connection between IP addresses and interfaces explicit: We introduce two new attributes: `virtual_machine_interface_id` and `device_interface_id` to the `netbox_ip_address` resource. These fields are easier to use and convey their meaning directly to the user. The `object_type` and `interface_id` method is still supported, but `object_type` no longer has a default value and is now mandatory when `interface_id` is used.
+
+**Migration guide**
+
+In your existing codebase:
+
+* replace `interface_id` with `virtual_machine_interface_id` if `object_type` is currently unset or set to `virtualization.vminterface`
+* replace `interface_id` with `device_interface_id` if `object_type` is currently set to `dcim.interface`
+
+ENHANCEMENTS
+
+* resource/netbox_ip_address: Add `virtual_machine_interface_id` and `device_interface_id` attributes 
+* resource/netbox_ip_address: Add `slaac` to the list of valid statuses
+* resource/netbox_ip_address: Add `nat_inside_address_id` and `nat_outside_addresses` attributes
+
+BUG FIXES
+
+* resource/netbox_permission: Fix perpetual drift when `constraints` is nil [#432](https://github.com/e-breuninger/terraform-provider-netbox/pull/432) by [@tagur87](https://github.com/tagur87)
+
 ## 3.4.1 (July 19th, 2023)
 
 ENHANCEMENTS
