@@ -71,6 +71,7 @@ resource "netbox_virtual_machine" "test" {
   vcpus = "4"
   status = "planned"
   device_id = netbox_device.test.id
+  local_context_data = jsonencode({"context_string"="context_value"})
 
   tags = [netbox_tag.test.name]
 }
@@ -124,6 +125,7 @@ resource "netbox_primary_ip" "test_v4" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "planned"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "local_context_data", "{\"context_string\":\"context_value\"}"),
 				),
 			},
 		},
