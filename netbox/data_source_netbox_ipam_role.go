@@ -65,7 +65,6 @@ func dataSourceNetboxIPAMRoleRead(d *schema.ResourceData, m interface{}) error {
 	}
 	if result.Description != "" {
 		d.Set("description", result.Description)
-
 	}
 	return nil
 }

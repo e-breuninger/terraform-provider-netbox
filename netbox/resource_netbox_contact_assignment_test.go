@@ -11,7 +11,6 @@ import (
 )
 
 func TestAccNetboxContactAssignment_basic(t *testing.T) {
-
 	testSlug := "contactassign"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

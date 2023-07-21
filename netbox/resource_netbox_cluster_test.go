@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxCluster_basic(t *testing.T) {
-
 	testSlug := "clstr_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

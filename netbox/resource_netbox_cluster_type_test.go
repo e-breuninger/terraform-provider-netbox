@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxClusterType_basic(t *testing.T) {
-
 	testSlug := "clstr_type_data_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -41,7 +40,6 @@ resource "netbox_cluster_type" "test" {
 }
 
 func TestAccNetboxClusterType_defaultSlug(t *testing.T) {
-
 	testSlug := "clstr_type_data_default_slug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

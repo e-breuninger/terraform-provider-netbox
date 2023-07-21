@@ -24,7 +24,6 @@ resource "netbox_tag" "test_b" {
 }
 
 func TestAccNetboxContact_basic(t *testing.T) {
-
 	testSlug := "contact_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -63,7 +62,6 @@ resource "netbox_contact" "test" {
 }
 
 func TestAccNetboxContact_tags(t *testing.T) {
-
 	testSlug := "contact_tags"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

@@ -30,7 +30,6 @@ type customHeaderTransport struct {
 
 // Client does the heavy lifting of establishing a base Open API client to Netbox.
 func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
-
 	log.WithFields(log.Fields{
 		"server_url": cfg.ServerURL,
 	}).Debug("Initializing Netbox client")
@@ -87,7 +86,6 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 
 // RoundTrip adds the headers specified in the transport on every request.
 func (t customHeaderTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-
 	for key, value := range t.headers {
 		r.Header.Add(key, fmt.Sprintf("%v", value))
 	}

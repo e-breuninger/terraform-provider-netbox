@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxClusterGroupDataSource_basic(t *testing.T) {
-
 	testSlug := "clstrgrp_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

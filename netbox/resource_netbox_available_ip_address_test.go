@@ -226,7 +226,6 @@ resource "netbox_available_ip_address" "test_range3" {
 }
 
 func TestAccNetboxAvailableIPAddress_deviceByObjectType(t *testing.T) {
-
 	startAddress := "1.2.7.1/24"
 	endAddress := "1.2.7.50/24"
 	testSlug := "av_ipa_dev_ot"
@@ -258,7 +257,6 @@ resource "netbox_available_ip_address" "test" {
 }
 
 func TestAccNetboxAvailableIPAddress_deviceByFieldName(t *testing.T) {
-
 	startAddress := "1.3.7.1/24"
 	endAddress := "1.3.7.50/24"
 	testSlug := "av_ipa_dev_fn"

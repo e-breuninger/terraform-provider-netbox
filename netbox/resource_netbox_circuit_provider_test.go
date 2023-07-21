@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxCircuitProvider_basic(t *testing.T) {
-
 	testSlug := "circuit_prov"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

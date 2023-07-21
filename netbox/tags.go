@@ -36,7 +36,6 @@ func getNestedTagListFromResourceDataSet(client *client.NetBoxAPI, d interface{}
 	tagList := d.(*schema.Set).List()
 	tags := []*models.NestedTag{}
 	for _, tag := range tagList {
-
 		tagString := tag.(string)
 		params := extras.NewExtrasTagsListParams()
 		params.Name = &tagString

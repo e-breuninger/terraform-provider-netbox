@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxDeviceRoleDataSource_basic(t *testing.T) {
-
 	testSlug := "dvrl_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
