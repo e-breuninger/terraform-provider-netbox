@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxLocation_basic(t *testing.T) {
-
 	testSlug := "location_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

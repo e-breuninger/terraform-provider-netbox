@@ -32,7 +32,6 @@ func testAccNetboxRackReservationFullDependencies(testName string) string {
 }
 
 func TestAccNetboxRackReservation_basic(t *testing.T) {
-
 	testSlug := "rack_reservation_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

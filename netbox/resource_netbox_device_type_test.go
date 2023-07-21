@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxDeviceType_basic(t *testing.T) {
-
 	testSlug := "device_type"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

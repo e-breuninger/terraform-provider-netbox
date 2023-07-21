@@ -215,7 +215,6 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId(id.UniqueId())
 	return d.Set("tenants", s)
-
 }
 
 func flattenTenantGroup(group *models.NestedTenantGroup) []map[string]interface{} {

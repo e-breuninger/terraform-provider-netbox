@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxRegionDataSource_basic(t *testing.T) {
-
 	testSlug := "region_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -36,7 +35,6 @@ data "netbox_region" "test" {
 }
 
 func TestAccNetboxRegionDataSource_parent(t *testing.T) {
-
 	testSlug := "region_ds_parent"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

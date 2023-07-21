@@ -24,7 +24,6 @@ resource "netbox_site" "test" {
 `, testName)
 }
 func TestAccNetboxVlanGroup_basic(t *testing.T) {
-
 	testSlug := "vlan_group_basic"
 	testName := testAccGetTestName(testSlug)
 	testMinVid := "777"
@@ -61,7 +60,6 @@ resource "netbox_vlan_group" "test_basic" {
 }
 
 func TestAccNetboxVlanGroup_with_dependencies(t *testing.T) {
-
 	testSlug := "vlan_group_with_dependencies"
 	testName := testAccGetTestName(testSlug)
 	testMinVid := "777"

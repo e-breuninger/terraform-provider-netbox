@@ -7,7 +7,6 @@ import (
 )
 
 func TestResourceNetboxVirtualMachineStateUpgradeV0(t *testing.T) {
-
 	for _, tt := range []struct {
 		name     string
 		state    map[string]interface{}

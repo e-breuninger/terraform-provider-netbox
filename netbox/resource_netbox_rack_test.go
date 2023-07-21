@@ -40,7 +40,6 @@ resource "netbox_tag" "test_a" {
 }
 
 func TestAccNetboxRack_basic(t *testing.T) {
-
 	testSlug := "rack_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

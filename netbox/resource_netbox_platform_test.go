@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxPlatform_basic(t *testing.T) {
-
 	testSlug := "platform_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -41,7 +40,6 @@ resource "netbox_platform" "test" {
 }
 
 func TestAccNetboxPlatform_defaultSlug(t *testing.T) {
-
 	testSlug := "platform_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

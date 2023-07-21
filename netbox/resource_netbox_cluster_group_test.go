@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxClusterGroup_basic(t *testing.T) {
-
 	testSlug := "clstrgrp_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -42,7 +41,6 @@ resource "netbox_cluster_group" "test" {
 }
 
 func TestAccNetboxClusterGroup_defaultSlug(t *testing.T) {
-
 	testSlug := "clstrgrp_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

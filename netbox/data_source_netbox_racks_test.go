@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxRacksDataSource_basic(t *testing.T) {
-
 	testRacks := []string{"rack1", "rack2", "rack3"}
 	testSlug := "racks_ds_basic"
 	testName := testAccGetTestName(testSlug)

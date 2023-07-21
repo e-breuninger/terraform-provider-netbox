@@ -37,7 +37,6 @@ resource "netbox_site" "test" {
 `, testStartAddress, testSlug)
 }
 func TestAccNetboxIpRange_basic(t *testing.T) {
-
 	testSlug := "range_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -96,7 +95,6 @@ resource "netbox_ip_range" "test_basic" {
 }
 
 func TestAccNetboxIpRange_with_dependencies(t *testing.T) {
-
 	testSlug := "range_with_dependencies"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

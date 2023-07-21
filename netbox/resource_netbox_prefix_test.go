@@ -47,7 +47,6 @@ resource "netbox_vlan" "test" {
 }
 
 func TestAccNetboxPrefix_basic(t *testing.T) {
-
 	testPrefix := "1.1.1.0/25"
 	testSlug := "prefix"
 	testVid := "123"

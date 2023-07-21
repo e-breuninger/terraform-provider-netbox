@@ -208,7 +208,6 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
-
 	var diags diag.Diagnostics
 
 	config := Config{
@@ -267,7 +266,6 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		supportedVersions := []string{"3.3.0", "3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8", "3.3.9", "3.3.10", "3.4.0", "3.4.1", "3.4.2", "3.4.3", "3.4.4", "3.4.5", "3.4.6", "3.4.7", "3.4.8", "3.4.9", "3.4.10"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
-
 			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,

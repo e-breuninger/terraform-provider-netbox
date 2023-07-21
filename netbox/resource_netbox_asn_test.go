@@ -11,7 +11,6 @@ import (
 )
 
 func TestAccNetboxAsn_basic(t *testing.T) {
-
 	testSlug := "asn_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

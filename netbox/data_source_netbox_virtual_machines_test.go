@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
-
 	testSlug := "vm_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependencies(testName)

@@ -82,7 +82,6 @@ resource "netbox_device_type" "test" {
 }
 
 func TestAccNetboxDevice_basic(t *testing.T) {
-
 	testSlug := "device_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

@@ -69,7 +69,6 @@ resource "netbox_custom_field" "test" {
 }
 
 func TestAccNetboxCustomField_select(t *testing.T) {
-
 	testSlug := "custom_fields_select"
 	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
 	resource.Test(t, resource.TestCase{

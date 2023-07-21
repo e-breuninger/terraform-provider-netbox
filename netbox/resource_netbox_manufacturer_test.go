@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxManufacturer_basic(t *testing.T) {
-
 	testSlug := "manufacturer"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

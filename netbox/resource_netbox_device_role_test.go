@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxDeviceRole_basic(t *testing.T) {
-
 	testSlug := "dvcrl_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -43,7 +42,6 @@ resource "netbox_device_role" "test" {
 }
 
 func TestAccNetboxDeviceRole_defaultSlug(t *testing.T) {
-
 	testSlug := "device_role_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

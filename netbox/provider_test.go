@@ -69,7 +69,6 @@ func providerInvalidConfigure() schema.ConfigureContextFunc {
 }
 
 func TestAccNetboxProviderConfigure_failure(t *testing.T) {
-
 	var testAccInvalidProviders map[string]*schema.Provider
 
 	testAccInvalidProvider := Provider()

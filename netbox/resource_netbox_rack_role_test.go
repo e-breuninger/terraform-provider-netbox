@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxRackRole_basic(t *testing.T) {
-
 	testSlug := "rack_role_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -43,7 +42,6 @@ resource "netbox_rack_role" "test" {
 }
 
 func TestAccNetboxRackRole_defaultSlug(t *testing.T) {
-
 	testSlug := "rack_role_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

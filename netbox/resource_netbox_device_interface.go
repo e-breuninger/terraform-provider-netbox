@@ -15,7 +15,6 @@ import (
 var resourceNetboxDeviceInterfaceModeOptions = []string{"access", "tagged", "tagged-all"}
 
 func resourceNetboxDeviceInterface() *schema.Resource {
-
 	return &schema.Resource{
 		CreateContext: resourceNetboxDeviceInterfaceCreate,
 		ReadContext:   resourceNetboxDeviceInterfaceRead,

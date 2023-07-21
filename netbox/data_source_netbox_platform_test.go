@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxPlatformDataSource_basic(t *testing.T) {
-
 	testSlug := "pltf_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
