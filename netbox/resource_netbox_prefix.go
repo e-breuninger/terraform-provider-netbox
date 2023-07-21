@@ -83,16 +83,16 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 	prefix := d.Get("prefix").(string)
 	status := d.Get("status").(string)
 	description := d.Get("description").(string)
-	is_pool := d.Get("is_pool").(bool)
-	mark_utilized := d.Get("mark_utilized").(bool)
+	isPool := d.Get("is_pool").(bool)
+	markUtilized := d.Get("mark_utilized").(bool)
 
 	data.Prefix = &prefix
 	data.Status = status
 
 	data.Description = description
-	data.IsPool = is_pool
+	data.IsPool = isPool
 
-	data.MarkUtilized = mark_utilized
+	data.MarkUtilized = markUtilized
 
 	if vrfID, ok := d.GetOk("vrf_id"); ok {
 		data.Vrf = int64ToPtr(int64(vrfID.(int)))
@@ -196,14 +196,14 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritablePrefix{}
 	prefix := d.Get("prefix").(string)
 	status := d.Get("status").(string)
-	is_pool := d.Get("is_pool").(bool)
-	mark_utilized := d.Get("mark_utilized").(bool)
+	isPool := d.Get("is_pool").(bool)
+	markUtilized := d.Get("mark_utilized").(bool)
 
 	data.Prefix = &prefix
 	data.Status = status
 
-	data.IsPool = is_pool
-	data.MarkUtilized = mark_utilized
+	data.IsPool = isPool
+	data.MarkUtilized = markUtilized
 
 	if description, ok := d.GetOk("description"); ok {
 		data.Description = description.(string)

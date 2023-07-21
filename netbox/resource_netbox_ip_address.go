@@ -130,21 +130,21 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	data.Tenant = getOptionalInt(d, "tenant_id")
 	data.NatInside = getOptionalInt(d, "nat_inside_address_id")
 
-	vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
-	deviceInterfaceId := getOptionalInt(d, "device_interface_id")
-	interfaceId := getOptionalInt(d, "interface_id")
+	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
+	deviceInterfaceID := getOptionalInt(d, "device_interface_id")
+	interfaceID := getOptionalInt(d, "interface_id")
 
 	switch {
-	case vmInterfaceId != nil:
+	case vmInterfaceID != nil:
 		data.AssignedObjectType = strToPtr("virtualization.vminterface")
-		data.AssignedObjectID = vmInterfaceId
-	case deviceInterfaceId != nil:
+		data.AssignedObjectID = vmInterfaceID
+	case deviceInterfaceID != nil:
 		data.AssignedObjectType = strToPtr("dcim.interface")
-		data.AssignedObjectID = deviceInterfaceId
-	// if interfaceId is given, object_type must be set as well
-	case interfaceId != nil:
+		data.AssignedObjectID = deviceInterfaceID
+	// if interfaceID is given, object_type must be set as well
+	case interfaceID != nil:
 		data.AssignedObjectType = strToPtr(d.Get("object_type").(string))
-		data.AssignedObjectID = interfaceId
+		data.AssignedObjectID = interfaceID
 	// default = ip is not linked to anything
 	default:
 		data.AssignedObjectType = strToPtr("")
@@ -186,17 +186,17 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 
 	ipAddress := res.GetPayload()
 	if ipAddress.AssignedObjectID != nil {
-		vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
-		deviceInterfaceId := getOptionalInt(d, "device_interface_id")
-		interfaceId := getOptionalInt(d, "interface_id")
+		vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
+		deviceInterfaceID := getOptionalInt(d, "device_interface_id")
+		interfaceID := getOptionalInt(d, "interface_id")
 
 		switch {
-		case vmInterfaceId != nil:
+		case vmInterfaceID != nil:
 			d.Set("virtual_machine_interface_id", ipAddress.AssignedObjectID)
-		case deviceInterfaceId != nil:
+		case deviceInterfaceID != nil:
 			d.Set("device_interface_id", ipAddress.AssignedObjectID)
-		// if interfaceId is given, object_type must be set as well
-		case interfaceId != nil:
+		// if interfaceID is given, object_type must be set as well
+		case interfaceID != nil:
 			d.Set("object_type", ipAddress.AssignedObjectType)
 			d.Set("interface_id", ipAddress.AssignedObjectID)
 		}
@@ -234,10 +234,10 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if ipAddress.NatOutside != nil {
-		natOutsideIpAddresses := ipAddress.NatOutside
+		natOutsideIPAddresses := ipAddress.NatOutside
 
 		var s []map[string]interface{}
-		for _, v := range natOutsideIpAddresses {
+		for _, v := range natOutsideIPAddresses {
 			var mapping = make(map[string]interface{})
 
 			mapping["id"] = v.ID
@@ -274,21 +274,21 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Tenant = getOptionalInt(d, "tenant_id")
 	data.NatInside = getOptionalInt(d, "nat_inside_address_id")
 
-	vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
-	deviceInterfaceId := getOptionalInt(d, "device_interface_id")
-	interfaceId := getOptionalInt(d, "interface_id")
+	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
+	deviceInterfaceID := getOptionalInt(d, "device_interface_id")
+	interfaceID := getOptionalInt(d, "interface_id")
 
 	switch {
-	case vmInterfaceId != nil:
+	case vmInterfaceID != nil:
 		data.AssignedObjectType = strToPtr("virtualization.vminterface")
-		data.AssignedObjectID = vmInterfaceId
-	case deviceInterfaceId != nil:
+		data.AssignedObjectID = vmInterfaceID
+	case deviceInterfaceID != nil:
 		data.AssignedObjectType = strToPtr("dcim.interface")
-		data.AssignedObjectID = deviceInterfaceId
-	// if interfaceId is given, object_type must be set as well
-	case interfaceId != nil:
+		data.AssignedObjectID = deviceInterfaceID
+	// if interfaceID is given, object_type must be set as well
+	case interfaceID != nil:
 		data.AssignedObjectType = strToPtr(d.Get("object_type").(string))
-		data.AssignedObjectID = interfaceId
+		data.AssignedObjectID = interfaceID
 	// default = ip is not linked to anything
 	default:
 		data.AssignedObjectType = strToPtr("")

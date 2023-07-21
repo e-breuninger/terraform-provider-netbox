@@ -46,11 +46,11 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritableVRF{}
 
 	name := d.Get("name").(string)
-	tenant_id := int64(d.Get("tenant_id").(int))
+	tenantID := int64(d.Get("tenant_id").(int))
 
 	data.Name = &name
-	if tenant_id != 0 {
-		data.Tenant = &tenant_id
+	if tenantID != 0 {
+		data.Tenant = &tenantID
 	}
 
 	data.Description = getOptionalStr(d, "description", true)

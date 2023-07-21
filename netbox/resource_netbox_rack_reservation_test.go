@@ -79,9 +79,9 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, rack_res := range res.GetPayload().Results {
-				if strings.HasPrefix(*rack_res.Description, testPrefix) {
-					deleteParams := dcim.NewDcimRackReservationsDeleteParams().WithID(rack_res.ID)
+			for _, rackRes := range res.GetPayload().Results {
+				if strings.HasPrefix(*rackRes.Description, testPrefix) {
+					deleteParams := dcim.NewDcimRackReservationsDeleteParams().WithID(rackRes.ID)
 					_, err := api.Dcim.DcimRackReservationsDelete(deleteParams, nil)
 					if err != nil {
 						return err

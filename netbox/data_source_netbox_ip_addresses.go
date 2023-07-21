@@ -12,9 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func dataSourceNetboxIpAddresses() *schema.Resource {
+func dataSourceNetboxIPAddresses() *schema.Resource {
 	return &schema.Resource{
-		Read:        dataSourceNetboxIpAddressesRead,
+		Read:        dataSourceNetboxIPAddressesRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"filter": {
@@ -136,7 +136,7 @@ func dataSourceNetboxIpAddresses() *schema.Resource {
 	}
 }
 
-func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	params := ipam.NewIpamIPAddressesListParams()
@@ -177,10 +177,10 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 		return errors.New("no result")
 	}
 
-	filteredIpAddresses := res.GetPayload().Results
+	filteredIPAddresses := res.GetPayload().Results
 
 	var s []map[string]interface{}
-	for _, v := range filteredIpAddresses {
+	for _, v := range filteredIPAddresses {
 		var mapping = make(map[string]interface{})
 
 		mapping["id"] = v.ID

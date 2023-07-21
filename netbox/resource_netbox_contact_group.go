@@ -51,7 +51,7 @@ func resourceNetboxContactGroupCreate(d *schema.ResourceData, m interface{}) err
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-	parent_id := int64(d.Get("parent_id").(int))
+	parentID := int64(d.Get("parent_id").(int))
 	description := d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
@@ -69,8 +69,8 @@ func resourceNetboxContactGroupCreate(d *schema.ResourceData, m interface{}) err
 	data.Description = description
 	data.Tags = []*models.NestedTag{}
 
-	if parent_id != 0 {
-		data.Parent = &parent_id
+	if parentID != 0 {
+		data.Parent = &parentID
 	}
 
 	params := tenancy.NewTenancyContactGroupsCreateParams().WithData(data)
@@ -121,7 +121,7 @@ func resourceNetboxContactGroupUpdate(d *schema.ResourceData, m interface{}) err
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
-	parent_id := int64(d.Get("parent_id").(int))
+	parentID := int64(d.Get("parent_id").(int))
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
@@ -137,8 +137,8 @@ func resourceNetboxContactGroupUpdate(d *schema.ResourceData, m interface{}) err
 	data.Description = description
 	data.Tags = []*models.NestedTag{}
 
-	if parent_id != 0 {
-		data.Parent = &parent_id
+	if parentID != 0 {
+		data.Parent = &parentID
 	}
 	params := tenancy.NewTenancyContactGroupsPartialUpdateParams().WithID(id).WithData(&data)
 

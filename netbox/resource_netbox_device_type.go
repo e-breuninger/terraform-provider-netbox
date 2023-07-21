@@ -115,13 +115,13 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	device_type := res.GetPayload()
-	d.Set("model", device_type.Model)
-	d.Set("slug", device_type.Slug)
-	d.Set("manufacturer_id", device_type.Manufacturer.ID)
-	d.Set("part_number", device_type.PartNumber)
-	d.Set("u_height", device_type.UHeight)
-	d.Set(tagsKey, getTagListFromNestedTagList(device_type.Tags))
+	deviceType := res.GetPayload()
+	d.Set("model", deviceType.Model)
+	d.Set("slug", deviceType.Slug)
+	d.Set("manufacturer_id", deviceType.Manufacturer.ID)
+	d.Set("part_number", deviceType.PartNumber)
+	d.Set("u_height", deviceType.UHeight)
+	d.Set(tagsKey, getTagListFromNestedTagList(deviceType.Tags))
 
 	return nil
 }

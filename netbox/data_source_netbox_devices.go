@@ -157,14 +157,14 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 				var regionString = v.(string)
 				params.Region = &regionString
 			case "role_id":
-				var roleIdString = v.(string)
-				params.RoleID = &roleIdString
+				var roleIDString = v.(string)
+				params.RoleID = &roleIDString
 			case "site_id":
-				var siteIdString = v.(string)
-				params.SiteID = &siteIdString
+				var siteIDString = v.(string)
+				params.SiteID = &siteIDString
 			case "tenant_id":
-				var tenantIdString = v.(string)
-				params.TenantID = &tenantIdString
+				var tenantIDString = v.(string)
+				params.TenantID = &tenantIDString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

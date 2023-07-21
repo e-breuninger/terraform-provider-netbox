@@ -15,7 +15,7 @@ import (
 type Config struct {
 	APIToken                    string
 	ServerURL                   string
-	AllowInsecureHttps          bool
+	AllowInsecureHTTPS          bool
 	Headers                     map[string]interface{}
 	RequestTimeout              int
 	StripTrailingSlashesFromURL bool
@@ -52,7 +52,7 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 
 	// build http client
 	clientOpts := httptransport.TLSClientOptions{
-		InsecureSkipVerify: cfg.AllowInsecureHttps,
+		InsecureSkipVerify: cfg.AllowInsecureHTTPS,
 	}
 
 	trans, err := httptransport.TLSTransport(clientOpts)
