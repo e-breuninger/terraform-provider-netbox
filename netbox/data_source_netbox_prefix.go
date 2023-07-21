@@ -118,23 +118,23 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		params.Prefix = &prefix
 	}
 
-	if vrfId, ok := d.Get("vrf_id").(int); ok && vrfId != 0 {
+	if vrfID, ok := d.Get("vrf_id").(int); ok && vrfID != 0 {
 		// Note that vrf_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.VrfID = strToPtr(strconv.Itoa(vrfId))
+		params.VrfID = strToPtr(strconv.Itoa(vrfID))
 	}
 
-	if vlanId, ok := d.Get("vlan_id").(int); ok && vlanId != 0 {
+	if vlanID, ok := d.Get("vlan_id").(int); ok && vlanID != 0 {
 		// Note that vlan_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.VlanID = strToPtr(strconv.Itoa(vlanId))
+		params.VlanID = strToPtr(strconv.Itoa(vlanID))
 	}
 
 	if vlanVid, ok := d.Get("vlan_vid").(float64); ok && vlanVid != 0 {
 		params.VlanVid = &vlanVid
 	}
 
-	if siteId, ok := d.Get("site_id").(int); ok && siteId != 0 {
+	if siteID, ok := d.Get("site_id").(int); ok && siteID != 0 {
 		// Note that site_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.SiteID = strToPtr(strconv.Itoa(siteId))
+		params.SiteID = strToPtr(strconv.Itoa(siteID))
 	}
 
 	if tag, ok := d.Get("tag").(string); ok && tag != "" {

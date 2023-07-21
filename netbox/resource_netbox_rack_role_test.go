@@ -78,9 +78,9 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, rack_role := range res.GetPayload().Results {
-				if strings.HasPrefix(*rack_role.Name, testPrefix) {
-					deleteParams := dcim.NewDcimRackRolesDeleteParams().WithID(rack_role.ID)
+			for _, rackRole := range res.GetPayload().Results {
+				if strings.HasPrefix(*rackRole.Name, testPrefix) {
+					deleteParams := dcim.NewDcimRackRolesDeleteParams().WithID(rackRole.ID)
 					_, err := api.Dcim.DcimRackRolesDelete(deleteParams, nil)
 					if err != nil {
 						return err

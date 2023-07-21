@@ -59,7 +59,7 @@ resource "netbox_vlan" "test2" {
 }`, testName)
 }
 
-func testAccNetboxDeviceInterface_basic(testName string) string {
+func testAccNetboxDeviceInterfaceBasic(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test" {
   name = "%s"
@@ -69,7 +69,7 @@ resource "netbox_device_interface" "test" {
 }`, testName)
 }
 
-func testAccNetboxDeviceInterface_opts(testName string, testMac string) string {
+func testAccNetboxDeviceInterfaceOpts(testName string, testMac string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test" {
   name = "%[1]s"
@@ -83,7 +83,7 @@ resource "netbox_device_interface" "test" {
 }`, testName, testMac)
 }
 
-func testAccNetboxDeviceInterface_vlans(testName string) string {
+func testAccNetboxDeviceInterfaceVlans(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test1" {
   name = "%[1]s_1"
@@ -121,7 +121,7 @@ func TestAccNetboxDeviceInterface_basic(t *testing.T) {
 		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxDeviceInterface_basic(testName),
+				Config: setUp + testAccNetboxDeviceInterfaceBasic(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
@@ -150,7 +150,7 @@ func TestAccNetboxDeviceInterface_opts(t *testing.T) {
 		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxDeviceInterface_opts(testName, testMac),
+				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName, testMac),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
@@ -181,7 +181,7 @@ func TestAccNetboxDeviceInterface_vlans(t *testing.T) {
 		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxDeviceInterface_vlans(testName),
+				Config: setUp + testAccNetboxDeviceInterfaceVlans(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_interface.test1", "mode", "access"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test2", "mode", "tagged"),

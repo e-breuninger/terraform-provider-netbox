@@ -33,7 +33,7 @@ data "netbox_tenants" "test" {
 	})
 }
 
-func testAccNetboxTenantsDataSource_manyTenants(testName string) string {
+func testAccNetboxTenantsDataSourceManyTenants(testName string) string {
 	return fmt.Sprintf(`resource "netbox_tenant" "test" {
   count = 51
   name = "%s-${count.index}"
@@ -48,7 +48,7 @@ func TestAccNetboxTenantsDataSource_many(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxTenantsDataSource_manyTenants(testName) + `data "netbox_tenants" "test" {
+				Config: testAccNetboxTenantsDataSourceManyTenants(testName) + `data "netbox_tenants" "test" {
   depends_on = [netbox_tenant.test]
 }`,
 				Check: resource.ComposeTestCheckFunc(
@@ -56,7 +56,7 @@ func TestAccNetboxTenantsDataSource_many(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccNetboxTenantsDataSource_manyTenants(testName) + `data "netbox_tenants" "test" {
+				Config: testAccNetboxTenantsDataSourceManyTenants(testName) + `data "netbox_tenants" "test" {
   depends_on = [netbox_tenant.test]
   limit = 2
 }`,

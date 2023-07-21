@@ -395,7 +395,7 @@ resource "netbox_ip_address" "test" {
 
 func TestAccNetboxIPAddress_nat(t *testing.T) {
 	testIP := "1.1.1.8/32"
-	testIP_inside := "1.1.1.9/32"
+	testIPInside := "1.1.1.9/32"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -411,7 +411,7 @@ resource "netbox_ip_address" "inside" {
   status = "active"
   nat_inside_address_id = netbox_ip_address.test.id
 }
-`, testIP, testIP_inside),
+`, testIP, testIPInside),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "status", "active"),
@@ -431,7 +431,7 @@ resource "netbox_ip_address" "inside" {
   status = "active"
   nat_inside_address_id = netbox_ip_address.test.id
 }
-`, testIP, testIP_inside),
+`, testIP, testIPInside),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_address.test", "nat_outside_addresses.#", "1"),
 					resource.TestCheckResourceAttrPair("netbox_ip_address.test", "nat_outside_addresses.0.id", "netbox_ip_address.inside", "id"),

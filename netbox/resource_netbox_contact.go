@@ -54,7 +54,7 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	phone := d.Get("phone").(string)
 	email := d.Get("email").(string)
-	group_id := int64(d.Get("group_id").(int))
+	groupID := int64(d.Get("group_id").(int))
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -65,8 +65,8 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 	data.Phone = phone
 	data.Email = strfmt.Email(email)
 
-	if group_id != 0 {
-		data.Group = &group_id
+	if groupID != 0 {
+		data.Group = &groupID
 	}
 
 	params := tenancy.NewTenancyContactsCreateParams().WithData(data)
@@ -118,7 +118,7 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	phone := d.Get("phone").(string)
 	email := d.Get("email").(string)
-	group_id := int64(d.Get("group_id").(int))
+	groupID := int64(d.Get("group_id").(int))
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -126,8 +126,8 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Tags = tags
 	data.Phone = phone
 	data.Email = strfmt.Email(email)
-	if group_id != 0 {
-		data.Group = &group_id
+	if groupID != 0 {
+		data.Group = &groupID
 	}
 
 	params := tenancy.NewTenancyContactsPartialUpdateParams().WithID(id).WithData(&data)

@@ -12,12 +12,12 @@ import (
 
 var resourceNetboxIPRangeStatusOptions = []string{"active", "reserved", "deprecated"}
 
-func resourceNetboxIpRange() *schema.Resource {
+func resourceNetboxIPRange() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxIpRangeCreate,
-		Read:   resourceNetboxIpRangeRead,
-		Update: resourceNetboxIpRangeUpdate,
-		Delete: resourceNetboxIpRangeDelete,
+		Create: resourceNetboxIPRangeCreate,
+		Read:   resourceNetboxIPRangeRead,
+		Update: resourceNetboxIPRangeUpdate,
+		Delete: resourceNetboxIPRangeDelete,
 
 		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/features/ipam/#ip-ranges):
 
@@ -63,7 +63,7 @@ func resourceNetboxIpRange() *schema.Resource {
 	}
 }
 
-func resourceNetboxIpRangeCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	data := models.WritableIPRange{}
 
@@ -86,10 +86,10 @@ func resourceNetboxIpRangeCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxIpRangeUpdate(d, m)
+	return resourceNetboxIPRangeUpdate(d, m)
 }
 
-func resourceNetboxIpRangeRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPRangesReadParams().WithID(id)
@@ -140,7 +140,7 @@ func resourceNetboxIpRangeRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceNetboxIpRangeUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPRange{}
@@ -174,10 +174,10 @@ func resourceNetboxIpRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	return resourceNetboxIpRangeRead(d, m)
+	return resourceNetboxIPRangeRead(d, m)
 }
 
-func resourceNetboxIpRangeDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxIPRangeDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPRangesDeleteParams().WithID(id)

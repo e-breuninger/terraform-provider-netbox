@@ -78,9 +78,9 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, device_role := range res.GetPayload().Results {
-				if strings.HasPrefix(*device_role.Name, testPrefix) {
-					deleteParams := dcim.NewDcimDeviceRolesDeleteParams().WithID(device_role.ID)
+			for _, deviceRole := range res.GetPayload().Results {
+				if strings.HasPrefix(*deviceRole.Name, testPrefix) {
+					deleteParams := dcim.NewDcimDeviceRolesDeleteParams().WithID(deviceRole.ID)
 					_, err := api.Dcim.DcimDeviceRolesDelete(deleteParams, nil)
 					if err != nil {
 						return err

@@ -103,7 +103,7 @@ func Provider() *schema.Provider {
 			"netbox_vlan":                 resourceNetboxVlan(),
 			"netbox_vlan_group":           resourceNetboxVlanGroup(),
 			"netbox_ipam_role":            resourceNetboxIpamRole(),
-			"netbox_ip_range":             resourceNetboxIpRange(),
+			"netbox_ip_range":             resourceNetboxIPRange(),
 			"netbox_region":               resourceNetboxRegion(),
 			"netbox_aggregate":            resourceNetboxAggregate(),
 			"netbox_rir":                  resourceNetboxRir(),
@@ -148,8 +148,8 @@ func Provider() *schema.Provider {
 			"netbox_interfaces":       dataSourceNetboxInterfaces(),
 			"netbox_ipam_role":        dataSourceNetboxIPAMRole(),
 			"netbox_route_target":     dataSourceNetboxRouteTarget(),
-			"netbox_ip_addresses":     dataSourceNetboxIpAddresses(),
-			"netbox_ip_range":         dataSourceNetboxIpRange(),
+			"netbox_ip_addresses":     dataSourceNetboxIPAddresses(),
+			"netbox_ip_range":         dataSourceNetboxIPRange(),
 			"netbox_region":           dataSourceNetboxRegion(),
 			"netbox_vlan":             dataSourceNetboxVlan(),
 			"netbox_vlans":            dataSourceNetboxVlans(),
@@ -212,7 +212,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	config := Config{
 		APIToken:                    data.Get("api_token").(string),
-		AllowInsecureHttps:          data.Get("allow_insecure_https").(bool),
+		AllowInsecureHTTPS:          data.Get("allow_insecure_https").(bool),
 		Headers:                     data.Get("headers").(map[string]interface{}),
 		RequestTimeout:              data.Get("request_timeout").(int),
 		StripTrailingSlashesFromURL: data.Get("strip_trailing_slashes_from_url").(bool),
@@ -226,7 +226,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	stripTrailingSlashesFromURL := data.Get("strip_trailing_slashes_from_url").(bool)
 
 	if stripTrailingSlashesFromURL {
-		var trimmed bool = false
+		trimmed := false
 
 		// This is Go's poor man's while loop
 		for strings.HasSuffix(serverURL, "/") {

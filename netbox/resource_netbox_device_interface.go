@@ -93,7 +93,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
-	interface_type := d.Get("type").(string)
+	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
 	mode := d.Get("mode").(string)
@@ -107,7 +107,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	data := models.WritableInterface{
 		Name:         &name,
 		Description:  description,
-		Type:         &interface_type,
+		Type:         &interfaceType,
 		Enabled:      enabled,
 		MgmtOnly:     mgmtonly,
 		Mode:         mode,
@@ -192,7 +192,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
-	interface_type := d.Get("type").(string)
+	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
 	mode := d.Get("mode").(string)
@@ -206,7 +206,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	data := models.WritableInterface{
 		Name:         &name,
 		Description:  description,
-		Type:         &interface_type,
+		Type:         &interfaceType,
 		Enabled:      enabled,
 		MgmtOnly:     mgmtonly,
 		Mode:         mode,
