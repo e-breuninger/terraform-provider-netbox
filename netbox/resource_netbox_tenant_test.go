@@ -24,7 +24,6 @@ resource "netbox_tag" "test_b" {
 }
 
 func TestAccNetboxTenant_basic(t *testing.T) {
-
 	testSlug := "tenant_basic"
 	testName := testAccGetTestName(testSlug)
 	testDescription := testAccGetTestName(testSlug)
@@ -56,7 +55,6 @@ resource "netbox_tenant" "test" {
 }
 
 func TestAccNetboxTenant_defaultSlug(t *testing.T) {
-
 	testSlug := "tenant_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -78,7 +76,6 @@ resource "netbox_tenant" "test" {
 }
 
 func TestAccNetboxTenant_tags(t *testing.T) {
-
 	testSlug := "tenant_tags"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

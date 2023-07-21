@@ -64,7 +64,6 @@ func dataSourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) erro
 	}
 	if result.Tags != nil {
 		d.Set(tagsKey, result.Tags)
-
 	}
 
 	return nil

@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxContactRoleDataSource_basic(t *testing.T) {
-
 	testSlug := "cntctrl_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{

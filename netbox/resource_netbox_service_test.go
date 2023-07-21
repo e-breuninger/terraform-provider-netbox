@@ -33,7 +33,6 @@ resource "netbox_virtual_machine" "test" {
 }
 
 func TestAccNetboxService_basic(t *testing.T) {
-
 	testSlug := "svc_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

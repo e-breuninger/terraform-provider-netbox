@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxAggregate_basic(t *testing.T) {
-
 	testPrefix := "1.1.1.0/25"
 	testSlug := "aggregate"
 	testDesc := "test aggregate"

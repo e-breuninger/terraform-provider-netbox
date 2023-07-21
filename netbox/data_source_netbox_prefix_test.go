@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
-
 	testv4Prefix := "10.0.0.0/24"
 	testv6Prefix := "2000::/64"
 	testSlug := "prefix_ds_basic"

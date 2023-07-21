@@ -35,7 +35,6 @@ resource "netbox_tenant" "test_tenant_b" {
 }
 
 func TestAccNetboxVrf_basic(t *testing.T) {
-
 	testSlug := "vrf_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -63,7 +62,6 @@ resource "netbox_vrf" "test" {
 }
 
 func TestAccNetboxVrf_tags(t *testing.T) {
-
 	testSlug := "vrf_tag"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -108,7 +106,6 @@ resource "netbox_vrf" "test_tags" {
 }
 
 func TestAccNetboxVrf_tenant(t *testing.T) {
-
 	testSlug := "vrf_tenant"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

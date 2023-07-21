@@ -181,7 +181,6 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 
 	var s []map[string]interface{}
 	for _, v := range filteredIpAddresses {
-
 		var mapping = make(map[string]interface{})
 
 		mapping["id"] = v.ID

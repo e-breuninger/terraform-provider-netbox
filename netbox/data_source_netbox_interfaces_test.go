@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
-
 	testSlug := "interface_ds_basic"
 	testResource := "data.netbox_interfaces.test"
 	testName := testAccGetTestName(testSlug)

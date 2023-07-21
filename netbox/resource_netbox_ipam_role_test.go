@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxRole_basic(t *testing.T) {
-
 	testSlug := "role_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -41,7 +40,6 @@ resource "netbox_ipam_role" "test_basic" {
 }
 
 func TestAccNetboxRole_extended(t *testing.T) {
-
 	testSlug := "role_extended"
 	testName := testAccGetTestName(testSlug)
 	testWeight := "55"

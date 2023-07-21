@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxRir_basic(t *testing.T) {
-
 	testSlug := "rir"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

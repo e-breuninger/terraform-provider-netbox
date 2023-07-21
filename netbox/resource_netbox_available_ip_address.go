@@ -134,7 +134,6 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{}) error {
-
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
@@ -154,7 +153,6 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 
 	ipAddress := res.GetPayload()
 	if ipAddress.AssignedObjectID != nil {
-
 		vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
 		deviceInterfaceId := getOptionalInt(d, "device_interface_id")
 		interfaceId := getOptionalInt(d, "interface_id")
@@ -198,7 +196,6 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 }
 
 func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
-
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)

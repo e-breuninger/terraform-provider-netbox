@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxSite_basic(t *testing.T) {
-
 	testSlug := "site_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -68,7 +67,6 @@ resource "netbox_site" "test" {
 }
 
 func TestAccNetboxSite_defaultSlug(t *testing.T) {
-
 	testSlug := "site_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

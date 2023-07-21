@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxPrefixesDataSource_basic(t *testing.T) {
-
 	testPrefixes := []string{"10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24", "10.0.7.0/24"}
 	testSlug := "prefixes_ds_basic"
 	testVlanVids := []int{4093, 4094}

@@ -106,7 +106,6 @@ resource "netbox_ip_address" "test_v6" {
 }
 
 func TestAccNetboxDevicePrimaryIP4_basic(t *testing.T) {
-
 	testSlug := "pr_ip_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -141,7 +140,6 @@ resource "netbox_device_primary_ip" "test_v4" {
 }
 
 func TestAccNetboxDevicePrimaryIP6_basic(t *testing.T) {
-
 	testSlug := "pr_ip_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

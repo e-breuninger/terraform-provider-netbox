@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxContactRole_basic(t *testing.T) {
-
 	testSlug := "contactrole"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
-
 	testSlug := "device_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxDeviceDataSourceDependencies(testName)

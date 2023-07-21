@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxRegion_basic(t *testing.T) {
-
 	testSlug := "region_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -44,7 +43,6 @@ resource "netbox_region" "test" {
 }
 
 func TestAccNetboxRegion_defaultSlug(t *testing.T) {
-
 	testSlug := "region_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

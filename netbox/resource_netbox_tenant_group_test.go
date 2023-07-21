@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxTenantGroup_basic(t *testing.T) {
-
 	testSlug := "t_grp_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -41,7 +40,6 @@ resource "netbox_tenant_group" "test" {
 }
 
 func TestAccNetboxTenantGroup_defaultSlug(t *testing.T) {
-
 	testSlug := "tenant_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

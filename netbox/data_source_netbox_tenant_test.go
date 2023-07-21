@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxTenantDataSource_basic(t *testing.T) {
-
 	testSlug := "tnt_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

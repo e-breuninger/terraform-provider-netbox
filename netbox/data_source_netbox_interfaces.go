@@ -229,7 +229,6 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 
 	d.SetId(id.UniqueId())
 	return d.Set("interfaces", s)
-
 }
 
 func flattenVlanAttributes(vlans []*models.NestedVLAN) []map[string]interface{} {

@@ -113,7 +113,6 @@ func resourceNetboxPermissionCreate(d *schema.ResourceData, m interface{}) error
 			data.Constraints = v
 		case map[string]interface{}:
 			data.Constraints = v
-
 		}
 	}
 

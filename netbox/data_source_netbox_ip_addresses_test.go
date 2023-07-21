@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxIpAddressesDataSource_basic(t *testing.T) {
-
 	testSlug := "ipam_ipaddrs_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	testIP := "203.0.113.1/24"
@@ -38,7 +37,6 @@ data "netbox_ip_addresses" "test" {
 }
 
 func TestAccNetboxIpAddressesDataSource_filter(t *testing.T) {
-
 	testSlug := "ipam_ipaddrs_ds_filter"
 	testName := testAccGetTestName(testSlug)
 	testIP_0 := "203.0.113.1/24"
@@ -78,7 +76,6 @@ data "netbox_ip_addresses" "test_list" {
 }
 
 func TestAccNetboxIpAddressesDataSource_multiple(t *testing.T) {
-
 	testSlug := "ipam_ipaddrs_ds_multiple"
 	testIP_0 := "203.0.113.1/24"
 	testIP_1 := "203.0.113.2/24"
@@ -120,7 +117,6 @@ data "netbox_ip_addresses" "test_list" {
 }
 
 func TestAccNetboxIpAddressesDataSource_flattenTenant(t *testing.T) {
-
 	testSlug := "ipam_ipaddrs_ds_flattenTenant"
 	testIP_0 := "203.0.113.10/24"
 	testIP_1 := "203.0.113.20/24"
@@ -187,7 +183,6 @@ resource "netbox_ip_address" "test" {
 }
 
 func TestAccNetboxIpAddressessDataSource_many(t *testing.T) {
-
 	testSlug := "ip_adrs_ds_many"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{

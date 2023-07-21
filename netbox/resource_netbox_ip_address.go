@@ -186,7 +186,6 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 
 	ipAddress := res.GetPayload()
 	if ipAddress.AssignedObjectID != nil {
-
 		vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
 		deviceInterfaceId := getOptionalInt(d, "device_interface_id")
 		interfaceId := getOptionalInt(d, "interface_id")
@@ -239,7 +238,6 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 
 		var s []map[string]interface{}
 		for _, v := range natOutsideIpAddresses {
-
 			var mapping = make(map[string]interface{})
 
 			mapping["id"] = v.ID
@@ -261,7 +259,6 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
-
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)

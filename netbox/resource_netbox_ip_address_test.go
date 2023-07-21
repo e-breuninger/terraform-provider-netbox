@@ -83,7 +83,6 @@ resource "netbox_device_interface" "test" {
 }
 
 func TestAccNetboxIPAddress_basic(t *testing.T) {
-
 	testIP := "1.1.1.1/32"
 	testSlug := "ipaddress"
 	testName := testAccGetTestName(testSlug)
@@ -210,7 +209,6 @@ resource "netbox_ip_address" "test" {
 }
 
 func TestAccNetboxIPAddress_deviceByObjectType(t *testing.T) {
-
 	testIP := "1.1.1.2/32"
 	testSlug := "ipadr_dev_ot"
 	testName := testAccGetTestName(testSlug)
@@ -243,7 +241,6 @@ resource "netbox_ip_address" "test" {
 }
 
 func TestAccNetboxIPAddress_vmByObjectType(t *testing.T) {
-
 	testIP := "1.1.1.3/32"
 	testSlug := "ipadr_vm_ot"
 	testName := testAccGetTestName(testSlug)
@@ -276,7 +273,6 @@ resource "netbox_ip_address" "test" {
 }
 
 func TestAccNetboxIPAddress_vmSwitchStyle(t *testing.T) {
-
 	testIP := "1.1.1.9/32"
 	testSlug := "ipadr_vm_sw"
 	testName := testAccGetTestName(testSlug)
@@ -312,7 +308,6 @@ resource "netbox_ip_address" "test" {
 
 // TestAccNetboxIPAddress_deviceByFieldName tests if creating an ip address and linking it to a device via the `device_interface_id` field works
 func TestAccNetboxIPAddress_deviceByFieldName(t *testing.T) {
-
 	testIP := "1.1.1.4/32"
 	testSlug := "ipadr_dev_fn"
 	testName := testAccGetTestName(testSlug)
@@ -343,7 +338,6 @@ resource "netbox_ip_address" "test" {
 }
 
 func TestAccNetboxIPAddress_vmByFieldName(t *testing.T) {
-
 	testIP := "1.1.1.5/32"
 	testSlug := "ipadr_vm_fn"
 	testName := testAccGetTestName(testSlug)
@@ -375,7 +369,6 @@ resource "netbox_ip_address" "test" {
 
 // TestAccNetboxIPAddress_standalone tests the case where an ip address is not linked to a vm or device
 func TestAccNetboxIPAddress_standalone(t *testing.T) {
-
 	testIP := "1.1.1.6/32"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -401,7 +394,6 @@ resource "netbox_ip_address" "test" {
 }
 
 func TestAccNetboxIPAddress_nat(t *testing.T) {
-
 	testIP := "1.1.1.8/32"
 	testIP_inside := "1.1.1.9/32"
 	resource.ParallelTest(t, resource.TestCase{
@@ -455,7 +447,6 @@ resource "netbox_ip_address" "inside" {
 }
 
 func TestAccNetboxIPAddress_invalidConfig(t *testing.T) {
-
 	testIP := "1.1.1.7/32"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
