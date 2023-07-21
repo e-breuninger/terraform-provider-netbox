@@ -55,8 +55,8 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		params.Name = &name
 	}
 
-	if site_id, ok := d.Get("site_id").(int); ok && site_id != 0 {
-		params.SiteID = strToPtr(strconv.FormatInt(int64(site_id), 10))
+	if siteID, ok := d.Get("site_id").(int); ok && siteID != 0 {
+		params.SiteID = strToPtr(strconv.FormatInt(int64(siteID), 10))
 	}
 
 	limit := int64(2) // Limit of 2 is enough

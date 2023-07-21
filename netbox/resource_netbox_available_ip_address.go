@@ -107,24 +107,24 @@ This resource will retrieve the next available IP address from a given prefix or
 
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
-	prefixId := int64(d.Get("prefix_id").(int))
-	vrfId := int64(int64(d.Get("vrf_id").(int)))
-	rangeId := int64(d.Get("ip_range_id").(int))
+	prefixID := int64(d.Get("prefix_id").(int))
+	vrfID := int64(int64(d.Get("vrf_id").(int)))
+	rangeID := int64(d.Get("ip_range_id").(int))
 	nestedvrf := models.NestedVRF{
-		ID: vrfId,
+		ID: vrfID,
 	}
 	data := models.AvailableIP{
 		Vrf: &nestedvrf,
 	}
-	if prefixId != 0 {
-		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixId).WithData([]*models.AvailableIP{&data})
+	if prefixID != 0 {
+		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
 		res, _ := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
 	}
-	if rangeId != 0 {
-		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeId).WithData([]*models.AvailableIP{&data})
+	if rangeID != 0 {
+		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
 		res, _ := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
@@ -153,17 +153,17 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 
 	ipAddress := res.GetPayload()
 	if ipAddress.AssignedObjectID != nil {
-		vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
-		deviceInterfaceId := getOptionalInt(d, "device_interface_id")
-		interfaceId := getOptionalInt(d, "interface_id")
+		vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
+		deviceInterfaceID := getOptionalInt(d, "device_interface_id")
+		interfaceID := getOptionalInt(d, "interface_id")
 
 		switch {
-		case vmInterfaceId != nil:
+		case vmInterfaceID != nil:
 			d.Set("virtual_machine_interface_id", ipAddress.AssignedObjectID)
-		case deviceInterfaceId != nil:
+		case deviceInterfaceID != nil:
 			d.Set("device_interface_id", ipAddress.AssignedObjectID)
-		// if interfaceId is given, object_type must be set as well
-		case interfaceId != nil:
+		// if interfaceID is given, object_type must be set as well
+		case interfaceID != nil:
 			d.Set("object_type", ipAddress.AssignedObjectType)
 			d.Set("interface_id", ipAddress.AssignedObjectID)
 		}
@@ -216,21 +216,21 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
 	}
 
-	vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
-	deviceInterfaceId := getOptionalInt(d, "device_interface_id")
-	interfaceId := getOptionalInt(d, "interface_id")
+	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
+	deviceInterfaceID := getOptionalInt(d, "device_interface_id")
+	interfaceID := getOptionalInt(d, "interface_id")
 
 	switch {
-	case vmInterfaceId != nil:
+	case vmInterfaceID != nil:
 		data.AssignedObjectType = strToPtr("virtualization.vminterface")
-		data.AssignedObjectID = vmInterfaceId
-	case deviceInterfaceId != nil:
+		data.AssignedObjectID = vmInterfaceID
+	case deviceInterfaceID != nil:
 		data.AssignedObjectType = strToPtr("dcim.interface")
-		data.AssignedObjectID = deviceInterfaceId
-	// if interfaceId is given, object_type must be set as well
-	case interfaceId != nil:
+		data.AssignedObjectID = deviceInterfaceID
+	// if interfaceID is given, object_type must be set as well
+	case interfaceID != nil:
 		data.AssignedObjectType = strToPtr(d.Get("object_type").(string))
-		data.AssignedObjectID = interfaceId
+		data.AssignedObjectID = interfaceID
 	// default = ip is not linked to anything
 	default:
 		data.AssignedObjectType = strToPtr("")

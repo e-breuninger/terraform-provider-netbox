@@ -72,14 +72,14 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 
 	name := d.Get("name").(string)
 	slug := d.Get("slug").(string)
-	min_vid := int64(d.Get("min_vid").(int))
-	max_vid := int64(d.Get("max_vid").(int))
+	minVid := int64(d.Get("min_vid").(int))
+	maxVid := int64(d.Get("max_vid").(int))
 	description := d.Get("description").(string)
 
 	data.Name = &name
 	data.Slug = &slug
-	data.MinVid = min_vid
-	data.MaxVid = max_vid
+	data.MinVid = minVid
+	data.MaxVid = maxVid
 	data.Description = description
 
 	if scopeType, ok := d.GetOk("scope_type"); ok {
@@ -147,14 +147,14 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 
 	name := d.Get("name").(string)
 	slug := d.Get("slug").(string)
-	min_vid := int64(d.Get("min_vid").(int))
-	max_vid := int64(d.Get("max_vid").(int))
+	minVid := int64(d.Get("min_vid").(int))
+	maxVid := int64(d.Get("max_vid").(int))
 	description := d.Get("description").(string)
 
 	data.Name = &name
 	data.Slug = &slug
-	data.MinVid = min_vid
-	data.MaxVid = max_vid
+	data.MinVid = minVid
+	data.MaxVid = maxVid
 	data.Description = description
 
 	if scopeType, ok := d.GetOk("scope_type"); ok {

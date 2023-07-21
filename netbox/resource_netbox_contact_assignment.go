@@ -56,18 +56,18 @@ func resourceNetboxContactAssignment() *schema.Resource {
 func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
-	content_type := d.Get("content_type").(string)
-	object_id := int64(d.Get("object_id").(int))
-	contact_id := int64(d.Get("contact_id").(int))
-	role_id := int64(d.Get("role_id").(int))
+	contentType := d.Get("content_type").(string)
+	objectID := int64(d.Get("object_id").(int))
+	contactID := int64(d.Get("contact_id").(int))
+	roleID := int64(d.Get("role_id").(int))
 	priority := d.Get("priority").(string)
 
 	data := &models.WritableContactAssignment{}
 
-	data.ContentType = &content_type
-	data.ObjectID = &object_id
-	data.Contact = &contact_id
-	data.Role = &role_id
+	data.ContentType = &contentType
+	data.ObjectID = &objectID
+	data.Contact = &contactID
+	data.Role = &roleID
 	data.Priority = priority
 
 	params := tenancy.NewTenancyContactAssignmentsCreateParams().WithData(data)
@@ -124,21 +124,21 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableContactAssignment{}
 
-	content_type := d.Get("content_type").(string)
-	object_id := int64(d.Get("object_id").(int))
-	contact_id := int64(d.Get("contact_id").(int))
-	role_id := int64(d.Get("role_id").(int))
+	contentType := d.Get("content_type").(string)
+	objectID := int64(d.Get("object_id").(int))
+	contactID := int64(d.Get("contact_id").(int))
+	roleID := int64(d.Get("role_id").(int))
 	priority := d.Get("priority").(string)
 
-	data.ContentType = &content_type
-	if object_id != 0 {
-		data.ObjectID = &object_id
+	data.ContentType = &contentType
+	if objectID != 0 {
+		data.ObjectID = &objectID
 	}
-	if contact_id != 0 {
-		data.Contact = &contact_id
+	if contactID != 0 {
+		data.Contact = &contactID
 	}
-	if role_id != 0 {
-		data.Role = &role_id
+	if roleID != 0 {
+		data.Role = &roleID
 	}
 	data.Priority = priority
 

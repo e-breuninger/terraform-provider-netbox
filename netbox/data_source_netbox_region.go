@@ -70,10 +70,10 @@ func dataSourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
 		for _, f := range filterParams.List() {
 			id := f.(map[string]interface{})["id"]
 			if id != nil {
-				vId := id.(int)
-				if vId != 0 {
-					vIdString := strconv.Itoa(vId)
-					params.ID = &vIdString
+				vID := id.(int)
+				if vID != 0 {
+					vIDString := strconv.Itoa(vID)
+					params.ID = &vIDString
 				}
 			}
 			name := f.(map[string]interface{})["name"]
