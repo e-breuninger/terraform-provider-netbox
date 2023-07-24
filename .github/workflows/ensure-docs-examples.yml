@@ -1,0 +1,11 @@
+---
+name: ensure-docs-examples
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: ensure-docs-examples
+        run: bash scripts/ensure_docs_examples.sh

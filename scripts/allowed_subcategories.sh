@@ -9,7 +9,6 @@
 readonly allowfilepath=".github/allowed-subcategories.txt"
 
 while read -r line; do
-
     if ! grep --quiet "$line" "$allowfilepath"; then
         echo "error: subcategory \"$line\" is not in $allowfilepath"
         exit 1
