@@ -13,22 +13,22 @@ import (
 
 func testAccNetboxRackReservationFullDependencies(testName string) string {
 	return fmt.Sprintf(`
-	resource "netbox_site" "test" {
-		name = "%[1]s"
-		status = "active"
-	}
+resource "netbox_site" "test" {
+  name = "%[1]s"
+  status = "active"
+}
 
-	resource "netbox_tenant" "test" {
-		name = "%[1]s"
-	}
+resource "netbox_tenant" "test" {
+  name = "%[1]s"
+}
 
-	resource "netbox_rack" "test" {
-		name     = "%[1]s"
-		site_id  = netbox_site.test.id
-		status   = "active"
-		width    = 10
-		u_height = 40
-	}`, testName)
+resource "netbox_rack" "test" {
+   name     = "%[1]s"
+   site_id  = netbox_site.test.id
+   status   = "active"
+   width    = 10
+   u_height = 40
+}`, testName)
 }
 
 func TestAccNetboxRackReservation_basic(t *testing.T) {
@@ -42,10 +42,10 @@ func TestAccNetboxRackReservation_basic(t *testing.T) {
 				Config: testAccNetboxRackReservationFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_rack_reservation" "test" {
   rack_id = netbox_rack.test.id
-	units = [1,2,3,4,5]
-	user_id = 1
-	description = "%[1]sdescription"
-	tenant_id = netbox_tenant.test.id
+  units = [1,2,3,4,5]
+  user_id = 1
+  description = "%[1]sdescription"
+  tenant_id = netbox_tenant.test.id
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("netbox_rack_reservation.test", "rack_id", "netbox_rack.test", "id"),

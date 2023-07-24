@@ -46,36 +46,36 @@ resource "netbox_device_type" "test" {
 }
 
 resource "netbox_location" "test" {
-	name = "%[1]s"
-	site_id =netbox_site.test.id
+  name = "%[1]s"
+  site_id =netbox_site.test.id
 }
 
 resource "netbox_rack" "test" {
   name = "%[1]s"
-	site_id = netbox_site.test.id
-	status = "reserved"
-	width = 19
-	u_height = 48
-	tenant_id = netbox_tenant.test.id
-	location_id = netbox_location.test.id
+  site_id = netbox_site.test.id
+  status = "reserved"
+  width = 19
+  u_height = 48
+  tenant_id = netbox_tenant.test.id
+  location_id = netbox_location.test.id
 }
 
 resource "netbox_device" "test" {
   name = "%[1]s"
   role_id = netbox_device_role.test.id
   site_id = netbox_site.test.id
-	tenant_id = netbox_tenant.test.id
+  tenant_id = netbox_tenant.test.id
   device_type_id = netbox_device_type.test.id
   cluster_id = netbox_cluster.test.id
-	platform_id = netbox_platform.test.id
-	location_id = netbox_location.test.id
-	comments = "thisisacomment"
-	status = "planned"
-	rack_id = netbox_rack.test.id
-	rack_face = "front"
-	rack_position = 10
+  platform_id = netbox_platform.test.id
+  location_id = netbox_location.test.id
+  comments = "thisisacomment"
+  status = "planned"
+  rack_id = netbox_rack.test.id
+  rack_face = "front"
+  rack_position = 10
 
-	tags = [netbox_tag.test.name]
+  tags = [netbox_tag.test.name]
 }
 
 resource "netbox_site" "test" {
@@ -86,21 +86,21 @@ resource "netbox_site" "test" {
 resource "netbox_device_interface" "test" {
   device_id = netbox_device.test.id
   name = "%[1]s"
-	type = "1000base-t"
+  type = "1000base-t"
 }
 
 resource "netbox_ip_address" "test_v4" {
   ip_address = "1.1.1.1/32"
   status = "active"
   interface_id = netbox_device_interface.test.id
-	object_type = "dcim.interface"
+  object_type = "dcim.interface"
 }
 
 resource "netbox_ip_address" "test_v6" {
   ip_address = "2000::1/128"
   status = "active"
   interface_id = netbox_device_interface.test.id
-	object_type = "dcim.interface"
+  object_type = "dcim.interface"
 }
 `, testName)
 }
