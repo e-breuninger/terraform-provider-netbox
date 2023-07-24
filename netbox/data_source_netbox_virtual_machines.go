@@ -116,6 +116,13 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 								Type: schema.TypeInt,
 							},
 						},
+						"tag_slugs": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"tenant_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -249,11 +256,14 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			mapping["status"] = v.Status.Value
 		}
 		if v.Tags != nil {
-			var tags []int64
+			var tagsIds []int64
+			var tagsSlugs []string
 			for _, t := range v.Tags {
-				tags = append(tags, t.ID)
+				tagsIds = append(tagsIds, t.ID)
+				tagsSlugs = append(tagsSlugs, *t.Slug)
 			}
-			mapping["tag_ids"] = tags
+			mapping["tag_ids"] = tagsIds
+			mapping["tag_slugs"] = tagsSlugs
 		}
 		if v.Tenant != nil {
 			mapping["tenant_id"] = v.Tenant.ID

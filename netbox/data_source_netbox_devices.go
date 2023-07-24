@@ -98,6 +98,20 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"tag_ids": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeInt,
+							},
+						},
+						"tag_slugs": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"tenant_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -143,28 +157,22 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
+			vString := v.(string)
 			switch k {
 			case "asset_tag":
-				var assetTagString = v.(string)
-				params.AssetTag = &assetTagString
+				params.AssetTag = &vString
 			case "cluster_id":
-				var clusterString = v.(string)
-				params.ClusterID = &clusterString
+				params.ClusterID = &vString
 			case "name":
-				var nameString = v.(string)
-				params.Name = &nameString
+				params.Name = &vString
 			case "region":
-				var regionString = v.(string)
-				params.Region = &regionString
+				params.Region = &vString
 			case "role_id":
-				var roleIdString = v.(string)
-				params.RoleID = &roleIdString
+				params.RoleID = &vString
 			case "site_id":
-				var siteIdString = v.(string)
-				params.SiteID = &siteIdString
+				params.SiteID = &vString
 			case "tenant_id":
-				var tenantIdString = v.(string)
-				params.TenantID = &tenantIdString
+				params.TenantID = &vString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -226,6 +234,16 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Site != nil {
 			mapping["site_id"] = device.Site.ID
+		}
+		if device.Tags != nil {
+			var tagsIds []int64
+			var tagsSlugs []string
+			for _, t := range device.Tags {
+				tagsIds = append(tagsIds, t.ID)
+				tagsSlugs = append(tagsSlugs, *t.Slug)
+			}
+			mapping["tag_ids"] = tagsIds
+			mapping["tag_slugs"] = tagsSlugs
 		}
 		if device.Tenant != nil {
 			mapping["tenant_id"] = device.Tenant.ID
