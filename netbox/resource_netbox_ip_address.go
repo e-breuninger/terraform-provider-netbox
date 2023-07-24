@@ -278,7 +278,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	data.NatInside = getOptionalInt(d, "nat_inside_address_id")
 
 	vmInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
-	deviceInterfaceId := getOptionalInt(d, "virtual_machine_interface_id")
+	deviceInterfaceId := getOptionalInt(d, "device_interface_id")
 	interfaceId := getOptionalInt(d, "interface_id")
 
 	switch {
