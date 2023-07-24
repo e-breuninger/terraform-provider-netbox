@@ -1,3 +1,10 @@
+## 3.5.1 (July 24th, 2023)
+
+BUG FIXES
+
+* resource/netbox_ip_address: Use correct attribute when using the `device_interface_id` attribute [#437](https://github.com/e-breuninger/terraform-provider-netbox/pull/437) by [@switchcorp](https://github.com/switchcorp)
+* resource/netbox_primary_ip: Fix a bug where setting a primary IP unsets the `local_context_data` attribute ([#435](https://github.com/e-breuninger/terraform-provider-netbox/pull/435) by [@tagur87](https://github.com/tagur87))
+
 ## 3.5.0 (July 20th, 2023)
 
 **BREAKING CHANGES**
