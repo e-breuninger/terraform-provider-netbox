@@ -2,7 +2,7 @@
 
 BUG FIXES
 
-* resource/netbox_ip_address: Use correct attribute when using the `device_interface_id` attribute [#437](https://github.com/e-breuninger/terraform-provider-netbox/pull/437) by [@switchcorp](https://github.com/switchcorp)
+* resource/netbox_ip_address: Use correct attribute when using the `device_interface_id` attribute ([#437](https://github.com/e-breuninger/terraform-provider-netbox/pull/437) by [@switchcorp](https://github.com/switchcorp))
 * resource/netbox_primary_ip: Fix a bug where setting a primary IP unsets the `local_context_data` attribute ([#435](https://github.com/e-breuninger/terraform-provider-netbox/pull/435) by [@tagur87](https://github.com/tagur87))
 
 ## 3.5.0 (July 20th, 2023)
@@ -27,14 +27,14 @@ ENHANCEMENTS
 
 BUG FIXES
 
-* resource/netbox_permission: Fix perpetual drift when `constraints` is nil [#432](https://github.com/e-breuninger/terraform-provider-netbox/pull/432) by [@tagur87](https://github.com/tagur87)
+* resource/netbox_permission: Fix perpetual drift when `constraints` is nil ([#432](https://github.com/e-breuninger/terraform-provider-netbox/pull/432) by [@tagur87](https://github.com/tagur87))
 
 ## 3.4.1 (July 19th, 2023)
 
 ENHANCEMENTS
 
-* resource/netbox_cluster: Add `comments` attribute [#429](https://github.com/e-breuninger/terraform-provider-netbox/pull/429) by [@edwin-bruurs](https://github.com/edwin-bruurs)
-* data-source/netbox_prefix: Add `family` attribute [#431](https://github.com/e-breuninger/terraform-provider-netbox/pull/431) by [@tagur87](https://github.com/tagur87)
+* resource/netbox_cluster: Add `comments` attribute ([#429](https://github.com/e-breuninger/terraform-provider-netbox/pull/429) by [@edwin-bruurs](https://github.com/edwin-bruurs))
+* data-source/netbox_prefix: Add `family` attribute ([#431](https://github.com/e-breuninger/terraform-provider-netbox/pull/431) by [@tagur87](https://github.com/tagur87))
 
 BUG FIXES
 
@@ -44,7 +44,7 @@ BUG FIXES
 
 ENHANCEMENTS
 
-* **New Resource:** `netbox_device_primary_ip` [#424](https://github.com/e-breuninger/terraform-provider-netbox/pull/424) by [@Ikke](https://github.com/Ikke)
+* **New Resource:** `netbox_device_primary_ip` ([#424](https://github.com/e-breuninger/terraform-provider-netbox/pull/424) by [@Ikke](https://github.com/Ikke))
 * resource/netbox_virtual_machine: Add `local_context_data` attribute ([#421](https://github.com/e-breuninger/terraform-provider-netbox/pull/421) by [@zeddD1abl0](https://github.com/zeddD1abl0))
 
 BUG FIXES
