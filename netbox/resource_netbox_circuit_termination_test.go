@@ -22,17 +22,17 @@ func TestAccNetboxCircuitTermination_basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_site" "test" {
-	name = "%[1]s"
-	slug = "%[2]s"
-	status = "active"
+  name = "%[1]s"
+  slug = "%[2]s"
+  status = "active"
 }
 resource "netbox_circuit_provider" "test" {
-	name = "%[1]s"
-	slug = "%[2]s"
+  name = "%[1]s"
+  slug = "%[2]s"
 }
 resource "netbox_circuit_type" "test" {
-	name = "%[1]s"
-	slug = "%[2]s"
+  name = "%[1]s"
+  slug = "%[2]s"
 }
 resource "netbox_circuit" "test" {
   cid = "%[1]s"
@@ -41,12 +41,12 @@ resource "netbox_circuit" "test" {
   type_id = netbox_circuit_type.test.id
 }
 resource "netbox_circuit_termination" "test" {
-	circuit_id = netbox_circuit.test.id
-	term_side = "A"
-	site_id = netbox_site.test.id
-	port_speed = 100000
-	upstream_speed = 50000
-  }`, testName, randomSlug),
+  circuit_id = netbox_circuit.test.id
+  term_side = "A"
+  site_id = netbox_site.test.id
+  port_speed = 100000
+  upstream_speed = 50000
+}`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("netbox_circuit_termination.test", "circuit_id", "netbox_circuit.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_circuit_termination.test", "site_id", "netbox_site.test", "id"),

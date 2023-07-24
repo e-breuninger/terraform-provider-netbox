@@ -29,8 +29,7 @@ resource "netbox_permission" "test_basic" {
   users = [1]
   constraints = jsonencode([{
     "status" = "active"
-  }]
-    )
+  }])
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_permission.test_basic", "name", testName),

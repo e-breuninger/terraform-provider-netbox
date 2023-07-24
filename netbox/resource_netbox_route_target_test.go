@@ -15,12 +15,12 @@ import (
 func getNetboxRouteTargetResource(rtName, tenantName string) string {
 	return fmt.Sprintf(`
 resource "netbox_tenant" "rt_acctest_basic" {
-	name = "%[2]s"
+  name = "%[2]s"
 }
 resource "netbox_route_target" "rt_acctest_basic" {
-	name = "%[1]s"
-	description = "rt for acctest"
-	tenant_id = netbox_tenant.rt_acctest_basic.id
+  name = "%[1]s"
+  description = "rt for acctest"
+  tenant_id = netbox_tenant.rt_acctest_basic.id
 }`, rtName, tenantName)
 }
 
