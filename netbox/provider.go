@@ -136,7 +136,7 @@ func Provider() *schema.Provider {
 			"netbox_tenants":          dataSourceNetboxTenants(),
 			"netbox_tenant_group":     dataSourceNetboxTenantGroup(),
 			"netbox_vrf":              dataSourceNetboxVrf(),
-			"netbox_vrfs":			   dataSourceNetboxVrfs(),
+			"netbox_vrfs":             dataSourceNetboxVrfs(),
 			"netbox_platform":         dataSourceNetboxPlatform(),
 			"netbox_prefix":           dataSourceNetboxPrefix(),
 			"netbox_prefixes":         dataSourceNetboxPrefixes(),
