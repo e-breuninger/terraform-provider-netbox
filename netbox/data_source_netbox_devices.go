@@ -64,8 +64,10 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Computed: true,
 						},
 						"custom_fields": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeString,
 							Computed: true,
+							Description: "A JSON string that defines the custom fields as defined under the `custom_fields` key in the object's api." +
+								"The data can be accessed by using the `jsondecode()` function around the `custom_fields` attribute.",
 						},
 						"description": {
 							Type:     schema.TypeString,
@@ -268,9 +270,11 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		if device.Status != nil {
 			mapping["status"] = *device.Status.Value
 		}
-		if device.CustomFields != nil {
-			mapping["custom_fields"] = device.CustomFields
+		cf, err := handleCustomFieldRead(device.CustomFields)
+		if err != nil {
+			return err
 		}
+		mapping["custom_fields"] = cf
 		if device.Rack != nil {
 			mapping["rack_id"] = device.Rack.ID
 		}
