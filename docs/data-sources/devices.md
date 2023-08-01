@@ -59,6 +59,7 @@ Read-Only:
 - `serial` (String)
 - `site_id` (Number)
 - `status` (String)
+- `tags` (Set of String)
 - `tenant_id` (Number)
 
 
