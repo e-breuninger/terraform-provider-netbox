@@ -130,6 +130,7 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeFloat,
 							Computed: true,
 						},
+						"tags": tagsSchemaRead,
 					},
 				},
 			},
@@ -257,6 +258,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Face != nil {
 			mapping["rack_face"] = device.Face.Value
+		}
+		if device.Tags != nil {
+			mapping["tags"] = getTagListFromNestedTagList(device.Tags)
 		}
 		s = append(s, mapping)
 	}

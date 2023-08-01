@@ -36,6 +36,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.serial", "ABCDEF0"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.status", "staged"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.tags.#", "1"),
 				),
 			},
 			{
@@ -93,6 +94,7 @@ resource "netbox_device" "test0" {
   location_id = netbox_location.test.id
   serial = "ABCDEF0"
   status = "staged"
+  tags = ["%[1]sa"]
 }
 
 resource "netbox_device" "test1" {
