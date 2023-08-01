@@ -246,6 +246,73 @@ resource "netbox_device" "test" {
 	})
 }
 
+func TestAccNetboxDevice_CustomFields(t *testing.T) {
+	testSlug := "device_basic"
+	testName := testAccGetTestName(testSlug)
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDeviceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "text" {
+	name          = "%[1]s_text"
+	type          = "text"
+	content_types = ["dcim.device"]
+}
+resource "netbox_custom_field" "boolean" {
+	name          = "%[1]s_boolean"
+	type          = "boolean"
+	content_types = ["dcim.device"]
+}
+resource "netbox_device" "test" {
+  name = "%[2]s"
+  tenant_id = netbox_tenant.test.id
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+	custom_fields = jsonencode({
+		"${netbox_custom_field.text.name}" = "81"
+		"${netbox_custom_field.boolean.name}" = true
+	})
+}`, testField, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields", "{\""+testField+"_boolean\":true,\""+testField+"_text\":\"81\"}"),
+				),
+			},
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "text" {
+	name          = "%[1]s_text"
+	type          = "text"
+	content_types = ["dcim.device"]
+}
+resource "netbox_custom_field" "boolean" {
+	name          = "%[1]s_boolean"
+	type          = "boolean"
+	content_types = ["dcim.device"]
+}
+resource "netbox_device" "test" {
+  name = "%[2]s"
+  tenant_id = netbox_tenant.test.id
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+}`, testField, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "custom_fields", ""),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDeviceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
 	conn := testAccProvider.Meta().(*client.NetBoxAPI)
