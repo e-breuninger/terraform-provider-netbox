@@ -36,7 +36,7 @@ data "netbox_site" "get_by_slug" {
 - `comments` (String)
 - `description` (String)
 - `group_id` (Number)
-- `id` (String) The ID of this resource.
+- `id` (Number) The ID of this resource.
 - `region_id` (Number)
 - `site_id` (Number)
 - `status` (String)
