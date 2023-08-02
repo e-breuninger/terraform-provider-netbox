@@ -56,6 +56,13 @@ data "netbox_site" "test" {
 }`, testName)
 }
 
+func testAccNetboxSiteByID() string {
+	return `
+data "netbox_site" "test" {
+  id = netbox_site.test.id
+}`
+}
+
 func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("site_ds_basic")
 	setUp := testAccNetboxSiteSetUp(testName)
@@ -89,6 +96,12 @@ func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_site.test", "status", "active"),
 					resource.TestCheckResourceAttrPair("data.netbox_site.test", "region_id", "netbox_region.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_site.test", "tenant_id", "netbox_tenant.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxSiteByID(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_site.test", "id", "netbox_site.test", "id"),
 				),
 			},
 		},
