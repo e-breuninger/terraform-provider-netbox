@@ -22,6 +22,11 @@ func dataSourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"asn_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -75,6 +80,9 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	}
 	if slug, ok := d.Get("slug").(string); ok && slug != "" {
 		params.SetSlug(&slug)
+	}
+	if id, ok := d.Get("id").(string); ok && id != "0" {
+		params.SetID(&id)
 	}
 
 	res, err := api.Dcim.DcimSitesList(params, nil)
