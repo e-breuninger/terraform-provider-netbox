@@ -141,7 +141,8 @@ func TestAccNetboxDeviceInterface_basic(t *testing.T) {
 
 func TestAccNetboxDeviceInterface_opts(t *testing.T) {
 	testSlug := "iface_mac"
-	testMac := "00:01:02:03:04:05"
+	testMacUppercase := "0A:01:02:03:04:05"
+	testMacLowercase := "0a:01:02:03:04:05"
 	testName := testAccGetTestName(testSlug)
 	setUp := testAccNetboxDeviceInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
@@ -150,16 +151,22 @@ func TestAccNetboxDeviceInterface_opts(t *testing.T) {
 		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName, testMac),
+				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName, testMacLowercase),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "description", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "enabled", "true"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "mgmtonly", "true"),
-					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "0a:01:02:03:04:05"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "mtu", "1440"),
 					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "device_id", "netbox_device.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName, testMacUppercase),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "0A:01:02:03:04:05"),
 				),
 			},
 			{
