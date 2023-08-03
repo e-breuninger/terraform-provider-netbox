@@ -1,3 +1,23 @@
+## 3.5.2 (August 3rd, 2023)
+
+FEATURES
+
+* **New Data Source:** `netbox_vrfs` ([#441](https://github.com/e-breuninger/terraform-provider-netbox/pull/441) by [@robvand](https://github.com/robvand))
+
+ENHANCEMENTS
+
+* Added `description` attribute to
+  - data-source/netbox_cluster
+  - data-source/netbox_devices
+  - data-source/netbox_virtual_machines
+  - resource/netbox_cluster
+  - resource/netbox_device
+  - resource/virtual_machine ([#401](https://github.com/e-breuninger/terraform-provider-netbox/pull/401) by [@tagur87](https://github.com/tagur87))
+* data-source/netbox_cluster: Add `description` attribute ([#446](https://github.com/e-breuninger/terraform-provider-netbox/pull/446) by [@bebehei](https://github.com/bebehei))
+* data-source/netbox_devices: Return `tags` attribute
+* resource/netbox_interface: Ignore drift when providing lowercase MAC addresses ([#446](https://github.com/e-breuninger/terraform-provider-netbox/pull/446) by [@bebehei](https://github.com/bebehei))
+* resource/netbox_device_interface: Ignore drift when providing lowercase MAC addresses ([#446](https://github.com/e-breuninger/terraform-provider-netbox/pull/446) by [@bebehei](https://github.com/bebehei))
+
 ## 3.5.1 (July 24th, 2023)
 
 BUG FIXES
