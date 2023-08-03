@@ -41,6 +41,7 @@ resource "netbox_device_interface" "test" {
 - `mgmtonly` (Boolean)
 - `mode` (String) Valid values are `access`, `tagged` and `tagged-all`.
 - `mtu` (Number)
+- `speed` (Number)
 - `tagged_vlans` (Set of Number)
 - `tags` (Set of String)
 - `untagged_vlan` (Number)
