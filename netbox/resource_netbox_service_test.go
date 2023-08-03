@@ -65,6 +65,46 @@ resource "netbox_service" "test" {
 	})
 }
 
+func TestAccNetboxService_customFields(t *testing.T) {
+	testSlug := "svc_custom_fields"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxServiceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "custom_field"
+  type          = "text"
+  content_types = ["ipam.service"]
+}
+resource "netbox_service" "test_customfield" {
+  name = "%s"
+  virtual_machine_id = netbox_virtual_machine.test.id
+  ports = [333]
+  protocol = "tcp"
+  custom_fields = {"${netbox_custom_field.test.name}" = "testtext"}
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_service.test_customfield", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_service.test_customfield", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_service.test_customfield", "ports.#", "1"),
+					resource.TestCheckResourceAttr("netbox_service.test_customfield", "ports.0", "333"),
+					resource.TestCheckResourceAttr("netbox_service.test_customfield", "protocol", "tcp"),
+					resource.TestCheckResourceAttr("netbox_service.test_customfield", "custom_fields.custom_field", "testtext"),
+				),
+			},
+			{
+				ResourceName:      "netbox_service.test_customfield",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckServiceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
 	conn := testAccProvider.Meta().(*client.NetBoxAPI)
