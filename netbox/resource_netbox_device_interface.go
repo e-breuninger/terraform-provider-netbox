@@ -43,6 +43,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"lag_device_interface_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"mac_address": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -128,6 +132,9 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	if macAddress := d.Get("mac_address").(string); macAddress != "" {
 		data.MacAddress = &macAddress
 	}
+	if lag, ok := d.Get("lag_device_interface_id").(int); ok && lag != 0 {
+		data.Lag = int64ToPtr(int64(lag))
+	}
 	if mtu, ok := d.Get("mtu").(int); ok && mtu != 0 {
 		data.Mtu = int64ToPtr(int64(mtu))
 	}
@@ -185,6 +192,9 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("tagged_vlans", getIDsFromNestedVLANDevice(iface.TaggedVlans))
 	d.Set("device_id", iface.Device.ID)
 
+	if iface.Lag != nil {
+		d.Set("lag_device_interface_id", iface.Lag.ID)
+	}
 	if iface.Mode != nil {
 		d.Set("mode", iface.Mode.Value)
 	}
@@ -232,6 +242,10 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	if d.HasChange("mac_address") {
 		macAddress := d.Get("mac_address").(string)
 		data.MacAddress = &macAddress
+	}
+	if d.HasChange("lag_device_interface_id") {
+		lag := int64(d.Get("lag_device_interface_id").(int))
+		data.Lag = &lag
 	}
 	if d.HasChange("mtu") {
 		mtu := int64(d.Get("mtu").(int))
