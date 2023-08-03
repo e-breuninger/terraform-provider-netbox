@@ -67,6 +67,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(1, 65536),
 			},
+			"speed": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -127,6 +131,9 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	if mtu, ok := d.Get("mtu").(int); ok && mtu != 0 {
 		data.Mtu = int64ToPtr(int64(mtu))
 	}
+	if speed, ok := d.Get("speed").(int); ok && speed != 0 {
+		data.Speed = int64ToPtr(int64(speed))
+	}
 	if untaggedVlan, ok := d.Get("untagged_vlan").(int); ok && untaggedVlan != 0 {
 		data.UntaggedVlan = int64ToPtr(int64(untaggedVlan))
 	}
@@ -173,6 +180,7 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("mgmtonly", iface.MgmtOnly)
 	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
+	d.Set("speed", iface.Speed)
 	d.Set(tagsKey, getTagListFromNestedTagList(iface.Tags))
 	d.Set("tagged_vlans", getIDsFromNestedVLANDevice(iface.TaggedVlans))
 	d.Set("device_id", iface.Device.ID)
@@ -228,6 +236,10 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	if d.HasChange("mtu") {
 		mtu := int64(d.Get("mtu").(int))
 		data.Mtu = &mtu
+	}
+	if d.HasChange("speed") {
+		speed := int64(d.Get("speed").(int))
+		data.Speed = &speed
 	}
 	if d.HasChange("untagged_vlan") {
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))
