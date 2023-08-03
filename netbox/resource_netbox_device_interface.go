@@ -3,6 +3,7 @@ package netbox
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
@@ -47,6 +48,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
 				ForceNew:     true,
+				// Netbox converts MAC addresses always to uppercase
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.EqualFold(old, new)
+				},
 			},
 			"mgmtonly": {
 				Type:     schema.TypeBool,

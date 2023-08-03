@@ -3,6 +3,7 @@ package netbox
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
@@ -46,6 +47,10 @@ func resourceNetboxInterface() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
+				// Netbox converts MAC addresses always to uppercase
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.EqualFold(old, new)
+				},
 			},
 			"mode": {
 				Type:         schema.TypeString,
