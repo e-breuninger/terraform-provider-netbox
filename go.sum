@@ -40,8 +40,8 @@ github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
-github.com/fbreckle/go-netbox v0.0.0-20230720154332-dd0b7c4220dc h1:DL0GXuJGsR7FMUhzS7DQQl/PYBZ9ADNnH+uGQQ4itYw=
-github.com/fbreckle/go-netbox v0.0.0-20230720154332-dd0b7c4220dc/go.mod h1:3U3/m/hna9Ntd3sbHBYwZ1IqbP2+coRzoXw3mCfu3kM=
+github.com/fbreckle/go-netbox v0.0.0-20230804141710-536187bf0fa4 h1:2739/GDrTz1+ygaV5PwY2IcVWM3emDLsJbI9eR82dFk=
+github.com/fbreckle/go-netbox v0.0.0-20230804141710-536187bf0fa4/go.mod h1:3U3/m/hna9Ntd3sbHBYwZ1IqbP2+coRzoXw3mCfu3kM=
 github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3 h1:DMSpM0btVedE2Tt1vfDHWQhf2obzjAe1F0/j8/CyfW4=
 github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3/go.mod h1:j3HmJySEjx6hOAOPDjGzmzpVNDQq9SNnnF+Vm22d2rs=
 github.com/frankban/quicktest v1.14.3 h1:FJKSZTDHjyhriyC81FLQ0LY93eSai0ZyR/ZIkd3ZUKE=
