@@ -56,16 +56,16 @@ resource "netbox_interface" "test" {
 }`, testName)
 }
 
-func testAccNetboxInterfaceOpts(testName string, testMac string) string {
+func testAccNetboxInterfaceOpts(testName string, testMac string, enabled string) string {
 	return fmt.Sprintf(`
 resource "netbox_interface" "test" {
   name = "%[1]s"
   description = "%[1]s"
-  enabled = true
+  enabled = %[3]s
   mac_address = "%[2]s"
   mtu = 1440
   virtual_machine_id = netbox_virtual_machine.test.id
-}`, testName, testMac)
+}`, testName, testMac, enabled)
 }
 
 func testAccNetboxInterfaceVlans(testName string) string {
@@ -131,11 +131,22 @@ func TestAccNetboxInterface_opts(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxInterfaceOpts(testName, testMac),
+				Config: setUp + testAccNetboxInterfaceOpts(testName, testMac, "true"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_interface.test", "description", testName),
 					resource.TestCheckResourceAttr("netbox_interface.test", "enabled", "true"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "mtu", "1440"),
+					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxInterfaceOpts(testName, testMac, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_interface.test", "description", testName),
+					resource.TestCheckResourceAttr("netbox_interface.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
 					resource.TestCheckResourceAttr("netbox_interface.test", "mtu", "1440"),
 					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
