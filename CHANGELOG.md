@@ -1,3 +1,15 @@
+## 3.5.3 (August 4th, 2023)
+
+ENHANCEMENTS
+
+* resource/netbox_service: Add `custom_fields` attribute ([#448](https://github.com/e-breuninger/terraform-provider-netbox/pull/448) by [@sebastianreloaded](https://github.com/sebastianreloaded))
+* data-source/netbox_site: Allow searching by `id` field
+
+BUG FIXES
+
+* resource/netbox_interface: Allow setting `enabled` to `false`
+* resource/netbox_device_interface: Allow setting `enabled` to `false`
+
 ## 3.5.2 (August 3rd, 2023)
 
 FEATURES
@@ -13,7 +25,6 @@ ENHANCEMENTS
   - resource/netbox_cluster
   - resource/netbox_device
   - resource/virtual_machine ([#401](https://github.com/e-breuninger/terraform-provider-netbox/pull/401) by [@tagur87](https://github.com/tagur87))
-* data-source/netbox_cluster: Add `description` attribute ([#446](https://github.com/e-breuninger/terraform-provider-netbox/pull/446) by [@bebehei](https://github.com/bebehei))
 * data-source/netbox_devices: Return `tags` attribute
 * resource/netbox_interface: Ignore drift when providing lowercase MAC addresses ([#446](https://github.com/e-breuninger/terraform-provider-netbox/pull/446) by [@bebehei](https://github.com/bebehei))
 * resource/netbox_device_interface: Ignore drift when providing lowercase MAC addresses ([#446](https://github.com/e-breuninger/terraform-provider-netbox/pull/446) by [@bebehei](https://github.com/bebehei))
