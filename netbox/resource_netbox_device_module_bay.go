@@ -7,6 +7,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxDeviceModuleBay() *schema.Resource {
@@ -29,17 +30,14 @@ func resourceNetboxDeviceModuleBay() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"installed_module_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
 			"label": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"position": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -58,12 +56,11 @@ func resourceNetboxDeviceModuleBayCreate(d *schema.ResourceData, m interface{}) 
 	api := m.(*client.NetBoxAPI)
 
 	data := models.WritableModuleBay{
-		Device:          int64ToPtr(int64(d.Get("device_id").(int))),
-		Name:            strToPtr(d.Get("name").(string)),
-		InstalledModule: getOptionalInt(d, "installed_module_id"),
-		Label:           getOptionalStr(d, "label", false),
-		Position:        getOptionalStr(d, "position", false),
-		Description:     getOptionalStr(d, "description", false),
+		Device:      int64ToPtr(int64(d.Get("device_id").(int))),
+		Name:        strToPtr(d.Get("name").(string)),
+		Label:       getOptionalStr(d, "label", false),
+		Position:    getOptionalStr(d, "position", false),
+		Description: getOptionalStr(d, "description", false),
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
@@ -111,13 +108,6 @@ func resourceNetboxDeviceModuleBayRead(d *schema.ResourceData, m interface{}) er
 	}
 
 	d.Set("name", moduleBay.Name)
-
-	if moduleBay.InstalledModule != nil {
-		d.Set("installed_module_id", moduleBay.InstalledModule.ID)
-	} else {
-		d.Set("installed_module_id", nil)
-	}
-
 	d.Set("label", moduleBay.Label)
 	d.Set("position", moduleBay.Position)
 	d.Set("description", moduleBay.Description)
@@ -137,12 +127,11 @@ func resourceNetboxDeviceModuleBayUpdate(d *schema.ResourceData, m interface{}) 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	data := models.WritableModuleBay{
-		Device:          int64ToPtr(int64(d.Get("device_id").(int))),
-		Name:            strToPtr(d.Get("name").(string)),
-		InstalledModule: getOptionalInt(d, "installed_module_id"),
-		Label:           getOptionalStr(d, "label", true),
-		Position:        getOptionalStr(d, "position", true),
-		Description:     getOptionalStr(d, "description", true),
+		Device:      int64ToPtr(int64(d.Get("device_id").(int))),
+		Name:        strToPtr(d.Get("name").(string)),
+		Label:       getOptionalStr(d, "label", true),
+		Position:    getOptionalStr(d, "position", true),
+		Description: getOptionalStr(d, "description", true),
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))

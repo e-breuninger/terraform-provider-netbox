@@ -134,8 +134,8 @@ func Provider() *schema.Provider {
 			"netbox_module_type":                resourceNetboxModuleType(),
 			"netbox_power_feed":                 resourceNetboxPowerFeed(),
 			"netbox_power_panel":                resourceNetboxPowerPanel(),
-			//TODO: netbox_device_inventory_item, netbox_device_inventory_item_role
-			//TODO: update netbox_device_interface
+			"netbox_inventory_item_role":        resourceNetboxInventoryItemRole(),
+			"netbox_inventory_item":             resourceNetboxInventoryItem(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":              dataSourceNetboxAsn(),

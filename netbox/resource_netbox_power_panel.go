@@ -54,7 +54,7 @@ func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error
 	api := m.(*client.NetBoxAPI)
 
 	data := models.WritablePowerPanel{
-		Site:        int64ToPtr(d.Get("site_id").(int64)),
+		Site:        int64ToPtr(int64(d.Get("site_id").(int))),
 		Name:        strToPtr(d.Get("name").(string)),
 		Location:    getOptionalInt(d, "location_id"),
 		Description: getOptionalStr(d, "description", false),
@@ -131,7 +131,7 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	data := models.WritablePowerPanel{
-		Site:        int64ToPtr(d.Get("site_id").(int64)),
+		Site:        int64ToPtr(int64(d.Get("site_id").(int))),
 		Name:        strToPtr(d.Get("name").(string)),
 		Location:    getOptionalInt(d, "location_id"),
 		Description: getOptionalStr(d, "description", true),
