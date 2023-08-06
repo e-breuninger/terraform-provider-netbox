@@ -170,9 +170,9 @@ func resourceNetboxModuleUpdate(d *schema.ResourceData, m interface{}) error {
 		ModuleBay:   int64ToPtr(int64(d.Get("module_bay_id").(int))),
 		ModuleType:  int64ToPtr(int64(d.Get("module_type_id").(int))),
 		Status:      d.Get("status").(string),
-		Serial:      getOptionalStr(d, "serial", false),
-		Description: getOptionalStr(d, "description", false),
-		Comments:    getOptionalStr(d, "comments", false),
+		Serial:      getOptionalStr(d, "serial", true),
+		Description: getOptionalStr(d, "description", true),
+		Comments:    getOptionalStr(d, "comments", true),
 	}
 
 	if assetTag := getOptionalStr(d, "asset_tag", false); assetTag != "" {

@@ -60,8 +60,9 @@ For example, imagine a PDU with one power port which draws from a three-phase fe
 				Optional: true,
 			},
 			"mark_connected": {
-				Type:    schema.TypeBool,
-				Default: false,
+				Type:     schema.TypeBool,
+				Default:  false,
+				Optional: true,
 			},
 			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
@@ -180,11 +181,11 @@ func resourceNetboxDevicePowerOutletUpdate(d *schema.ResourceData, m interface{}
 		Device:        int64ToPtr(int64(d.Get("device_id").(int))),
 		Module:        getOptionalInt(d, "module_id"),
 		Name:          strToPtr(d.Get("name").(string)),
-		Label:         getOptionalStr(d, "label", false),
+		Label:         getOptionalStr(d, "label", true),
 		Type:          getOptionalStr(d, "type", false),
 		PowerPort:     getOptionalInt(d, "power_port_id"),
 		FeedLeg:       getOptionalStr(d, "feed_leg", false),
-		Description:   getOptionalStr(d, "description", false),
+		Description:   getOptionalStr(d, "description", true),
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
