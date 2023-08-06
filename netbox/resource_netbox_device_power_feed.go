@@ -45,14 +45,14 @@ func resourceNetboxPowerFeed() *schema.Resource {
 			"supply": {
 				Type:         schema.TypeString,
 				Required:     true,
-				Description:  "One of [single-phase, three-phase]",
-				ValidateFunc: validation.StringInSlice([]string{"single-phase", "three-phase"}, false),
+				Description:  "One of [ac, dc]",
+				ValidateFunc: validation.StringInSlice([]string{"ac", "dc"}, false),
 			},
 			"phase": {
 				Type:         schema.TypeString,
 				Required:     true,
-				Description:  "One of [primary, redundant]",
-				ValidateFunc: validation.StringInSlice([]string{"primary", "redundant"}, false),
+				Description:  "One of [single-phase, three-phase]",
+				ValidateFunc: validation.StringInSlice([]string{"single-phase", "three-phase"}, false),
 			},
 			"voltage": {
 				Type:     schema.TypeInt,
@@ -72,8 +72,9 @@ func resourceNetboxPowerFeed() *schema.Resource {
 				Optional: true,
 			},
 			"mark_connected": {
-				Type:    schema.TypeBool,
-				Default: false,
+				Type:     schema.TypeBool,
+				Default:  false,
+				Optional: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -221,8 +222,8 @@ func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error 
 		MaxUtilization: int64(d.Get("max_percent_utilization").(int)),
 		Rack:           getOptionalInt(d, "rack_id"),
 		MarkConnected:  d.Get("mark_connected").(bool),
-		Description:    getOptionalStr(d, "description", false),
-		Comments:       getOptionalStr(d, "comments", false),
+		Description:    getOptionalStr(d, "description", true),
+		Comments:       getOptionalStr(d, "comments", true),
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))

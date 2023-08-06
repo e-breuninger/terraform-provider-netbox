@@ -52,8 +52,9 @@ func resourceNetboxDeviceConsoleServerPort() *schema.Resource {
 				Optional: true,
 			},
 			"mark_connected": {
-				Type:    schema.TypeBool,
-				Default: false,
+				Type:     schema.TypeBool,
+				Default:  false,
+				Optional: true,
 			},
 			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
@@ -105,8 +106,7 @@ func resourceNetboxDeviceConsoleServerPortRead(d *schema.ResourceData, m interfa
 	res, err := api.Dcim.DcimConsoleServerPortsRead(params, nil)
 
 	if err != nil {
-		errorcode := err.(*dcim.DcimConsoleServerPortsReadDefault).Code()
-		if errorcode == 404 {
+		if errIntf, ok := err.(*dcim.DcimConsoleServerPortsReadDefault); ok && errIntf.Code() == 404 {
 			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 			d.SetId("")
 			return nil

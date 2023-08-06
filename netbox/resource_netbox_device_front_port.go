@@ -59,8 +59,9 @@ func resourceNetboxDeviceFrontPort() *schema.Resource {
 				Optional: true,
 			},
 			"mark_connected": {
-				Type:    schema.TypeBool,
-				Default: false,
+				Type:     schema.TypeBool,
+				Default:  false,
+				Optional: true,
 			},
 			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,

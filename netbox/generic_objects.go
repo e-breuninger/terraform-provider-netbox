@@ -3,6 +3,7 @@ package netbox
 import (
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 var genericObjectSchema = &schema.Resource{
@@ -10,6 +11,19 @@ var genericObjectSchema = &schema.Resource{
 		"object_type": {
 			Type:     schema.TypeString,
 			Required: true,
+			ValidateFunc: validation.StringInSlice([]string{
+				// known supported generic objects (wherever the schema is used)
+				// can be made into a parameter when importing this schema if desired
+				"dcim.powerport",
+				"dcim.poweroutlet",
+				"dcim.powerfeed",
+				"dcim.frontport",
+				"dcim.rearport",
+				"dcim.consoleserverport",
+				"dcim.consoleport",
+				"dcim.interface",
+				"circuits.circuittermination",
+			}, false),
 		},
 		"object_id": {
 			Type:     schema.TypeInt,
@@ -22,7 +36,7 @@ func getGenericObjectsFromSchemaSet(schemaSet *schema.Set) []*models.GenericObje
 	retArr := make([]*models.GenericObject, 0, schemaSet.Len())
 	for _, i := range schemaSet.List() {
 		retArr = append(retArr, &models.GenericObject{
-			ObjectID:   int64ToPtr(i.(map[string]interface{})["object_id"].(int64)),
+			ObjectID:   int64ToPtr(int64(i.(map[string]interface{})["object_id"].(int))),
 			ObjectType: strToPtr(i.(map[string]interface{})["object_type"].(string)),
 		})
 	}
