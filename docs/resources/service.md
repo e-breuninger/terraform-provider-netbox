@@ -43,6 +43,7 @@ resource "netbox_service" "ssh" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `port` (Number, Deprecated) Exactly one of `port` or `ports` must be given.
 - `ports` (Set of Number) Exactly one of `port` or `ports` must be given.
 
