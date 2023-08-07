@@ -1,3 +1,22 @@
+## 3.5.4 (August 7th, 2023)
+
+FEATURES
+
+* **New Resource:** `netbox_cable` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_device_console_port` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_device_console_server_port` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_device_power_port` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_device_power_outlet` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_device_front_port` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_device_rear_port` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_device_module_bay` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_module` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_module_type` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_power_feed` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_power_panel` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_inventory_item_role` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+* **New Resource:** `netbox_inventory_item` ([#450](https://github.com/e-breuninger/terraform-provider-netbox/pull/450) by [@joeyberkovitz](https://github.com/joeyberkovitz))
+
 ## 3.5.3 (August 4th, 2023)
 
 ENHANCEMENTS
