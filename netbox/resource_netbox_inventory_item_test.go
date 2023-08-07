@@ -143,7 +143,7 @@ resource "netbox_inventory_item" "parent" {
 	device_id = netbox_device.test.id
 	name = "%[1]s_parent"
 }
-				
+
 resource "netbox_inventory_item" "test" {
   device_id = netbox_device.test.id
   name = "%[1]s"

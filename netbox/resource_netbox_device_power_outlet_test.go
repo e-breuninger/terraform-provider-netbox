@@ -94,7 +94,7 @@ resource "netbox_device_power_outlet" "test" {
 	power_port_id = netbox_device_power_port.test.id
 	feed_leg = "A"
 	description = "%[1]s_description"
-	mark_connected = true  
+	mark_connected = true
   tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
