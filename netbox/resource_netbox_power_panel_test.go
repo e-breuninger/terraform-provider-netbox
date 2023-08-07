@@ -44,7 +44,7 @@ resource "netbox_power_panel" "test" {
   name = "%[1]s"
   description = "%[1]sdescription"
   comments = "%[1]scomments"
-  
+
   site_id = netbox_site.test.id
   location_id = netbox_location.test.id
   tags = ["%[1]sa"]
@@ -63,7 +63,7 @@ resource "netbox_power_panel" "test" {
 			{
 				Config: testAccNetboxPowerPanelFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_power_panel" "test" {
-  name = "%[1]s" 
+  name = "%[1]s"
   site_id = netbox_site.test.id
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(

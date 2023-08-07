@@ -85,7 +85,7 @@ resource "netbox_device_power_port" "test" {
 
 	maximum_draw = 750
   allocated_draw = 500
-	mark_connected = true  
+	mark_connected = true
 	type = "iec-60320-c6"
   module_id = netbox_module.test.id
   description = "%[1]s_description"
