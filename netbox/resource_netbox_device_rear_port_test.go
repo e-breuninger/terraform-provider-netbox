@@ -85,7 +85,7 @@ resource "netbox_device_rear_port" "test" {
   type = "8p8c"
   positions = 1
   mark_connected = true
-  
+
   module_id = netbox_module.test.id
   label = "%[1]s_label"
   color_hex = "123456"
