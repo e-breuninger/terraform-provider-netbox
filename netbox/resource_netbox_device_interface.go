@@ -47,7 +47,6 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
-				ForceNew:     true,
 				// Netbox converts MAC addresses always to uppercase
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return strings.EqualFold(old, new)
