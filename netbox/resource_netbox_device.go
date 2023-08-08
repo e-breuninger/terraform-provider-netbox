@@ -137,8 +137,11 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 
 	data.Status = d.Get("status").(string)
 
-	assetTag := d.Get("asset_tag").(string)
-	data.AssetTag = &assetTag
+	assetTagValue, ok := d.GetOk("asset_tag")
+	if ok {
+		assetTag := assetTagValue.(string)
+		data.AssetTag = &assetTag
+	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
 	if ok {
