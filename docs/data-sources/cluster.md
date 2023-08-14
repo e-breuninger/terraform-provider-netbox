@@ -23,8 +23,9 @@ data "netbox_cluster" "vmw_cluster_01" {
 
 ### Optional
 
-- `name` (String) At least one of `name` or `site_id` must be given.
-- `site_id` (Number) At least one of `name` or `site_id` must be given.
+- `id` (String) At least one of `name`, `site_id` or `id` must be given.
+- `name` (String) At least one of `name`, `site_id` or `id` must be given.
+- `site_id` (Number) At least one of `name`, `site_id` or `id` must be given.
 
 ### Read-Only
 
@@ -32,8 +33,8 @@ data "netbox_cluster" "vmw_cluster_01" {
 - `cluster_id` (Number)
 - `cluster_type_id` (Number)
 - `comments` (String)
+- `custom_fields` (Map of String)
 - `description` (String)
-- `id` (String) The ID of this resource.
 - `tags` (Set of String)
 
 
