@@ -18,6 +18,12 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"name", "site_id", "id"},
+			},
 			"comments": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -30,12 +36,12 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Type:         schema.TypeInt,
 				Computed:     true,
 				Optional:     true,
-				AtLeastOneOf: []string{"name", "site_id"},
+				AtLeastOneOf: []string{"name", "site_id", "id"},
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"name", "site_id"},
+				AtLeastOneOf: []string{"name", "site_id", "id"},
 			},
 			"cluster_type_id": {
 				Type:     schema.TypeInt,
@@ -43,6 +49,10 @@ func dataSourceNetboxCluster() *schema.Resource {
 			},
 			"cluster_group_id": {
 				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"custom_fields": {
+				Type:     schema.TypeMap,
 				Computed: true,
 			},
 			tagsKey: tagsSchemaRead,
@@ -61,6 +71,10 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 
 	if siteID, ok := d.Get("site_id").(int); ok && siteID != 0 {
 		params.SiteID = strToPtr(strconv.FormatInt(int64(siteID), 10))
+	}
+
+	if id, ok := d.Get("id").(string); ok && id != "0" {
+		params.SetID(&id)
 	}
 
 	limit := int64(2) // Limit of 2 is enough
@@ -94,6 +108,9 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("site_id", result.Site.ID)
 	} else {
 		d.Set("site_id", nil)
+	}
+	if result.CustomFields != nil {
+		d.Set("custom_fields", result.CustomFields)
 	}
 
 	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))

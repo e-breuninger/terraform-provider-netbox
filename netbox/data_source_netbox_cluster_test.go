@@ -49,10 +49,15 @@ data "netbox_cluster" "by_name" {
 data "netbox_cluster" "by_site_id" {
   site_id = netbox_cluster.test.site_id
 }
+
+data "netbox_cluster" "by_id" {
+  id = netbox_cluster.test.id
+}
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_site_id", "id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_id", "id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "name", testName),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "cluster_type_id", "netbox_cluster_type.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "cluster_group_id", "netbox_cluster_group.test", "id"),
