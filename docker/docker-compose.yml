@@ -28,7 +28,7 @@ services:
       - REDIS_CACHE_HOST=redis
       - REDIS_CACHE_DATABASE=1
       - REDIS_CACHE_SSL=false
-      - SECRET_KEY=foobar
+      - SECRET_KEY=0123456789abcdefghij0123456789abcdefghij0123456789
       - SKIP_STARTUP_SCRIPTS=false
       - SKIP_SUPERUSER=false
       - SUPERUSER_NAME=admin
