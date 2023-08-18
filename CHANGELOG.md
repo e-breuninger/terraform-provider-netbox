@@ -1,3 +1,14 @@
+## 3.6.0 (August 18th, 2023)
+
+**BREAKING CHANGES**
+Due to a change in NetBox 3.5's behavior regarding ASN and the corresponding required changes in the go library that is used in this provider,
+the `netbox_asn` resource and the `netbox_asns` data source are no longer supported in versions older than 3.5.
+For all other resources and data sources, the provider should still perform fine with older NetBox versions.
+
+ENHANCEMENTS
+
+* provider: Now officially supports NetBox 3.5
+
 ## 3.5.5 (August 18th, 2023)
 
 ENHANCEMENTS
