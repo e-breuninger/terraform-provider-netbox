@@ -110,7 +110,7 @@ func dataSourceNetboxAsnsRead(d *schema.ResourceData, m interface{}) error {
 
 		mapping["id"] = v.ID
 		mapping["asn"] = v.Asn
-		mapping["rir_id"] = v.Rir
+		mapping["rir_id"] = v.Rir.ID
 		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
 
 		s = append(s, mapping)

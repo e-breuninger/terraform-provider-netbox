@@ -3,7 +3,7 @@ module github.com/e-breuninger/terraform-provider-netbox
 go 1.19
 
 require (
-	github.com/fbreckle/go-netbox v0.0.0-20230807080928-b034091baba5
+	github.com/fbreckle/go-netbox v0.0.0-20230817115110-1970c2963959
 	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3
 	github.com/go-openapi/runtime v0.26.0
 	github.com/go-openapi/strfmt v0.21.7

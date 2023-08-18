@@ -82,10 +82,11 @@ func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("asn", res.GetPayload().Asn)
-	d.Set("rir_id", res.GetPayload().Rir)
+	asn := res.GetPayload()
+	d.Set("asn", asn.Asn)
+	d.Set("rir_id", asn.Rir.ID)
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	d.Set(tagsKey, getTagListFromNestedTagList(asn.Tags))
 
 	return nil
 }
