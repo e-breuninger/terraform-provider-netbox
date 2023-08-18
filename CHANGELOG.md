@@ -1,3 +1,13 @@
+## 3.5.5 (August 18th, 2023)
+
+ENHANCEMENTS
+
+* data-source/netbox_cluster: Allow searching by `id` field and include `custom_fields` attribute in output ([#457](https://github.com/e-breuninger/terraform-provider-netbox/pull/457) by [@fred-clement-91](https://github.com/fred-clement-91))
+
+BUG FIXES
+
+* resource/netbox_device_interface: Changing `mac_address` no longer needlessly forces a recreate of the resource ([#454](https://github.com/e-breuninger/terraform-provider-netbox/pull/454) by [@hamzazaman](https://github.com/hamzazaman))
+
 ## 3.5.4 (August 7th, 2023)
 
 FEATURES
