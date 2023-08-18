@@ -21,7 +21,8 @@ func TestAccNetBoxWebhook_basic(t *testing.T) {
 	testContentType := "dcim.site"
 	testBodyTemplate := "Sample Body"
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetBoxWebhookDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

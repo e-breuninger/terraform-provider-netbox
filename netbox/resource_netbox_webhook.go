@@ -65,24 +65,24 @@ func resourceNetboxWebhook() *schema.Resource {
 func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
-	data := &models.WritableWebhook{}
+	data := &models.Webhook{}
 	for _, contentType := range d.Get("content_types").(*schema.Set).List() {
 		data.ContentTypes = append(data.ContentTypes, contentType.(string))
 	}
 	name := d.Get("name").(string)
 	data.Name = &name
-	type_create := d.Get("type_create").(bool)
-	data.TypeCreate = type_create
-	type_update := d.Get("type_update").(bool)
-	data.TypeUpdate = type_update
-	type_delete := d.Get("type_delete").(bool)
-	data.TypeDelete = type_delete
+	typeCreate := d.Get("type_create").(bool)
+	data.TypeCreate = typeCreate
+	typeUpdate := d.Get("type_update").(bool)
+	data.TypeUpdate = typeUpdate
+	typeDelete := d.Get("type_delete").(bool)
+	data.TypeDelete = typeDelete
 	enabled := d.Get("enabled").(bool)
 	data.Enabled = enabled
 	payload_url := d.Get("payload_url").(string)
 	data.PayloadURL = &payload_url
-	body_template := d.Get("body_template").(string)
-	data.BodyTemplate = body_template
+	bodyTemplate := d.Get("body_template").(string)
+	data.BodyTemplate = bodyTemplate
 
 	params := extras.NewExtrasWebhooksCreateParams().WithData(data)
 
@@ -128,27 +128,27 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableWebhook{}
+	data := models.Webhook{}
 
 	for _, contentType := range d.Get("content_types").(*schema.Set).List() {
 		data.ContentTypes = append(data.ContentTypes, contentType.(string))
 	}
 
 	name := d.Get("name").(string)
-	type_create := d.Get("type_create").(bool)
-	type_update := d.Get("type_update").(bool)
-	type_delete := d.Get("type_delete").(bool)
+	typeCreate := d.Get("type_create").(bool)
+	typeUpdate := d.Get("type_update").(bool)
+	typeDelete := d.Get("type_delete").(bool)
 	enabled := d.Get("enabled").(bool)
 	payload_url := d.Get("payload_url").(string)
-	body_template := d.Get("body_template").(string)
+	bodyTemplate := d.Get("body_template").(string)
 
 	data.Name = &name
-	data.TypeCreate = type_create
-	data.TypeUpdate = type_update
-	data.TypeDelete = type_delete
+	data.TypeCreate = typeCreate
+	data.TypeUpdate = typeUpdate
+	data.TypeDelete = typeDelete
 	data.Enabled = enabled
 	data.PayloadURL = &payload_url
-	data.BodyTemplate = body_template
+	data.BodyTemplate = bodyTemplate
 
 	params := extras.NewExtrasWebhooksUpdateParams().WithID(id).WithData(&data)
 
