@@ -115,3 +115,12 @@ resource "netbox_service" "testservice" {
   protocol           = "tcp"
   ports              = [80]
 }
+
+resource "netbox_webhook" "testwebhook" {
+  name          = "My Webhook"
+  enabled       = "true"
+  type_create   = "true"
+  payload_url   = "https://example.com/webhook"
+  content_types = "dcim.site"
+  body_template = "Sample Body"
+}

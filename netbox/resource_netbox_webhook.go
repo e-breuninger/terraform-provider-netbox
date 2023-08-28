@@ -18,8 +18,7 @@ func resourceNetboxWebhook() *schema.Resource {
 
 		Description: `:meta:subcategory:Webhook:From the [official documentation](https://docs.netbox.dev/en/stable/integrations/webhooks/):
 
-> Webhooks are used to send HTTP POST requests to a specified URL in response to events within NetBox.
-> You can configure different types of events`,
+> A webhook is a mechanism for conveying to some external system a change that took place in NetBox`,
 
 		Schema: map[string]*schema.Schema{
 			"content_types": {
@@ -139,7 +138,7 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	typeUpdate := d.Get("type_update").(bool)
 	typeDelete := d.Get("type_delete").(bool)
 	enabled := d.Get("enabled").(bool)
-	payload_url := d.Get("payload_url").(string)
+	payloadURL := d.Get("payload_url").(string)
 	bodyTemplate := d.Get("body_template").(string)
 
 	data.Name = &name
@@ -147,7 +146,7 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	data.TypeUpdate = typeUpdate
 	data.TypeDelete = typeDelete
 	data.Enabled = enabled
-	data.PayloadURL = &payload_url
+	data.PayloadURL = &payloadURL
 	data.BodyTemplate = bodyTemplate
 
 	params := extras.NewExtrasWebhooksUpdateParams().WithID(id).WithData(&data)
