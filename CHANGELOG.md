@@ -1,3 +1,10 @@
+## 3.6.1 (August 22th, 2023)
+
+FEATURES
+
+* **New Resource:** `netbox_webhook` ([#438](https://github.com/e-breuninger/terraform-provider-netbox/pull/438) by [@haipersuccor02](https://github.com/haipersuccor02))
+
+ENHANCEMENTS
 ## 3.6.0 (August 18th, 2023)
 
 **BREAKING CHANGES**
