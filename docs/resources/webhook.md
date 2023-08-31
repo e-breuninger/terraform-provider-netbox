@@ -3,28 +3,26 @@
 page_title: "netbox_webhook Resource - terraform-provider-netbox"
 subcategory: "Extras"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/models/extras/webhook:
+  From the official documentation https://docs.netbox.dev/en/stable/integrations/webhooks/:
   A webhook is a mechanism for conveying to some external system a change that took place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver.
 ---
 
-# netbox_tenant (Resource)
+# netbox_webhook (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/integrations/webhooks):
+From the [official documentation](https://docs.netbox.dev/en/stable/integrations/webhooks/):
 
-> A webhook is a mechanism for conveying to some external system a change that took place in NetBox.
->
-> NetBox can be configured to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver.
+> A webhook is a mechanism for conveying to some external system a change that took place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver.
 
 ## Example Usage
 
 ```terraform
-resource "netbox_webhook" "example1" {
-  name          = "Customer A"
-  enabled       = "true"
-  type_create   = "true"
-  payload_url   = "https://example.com/webhook"
-  content_types = "dcim.site"
-  body_template = "Sample Body"
+resource "netbox_webhook" "test" {
+  name              = "test"
+  enabled           = "true"
+  trigger_on_create = true
+  payload_url       = "https://example.com/webhook"
+  content_types     = ["dcim.site"]
+  bodytemplate      = "Sample body"
 }
 ```
 
@@ -33,14 +31,22 @@ resource "netbox_webhook" "example1" {
 
 ### Required
 
+- `content_types` (Set of String)
 - `name` (String)
-- `enabled` (Boolean)
+- `payload_url` (String)
 
 ### Optional
 
-- `type_create` (Boolean)
-- `type_update` (Boolean)
-- `type_delete` (Boolean)
-- `payload_url` (String)
-- `content_types` (Set of String)
 - `body_template` (String)
+- `enabled` (Boolean)
+- `http_content_type` (String) The complete list of official content types is available [here](https://www.iana.org/assignments/media-types/media-types.xhtml). Defaults to `application/json`.
+- `http_method` (String) Valid values are `GET`, `POST`, `PUT`, `PATCH` and `DELETE`. Defaults to `POST`.
+- `trigger_on_create` (Boolean)
+- `trigger_on_delete` (Boolean)
+- `trigger_on_update` (Boolean)
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
+
+

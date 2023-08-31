@@ -7,7 +7,10 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+var resourceNetboxWebhookHTTPMethodOptions = []string{"GET", "POST", "PUT", "PATCH", "DELETE"}
 
 func resourceNetboxWebhook() *schema.Resource {
 	return &schema.Resource{
@@ -16,9 +19,9 @@ func resourceNetboxWebhook() *schema.Resource {
 		Update: resourceNetboxWebhookUpdate,
 		Delete: resourceNetboxWebhookDelete,
 
-		Description: `:meta:subcategory:Webhook:From the [official documentation](https://docs.netbox.dev/en/stable/integrations/webhooks/):
+		Description: `:meta:subcategory:Extras:From the [official documentation](https://docs.netbox.dev/en/stable/integrations/webhooks/):
 
-> A webhook is a mechanism for conveying to some external system a change that took place in NetBox`,
+> A webhook is a mechanism for conveying to some external system a change that took place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver.`,
 
 		Schema: map[string]*schema.Schema{
 			"content_types": {
@@ -30,15 +33,15 @@ func resourceNetboxWebhook() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"type_create": {
+			"trigger_on_create": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"type_update": {
+			"trigger_on_update": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"type_delete": {
+			"trigger_on_delete": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -53,6 +56,19 @@ func resourceNetboxWebhook() *schema.Resource {
 			"body_template": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"http_method": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice(resourceNetboxWebhookHTTPMethodOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxWebhookHTTPMethodOptions),
+				Default:      "POST",
+			},
+			"http_content_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The complete list of official content types is available [here](https://www.iana.org/assignments/media-types/media-types.xhtml).",
+				Default:     "application/json",
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -70,18 +86,20 @@ func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	name := d.Get("name").(string)
 	data.Name = &name
-	typeCreate := d.Get("type_create").(bool)
-	data.TypeCreate = typeCreate
-	typeUpdate := d.Get("type_update").(bool)
-	data.TypeUpdate = typeUpdate
-	typeDelete := d.Get("type_delete").(bool)
-	data.TypeDelete = typeDelete
+	triggerOnCreate := d.Get("trigger_on_create").(bool)
+	data.TypeCreate = triggerOnCreate
+	triggerOnUpdate := d.Get("trigger_on_update").(bool)
+	data.TypeUpdate = triggerOnUpdate
+	triggerOnDelete := d.Get("trigger_on_delete").(bool)
+	data.TypeDelete = triggerOnDelete
 	enabled := d.Get("enabled").(bool)
 	data.Enabled = enabled
-	payload_url := d.Get("payload_url").(string)
-	data.PayloadURL = &payload_url
+	payloadURL := d.Get("payload_url").(string)
+	data.PayloadURL = &payloadURL
 	bodyTemplate := d.Get("body_template").(string)
 	data.BodyTemplate = bodyTemplate
+	data.HTTPMethod = getOptionalStr(d, "http_method", false)
+	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 
 	params := extras.NewExtrasWebhooksCreateParams().WithData(data)
 
@@ -111,14 +129,18 @@ func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
 		}
 		return err
 	}
-	d.Set("content_types", res.GetPayload().ContentTypes)
-	d.Set("name", res.GetPayload().Name)
-	d.Set("type_create", res.GetPayload().TypeCreate)
-	d.Set("type_update", res.GetPayload().TypeUpdate)
-	d.Set("type_delete", res.GetPayload().TypeDelete)
-	d.Set("enabled", res.GetPayload().Enabled)
-	d.Set("payload_url", res.GetPayload().PayloadURL)
-	d.Set("body_template", res.GetPayload().BodyTemplate)
+
+	webhook := res.GetPayload()
+	d.Set("content_types", webhook.ContentTypes)
+	d.Set("name", webhook.Name)
+	d.Set("trigger_on_create", webhook.TypeCreate)
+	d.Set("trigger_on_update", webhook.TypeUpdate)
+	d.Set("trigger_on_delete", webhook.TypeDelete)
+	d.Set("enabled", webhook.Enabled)
+	d.Set("payload_url", webhook.PayloadURL)
+	d.Set("body_template", webhook.BodyTemplate)
+	d.Set("http_method", webhook.HTTPMethod)
+	d.Set("http_content_type", webhook.HTTPContentType)
 
 	return nil
 }
@@ -134,20 +156,22 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	name := d.Get("name").(string)
-	typeCreate := d.Get("type_create").(bool)
-	typeUpdate := d.Get("type_update").(bool)
-	typeDelete := d.Get("type_delete").(bool)
+	triggerOnCreate := d.Get("trigger_on_create").(bool)
+	triggerOnUpdate := d.Get("trigger_on_update").(bool)
+	triggerOnDelete := d.Get("trigger_on_delete").(bool)
 	enabled := d.Get("enabled").(bool)
 	payloadURL := d.Get("payload_url").(string)
 	bodyTemplate := d.Get("body_template").(string)
 
 	data.Name = &name
-	data.TypeCreate = typeCreate
-	data.TypeUpdate = typeUpdate
-	data.TypeDelete = typeDelete
+	data.TypeCreate = triggerOnCreate
+	data.TypeUpdate = triggerOnUpdate
+	data.TypeDelete = triggerOnDelete
 	data.Enabled = enabled
 	data.PayloadURL = &payloadURL
 	data.BodyTemplate = bodyTemplate
+	data.HTTPMethod = getOptionalStr(d, "http_method", false)
+	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 
 	params := extras.NewExtrasWebhooksUpdateParams().WithID(id).WithData(&data)
 
