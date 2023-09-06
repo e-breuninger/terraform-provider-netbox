@@ -244,8 +244,8 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		if device.Tenant != nil {
 			mapping["tenant_id"] = device.Tenant.ID
 		}
-		if device.DeviceRole != nil {
-			mapping["role_id"] = device.DeviceRole.ID
+		if device.Role != nil {
+			mapping["role_id"] = device.Role.ID
 		}
 		if device.Serial != "" {
 			mapping["serial"] = device.Serial
