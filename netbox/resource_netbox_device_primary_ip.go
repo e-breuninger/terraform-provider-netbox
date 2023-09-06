@@ -130,8 +130,8 @@ func resourceNetboxDevicePrimaryIPUpdate(d *schema.ResourceData, m interface{}) 
 		data.Location = &device.Location.ID
 	}
 
-	if device.DeviceRole != nil {
-		data.DeviceRole = &device.DeviceRole.ID
+	if device.Role != nil {
+		data.Role = &device.Role.ID
 	}
 
 	if device.PrimaryIp4 != nil {

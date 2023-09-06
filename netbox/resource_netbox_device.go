@@ -169,7 +169,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	roleIDValue, ok := d.GetOk("role_id")
 	if ok {
 		roleID := int64(roleIDValue.(int))
-		data.DeviceRole = &roleID
+		data.Role = &roleID
 	}
 
 	siteIDValue, ok := d.GetOk("site_id")
@@ -273,8 +273,8 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("cluster_id", nil)
 	}
 
-	if device.DeviceRole != nil {
-		d.Set("role_id", device.DeviceRole.ID)
+	if device.Role != nil {
+		d.Set("role_id", device.Role.ID)
 	} else {
 		d.Set("role_id", nil)
 	}
@@ -363,7 +363,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	roleIDValue, ok := d.GetOk("role_id")
 	if ok {
 		roleID := int64(roleIDValue.(int))
-		data.DeviceRole = &roleID
+		data.Role = &roleID
 	}
 
 	siteIDValue, ok := d.GetOk("site_id")
