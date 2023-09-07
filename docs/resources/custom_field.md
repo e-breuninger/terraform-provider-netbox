@@ -39,7 +39,7 @@ resource "netbox_custom_field" "test" {
 
 ### Optional
 
-- `choices` (Set of String)
+- `choice_set_id` (Number)
 - `default` (String)
 - `description` (String)
 - `group_name` (String)
