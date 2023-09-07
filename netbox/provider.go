@@ -137,6 +137,7 @@ func Provider() *schema.Provider {
 			"netbox_inventory_item_role":        resourceNetboxInventoryItemRole(),
 			"netbox_inventory_item":             resourceNetboxInventoryItem(),
 			"netbox_webhook":                    resourceNetboxWebhook(),
+			"netbox_custom_field_choice_set":    resourceNetboxCustomFieldChoiceSet(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":              dataSourceNetboxAsn(),

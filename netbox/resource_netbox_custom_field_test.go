@@ -105,13 +105,21 @@ func TestAccNetboxCustomField_select(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
+resource "netbox_custom_field_choice_set" "test" {
+  name = "%[1]s"
+  extra_choices = [
+    ["red", "red"],
+    ["blue", "blue"]
+  ]
+}
+
 resource "netbox_custom_field" "test" {
-  name = "%s"
+  name = "%[1]s"
   type = "select"
   content_types = ["virtualization.vminterface"]
-  choices = ["red", "blue"]
   weight = 101
   default = "red"
+  choice_set_id = netbox_custom_field_choice_set.test.id
   description = "select field"
   label = "external"
   required = false
@@ -121,8 +129,7 @@ resource "netbox_custom_field" "test" {
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "select"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "red"),
 					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "content_types.*", "virtualization.vminterface"),
-					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "choices.*", "red"),
-					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "choices.*", "blue"),
+					resource.TestCheckResourceAttrPair("netbox_custom_field.test", "choice_set_id", "netbox_custom_field_choice_set.test", "id"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "101"),
 
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "red"),
@@ -133,13 +140,21 @@ resource "netbox_custom_field" "test" {
 			},
 			{
 				Config: fmt.Sprintf(`
+resource "netbox_custom_field_choice_set" "test" {
+  name = "%[1]s"
+  extra_choices = [
+    ["red", "red"],
+    ["blue", "blue"]
+  ]
+}
+
 resource "netbox_custom_field" "test" {
-  name = "%s"
+  name = "%[1]s"
   type = "select"
   content_types = ["virtualization.vminterface"]
-  choices = ["red", "blue"]
   weight = 102
   default = "red"
+  choice_set_id = netbox_custom_field_choice_set.test.id
   description = "select field"
   label = "external"
   required = true
@@ -149,8 +164,7 @@ resource "netbox_custom_field" "test" {
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "select"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "red"),
 					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "content_types.*", "virtualization.vminterface"),
-					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "choices.*", "red"),
-					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "choices.*", "blue"),
+					resource.TestCheckResourceAttrPair("netbox_custom_field.test", "choice_set_id", "netbox_custom_field_choice_set.test", "id"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "102"),
 
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "red"),
@@ -161,13 +175,21 @@ resource "netbox_custom_field" "test" {
 			},
 			{
 				Config: fmt.Sprintf(`
+resource "netbox_custom_field_choice_set" "test" {
+  name = "%[1]s"
+  extra_choices = [
+    ["red", "red"],
+    ["blue", "blue"]
+  ]
+}
+
 resource "netbox_custom_field" "test" {
-  name = "%s"
+  name = "%[1]s"
   type = "select"
   content_types = ["virtualization.vminterface"]
-  choices = ["red", "blue"]
   weight = 102
   default = "red"
+  choice_set_id = netbox_custom_field_choice_set.test.id
   description = "select field"
   label = "external"
   required = false
