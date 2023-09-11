@@ -146,6 +146,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
+		var tags []string
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
@@ -168,6 +169,10 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			case "site":
 				var siteString = v.(string)
 				params.Site = &siteString
+			case "tag":
+				var tagSting = v.(string)
+				tags = append(tags, tagSting)
+				params.Tag = tags
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
