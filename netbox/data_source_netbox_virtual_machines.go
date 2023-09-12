@@ -170,8 +170,8 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 				var siteString = v.(string)
 				params.Site = &siteString
 			case "tag":
-				var tagSting = v.(string)
-				tags = append(tags, tagSting)
+				var tagString = v.(string)
+				tags = append(tags, tagString)
 				params.Tag = tags
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
