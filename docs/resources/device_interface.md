@@ -42,6 +42,7 @@ resource "netbox_device_interface" "test" {
 - `mgmtonly` (Boolean)
 - `mode` (String) Valid values are `access`, `tagged` and `tagged-all`.
 - `mtu` (Number)
+- `parent_device_interface_id` (Number) The netbox_device_interface id of the parent interface. Useful if this interface is a logical interface.
 - `speed` (Number)
 - `tagged_vlans` (Set of Number)
 - `tags` (Set of String)
