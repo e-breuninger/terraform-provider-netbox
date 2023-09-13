@@ -76,7 +76,7 @@ func dataSourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(strconv.FormatInt(location.ID, 10))
 	d.Set("description", location.Description)
 	d.Set("name", location.Name)
-	d.Set("site_id", location.ID)
+	d.Set("site_id", location.Site.ID)
 	d.Set("slug", location.Slug)
 
 	if location.Status != nil {
