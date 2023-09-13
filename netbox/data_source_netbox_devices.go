@@ -167,6 +167,12 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			case "site_id":
 				var siteIDString = v.(string)
 				params.SiteID = &siteIDString
+			case "location_id":
+				var locationIDString = v.(string)
+				params.LocationID = &locationIDString
+			case "rack_id":
+				var rackIDString = v.(string)
+				params.RackID = &rackIDString
 			case "tenant_id":
 				var tenantIDString = v.(string)
 				params.TenantID = &tenantIDString
