@@ -71,6 +71,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(1, 65536),
 			},
+			"parent_device_interface_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"speed": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -138,6 +142,9 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	if mtu, ok := d.Get("mtu").(int); ok && mtu != 0 {
 		data.Mtu = int64ToPtr(int64(mtu))
 	}
+	if parent, ok := d.Get("parent_device_interface_id").(int); ok && parent != 0 {
+		data.Parent = int64ToPtr(int64(parent))
+	}
 	if speed, ok := d.Get("speed").(int); ok && speed != 0 {
 		data.Speed = int64ToPtr(int64(speed))
 	}
@@ -198,6 +205,9 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	if iface.Mode != nil {
 		d.Set("mode", iface.Mode.Value)
 	}
+	if iface.Parent != nil {
+		d.Set("parent_device_interface_id", iface.Parent.ID)
+	}
 	if iface.UntaggedVlan != nil {
 		d.Set("untagged_vlan", iface.UntaggedVlan.ID)
 	}
@@ -250,6 +260,10 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	if d.HasChange("mtu") {
 		mtu := int64(d.Get("mtu").(int))
 		data.Mtu = &mtu
+	}
+	if d.HasChange("parent_device_interface_id") {
+		parent := int64(d.Get("parent_device_interface_id").(int))
+		data.Parent = &parent
 	}
 	if d.HasChange("speed") {
 		speed := int64(d.Get("speed").(int))
