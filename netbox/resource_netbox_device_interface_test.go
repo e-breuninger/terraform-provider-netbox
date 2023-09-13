@@ -83,6 +83,39 @@ resource "netbox_device_interface" "test" {
 }`, testName, testMac)
 }
 
+func testAccNetboxDeviceInterfaceParentAndLAG(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_device_interface" "testLAG_parent" {
+  name = "%[1]s_parentlag"
+  device_id = netbox_device.test.id
+  type = "lag"
+}
+resource "netbox_device_interface" "testLAG_member1" {
+  name = "%[1]s_lagmember1"
+  device_id = netbox_device.test.id
+  lag_device_interface_id = "${netbox_device_interface.testLAG_parent.id}"
+  type = "25gbase-x-sfp28"
+}
+resource "netbox_device_interface" "testLAG_member2" {
+  name = "%[1]s_lagmember2"
+  device_id = netbox_device.test.id
+  lag_device_interface_id = "${netbox_device_interface.testLAG_parent.id}"
+  type = "25gbase-x-sfp28"
+}
+resource "netbox_device_interface" "testparent" {
+  name = "%[1]s_parent_parent"
+  device_id = netbox_device.test.id
+  type = "25gbase-x-sfp28"
+}
+resource "netbox_device_interface" "testparent_child1" {
+  name = "%[1]s_parent_child"
+  device_id = netbox_device.test.id
+  parent_device_interface_id = "${netbox_device_interface.testparent.id}"
+  type = "virtual"
+}
+`, testName)
+}
+
 func testAccNetboxDeviceInterfaceVlans(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test1" {
@@ -132,6 +165,58 @@ func TestAccNetboxDeviceInterface_basic(t *testing.T) {
 			},
 			{
 				ResourceName:      "netbox_device_interface.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxDeviceInterface_parentAndLAG(t *testing.T) {
+	testSlug := "iface_mac"
+	testName := testAccGetTestName(testSlug)
+	setUp := testAccNetboxDeviceInterfaceFullDependencies(testName)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceParentAndLAG(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_interface.testLAG_parent", "name", testName+"_parentlag"),
+					resource.TestCheckResourceAttr("netbox_device_interface.testLAG_parent", "type", "lag"),
+					resource.TestCheckResourceAttr("netbox_device_interface.testLAG_member1", "type", "25gbase-x-sfp28"),
+					resource.TestCheckResourceAttr("netbox_device_interface.testLAG_member2", "type", "25gbase-x-sfp28"),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.testLAG_member1", "lag_device_interface_id", "netbox_device_interface.testLAG_parent", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.testLAG_member2", "lag_device_interface_id", "netbox_device_interface.testLAG_parent", "id"),
+
+					resource.TestCheckResourceAttr("netbox_device_interface.testparent_child1", "type", "virtual"),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.testparent_child1", "parent_device_interface_id", "netbox_device_interface.testparent", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device_interface.testLAG_parent",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_device_interface.testLAG_member1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_device_interface.testLAG_member2",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_device_interface.testparent",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_device_interface.testparent_child1",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
