@@ -1,3 +1,14 @@
+## 3.6.2 (September 13th, 2023)
+
+FEATURES
+
+* **New Data Source:** `netbox_location` ([#467](https://github.com/e-breuninger/terraform-provider-netbox/pull/467) by [@w87x](https://github.com/w87x))
+* data-source/netbox_virtual_machines: Allow searching by tag ([#466](https://github.com/e-breuninger/terraform-provider-netbox/pull/466) by [@twink0r](https://github.com/twink0r))
+
+BUG FIXES
+
+* resource/netbox_custom_field: Allow correct value `json` instead of `JSON` ([#459](https://github.com/e-breuninger/terraform-provider-netbox/pull/459) by [@menselman](https://github.com/menselman))
+
 ## 3.6.1 (August 31th, 2023)
 
 FEATURES
