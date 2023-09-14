@@ -18,8 +18,9 @@ Since version [1.6.6](https://github.com/e-breuninger/terraform-provider-netbox/
 
 | Netbox version  | Provider version |
 | --------------- | ---------------- |
-| v3.5.1 - 3.5.9  | v3.6.0 and up    |
-| v3.4.3 - 3.4.10 | v3.5.2 and up    |
+| v3.6.0 - 3.6.1  | v3.7.0 and up    |
+| v3.5.1 - 3.5.9  | v3.6.x           |
+| v3.4.3 - 3.4.10 | v3.5.x           |
 | v3.3.0 - 3.4.2  | v3.0.x - 3.5.1   |
 | v3.2.0 - 3.2.9  | v2.0.x           |
 | v3.1.9          | v1.6.0 - 1.6.7   |

@@ -1,3 +1,14 @@
+## 3.7.0 (September 14th, 2023)
+
+**BREAKING CHANGES**
+
+* resource/netbox_custom_field: Replace `choices` attribute with `choice_set_id` attribute
+
+ENHANCEMENTS
+
+* provider: Now officially supports NetBox 3.6
+* **New Resource:** `netbox_custom_field_choice_set`
+
 ## 3.6.2 (September 14th, 2023)
 
 FEATURES
