@@ -1,9 +1,11 @@
-## 3.6.2 (September 13th, 2023)
+## 3.6.2 (September 14th, 2023)
 
 FEATURES
 
 * **New Data Source:** `netbox_location` ([#467](https://github.com/e-breuninger/terraform-provider-netbox/pull/467) by [@w87x](https://github.com/w87x))
 * data-source/netbox_virtual_machines: Allow searching by tag ([#466](https://github.com/e-breuninger/terraform-provider-netbox/pull/466) by [@twink0r](https://github.com/twink0r))
+* resource/netbox_device: Add `asset_tag` attribute ([#470](https://github.com/e-breuninger/terraform-provider-netbox/pull/470) by [@bebehei](https://github.com/bebehei))
+* resource/netbox_device_interface: Add `speed`, `lag_device_interface_id` and `parent_device_interface_id` attributes ([#469](https://github.com/e-breuninger/terraform-provider-netbox/pull/469) by [@bebehei](https://github.com/bebehei))
 
 BUG FIXES
 
