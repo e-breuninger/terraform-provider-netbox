@@ -67,6 +67,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"asset_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -123,6 +127,11 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		typeID := int64(typeIDValue.(int))
 		data.DeviceType = &typeID
+	}
+
+	if assetTagValue, ok := d.GetOk("asset_tag"); ok {
+		assetTag := string(assetTagValue.(string))
+		data.AssetTag = &assetTag
 	}
 
 	data.Comments = d.Get("comments").(string)
@@ -281,6 +290,8 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set(customFieldsKey, cf)
 	}
 
+	d.Set("asset_tag", device.AssetTag)
+
 	d.Set("comments", device.Comments)
 
 	d.Set("description", device.Description)
@@ -383,6 +394,16 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	if d.HasChanges("asset_tag") {
+		if assetTagValue, ok := d.GetOk("asset_tag"); ok {
+			assetTag := assetTagValue.(string)
+			data.AssetTag = &assetTag
+		} else {
+			assetTag := " "
+			data.AssetTag = &assetTag
+		}
+	}
 
 	if d.HasChanges("comments") {
 		// check if comment is set
