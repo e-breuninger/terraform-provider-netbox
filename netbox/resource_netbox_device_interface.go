@@ -46,6 +46,7 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 			"lag_device_interface_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: "If this device is a member of a LAG group, you can reference the LAG interface here.",
 			},
 			"mac_address": {
 				Type:         schema.TypeString,
@@ -74,6 +75,7 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 			"parent_device_interface_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: "The netbox_device_interface id of the parent interface. Useful if this interface is a logical interface.",
 			},
 			"speed": {
 				Type:     schema.TypeInt,
