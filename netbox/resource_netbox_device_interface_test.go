@@ -116,6 +116,23 @@ resource "netbox_device_interface" "testparent_child1" {
 `, testName)
 }
 
+func testAccNetboxDeviceInterfaceOptsEnabled(testName string, enabled string) string {
+	enabledLine := ""
+	switch enabled {
+	case "true":
+		enabledLine = "enabled = true"
+	case "false":
+		enabledLine = "enabled = false"
+	}
+	return fmt.Sprintf(`
+resource "netbox_device_interface" "test" {
+  name = "%[1]s"
+  device_id = netbox_device.test.id
+  %[2]s
+  type = "1000base-t"
+}`, testName, enabledLine)
+}
+
 func testAccNetboxDeviceInterfaceVlans(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test1" {
@@ -217,6 +234,48 @@ func TestAccNetboxDeviceInterface_parentAndLAG(t *testing.T) {
 			},
 			{
 				ResourceName:      "netbox_device_interface.testparent_child1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxDeviceInterface_opts_enabled(t *testing.T) {
+	testSlug := "iface_enabled"
+	testName := testAccGetTestName(testSlug)
+	setUp := testAccNetboxDeviceInterfaceFullDependencies(testName)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceOptsEnabled(testName, ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "enabled", "true"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceOptsEnabled(testName, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "enabled", "false"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceOptsEnabled(testName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "enabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device_interface.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

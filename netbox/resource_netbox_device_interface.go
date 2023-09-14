@@ -251,6 +251,10 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		Vdcs:         []int64{},
 	}
 
+	if d.HasChange("enabled") {
+		enabled := d.Get("enabled").(bool)
+		data.Enabled = enabled
+	}
 	if d.HasChange("mac_address") {
 		macAddress := d.Get("mac_address").(string)
 		data.MacAddress = &macAddress
