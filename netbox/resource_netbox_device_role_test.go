@@ -25,11 +25,13 @@ resource "netbox_device_role" "test" {
   name = "%s"
   slug = "%s"
   color_hex = "111111"
+  description = "Some fancy device role"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_role.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_role.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_device_role.test", "color_hex", "111111"),
+					resource.TestCheckResourceAttr("netbox_device_role.test", "description", "Some fancy device role"),
 				),
 			},
 			{

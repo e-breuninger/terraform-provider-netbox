@@ -32,6 +32,7 @@ resource "netbox_device_role" "core_sw" {
 
 ### Optional
 
+- `description` (String)
 - `slug` (String)
 - `tags` (Set of String)
 - `vm_role` (Boolean) Defaults to `true`.
