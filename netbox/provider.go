@@ -175,6 +175,7 @@ func Provider() *schema.Provider {
 			"netbox_site_group":       dataSourceNetboxSiteGroup(),
 			"netbox_racks":            dataSourceNetboxRacks(),
 			"netbox_rack_role":        dataSourceNetboxRackRole(),
+			"netbox_users":            dataSourceNetboxUsers(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
