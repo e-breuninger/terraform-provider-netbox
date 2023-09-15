@@ -31,7 +31,7 @@ resource "netbox_token" "test_basic" {
   key           = "%s"
   allowed_ips   = ["2.4.8.16/32"]
   write_enabled = false
-	description   = "Netbox Test Basic Token"
+  description   = "Netbox Test Basic Token"
 }`, testName, testToken),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "key", testToken),
