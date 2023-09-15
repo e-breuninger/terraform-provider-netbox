@@ -39,6 +39,7 @@ resource "netbox_token" "test_basic" {
 ### Optional
 
 - `allowed_ips` (List of String)
+- `description` (String)
 - `key` (String, Sensitive)
 - `write_enabled` (Boolean)
 
