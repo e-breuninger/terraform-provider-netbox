@@ -18,13 +18,13 @@ description: |-
 ### Optional
 
 - `name` (String)
+- `site_id` (Number)
 - `slug` (String)
 
 ### Read-Only
 
 - `description` (String)
 - `id` (String) The ID of this resource.
-- `site_id` (Number)
 - `status` (String)
 - `tenant_id` (Number)
 

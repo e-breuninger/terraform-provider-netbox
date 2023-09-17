@@ -34,6 +34,11 @@ data "netbox_location" "by_name" {
   name = netbox_location.test.name
 }
 
+data "netbox_location" "by_name_and_site" {
+  name    = netbox_location.test.name
+  site_id = netbox_site.test.id
+}
+
 data "netbox_location" "by_id" {
   id = netbox_location.test.id
 }
@@ -49,6 +54,7 @@ data "netbox_location" "by_slug" {
 					resource.TestCheckResourceAttrPair("data.netbox_location.by_name", "id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_location.by_name", "description", "netbox_location.test", "description"),
 					resource.TestCheckResourceAttrPair("data.netbox_location.by_name", "site_id", "netbox_location.test", "site_id"),
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_name_and_site", "site_id", "netbox_location.test", "site_id"),
 					resource.TestCheckResourceAttrPair("data.netbox_location.by_name", "tenant_id", "netbox_location.test", "tenant_id"),
 				),
 			},
