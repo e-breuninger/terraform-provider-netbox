@@ -153,38 +153,38 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 	params := virtualization.NewVirtualizationVirtualMachinesListParams()
 
 	if filter, ok := d.GetOk("filter"); ok {
-		filterParams := filter.(*schema.Set)
+		var filterParams = filter.(*schema.Set)
 		var tags []string
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
 			switch k {
 			case "cluster_id":
-				clusterString := v.(string)
+				var clusterString = v.(string)
 				params.ClusterID = &clusterString
 			case "cluster_group":
-				clusterGroupString := v.(string)
+				var clusterGroupString = v.(string)
 				params.ClusterGroup = &clusterGroupString
 			case "device_id":
-				deviceIDstring := v.(string)
+				var deviceIDstring = v.(string)
 				params.Name = &deviceIDstring
 			case "device":
-				deviceString := v.(string)
+				var deviceString = v.(string)
 				params.Name = &deviceString
 			case "name":
-				nameString := v.(string)
+				var nameString = v.(string)
 				params.Name = &nameString
 			case "region":
-				regionString := v.(string)
+				var regionString = v.(string)
 				params.Region = &regionString
 			case "role":
-				roleString := v.(string)
+				var roleString = v.(string)
 				params.Role = &roleString
 			case "site":
-				siteString := v.(string)
+				var siteString = v.(string)
 				params.Site = &siteString
 			case "tag":
-				tagString := v.(string)
+				var tagString = v.(string)
 				tags = append(tags, tagString)
 				params.Tag = tags
 			default:
@@ -221,7 +221,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 
 	var s []map[string]interface{}
 	for _, v := range filteredVms {
-		mapping := make(map[string]interface{})
+		var mapping = make(map[string]interface{})
 		if v.Cluster != nil {
 			mapping["cluster_id"] = v.Cluster.ID
 		}
