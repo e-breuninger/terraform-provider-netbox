@@ -69,6 +69,14 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"device_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"device_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"disk_size_gb": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -157,6 +165,12 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			case "cluster_group":
 				var clusterGroupString = v.(string)
 				params.ClusterGroup = &clusterGroupString
+			case "device_id":
+				var deviceIDstring = v.(string)
+				params.Name = &deviceIDstring
+			case "device":
+				var deviceString = v.(string)
+				params.Name = &deviceString
 			case "name":
 				var nameString = v.(string)
 				params.Name = &nameString
@@ -216,6 +230,10 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		}
 		if v.Description != "" {
 			mapping["description"] = v.Description
+		}
+		if v.Device != nil {
+			mapping["device_id"] = v.Device.ID
+			mapping["device_name"] = v.Device.Name
 		}
 		if v.ConfigContext != nil {
 			if configContext, err := json.Marshal(v.ConfigContext); err == nil {
