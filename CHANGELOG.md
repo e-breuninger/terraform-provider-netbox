@@ -1,3 +1,11 @@
+## 3.7.1 (September 25th, 2023)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_device_interfaces` ([#476](https://github.com/e-breuninger/terraform-provider-netbox/pull/476) by [@w87x](https://github.com/w87x))
+* resource/netbox_token: Add `description` attribute ([#473](https://github.com/e-breuninger/terraform-provider-netbox/pull/473) by [@twink0r](https://github.com/twink0r))
+* data-source/netbox_virtual_machines: Include `device_id` and `device_name` attributes in result ([#477](https://github.com/e-breuninger/terraform-provider-netbox/pull/477) by [@zeddD1abl0](https://github.com/zeddD1abl0))
+
 ## 3.7.0 (September 14th, 2023)
 
 **BREAKING CHANGES**
