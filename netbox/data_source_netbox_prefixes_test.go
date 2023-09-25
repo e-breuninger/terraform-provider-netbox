@@ -68,7 +68,7 @@ resource "netbox_tag" "test_tag1" {
 }
 
 resource "netbox_tag" "test_tag2" {
-  name = "tag-with-no-associtions"
+  name = "tag-with-no-associations"
 }
 
 data "netbox_prefixes" "by_vrf" {
@@ -99,7 +99,7 @@ data "netbox_prefixes" "no_results" {
   depends_on = [netbox_prefix.test_prefix1]
   filter {
     name  = "tag"
-    value = "tag-with-no-associtions"
+    value = netbox_tag.test_tag2.name
   }
 }
 
