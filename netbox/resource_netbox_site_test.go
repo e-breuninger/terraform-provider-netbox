@@ -149,12 +149,16 @@ resource "netbox_site" "test" {
 	description = "Test site description"
 	physical_address = "Physical address"
 	shipping_address = "Shipping address"
+	latitude      = "12.123456"
+  	longitude     = "-13.123456"
 
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "description", "Test site description"),
 					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", "Physical address"),
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", "Shipping address"),
+					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
+					resource.TestCheckResourceAttr("netbox_site.test", "longitude", "-13.123456"),
 				)},
 			{
 				Config: fmt.Sprintf(`
@@ -165,6 +169,8 @@ resource "netbox_site" "test" {
 					resource.TestCheckResourceAttr("netbox_site.test", "description", ""),
 					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", ""),
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", ""),
+					resource.TestCheckResourceAttr("netbox_site.test", "latitude", ""),
+					resource.TestCheckResourceAttr("netbox_site.test", "longitude", ""),
 				),
 			},
 		},
