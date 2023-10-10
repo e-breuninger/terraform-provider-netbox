@@ -27,6 +27,11 @@ func dataSourceNetboxSite() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"facility": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"asn_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -84,6 +89,9 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	if id, ok := d.Get("id").(string); ok && id != "0" {
 		params.SetID(&id)
 	}
+	if facility, ok := d.Get("facility").(string); ok && facility != "" {
+		params.SetFacility(&facility)
+	}
 
 	res, err := api.Dcim.DcimSitesList(params, nil)
 	if err != nil {
@@ -103,6 +111,7 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("site_id", site.ID)
 	d.Set("slug", site.Slug)
 	d.Set("time_zone", site.TimeZone)
+	d.Set("facility", site.Facility)
 
 	if site.Group != nil {
 		d.Set("group_id", site.Group.ID)
