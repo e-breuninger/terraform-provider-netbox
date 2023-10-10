@@ -282,18 +282,14 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Facility = facility.(string)
 	}
 
-	if latitudeValue, ok := d.GetOk("latitude"); ok {
+	latitudeValue, ok := d.GetOk("latitude")
+	if ok {
 		data.Latitude = float64ToPtr(float64(latitudeValue.(float64)))
-	} else if d.HasChange("latitude") {
-		// If GetOK returned unset latitude, set it as nil to delete it ...
-		data.Latitude = nil
 	}
 
-	if longitudeValue, ok := d.GetOk("longitude"); ok {
+	longitudeValue, ok := d.GetOk("longitude")
+	if ok {
 		data.Longitude = float64ToPtr(float64(longitudeValue.(float64)))
-	} else if d.HasChange("longitude") {
-		// If GetOK returned unset longitude, set it as nil to delete it ...
-		data.Longitude = nil
 	}
 
 	physicalAddressValue, ok := d.GetOk("physical_address")
