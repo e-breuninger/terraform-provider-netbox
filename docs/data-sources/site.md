@@ -28,6 +28,7 @@ data "netbox_site" "get_by_slug" {
 ### Optional
 
 - `asn_ids` (Set of Number)
+- `facility` (String)
 - `name` (String)
 - `slug` (String)
 
