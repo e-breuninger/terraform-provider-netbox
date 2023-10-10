@@ -34,6 +34,7 @@ resource "netbox_site" "test" {
   region_id = netbox_region.test.id
   tenant_id = netbox_tenant.test.id
   timezone = "Europe/Berlin"
+  facility = "Facility"
 }`, testName)
 }
 
@@ -60,6 +61,13 @@ func testAccNetboxSiteByID() string {
 	return `
 data "netbox_site" "test" {
   id = netbox_site.test.id
+}`
+}
+
+func testAccNetboxSiteByFacility() string {
+	return `
+data "netbox_site" "test" {
+  facility = netbox_site.test.facility
 }`
 }
 
@@ -100,6 +108,12 @@ func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 			},
 			{
 				Config: setUp + testAccNetboxSiteByID(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_site.test", "id", "netbox_site.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxSiteByFacility(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_site.test", "id", "netbox_site.test", "id"),
 				),
