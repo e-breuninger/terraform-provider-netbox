@@ -1,3 +1,11 @@
+## 3.7.2 (October 10th, 2023)
+
+ENHANCEMENTS
+
+* data-source/netbox_location: Allow searching by `site_id` ([#482](https://github.com/e-breuninger/terraform-provider-netbox/pull/482) by [@w87x](https://github.com/w87x))
+* data-source/netbox_ip_addresses: Allow searching by `role`, `status`, `vrf` and `tenant` ([#479](https://github.com/e-breuninger/terraform-provider-netbox/pull/479) by [@sjurtf](https://github.com/sjurtf))
+* data-source/netbox_site: Allow Searching by `facility` ([#483](https://github.com/e-breuninger/terraform-provider-netbox/pull/483) by [@ikke](https://github.com/ikke))
+
 ## 3.7.1 (September 25th, 2023)
 
 ENHANCEMENTS
