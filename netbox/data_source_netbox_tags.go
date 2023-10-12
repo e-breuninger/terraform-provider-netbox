@@ -86,12 +86,40 @@ func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
 			v := f.(map[string]interface{})["value"]
 			vString := v.(string)
 			switch k {
-			case "name":
-				params.Name = &vString
-			case "slug":
-				params.Slug = &vString
 			case "id":
 				params.ID = &vString
+			case "id__gt":
+				params.IDGt = &vString
+			case "id__gte":
+				params.IDGte = &vString
+			case "id__lt":
+				params.IDLt = &vString
+			case "id__lte":
+				params.IDLte = &vString
+			case "name":
+				params.Name = &vString
+			case "name__ic":
+				params.NameIc = &vString
+			case "name__niew":
+				params.NameNiew = &vString
+			case "name__iew":
+				params.NameIew = &vString
+			case "name__nisw":
+				params.NameNisw = &vString
+			case "name__isw":
+				params.NameIsw = &vString
+			case "slug":
+				params.Slug = &vString
+			case "slug__ic":
+				params.SlugIc = &vString
+			case "slug__niew":
+				params.SlugNiew = &vString
+			case "slug__iew":
+				params.SlugIew = &vString
+			case "slug__nisw":
+				params.SlugNisw = &vString
+			case "slug__isw":
+				params.SlugIsw = &vString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

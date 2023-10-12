@@ -52,8 +52,6 @@ data "netbox_tags" "test" {
 
 func TestAccNetboxTagsDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxTagsSetUp()
-	// This test cannot be run in parallel with other tests, because other tests create also Vlans
-	// These Vlans then interfere with the __n filter test
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
