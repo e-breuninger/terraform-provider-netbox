@@ -63,17 +63,17 @@ data "netbox_tags" "not_ansible_tags" {
 - `id__lt` ID is Less Than
 - `id__lte` ID is less Than or Equal to
 - `name` Name is exactly
-- `name_ic` Name, case Insensitive, Contains
-- `name_iew` Name, case Insensitive, Ends With
-- `name_niew` Name, case Insensitive, Not Ends With
-- `name_isw` Name, case Insensitive, Starts With
-- `name_nisw` Name, case Insensitive, Not Starts With
+- `name__ic` Name, case Insensitive, Contains
+- `name__iew` Name, case Insensitive, Ends With
+- `name__niew` Name, case Insensitive, Not Ends With
+- `name__isw` Name, case Insensitive, Starts With
+- `name__nisw` Name, case Insensitive, Not Starts With
 - `slug` Slug is exactly
-- `slug_ic` Slug, case Insensitive, Contains
-- `slug_iew` Slug, case Insensitive, Ends With
-- `slug_niew` Slug, case Insensitive, Not Ends With
-- `slug_isw` Slug, case Insensitive, Starts With
-- `slug_nisw` Slug, case Insensitive, Not Starts With
+- `slug__ic` Slug, case Insensitive, Contains
+- `slug__iew` Slug, case Insensitive, Ends With
+- `slug__niew` Slug, case Insensitive, Not Ends With
+- `slug__isw` Slug, case Insensitive, Starts With
+- `slug__nisw` Slug, case Insensitive, Not Starts With
 
 <a id="nestedatt--tags"></a>
 ### Nested Schema for `tags`
