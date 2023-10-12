@@ -17,11 +17,20 @@ data "netbox_tags" "all_tags" {
 }
 ```
 
+Filter by various options
+
 ```terraform
 data "netbox_tags" "ansible_tags" {
   filter {
     name = "name__isw"
-    value = "ans_"
+    value = "ansible_"
+  }
+}
+
+data "netbox_tags" "not_ansible_tags" {
+  filter {
+    name = "name__nisw"
+    value = "ansible_"
   }
 }
 ```
