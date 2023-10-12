@@ -162,6 +162,7 @@ func Provider() *schema.Provider {
 			"netbox_site":              dataSourceNetboxSite(),
 			"netbox_location":          dataSourceNetboxLocation(),
 			"netbox_tag":               dataSourceNetboxTag(),
+			"netbox_tags":              dataSourceNetboxTags(),
 			"netbox_virtual_machines":  dataSourceNetboxVirtualMachine(),
 			"netbox_interfaces":        dataSourceNetboxInterfaces(),
 			"netbox_device_interfaces": dataSourceNetboxDeviceInterfaces(),
@@ -275,7 +276,6 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	if !skipVersionCheck {
 		req := status.NewStatusListParams()
 		res, err := netboxClient.Status.StatusList(req, nil)
-
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
