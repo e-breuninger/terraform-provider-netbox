@@ -170,6 +170,8 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 				params.Vrf = &vString
 			case "tenant":
 				params.Tenant = &vString
+			case "parent_prefix":
+				params.Parent = &vString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
