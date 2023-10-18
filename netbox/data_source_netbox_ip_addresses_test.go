@@ -116,6 +116,50 @@ data "netbox_ip_addresses" "test_list" {
 	})
 }
 
+func TestAccNetboxIpAddressesDataSource_filter_parent_prefix(t *testing.T) {
+	testSlug := "ipam_ipaddrs_ds_filter_prefix"
+	testName := testAccGetTestName(testSlug)
+	testPrefix1 := "203.0.113.0/24"
+	testIP0 := "203.0.113.1/24"
+	testIP1 := "203.0.200.1/24"
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_prefix" "testv4" {
+  prefix = "%s"
+  status = "active"
+}
+resource "netbox_ip_address" "test_list_0" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  tags = [netbox_tag.test.name]
+}
+resource "netbox_ip_address" "test_list_1" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  tags = [netbox_tag.test.name]
+}
+data "netbox_ip_addresses" "test_list" {
+	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1]
+
+	filter {
+		name = "parent_prefix"
+		value = "%s"
+	}
+}`, testPrefix1, testIP0, testIP1, testPrefix1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_list", "ip_addresses.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test_list", "ip_addresses.0.ip_address", "netbox_ip_address.test_list_0", "ip_address"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccNetboxIpAddressesDataSource_multiple(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_multiple"
 	testIP0 := "203.0.113.1/24"
