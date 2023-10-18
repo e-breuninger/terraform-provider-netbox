@@ -282,7 +282,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-		supportedVersions := []string{"3.6.0", "3.6.1", "3.6.2", "3.6.3"}
+		supportedVersions := []string{"3.6.0", "3.6.1", "3.6.2", "3.6.3", "3.6.4"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
 			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864
