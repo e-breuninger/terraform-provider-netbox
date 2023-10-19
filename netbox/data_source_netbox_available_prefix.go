@@ -8,7 +8,6 @@ import (
 )
 
 func dataSourceNetboxAvailablePrefix() *schema.Resource {
-
 	return &schema.Resource{
 		Read:        dataSourceNetboxAvailablePrefixRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
@@ -46,8 +45,8 @@ func dataSourceNetboxAvailablePrefixRead(d *schema.ResourceData, m interface{}) 
 
 	params := ipam.NewIpamPrefixesAvailablePrefixesListParams()
 
-	if prefix_id, ok := d.Get("prefix_id").(int); ok && prefix_id != 0 {
-		params.ID = int64(prefix_id)
+	if prefixID, ok := d.Get("prefix_id").(int); ok && prefixID != 0 {
+		params.ID = int64(prefixID)
 	}
 
 	res, err := api.Ipam.IpamPrefixesAvailablePrefixesList(params, nil)
