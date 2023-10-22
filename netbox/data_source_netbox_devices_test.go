@@ -43,6 +43,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 				Config: dependencies + testAccNetboxDeviceDataSourceFilterTenant,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.#", "4"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.primary_ipv4", "10.0.0.60"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.name", "netbox_device.test0", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.1.name", "netbox_device.test1", "name"),
@@ -97,6 +98,24 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 
 func testAccNetboxDeviceDataSourceDependencies(testName string) string {
 	return testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_device_interface" "test" {
+  name      = "eth0"
+  device_id = netbox_device.test0.id
+  type      = "1000base-t"
+}
+
+resource "netbox_ip_address" "test" {
+  ip_address   = "10.0.0.60/24"
+  status       = "active"
+  interface_id = netbox_device_interface.test.id
+  object_type  = "dcim.interface"
+}
+
+resource "netbox_device_primary_ip" "test_v4" {
+  device_id     = netbox_device.test0.id
+  ip_address_id = netbox_ip_address.test.id
+}
+
 resource "netbox_device" "test0" {
   name = "%[1]s_0"
   comments = "this is also a comment"

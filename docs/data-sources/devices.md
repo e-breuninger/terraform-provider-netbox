@@ -61,5 +61,7 @@ Read-Only:
 - `status` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
+- `primary_ipv4` (String)
+- `primary_ipv6` (String)
 
 
