@@ -77,10 +77,11 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: dependencies + testAccNetBoxDeviceDataSourceFilterTags,
+				Config: dependencies + testAccNetBoxDeviceDataSourceFilterTagsAndStatus,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_devices.tag_devices", "devices.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_devices.tag_devices", "devices.0.tags.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_devices.tag_devices", "devices.0.status", "staged"),
 				),
 			},
 			{
@@ -168,11 +169,15 @@ data "netbox_devices" "test" {
   }
 }`
 
-const testAccNetBoxDeviceDataSourceFilterTags = `
+const testAccNetBoxDeviceDataSourceFilterTagsAndStatus = `
 data "netbox_devices" "tag_devices" {
   filter {
     name  = "tags"
     value = netbox_tag.test_a.name
+  }
+  filter {
+	name  = "status"
+    value = "staged"
   }
 }`
 
