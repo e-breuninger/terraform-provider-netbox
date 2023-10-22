@@ -76,6 +76,20 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.tenant_id", "netbox_tenant.test", "id"),
 				),
 			},
+			{
+				Config: dependencies + testAccNetBoxDeviceDataSourceFilterTags,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_devices.tag_devices", "devices.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_devices.tag_devices", "devices.0.tags.#", "1"),
+				),
+			},
+			{
+				Config: dependencies + testAccNetBoxDeviceDataSourceMultipleTagsFilter,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_devices.multiple_filter_devices", "devices.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_devices.multiple_filter_devices", "devices.0.tags.#", "2"),
+				),
+			},
 		},
 	})
 }
@@ -119,6 +133,7 @@ resource "netbox_device" "test2" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF2"
+  tags = ["%[1]sb", "%[1]sc"]
 }
 
 resource "netbox_device" "test3" {
@@ -150,6 +165,22 @@ data "netbox_devices" "test" {
   filter {
     name  = "tenant_id"
     value = netbox_tenant.test.id
+  }
+}`
+
+const testAccNetBoxDeviceDataSourceFilterTags = `
+data "netbox_devices" "tag_devices" {
+  filter {
+    name  = "tags"
+    value = netbox_tag.test_a.name
+  }
+}`
+
+const testAccNetBoxDeviceDataSourceMultipleTagsFilter = `
+data "netbox_devices" "multiple_filter_devices" {
+  filter {
+    name  = "tags"
+    value = join(",", [netbox_tag.test_b.name, netbox_tag.test_c.name])
   }
 }`
 

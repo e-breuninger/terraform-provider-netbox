@@ -5,14 +5,14 @@ package netbox
 
 import (
 	"fmt"
-	"regexp"
-
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"regexp"
+	"strings"
 )
 
 func dataSourceNetboxDevices() *schema.Resource {
@@ -176,6 +176,12 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			case "tenant_id":
 				var tenantIDString = v.(string)
 				params.TenantID = &tenantIDString
+			case "tags":
+				var tagsString = v.(string)
+				params.Tag = strings.Split(tagsString, ",")
+			case "status":
+				var statusString = v.(string)
+				params.Status = &statusString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
