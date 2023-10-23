@@ -68,6 +68,7 @@ resource "netbox_device" "test" {
 - `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `inventory`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
+- `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 
 ### Read-Only
 

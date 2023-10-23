@@ -21,4 +21,8 @@ resource "netbox_device" "test" {
   device_type_id = netbox_device_type.test.id
   role_id        = netbox_device_role.test.id
   site_id        = netbox_site.test.id
+  local_context_data = jsonencode({
+    "setting_a" = "Some Setting"
+    "setting_b" = 42
+  })
 }

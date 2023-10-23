@@ -113,6 +113,7 @@ resource "netbox_device" "test" {
   rack_id = netbox_rack.test.id
   rack_face = "front"
   rack_position = 10
+  local_context_data = jsonencode({"context_string"="context_value"})
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
@@ -132,6 +133,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
 					resource.TestCheckResourceAttr("netbox_device.test", "rack_face", "front"),
 					resource.TestCheckResourceAttr("netbox_device.test", "rack_position", "10"),
+					resource.TestCheckResourceAttr("netbox_device.test", "local_context_data", "{\"context_string\":\"context_value\"}"),
 				),
 			},
 			{
@@ -152,6 +154,7 @@ resource "netbox_device" "test" {
   rack_id = netbox_rack.test.id
   status = "staged"
   serial = "ABCDEF"
+  local_context_data = jsonencode({"context_string"="context_value2"})
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
@@ -171,6 +174,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttr("netbox_device.test", "tags.0", testName+"a"),
 					resource.TestCheckResourceAttr("netbox_device.test", "rack_face", ""),
 					resource.TestCheckResourceAttr("netbox_device.test", "rack_position", "0"),
+					resource.TestCheckResourceAttr("netbox_device.test", "local_context_data", "{\"context_string\":\"context_value2\"}"),
 				),
 			},
 			{
@@ -190,6 +194,7 @@ resource "netbox_device" "test" {
   location_id = netbox_location.test.id
   status = "staged"
   serial = "ABCDEF"
+  local_context_data = jsonencode({"context_string"="context_value"})
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
@@ -209,6 +214,27 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttr("netbox_device.test", "rack_id", "0"),
 					resource.TestCheckResourceAttr("netbox_device.test", "rack_face", ""),
 					resource.TestCheckResourceAttr("netbox_device.test", "rack_position", "0"),
+					resource.TestCheckResourceAttr("netbox_device.test", "local_context_data", "{\"context_string\":\"context_value\"}"),
+				),
+			},
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_device" "test" {
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+  cluster_id = netbox_cluster.test.id
+  platform_id = netbox_platform.test.id
+  local_context_data = jsonencode({"context_string"="context_value"})
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "role_id", "netbox_device_role.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "platform_id", "netbox_platform.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttr("netbox_device.test", "local_context_data", "{\"context_string\":\"context_value\"}"),
 				),
 			},
 			{
