@@ -29,6 +29,7 @@ jobs:
 
   testacc:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
         netbox-version:
