@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -106,6 +107,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Optional: true,
 			},
+			"local_context_data": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -186,6 +191,15 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Position = float64ToPtr(rackPosition.(float64))
 	} else {
 		data.Position = nil
+	}
+
+	localContextValue, ok := d.GetOk("local_context_data")
+	if ok {
+		var jsonObj any
+		localContextBA := []byte(localContextValue.(string))
+		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
+			data.LocalContextData = jsonObj
+		}
 	}
 
 	ct, ok := d.GetOk(customFieldsKey)
@@ -314,6 +328,14 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	d.Set("rack_position", device.Position)
 
+	if device.LocalContextData != nil {
+		if jsonArr, err := json.Marshal(device.LocalContextData); err == nil {
+			d.Set("local_context_data", string(jsonArr))
+		}
+	} else {
+		d.Set("local_context_data", nil)
+	}
+
 	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
 	return diags
 }
@@ -387,6 +409,15 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	data.Rack = getOptionalInt(d, "rack_id")
 	data.Face = getOptionalStr(d, "rack_face", false)
 	data.Position = getOptionalFloat(d, "rack_position")
+
+	localContextValue, ok := d.GetOk("local_context_data")
+	if ok {
+		var jsonObj any
+		localContextBA := []byte(localContextValue.(string))
+		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
+			data.LocalContextData = jsonObj
+		}
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
