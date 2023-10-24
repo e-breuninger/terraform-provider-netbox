@@ -43,6 +43,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 				Config: dependencies + testAccNetboxDeviceDataSourceFilterTenant,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.#", "4"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.primary_ipv4", "10.0.0.60"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.name", "netbox_device.test0", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.1.name", "netbox_device.test1", "name"),
@@ -76,12 +77,45 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.tenant_id", "netbox_tenant.test", "id"),
 				),
 			},
+			{
+				Config: dependencies + testAccNetBoxDeviceDataSourceFilterTagsAndStatus,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_devices.tag_devices", "devices.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_devices.tag_devices", "devices.0.tags.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_devices.tag_devices", "devices.0.status", "staged"),
+				),
+			},
+			{
+				Config: dependencies + testAccNetBoxDeviceDataSourceMultipleTagsFilter,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_devices.multiple_filter_devices", "devices.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_devices.multiple_filter_devices", "devices.0.tags.#", "2"),
+				),
+			},
 		},
 	})
 }
 
 func testAccNetboxDeviceDataSourceDependencies(testName string) string {
 	return testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_device_interface" "test" {
+  name      = "eth0"
+  device_id = netbox_device.test0.id
+  type      = "1000base-t"
+}
+
+resource "netbox_ip_address" "test" {
+  ip_address   = "10.0.0.60/24"
+  status       = "active"
+  interface_id = netbox_device_interface.test.id
+  object_type  = "dcim.interface"
+}
+
+resource "netbox_device_primary_ip" "test_v4" {
+  device_id     = netbox_device.test0.id
+  ip_address_id = netbox_ip_address.test.id
+}
+
 resource "netbox_device" "test0" {
   name = "%[1]s_0"
   comments = "this is also a comment"
@@ -119,6 +153,7 @@ resource "netbox_device" "test2" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF2"
+  tags = ["%[1]sb", "%[1]sc"]
 }
 
 resource "netbox_device" "test3" {
@@ -150,6 +185,26 @@ data "netbox_devices" "test" {
   filter {
     name  = "tenant_id"
     value = netbox_tenant.test.id
+  }
+}`
+
+const testAccNetBoxDeviceDataSourceFilterTagsAndStatus = `
+data "netbox_devices" "tag_devices" {
+  filter {
+    name  = "tags"
+    value = netbox_tag.test_a.name
+  }
+  filter {
+	name  = "status"
+    value = "staged"
+  }
+}`
+
+const testAccNetBoxDeviceDataSourceMultipleTagsFilter = `
+data "netbox_devices" "multiple_filter_devices" {
+  filter {
+    name  = "tags"
+    value = join(",", [netbox_tag.test_b.name, netbox_tag.test_c.name])
   }
 }`
 

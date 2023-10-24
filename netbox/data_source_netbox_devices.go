@@ -5,14 +5,15 @@ package netbox
 
 import (
 	"fmt"
-	"regexp"
-
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"net"
+	"regexp"
+	"strings"
 )
 
 func dataSourceNetboxDevices() *schema.Resource {
@@ -130,6 +131,14 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeFloat,
 							Computed: true,
 						},
+						"primary_ipv4": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"primary_ipv6": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"tags": tagsSchemaRead,
 					},
 				},
@@ -176,6 +185,12 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			case "tenant_id":
 				var tenantIDString = v.(string)
 				params.TenantID = &tenantIDString
+			case "tags":
+				var tagsString = v.(string)
+				params.Tag = strings.Split(tagsString, ",")
+			case "status":
+				var statusString = v.(string)
+				params.Status = &statusString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -267,6 +282,20 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Tags != nil {
 			mapping["tags"] = getTagListFromNestedTagList(device.Tags)
+		}
+		if device.PrimaryIp4 != nil {
+			ip, _, err := net.ParseCIDR(*device.PrimaryIp4.Address)
+			if err == nil {
+				primaryIPv4 := ip.String()
+				mapping["primary_ipv4"] = &primaryIPv4
+			}
+		}
+		if device.PrimaryIp6 != nil {
+			ip, _, err := net.ParseCIDR(*device.PrimaryIp6.Address)
+			if err == nil {
+				primaryIPv6 := ip.String()
+				mapping["primary_ipv6"] = &primaryIPv6
+			}
 		}
 		s = append(s, mapping)
 	}

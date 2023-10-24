@@ -71,6 +71,10 @@ resource "netbox_tag" "test_b" {
   name = "%[1]sb"
 }
 
+resource "netbox_tag" "test_c" {
+  name = "%[1]sc"
+}
+
 resource "netbox_manufacturer" "test" {
   name = "%[1]s"
 }
