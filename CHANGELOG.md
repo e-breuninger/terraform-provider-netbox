@@ -1,3 +1,14 @@
+## 3.7.3 (November 3rd, 2023)
+
+ENHANCEMENTS
+
+* resource/netbox_site: Allow unsetting the `latitude` and `longitude` attributes ([#480](https://github.com/e-breuninger/terraform-provider-netbox/pull/480) by [@haipersuccor02](https://github.com/haipersuccor02))
+* **New Data Source:** `netbox_tags` ([#484](https://github.com/e-breuninger/terraform-provider-netbox/pull/484) by [@zeddD1abl0](https://github.com/zeddD1abl0))
+* data-source/netbox_ip_addresses: Allow filtering by `parent_prefix` ([#485](https://github.com/e-breuninger/terraform-provider-netbox/pull/485) by [@sjurtf](https://github.com/sjurtf))
+* data-source/netbox_devices: Allow filtering by `tags` and `status` ([#491](https://github.com/e-breuninger/terraform-provider-netbox/pull/491) by [@Kenterfie](https://github.com/Kenterfie))
+* **New Data Source:** `netbox_available_prefixes` ([#489](https://github.com/e-breuninger/terraform-provider-netbox/pull/489) by [@theochita](https://github.com/theochita))
+* resource/netbox_device: Add `local_context_data` attribute ([#493](https://github.com/e-breuninger/terraform-provider-netbox/pull/493) by [@RickyRajinder](https://github.com/RickyRajinder))
+
 ## 3.7.2 (October 10th, 2023)
 
 ENHANCEMENTS
