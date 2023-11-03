@@ -15,11 +15,7 @@ description: |-
 ```terraform
 data "netbox_tags" "all_tags" {
 }
-```
 
-Filter by various options
-
-```terraform
 data "netbox_tags" "ansible_tags" {
   filter {
     name = "name__isw"
@@ -41,47 +37,31 @@ data "netbox_tags" "not_ansible_tags" {
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `limit` (Number) Defaults to `1000`.
+- `limit` (Number) Defaults to `0`.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `tags` (List of Objects) (see [below for nested schema](#nestedatt--tags))
+- `tags` (List of Object) (see [below for nested schema](#nestedatt--tags))
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
 
-#### Required:
+Required:
 
 - `name` (String)
 - `value` (String)
 
-#### Accepted Filter Names:
-- `id` ID is exactly
-- `id__gt` ID is Greater Than
-- `id__gte` ID is Greater Than or Equal to
-- `id__lt` ID is Less Than
-- `id__lte` ID is less Than or Equal to
-- `name` Name is exactly
-- `name__ic` Name, case Insensitive, Contains
-- `name__iew` Name, case Insensitive, Ends With
-- `name__niew` Name, case Insensitive, Not Ends With
-- `name__isw` Name, case Insensitive, Starts With
-- `name__nisw` Name, case Insensitive, Not Starts With
-- `slug` Slug is exactly
-- `slug__ic` Slug, case Insensitive, Contains
-- `slug__iew` Slug, case Insensitive, Ends With
-- `slug__niew` Slug, case Insensitive, Not Ends With
-- `slug__isw` Slug, case Insensitive, Starts With
-- `slug__nisw` Slug, case Insensitive, Not Starts With
 
 <a id="nestedatt--tags"></a>
 ### Nested Schema for `tags`
 
-#### Read-Only:
-- `tag_id` (String) The ID of tag.
-- `name` (String) The Display Name of the Tag
-- `slug` (String) The Slug of the Tag
-- `description` (String) The Description of the Tag
-- `color` (String) The Color associated with the Tag
+Read-Only:
+
+- `color` (String)
+- `description` (String)
+- `name` (String)
+- `slug` (String)
+- `tag_id` (Number)
+
 

@@ -39,6 +39,10 @@ resource "netbox_device" "test" {
   device_type_id = netbox_device_type.test.id
   role_id        = netbox_device_role.test.id
   site_id        = netbox_site.test.id
+  local_context_data = jsonencode({
+    "setting_a" = "Some Setting"
+    "setting_b" = 42
+  })
 }
 ```
 
@@ -59,6 +63,7 @@ resource "netbox_device" "test" {
 - `comments` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
+- `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 - `location_id` (Number)
 - `platform_id` (Number)
 - `rack_face` (String) Valid values are `front` and `rear`. Required when `rack_position` is set.
@@ -68,7 +73,6 @@ resource "netbox_device" "test" {
 - `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `inventory`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
-- `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 
 ### Read-Only
 
