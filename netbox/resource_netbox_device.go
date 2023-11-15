@@ -107,6 +107,24 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Optional: true,
 			},
+			"virtual_chassis_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"virtual_chassis_master", "virtual_chassis_id"},
+			},
+			"virtual_chassis_position": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"virtual_chassis_priority": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"virtual_chassis_master": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				RequiredWith: []string{"virtual_chassis_master", "virtual_chassis_id"},
+			},
 			"local_context_data": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -194,6 +212,10 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Position = nil
 	}
 
+	data.VirtualChassis = getOptionalInt(d, "virtual_chassis_id")
+	data.VcPosition = getOptionalInt(d, "virtual_chassis_position")
+	data.VcPriority = getOptionalInt(d, "virtual_chassis_priority")
+
 	localContextValue, ok := d.GetOk("local_context_data")
 	if ok {
 		var jsonObj any
@@ -218,6 +240,18 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
+
+	if vcMaster, ok := d.GetOk("virtual_chassis_master"); ok {
+		var err error
+		if vcMaster.(bool) {
+			err = virtualChassisUpdateMaster(api, *data.VirtualChassis, &(res.GetPayload().ID))
+		} else {
+			err = virtualChassisUpdateMaster(api, *data.VirtualChassis, nil)
+		}
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 
 	return resourceNetboxDeviceRead(ctx, d, m)
 }
@@ -329,6 +363,19 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 
 	d.Set("rack_position", device.Position)
 
+	if device.VirtualChassis != nil {
+		d.Set("virtual_chassis_id", device.VirtualChassis.ID)
+		d.Set(
+			"virtual_chassis_master",
+			device.VirtualChassis.Master != nil && device.VirtualChassis.Master.ID == device.ID,
+		)
+	} else {
+		d.Set("virtual_chassis_id", 0)
+		d.Set("virtual_chassis_master", false)
+	}
+	d.Set("virtual_chassis_position", device.VcPosition)
+	d.Set("virtual_chassis_priority", device.VcPriority)
+
 	if device.LocalContextData != nil {
 		if jsonArr, err := json.Marshal(device.LocalContextData); err == nil {
 			d.Set("local_context_data", string(jsonArr))
@@ -411,6 +458,10 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	data.Face = getOptionalStr(d, "rack_face", false)
 	data.Position = getOptionalFloat(d, "rack_position")
 
+	data.VirtualChassis = getOptionalInt(d, "virtual_chassis_id")
+	data.VcPosition = getOptionalInt(d, "virtual_chassis_position")
+	data.VcPriority = getOptionalInt(d, "virtual_chassis_priority")
+
 	localContextValue, ok := d.GetOk("local_context_data")
 	if ok {
 		var jsonObj any
@@ -467,6 +518,23 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		data.Serial = serial
 	}
 
+	if d.HasChange("virtual_chassis_master") && data.VirtualChassis != nil {
+		var err error
+		if vcMaster, ok := d.GetOk("virtual_chassis_master"); ok {
+			if vcMaster.(bool) {
+				err = virtualChassisUpdateMaster(api, *data.VirtualChassis, &id)
+			} else {
+				err = virtualChassisUpdateMaster(api, *data.VirtualChassis, nil)
+			}
+		} else {
+			// It was set before, but no longer set, remove it as master
+			err = virtualChassisUpdateMaster(api, *data.VirtualChassis, nil)
+		}
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	params := dcim.NewDcimDevicesUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Dcim.DcimDevicesUpdate(params, nil)
@@ -483,6 +551,19 @@ func resourceNetboxDeviceDelete(ctx context.Context, d *schema.ResourceData, m i
 	var diags diag.Diagnostics
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
+
+	// If the device is member of a virtual chassis and it's the master, we cannot
+	// delete it directly. We first need to update it to not be the master.
+	if virtualChassisIDValue, ok := d.GetOk("virtual_chassis_id"); ok {
+		if d.Get("virtual_chassis_master").(bool) {
+			virtualChassisID := int64(virtualChassisIDValue.(int))
+			err := virtualChassisUpdateMaster(api, virtualChassisID, nil)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	params := dcim.NewDcimDevicesDeleteParams().WithID(id)
 
 	_, err := api.Dcim.DcimDevicesDelete(params, nil)

@@ -246,6 +246,79 @@ resource "netbox_device" "test" {
 	})
 }
 
+func TestAccNetboxDevice_virtual_chassis(t *testing.T) {
+	testSlug := "device_virtual_chassis"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDeviceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_chassis" "test" {
+name = "%[1]s"
+}
+resource "netbox_device" "test" {
+name = "%[1]s"
+role_id = netbox_device_role.test.id
+device_type_id = netbox_device_type.test.id
+site_id = netbox_site.test.id
+platform_id = netbox_platform.test.id
+virtual_chassis_id = netbox_virtual_chassis.test.id
+virtual_chassis_position = 1
+virtual_chassis_master = true
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_virtual_chassis.test", "id", "netbox_device.test", "virtual_chassis_id"),
+					resource.TestCheckResourceAttr("netbox_device.test", "virtual_chassis_master", "true"),
+					resource.TestCheckResourceAttr("netbox_device.test", "virtual_chassis_position", "1"),
+				),
+			},
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_chassis" "test" {
+name = "%[1]s"
+}
+resource "netbox_device" "test" {
+name = "%[1]s"
+role_id = netbox_device_role.test.id
+device_type_id = netbox_device_type.test.id
+site_id = netbox_site.test.id
+platform_id = netbox_platform.test.id
+virtual_chassis_id = netbox_virtual_chassis.test.id
+virtual_chassis_position = 1
+virtual_chassis_master = false
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "virtual_chassis_master", "false"),
+				),
+			},
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_chassis" "test" {
+name = "%[1]s"
+}
+resource "netbox_device" "test" {
+name = "%[1]s"
+role_id = netbox_device_role.test.id
+device_type_id = netbox_device_type.test.id
+site_id = netbox_site.test.id
+platform_id = netbox_platform.test.id
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "virtual_chassis_id", "0"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckDeviceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
 	conn := testAccProvider.Meta().(*client.NetBoxAPI)

@@ -196,3 +196,30 @@ func resourceNetboxVirtualChassisDelete(ctx context.Context, d *schema.ResourceD
 
 	return nil
 }
+
+func virtualChassisUpdateMaster(api *client.NetBoxAPI, id int64, master *int64) error {
+	// Need to read the virtual chassis because we cannot do a partial update
+	// because setting `master` to nil would omit it entirely, so we need to
+	// do a PUT request instead of PATCH
+	vcRes, err := api.Dcim.DcimVirtualChassisRead(dcim.NewDcimVirtualChassisReadParams().WithID(id), nil)
+	if err != nil {
+		return err
+	}
+	vcData := vcRes.GetPayload()
+	vcData.Master = nil
+
+	// Need to manually copy data because there is no automatic method to convert
+	// from VirtualChassis to WritableVirtualChassis
+	vcUpdateData := models.WritableVirtualChassis{
+		ID:          vcData.ID,
+		Description: vcData.Description,
+		Domain:      vcData.Domain,
+		Name:        vcData.Name,
+		Comments:    vcData.Comments,
+		Tags:        vcData.Tags,
+		Master:      master,
+	}
+
+	_, err = api.Dcim.DcimVirtualChassisUpdate(dcim.NewDcimVirtualChassisUpdateParams().WithID(id).WithData(&vcUpdateData), nil)
+	return err
+}
