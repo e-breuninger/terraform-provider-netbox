@@ -245,7 +245,6 @@ func TestAccNetboxDevicesDataSource_CustomFields(t *testing.T) {
 data "netbox_devices" "test" {
 	depends_on = [
 		netbox_device.test,
-		netbox_custom_field.test,
 	]
 
 	filter {
@@ -254,9 +253,15 @@ data "netbox_devices" "test" {
 	}
 }
 
-resource "netbox_custom_field" "test" {
-	name          = "%[1]s"
+resource "netbox_custom_field" "text" {
+	name          = "%[1]s_text"
 	type          = "text"
+	content_types = ["dcim.device"]
+}
+
+resource "netbox_custom_field" "boolean" {
+	name          = "%[1]s_boolean"
+	type          = "boolean"
 	content_types = ["dcim.device"]
 }
 
@@ -274,7 +279,10 @@ resource "netbox_device" "test" {
   location_id = netbox_location.test.id
   status = "staged"
   serial = "ABCDEF"
-  custom_fields = {"${netbox_custom_field.test.name}" = "81"}
+	custom_fields = jsonencode({
+		"${netbox_custom_field.text.name}" = "81"
+		"${netbox_custom_field.boolean.name}" = true
+	})
 }
 `, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -290,7 +298,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.location_id", "netbox_location.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.serial", "ABCDEF"),
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.status", "staged"),
-					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.custom_fields."+testField, "81"),
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.0.custom_fields", "{\""+testField+"_boolean\":true,\""+testField+"_text\":\"81\"}"),
 				),
 			},
 		},

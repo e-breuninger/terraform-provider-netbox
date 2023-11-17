@@ -45,6 +45,7 @@ Read-Only:
 - `comments` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
+- `custom_fields` (String)
 - `device_id` (Number)
 - `device_type_id` (Number)
 - `location_id` (Number)

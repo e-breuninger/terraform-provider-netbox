@@ -64,6 +64,7 @@ resource "netbox_device" "test" {
 - `custom_fields` (Map of String)
 - `description` (String)
 - `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
+- `custom_fields` (String) A JSON string that defines the custom fields as defined under the `custom_fields` key in the object's api.This is best managed with the `jsonencode()` & `jsondecode()` functions.
 - `location_id` (Number)
 - `platform_id` (Number)
 - `rack_face` (String) Valid values are `front` and `rear`. Required when `rack_position` is set.

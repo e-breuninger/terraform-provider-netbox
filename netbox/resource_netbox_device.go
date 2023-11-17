@@ -112,7 +112,7 @@ func resourceNetboxDevice() *schema.Resource {
 				Optional:    true,
 				Description: "This is best managed through the use of `jsonencode` and a map of settings.",
 			},
-			customFieldsKey: customFieldsSchema,
+			customFieldsKey: customFieldsSchemaFunc(),
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -203,9 +203,14 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		}
 	}
 
-	ct, ok := d.GetOk(customFieldsKey)
+	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		var cfMap map[string]interface{}
+		err := json.Unmarshal([]byte(cf.(string)), &cfMap)
+		if err != nil {
+			return diag.Errorf("error in resourceNetboxDeviceCreate[CustomFields]: %v", err)
+		}
+		data.CustomFields = cfMap
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
@@ -300,10 +305,11 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("site_id", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
+	cf, err := handleCustomFieldRead(device.CustomFields)
+	if err != nil {
+		return diag.FromErr(err)
 	}
+	d.Set(customFieldsKey, cf)
 
 	d.Set("asset_tag", device.AssetTag)
 
@@ -420,8 +426,11 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		}
 	}
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
+	if d.HasChange(customFieldsKey) {
+		cf, err := handleCustomFieldUpdate(d.GetChange(customFieldsKey))
+		if err != nil {
+			return diag.Errorf("error in resourceNetboxDeviceUpdate[CustomFields]: %v", err)
+		}
 		data.CustomFields = cf
 	}
 
