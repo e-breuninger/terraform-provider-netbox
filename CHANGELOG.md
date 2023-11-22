@@ -1,3 +1,10 @@
+## 3.7.4 (November 22nd, 2023)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_virtual_chassis` ([#497](https://github.com/e-breuninger/terraform-provider-netbox/pull/497) by [@Ikke](https://github.com/Ikke))
+* resource/netbox_device: Add `virtual_chassis_id`, `virtual_chassis_master`, `virtual_chassis_position` and `virtual_chassis_priority` attributes ([#500](https://github.com/e-breuninger/terraform-provider-netbox/pull/500) by [@Ikke](https://github.com/Ikke))
+
 ## 3.7.3 (November 3rd, 2023)
 
 ENHANCEMENTS
