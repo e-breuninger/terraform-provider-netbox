@@ -311,6 +311,25 @@ platform_id = netbox_platform.test.id
 				),
 			},
 			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_chassis" "test" {
+name = "%[1]s"
+}
+resource "netbox_device" "test" {
+name = "%[1]s"
+role_id = netbox_device_role.test.id
+device_type_id = netbox_device_type.test.id
+site_id = netbox_site.test.id
+platform_id = netbox_platform.test.id
+virtual_chassis_id = netbox_virtual_chassis.test.id
+virtual_chassis_position = 1
+virtual_chassis_master = true
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_device.test", "virtual_chassis_id", "netbox_virtual_chassis.test", "id"),
+				),
+			},
+			{
 				ResourceName:      "netbox_device.test",
 				ImportState:       true,
 				ImportStateVerify: true,
