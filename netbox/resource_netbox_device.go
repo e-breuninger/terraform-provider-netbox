@@ -518,6 +518,13 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		data.Serial = serial
 	}
 
+	params := dcim.NewDcimDevicesUpdateParams().WithID(id).WithData(&data)
+
+	_, err := api.Dcim.DcimDevicesUpdate(params, nil)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	if d.HasChange("virtual_chassis_master") && data.VirtualChassis != nil {
 		var err error
 		if vcMaster, ok := d.GetOk("virtual_chassis_master"); ok {
@@ -533,13 +540,6 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		if err != nil {
 			return diag.FromErr(err)
 		}
-	}
-
-	params := dcim.NewDcimDevicesUpdateParams().WithID(id).WithData(&data)
-
-	_, err := api.Dcim.DcimDevicesUpdate(params, nil)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	return resourceNetboxDeviceRead(ctx, d, m)
