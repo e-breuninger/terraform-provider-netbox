@@ -1,3 +1,7 @@
+## 3.7.5 (November 27th, 2023)
+
+* **New Data Source:** `netbox_locations` ([#503](https://github.com/e-breuninger/terraform-provider-netbox/pull/503) by [@Ikke](https://github.com/Ikke))
+
 ## 3.7.4 (November 22nd, 2023)
 
 ENHANCEMENTS
