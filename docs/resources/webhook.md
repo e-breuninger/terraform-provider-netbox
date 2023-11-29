@@ -37,6 +37,7 @@ resource "netbox_webhook" "test" {
 
 ### Optional
 
+- `additional_headers` (String)
 - `body_template` (String)
 - `enabled` (Boolean)
 - `http_content_type` (String) The complete list of official content types is available [here](https://www.iana.org/assignments/media-types/media-types.xhtml). Defaults to `application/json`.

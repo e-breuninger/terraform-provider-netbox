@@ -20,6 +20,7 @@ func TestAccNetboxWebhook_basic(t *testing.T) {
 	testPayloadURL := "https://example.com/webhook"
 	testContentType := "dcim.site"
 	testBodyTemplate := "Sample Body"
+	testAdditionalHeaders := "Authentication: Bearer abcdef123456"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetBoxWebhookDestroy,
@@ -27,13 +28,14 @@ func TestAccNetboxWebhook_basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_webhook" "test" {
-  name              = "%s"
-  enabled           = "%s"
-  trigger_on_create = "%s"
-  payload_url       = "%s"
-  content_types     = ["%s"]
-  body_template     = "%s"
-}`, testName, testEnabled, triggerOnCreate, testPayloadURL, testContentType, testBodyTemplate),
+  name               = "%s"
+  enabled            = "%s"
+  trigger_on_create  = "%s"
+  payload_url        = "%s"
+  content_types      = ["%s"]
+  body_template      = "%s"
+  additional_headers = "%s"
+}`, testName, testEnabled, triggerOnCreate, testPayloadURL, testContentType, testBodyTemplate, testAdditionalHeaders),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "enabled", testEnabled),
@@ -42,6 +44,7 @@ resource "netbox_webhook" "test" {
 					resource.TestCheckResourceAttr("netbox_webhook.test", "content_types.#", "1"),
 					resource.TestCheckTypeSetElemAttr("netbox_webhook.test", "content_types.*", testContentType),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "body_template", testBodyTemplate),
+					resource.TestCheckResourceAttr("netbox_webhook.test", "additional_headers", testAdditionalHeaders),
 				),
 			},
 			{
