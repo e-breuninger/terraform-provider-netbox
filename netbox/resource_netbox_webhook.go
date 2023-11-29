@@ -70,6 +70,10 @@ func resourceNetboxWebhook() *schema.Resource {
 				Description: "The complete list of official content types is available [here](https://www.iana.org/assignments/media-types/media-types.xhtml).",
 				Default:     "application/json",
 			},
+			"additional_headers": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -100,6 +104,7 @@ func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 	data.BodyTemplate = bodyTemplate
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
+	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
 
 	params := extras.NewExtrasWebhooksCreateParams().WithData(data)
 
@@ -141,6 +146,7 @@ func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("body_template", webhook.BodyTemplate)
 	d.Set("http_method", webhook.HTTPMethod)
 	d.Set("http_content_type", webhook.HTTPContentType)
+	d.Set("additional_headers", webhook.AdditionalHeaders)
 
 	return nil
 }
@@ -172,6 +178,7 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	data.BodyTemplate = bodyTemplate
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
+	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
 
 	params := extras.NewExtrasWebhooksUpdateParams().WithID(id).WithData(&data)
 
