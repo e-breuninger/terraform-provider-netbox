@@ -87,7 +87,9 @@ resource "netbox_webhook" "test" {
 	trigger_on_delete = "%s"
 	payload_url       = "%s"
 	content_types     = ["%s"]
-	body_template     = "{\"text\": \"This is a sample json\"}"
+	body_template        = <<-EOT
+	{"text": "This is a sample json"}
+	EOT
         http_method       = "%s"
         http_content_type = "%s"
   }`, testName, testEnabled, triggerOnCreate, triggerOnUpdate, triggerOnDelete, testPayloadURL, testContentType, testHTTPMethod, testHTTPContentType),
@@ -115,7 +117,9 @@ resource "netbox_webhook" "test" {
   trigger_on_delete    = "%s"
   payload_url          = "%s"
   content_types        = ["%s", "%s"]
-  body_template        = "{\"text\": \"This is a sample json\"}"
+  body_template        = <<-EOT
+  {"text": "This is a sample json"}
+  EOT
 }`, testName, testEnabled, triggerOnCreate, triggerOnUpdate, triggerOnDelete, testPayloadURL, testContentType, testContentType1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName+"_updated"),
