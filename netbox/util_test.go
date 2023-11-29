@@ -56,3 +56,31 @@ func TestBuildValidValueDescription(t *testing.T) {
 		})
 	}
 }
+
+func TestJsonSemanticCompareEqual(t *testing.T) {
+	a := `{"a": [{ "b": [1, 2, 3]}]}`
+	b := `{"a":[{"b":[1,2,3]}]}`
+
+	equal, err := jsonSemanticCompare(a, b)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	if !equal {
+		t.Errorf("expected 'a' and 'b' to be semantically equal\n\na: %s\nb: %s\n", a, b)
+	}
+}
+
+func TestJsonSemanticCompareUnequal(t *testing.T) {
+	a := `{"a": [{ "b": [1, 2, 3]}]}`
+	b := `{"a": [{ "b": [1, 2, 4]}]}`
+
+	equal, err := jsonSemanticCompare(a, b)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	if equal {
+		t.Errorf("expected 'a' and 'b' to be semantically unequal\n\na: %s\nb: %s\n", a, b)
+	}
+}

@@ -35,6 +35,9 @@ resource "netbox_webhook" "test" {
   content_types      = ["%s"]
   body_template      = "%s"
   additional_headers = "%s"
+  conditions         = <<-JSON
+    {"and": [{"attr": "status.value", "value": "active"}]}
+  JSON
 }`, testName, testEnabled, triggerOnCreate, testPayloadURL, testContentType, testBodyTemplate, testAdditionalHeaders),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName),
@@ -45,6 +48,7 @@ resource "netbox_webhook" "test" {
 					resource.TestCheckTypeSetElemAttr("netbox_webhook.test", "content_types.*", testContentType),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "body_template", testBodyTemplate),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "additional_headers", testAdditionalHeaders),
+					resource.TestCheckResourceAttr("netbox_webhook.test", "conditions", `{"and":[{"attr":"status.value","value":"active"}]}`),
 				),
 			},
 			{
