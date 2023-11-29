@@ -57,6 +57,11 @@ func resourceNetboxWebhook() *schema.Resource {
 			"body_template": {
 				Type:     schema.TypeString,
 				Optional: true,
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					equal, _ := jsonSemanticCompare(oldValue, newValue)
+					return equal
+				},
+				DiffSuppressOnRefresh: true,
 			},
 			"http_method": {
 				Type:         schema.TypeString,
