@@ -39,6 +39,7 @@ resource "netbox_webhook" "test" {
 
 - `additional_headers` (String)
 - `body_template` (String)
+- `conditions` (String)
 - `enabled` (Boolean)
 - `http_content_type` (String) The complete list of official content types is available [here](https://www.iana.org/assignments/media-types/media-types.xhtml). Defaults to `application/json`.
 - `http_method` (String) Valid values are `GET`, `POST`, `PUT`, `PATCH` and `DELETE`. Defaults to `POST`.

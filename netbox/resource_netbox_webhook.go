@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"encoding/json"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -74,6 +75,15 @@ func resourceNetboxWebhook() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"conditions": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					equal, _ := jsonSemanticCompare(oldValue, newValue)
+					return equal
+				},
+				DiffSuppressOnRefresh: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -105,6 +115,15 @@ func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
+
+	if conditionsData, ok := d.GetOk("conditions"); ok {
+		var conditions any
+		err := json.Unmarshal([]byte(conditionsData.(string)), &conditions)
+		if err != nil {
+			return err
+		}
+		data.Conditions = conditions
+	}
 
 	params := extras.NewExtrasWebhooksCreateParams().WithData(data)
 
@@ -148,6 +167,14 @@ func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("http_content_type", webhook.HTTPContentType)
 	d.Set("additional_headers", webhook.AdditionalHeaders)
 
+	if webhook.Conditions != nil {
+		conditions, err := json.Marshal(webhook.Conditions)
+		if err != nil {
+			return err
+		}
+		d.Set("conditions", string(conditions))
+	}
+
 	return nil
 }
 
@@ -179,6 +206,15 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
+
+	if conditionsData, ok := d.GetOk("conditions"); ok {
+		var conditions any
+		err := json.Unmarshal([]byte(conditionsData.(string)), &conditions)
+		if err != nil {
+			return err
+		}
+		data.Conditions = conditions
+	}
 
 	params := extras.NewExtrasWebhooksUpdateParams().WithID(id).WithData(&data)
 
