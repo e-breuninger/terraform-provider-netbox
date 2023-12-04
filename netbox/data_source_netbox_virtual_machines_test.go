@@ -45,7 +45,7 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: dependencies + testAccNetboxVirtualMachineDataSourceFilterTenantId,
+				Config: dependencies + testAccNetboxVirtualMachineDataSourceFilterTenantID,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.cluster_id", "netbox_cluster.test", "id"),
@@ -184,7 +184,7 @@ data "netbox_virtual_machines" "test" {
   }
 }`
 
-const testAccNetboxVirtualMachineDataSourceFilterTenantId = `
+const testAccNetboxVirtualMachineDataSourceFilterTenantID = `
 data "netbox_virtual_machines" "test" {
   filter {
     name  = "tenant_id"
