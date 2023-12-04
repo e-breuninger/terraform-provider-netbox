@@ -158,34 +158,28 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
+			vString := v.(string)
 			switch k {
 			case "cluster_id":
-				var clusterString = v.(string)
-				params.ClusterID = &clusterString
+				params.ClusterID = &vString
 			case "cluster_group":
-				var clusterGroupString = v.(string)
-				params.ClusterGroup = &clusterGroupString
+				params.ClusterGroup = &vString
 			case "device_id":
-				var deviceIDstring = v.(string)
-				params.Name = &deviceIDstring
+				params.Name = &vString
 			case "device":
-				var deviceString = v.(string)
-				params.Name = &deviceString
+				params.Name = &vString
 			case "name":
-				var nameString = v.(string)
-				params.Name = &nameString
+				params.Name = &vString
 			case "region":
-				var regionString = v.(string)
-				params.Region = &regionString
+				params.Region = &vString
 			case "role":
-				var roleString = v.(string)
-				params.Role = &roleString
+				params.Role = &vString
 			case "site":
-				var siteString = v.(string)
-				params.Site = &siteString
+				params.Site = &vString
+			case "tenant_id":
+				params.TenantID = &vString
 			case "tag":
-				var tagString = v.(string)
-				tags = append(tags, tagString)
+				tags = append(tags, vString)
 				params.Tag = tags
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
