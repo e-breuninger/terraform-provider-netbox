@@ -255,7 +255,7 @@ resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
   site_id = netbox_site.test.id
-}`, testName) + `
+}`, testName) + fmt.Sprintf(`
 resource "netbox_interface" "test" {
   name = "test"
   virtual_machine_id = netbox_virtual_machine.test.id
@@ -266,8 +266,9 @@ resource "netbox_ip_address" "test" {
   ip_address  = "10.11.12.${count.index}/32"
   status      = "active"
   virtual_machine_interface_id = netbox_interface.test.id
+  dns_name = "%s"
 }
-`
+`,testName)
 }
 
 func TestAccNetboxIpAddressessDataSource_many(t *testing.T) {
@@ -277,9 +278,15 @@ func TestAccNetboxIpAddressessDataSource_many(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxIPAddressesDataSourceDependenciesMany(testName) + `data "netbox_ip_addresses" "test" {
+				Config: testAccNetboxIPAddressesDataSourceDependenciesMany(testName) + fmt.Sprintf(`
+data "netbox_ip_addresses" "test" {
   depends_on = [netbox_ip_address.test]
-}`,
+
+  filter {
+    name = "dns_name"
+    value = "%s"
+  }
+}`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.#", "51"),
 				),
