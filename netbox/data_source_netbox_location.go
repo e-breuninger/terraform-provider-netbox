@@ -32,6 +32,11 @@ func dataSourceNetboxLocation() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"parent_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"tenant_id": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -67,13 +72,19 @@ func dataSourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 		siteID := fmt.Sprintf("%v", site)
 		params.SetSiteID(&siteID)
 	}
+
+	if parent, ok := d.Get("parent_id").(int); ok && parent != 0 {
+		parentID := fmt.Sprintf("%v", parent)
+		params.SetParentID(&parentID)
+	}
+
 	res, err := api.Dcim.DcimLocationsList(params, nil)
 
 	if err != nil {
 		return err
 	}
 	if count := *res.GetPayload().Count; count != 1 {
-		return fmt.Errorf("expected one site, but got %d", count)
+		return fmt.Errorf("expected one location, but got %d", count)
 	}
 
 	location := res.GetPayload().Results[0]

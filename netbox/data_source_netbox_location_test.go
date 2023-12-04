@@ -58,6 +58,59 @@ data "netbox_location" "by_slug" {
 					resource.TestCheckResourceAttrPair("data.netbox_location.by_name", "tenant_id", "netbox_location.test", "tenant_id"),
 				),
 			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_site" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_tenant" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_location" "test" {
+  name        = "%[1]s"
+  description = "my-description"
+  site_id     = netbox_site.test.id
+  tenant_id   = netbox_tenant.test.id
+}
+
+resource "netbox_location" "test_child" {
+  name        = "%[1]s"
+  site_id     = netbox_site.test.id
+  parent_id   = netbox_location.test.id
+}
+
+data "netbox_location" "by_name_and_parent" {
+  name = netbox_location.test.name
+  parent_id = null
+}
+
+data "netbox_location" "by_name_and_site_and_parent_id" {
+  name    = netbox_location.test.name
+  site_id = netbox_site.test.id
+  parent_id = null
+}
+
+data "netbox_location" "by_id" {
+  id = netbox_location.test.id
+}
+
+data "netbox_location" "by_slug" {
+  slug = netbox_location.test.slug
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_name_and_parent", "id", "netbox_location.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_id", "id", "netbox_location.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_slug", "id", "netbox_location.test", "id"),
+					resource.TestCheckResourceAttr("data.netbox_location.by_name_and_parent", "name", testName),
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_name_and_parent", "id", "netbox_location.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_name_and_parent", "description", "netbox_location.test", "description"),
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_name_and_parent", "site_id", "netbox_location.test", "site_id"),
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_name_and_site_and_parent_id", "site_id", "netbox_location.test", "site_id"),
+					resource.TestCheckResourceAttrPair("data.netbox_location.by_name_and_parent", "tenant_id", "netbox_location.test", "tenant_id"),
+				),
+			},
 		},
 	})
 }
