@@ -147,6 +147,7 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
+		var tags []string
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
@@ -172,6 +173,9 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 				params.Tenant = &vString
 			case "parent_prefix":
 				params.Parent = &vString
+			case "tag":
+				tags = append(tags, vString)
+				params.Tag = tags
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
