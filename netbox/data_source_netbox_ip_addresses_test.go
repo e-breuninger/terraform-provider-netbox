@@ -293,3 +293,53 @@ func TestAccNetboxIpAddressessDataSource_many(t *testing.T) {
 		},
 	})
 }
+
+func TestAccNetboxIpAddressesDataSource_filter_tags(t *testing.T) {
+	testSlug := "ipam_ipaddrs_ds_filter_tags"
+	testTag := "default-gw"
+	testName := testAccGetTestName(testSlug)
+	testIP0 := "203.0.113.1/24"
+	testIP1 := "203.0.113.2/24"
+	testIP2 := "203.0.113.3/24"
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_tag" "gw_tag" {
+  name = "%s"
+}
+resource "netbox_ip_address" "test_list_0" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  tags = [netbox_tag.test.name]
+}
+resource "netbox_ip_address" "test_list_1" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  tags = [netbox_tag.test.name, netbox_tag.gw_tag.name]
+}
+resource "netbox_ip_address" "test_list_2" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  tags = [netbox_tag.test.name]
+}
+data "netbox_ip_addresses" "test_list" {
+	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1, netbox_ip_address.test_list_2]
+
+	filter {
+		name = "tag"
+		value = "%s"
+	}
+}`, testTag, testIP0, testIP1, testIP2, testTag),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_list", "ip_addresses.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test_list", "ip_addresses.0.ip_address", "netbox_ip_address.test_list_1", "ip_address"),
+				),
+			},
+		},
+	})
+}
