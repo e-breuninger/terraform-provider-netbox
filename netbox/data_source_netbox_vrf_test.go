@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccNetboxVrfDataSource_basic(t *testing.T) {
-	testSlug := "tnt_ds_basic"
+	testSlug := "vrf_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
