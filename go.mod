@@ -8,7 +8,7 @@ require (
 	github.com/fbreckle/go-netbox v0.0.0-20231009084359-e4c3e860c153
 	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3
 	github.com/go-openapi/runtime v0.26.0
-	github.com/go-openapi/strfmt v0.21.7
+	github.com/go-openapi/strfmt v0.21.8
 	github.com/goware/urlx v0.3.2
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.30.0
 	github.com/sirupsen/logrus v1.9.3
