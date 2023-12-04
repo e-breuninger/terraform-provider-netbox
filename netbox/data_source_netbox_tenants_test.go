@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccNetboxTenantsDataSource_basic(t *testing.T) {
-	testSlug := "tnt_ds_basic"
+	testSlug := "tnts_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -42,7 +42,7 @@ func testAccNetboxTenantsDataSourceManyTenants(testName string) string {
 }
 
 func TestAccNetboxTenantsDataSource_many(t *testing.T) {
-	testSlug := "tnt_ds_many"
+	testSlug := "tnts_ds_many"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -69,7 +69,7 @@ func TestAccNetboxTenantsDataSource_many(t *testing.T) {
 }
 
 func TestAccNetboxTenantsDataSource_filter(t *testing.T) {
-	testSlug := "tnt_ds_filter"
+	testSlug := "tnts_ds_filter"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -100,7 +100,7 @@ data "netbox_tenants" "test" {
 }
 
 func TestAccNetboxTenantsDataSource_tenantgroups(t *testing.T) {
-	testSlug := "tnt_ds_tenant_group_filter"
+	testSlug := "tnts_ds_tenant_group_filter"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
