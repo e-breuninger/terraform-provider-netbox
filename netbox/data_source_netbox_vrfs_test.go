@@ -8,12 +8,17 @@ import (
 
 func testAccNetboxVrfsSetUp() string {
 	return `
+resource "netbox_tag" "test" {
+  name = "test_tag"
+}
+
 resource "netbox_vrf" "test_1" {
   name = "VRF1"
 }
 
 resource "netbox_vrf" "test_2" {
   name = "VRF2"
+  tags = [netbox_tag.test.name]
 }
 
 resource "netbox_vrf" "test_3" {
@@ -27,6 +32,16 @@ data "netbox_vrfs" "test" {
   filter {
 	name  = "name"
 	value = "VRF1"
+  }
+}`
+}
+
+func testAccNetboxVrfsByTag() string {
+	return `
+data "netbox_vrfs" "test" {
+  filter {
+	name  = "tag"
+	value = netbox_tag.test.name
   }
 }`
 }
@@ -49,6 +64,13 @@ func TestAccNetboxVrfsDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_vrfs.test", "vrfs.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_vrfs.test", "vrfs.0.name", "netbox_vrf.test_1", "name"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxVrfsByTag(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_vrfs.test", "vrfs.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_vrfs.test", "vrfs.0.name", "netbox_vrf.test_2", "name"),
 				),
 			},
 		},

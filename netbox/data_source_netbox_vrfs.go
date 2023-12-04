@@ -81,6 +81,7 @@ func dataSourceNetboxVrfsRead(d *schema.ResourceData, m interface{}) error {
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
+		var tags []string
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
@@ -110,6 +111,9 @@ func dataSourceNetboxVrfsRead(d *schema.ResourceData, m interface{}) error {
 				params.TenantID = &vString
 			case "tenant_id__n":
 				params.TenantIDn = &vString
+			case "tag":
+				tags = append(tags, vString)
+				params.Tag = tags
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
