@@ -77,6 +77,16 @@ In order to run the suite of unit tests, run `make test`.
 
 In order to run the full suite of acceptance tests, run `make testacc`.
 
+In order to run a single specific acceptance test, run 
+```
+TEST_FUNC=<test_name> make testacc-specific-test
+```
+
+For example: 
+```
+TEST_FUNC=TestAccNetboxLocationDataSource_basic make testacc-specific-test
+```
+
 _Note:_ Acceptance tests create a docker compose stack on port 8001.
 
 ```sh
