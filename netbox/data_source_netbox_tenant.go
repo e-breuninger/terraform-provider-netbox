@@ -14,17 +14,23 @@ func dataSourceNetboxTenant() *schema.Resource {
 		Read:        dataSourceNetboxTenantRead,
 		Description: `:meta:subcategory:Tenancy:`,
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				AtLeastOneOf: []string{"id", "name", "slug"},
+			},
 			"name": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				AtLeastOneOf: []string{"name", "slug"},
+				AtLeastOneOf: []string{"id", "name", "slug"},
 			},
 			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"name", "slug"},
+				AtLeastOneOf: []string{"id", "name", "slug"},
 			},
 			"group_id": {
 				Type:     schema.TypeInt,
@@ -41,6 +47,10 @@ func dataSourceNetboxTenant() *schema.Resource {
 func dataSourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	params := tenancy.NewTenancyTenantsListParams()
+
+	if ID, ok := d.Get("id").(string); ok && ID != "0" {
+		params.ID = &ID
+	}
 
 	if name, ok := d.Get("name").(string); ok && name != "" {
 		params.Name = &name
