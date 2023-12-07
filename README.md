@@ -77,13 +77,15 @@ In order to run the suite of unit tests, run `make test`.
 
 In order to run the full suite of acceptance tests, run `make testacc`.
 
-In order to run a single specific acceptance test, run 
-```
+In order to run a single specific acceptance test, run
+
+```sh
 TEST_FUNC=<test_name> make testacc-specific-test
 ```
 
-For example: 
-```
+For example:
+
+```sh
 TEST_FUNC=TestAccNetboxLocationDataSource_basic make testacc-specific-test
 ```
 
