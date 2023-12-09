@@ -51,9 +51,9 @@ func dataSourceNetboxDeviceModuleBayRead(d *schema.ResourceData, m interface{}) 
 	params := dcim.NewDcimModuleBaysListParams()
 
 	params.Limit = int64ToPtr(2)
-	if deviceId, ok := d.Get("device_id").(int); ok && deviceId != 0 {
-		deviceId := strconv.Itoa(deviceId)
-		params.SetDeviceID(&deviceId)
+	if deviceID, ok := d.Get("device_id").(int); ok && deviceID != 0 {
+		deviceID := strconv.Itoa(deviceID)
+		params.SetDeviceID(&deviceID)
 	}
 	if name, ok := d.Get("name").(string); ok && name != "" {
 		params.SetName(&name)
