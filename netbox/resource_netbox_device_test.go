@@ -39,8 +39,8 @@ resource "netbox_cluster" "test" {
 }
 
 resource "netbox_location" "test" {
-	name = "%[1]s"
-	site_id =netbox_site.test.id
+  name = "%[1]s"
+  site_id =netbox_site.test.id
 }
 
 resource "netbox_rack_role" "test" {
@@ -50,12 +50,12 @@ resource "netbox_rack_role" "test" {
 
 resource "netbox_rack" "test" {
   name = "%[1]s"
-	site_id = netbox_site.test.id
-	status = "reserved"
-	width = 19
-	u_height = 48
-	tenant_id = netbox_tenant.test.id
-	location_id = netbox_location.test.id
+  site_id = netbox_site.test.id
+  status = "reserved"
+  width = 19
+  u_height = 48
+  tenant_id = netbox_tenant.test.id
+  location_id = netbox_location.test.id
 }
 
 resource "netbox_device_role" "test" {
@@ -257,17 +257,18 @@ func TestAccNetboxDevice_virtual_chassis(t *testing.T) {
 			{
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
-name = "%[1]s"
+  name = "%[1]s"
 }
+
 resource "netbox_device" "test" {
-name = "%[1]s"
-role_id = netbox_device_role.test.id
-device_type_id = netbox_device_type.test.id
-site_id = netbox_site.test.id
-platform_id = netbox_platform.test.id
-virtual_chassis_id = netbox_virtual_chassis.test.id
-virtual_chassis_position = 1
-virtual_chassis_master = true
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+  platform_id = netbox_platform.test.id
+  virtual_chassis_id = netbox_virtual_chassis.test.id
+  virtual_chassis_position = 1
+  virtual_chassis_master = true
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("netbox_virtual_chassis.test", "id", "netbox_device.test", "virtual_chassis_id"),
@@ -278,17 +279,18 @@ virtual_chassis_master = true
 			{
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
-name = "%[1]s"
+  name = "%[1]s"
 }
+
 resource "netbox_device" "test" {
-name = "%[1]s"
-role_id = netbox_device_role.test.id
-device_type_id = netbox_device_type.test.id
-site_id = netbox_site.test.id
-platform_id = netbox_platform.test.id
-virtual_chassis_id = netbox_virtual_chassis.test.id
-virtual_chassis_position = 1
-virtual_chassis_master = false
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+  platform_id = netbox_platform.test.id
+  virtual_chassis_id = netbox_virtual_chassis.test.id
+  virtual_chassis_position = 1
+  virtual_chassis_master = false
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "virtual_chassis_master", "false"),
@@ -297,14 +299,15 @@ virtual_chassis_master = false
 			{
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
-name = "%[1]s"
+  name = "%[1]s"
 }
+
 resource "netbox_device" "test" {
-name = "%[1]s"
-role_id = netbox_device_role.test.id
-device_type_id = netbox_device_type.test.id
-site_id = netbox_site.test.id
-platform_id = netbox_platform.test.id
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+  platform_id = netbox_platform.test.id
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device.test", "virtual_chassis_id", "0"),
@@ -313,17 +316,18 @@ platform_id = netbox_platform.test.id
 			{
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
-name = "%[1]s"
+  name = "%[1]s"
 }
+
 resource "netbox_device" "test" {
-name = "%[1]s"
-role_id = netbox_device_role.test.id
-device_type_id = netbox_device_type.test.id
-site_id = netbox_site.test.id
-platform_id = netbox_platform.test.id
-virtual_chassis_id = netbox_virtual_chassis.test.id
-virtual_chassis_position = 1
-virtual_chassis_master = true
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+  platform_id = netbox_platform.test.id
+  virtual_chassis_id = netbox_virtual_chassis.test.id
+  virtual_chassis_position = 1
+  virtual_chassis_master = true
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("netbox_device.test", "virtual_chassis_id", "netbox_virtual_chassis.test", "id"),
