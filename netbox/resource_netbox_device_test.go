@@ -104,7 +104,7 @@ resource "netbox_device" "test" {
   platform_id = netbox_platform.test.id
   role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
@@ -147,7 +147,7 @@ resource "netbox_device" "test" {
   platform_id = netbox_platform.test.id
   role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
@@ -188,7 +188,7 @@ resource "netbox_device" "test" {
   platform_id = netbox_platform.test.id
   role_id = netbox_device_role.test.id
   device_type_id = netbox_device_type.test.id
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
