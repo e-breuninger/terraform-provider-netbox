@@ -197,7 +197,7 @@ resource "netbox_device" "test0" {
   location_id = netbox_location.test.id
   serial = "ABCDEF0"
   status = "staged"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test1" {
@@ -222,7 +222,7 @@ resource "netbox_device" "test2" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF2"
-  tags = ["%[1]sb", "%[1]sc"]
+  tags = [netbox_tag.test_b.name, netbox_tag.test_c.name]
 }
 
 resource "netbox_device" "test3" {
