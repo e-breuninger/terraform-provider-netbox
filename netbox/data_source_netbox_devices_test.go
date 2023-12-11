@@ -12,7 +12,7 @@ import (
 )
 
 func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
-	testSlug := "device_ds_basic"
+	testSlug := "devices_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxDeviceDataSourceDependencies(testName)
 	resource.Test(t, resource.TestCase{
@@ -97,7 +97,76 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 }
 
 func testAccNetboxDeviceDataSourceDependencies(testName string) string {
-	return testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+	return fmt.Sprintf(`
+resource "netbox_tenant" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_platform" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_site" "test" {
+  name = "%[1]s"
+  status = "active"
+}
+
+resource "netbox_cluster_type" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_cluster" "test" {
+  name = "%[1]s"
+  cluster_type_id = netbox_cluster_type.test.id
+  site_id = netbox_site.test.id
+}
+
+resource "netbox_location" "test" {
+  name = "%[1]s"
+  site_id =netbox_site.test.id
+}
+
+resource "netbox_rack_role" "test" {
+  name = "%[1]s"
+  color_hex = "123456"
+}
+
+resource "netbox_rack" "test" {
+  name = "%[1]s"
+  site_id = netbox_site.test.id
+  status = "reserved"
+  width = 19
+  u_height = 48
+  tenant_id = netbox_tenant.test.id
+  location_id = netbox_location.test.id
+}
+
+resource "netbox_device_role" "test" {
+  name = "%[1]s"
+  color_hex = "123456"
+}
+
+resource "netbox_tag" "test_a" {
+  name = "%[1]sa"
+}
+
+resource "netbox_tag" "test_b" {
+  name = "%[1]sb"
+}
+
+resource "netbox_tag" "test_c" {
+  name = "%[1]sc"
+}
+
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_device_type" "test" {
+  model = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+}
+
 resource "netbox_device_interface" "test" {
   name      = "eth0"
   device_id = netbox_device.test0.id
@@ -243,21 +312,21 @@ func TestAccNetboxDevicesDataSource_CustomFields(t *testing.T) {
 			{
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 data "netbox_devices" "test" {
-	depends_on = [
-		netbox_device.test,
-		netbox_custom_field.test,
-	]
+  depends_on = [
+    netbox_device.test,
+    netbox_custom_field.test,
+  ]
 
-	filter {
-		name  = "name"
-		value = "%[2]s"
-	}
+  filter {
+    name  = "name"
+    value = "%[2]s"
+  }
 }
 
 resource "netbox_custom_field" "test" {
-	name          = "%[1]s"
-	type          = "text"
-	content_types = ["dcim.device"]
+  name          = "%[1]s"
+  type          = "text"
+  content_types = ["dcim.device"]
 }
 
 resource "netbox_device" "test" {
