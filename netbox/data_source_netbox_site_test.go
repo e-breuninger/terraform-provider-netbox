@@ -85,7 +85,7 @@ func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      setUp + testAccNetboxSiteNoResult,
-				ExpectError: regexp.MustCompile("expected one site, but got 0"),
+				ExpectError: regexp.MustCompile("no site found matching filter"),
 			},
 			{
 				Config: setUp + testAccNetboxSiteByName(testName),

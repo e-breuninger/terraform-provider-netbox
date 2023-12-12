@@ -1,7 +1,7 @@
 package netbox
 
 import (
-	"fmt"
+	"errors"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -99,8 +99,12 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	if count := *res.GetPayload().Count; count != 1 {
-		return fmt.Errorf("expected one site, but got %d", count)
+
+	if *res.GetPayload().Count > int64(1) {
+		return errors.New("more than one site returned, specify a more narrow filter")
+	}
+	if *res.GetPayload().Count == int64(0) {
+		return errors.New("no site found matching filter")
 	}
 
 	site := res.GetPayload().Results[0]

@@ -22,7 +22,7 @@ func TestAccNetboxDeviceTypeDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      setUp + testAccNetboxDeviceTypeDataNoResult,
-				ExpectError: regexp.MustCompile("expected one device type, but got 0"),
+				ExpectError: regexp.MustCompile("no device type found matching filter"),
 			},
 			{
 				Config: setUp + testAccNetboxDeviceTypeDataByModel(testName),

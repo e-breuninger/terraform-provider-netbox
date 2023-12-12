@@ -41,10 +41,10 @@ func dataSourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if *res.GetPayload().Count > int64(1) {
-		return errors.New("more than one result, specify a more narrow filter")
+		return errors.New("more than one platform returned, specify a more narrow filter")
 	}
 	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
+		return errors.New("no platform found matching filter")
 	}
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))

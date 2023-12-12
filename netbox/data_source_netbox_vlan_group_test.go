@@ -22,7 +22,7 @@ func TestAccNetboxVlanGroupDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      setUp + testAccNetboxVlanGroupDataNoResult,
-				ExpectError: regexp.MustCompile("no result"),
+				ExpectError: regexp.MustCompile("no vlan group found matching filter"),
 			},
 			{
 				Config: setUp + testAccNetboxVlanGroupDataByName(testName),
@@ -64,11 +64,11 @@ func TestAccNetboxVlanGroupDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      setUp + extendedSetUp + testAccNetboxVlanGroupDataByName(testName),
-				ExpectError: regexp.MustCompile("more than one result, specify a more narrow filter"),
+				ExpectError: regexp.MustCompile("more than one vlan group returned, specify a more narrow filter"),
 			},
 			{
 				Config:      setUp + extendedSetUp + testAccNetboxVlanGroupDataBySlug(testSlug),
-				ExpectError: regexp.MustCompile("more than one result, specify a more narrow filter"),
+				ExpectError: regexp.MustCompile("more than one vlan group returned, specify a more narrow filter"),
 			},
 		},
 	})
