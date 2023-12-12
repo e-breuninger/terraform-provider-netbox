@@ -50,8 +50,11 @@ func dataSourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) erro
 		return err
 	}
 
+	if *res.GetPayload().Count > int64(1) {
+		return errors.New("more than one route target returned, specify a more narrow filter")
+	}
 	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
+		return errors.New("no route target found matching filter")
 	}
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))

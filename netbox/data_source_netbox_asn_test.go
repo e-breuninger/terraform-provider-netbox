@@ -58,7 +58,7 @@ func TestAccNetboxAsnDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      setUp + testAccNetboxAsnNoResult,
-				ExpectError: regexp.MustCompile("expected one ASN, but got 0"),
+				ExpectError: regexp.MustCompile("no asn found matching filter"),
 			},
 			{
 				Config: setUp + testAccNetboxAsnByAsn(),

@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -72,8 +73,11 @@ func dataSourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	if count := *res.GetPayload().Count; count != 1 {
-		return fmt.Errorf("expected one site, but got %d", count)
+	if *res.GetPayload().Count > int64(1) {
+		return errors.New("more than one location returned, specify a more narrow filter")
+	}
+	if *res.GetPayload().Count == int64(0) {
+		return errors.New("no location found matching filter")
 	}
 
 	location := res.GetPayload().Results[0]

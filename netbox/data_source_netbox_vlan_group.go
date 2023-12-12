@@ -82,10 +82,10 @@ func dataSourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if *res.GetPayload().Count > int64(1) {
-		return errors.New("more than one result, specify a more narrow filter")
+		return errors.New("more than one vlan group returned, specify a more narrow filter")
 	}
 	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
+		return errors.New("no vlan group found matching filter")
 	}
 
 	result := res.GetPayload().Results[0]

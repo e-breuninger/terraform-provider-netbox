@@ -1,7 +1,7 @@
 package netbox
 
 import (
-	"fmt"
+	"errors"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -149,8 +149,11 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if count := *res.GetPayload().Count; count != int64(1) {
-		return fmt.Errorf("expected one prefix, but got %d", count)
+	if *res.GetPayload().Count > int64(1) {
+		return errors.New("more than prefix returned, specify a more narrow filter")
+	}
+	if *res.GetPayload().Count == int64(0) {
+		return errors.New("no prefix found matching filter")
 	}
 
 	result := res.GetPayload().Results[0]
