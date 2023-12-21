@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -50,6 +51,7 @@ func dataSourceNetboxCluster() *schema.Resource {
 			"cluster_group_id": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
 			"custom_fields": {
 				Type:     schema.TypeMap,
@@ -75,6 +77,11 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 
 	if id, ok := d.Get("id").(string); ok && id != "0" {
 		params.SetID(&id)
+	}
+
+	if clustergroupID, ok := d.Get("cluster_group_id").(int); ok && clustergroupID != 0 {
+		clustGroupStr := fmt.Sprintf("%d", clustergroupID)
+		params.GroupID = &clustGroupStr
 	}
 
 	limit := int64(2) // Limit of 2 is enough

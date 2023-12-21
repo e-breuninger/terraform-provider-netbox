@@ -53,6 +53,11 @@ data "netbox_cluster" "by_site_id" {
 data "netbox_cluster" "by_id" {
   id = netbox_cluster.test.id
 }
+
+data "netbox_cluster" "by_site_id_and_group_id" {
+	site_id          = netbox_cluster.test.site_id
+	cluster_group_id = netbox_cluster.test.cluster_group_id
+}
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "id", "netbox_cluster.test", "id"),
@@ -66,6 +71,7 @@ data "netbox_cluster" "by_id" {
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "tags.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "tags.0", testName),
+					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_site_id_and_group_id", "id", "netbox_cluster.test", "id"),
 				),
 			},
 		},
