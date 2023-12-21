@@ -23,13 +23,13 @@ data "netbox_cluster" "vmw_cluster_01" {
 
 ### Optional
 
+- `cluster_group_id` (Number)
 - `id` (String) At least one of `name`, `site_id` or `id` must be given.
 - `name` (String) At least one of `name`, `site_id` or `id` must be given.
 - `site_id` (Number) At least one of `name`, `site_id` or `id` must be given.
 
 ### Read-Only
 
-- `cluster_group_id` (Number)
 - `cluster_id` (Number)
 - `cluster_type_id` (Number)
 - `comments` (String)
