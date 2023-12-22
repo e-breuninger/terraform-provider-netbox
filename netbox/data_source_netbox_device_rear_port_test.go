@@ -74,7 +74,7 @@ data "netbox_device_rear_port" "test" {
 }
 
 func TestAccNetboxDeviceRearPortDataSource_basic(t *testing.T) {
-	testName := testAccGetTestName("module_bay_ds_basic")
+	testName := testAccGetTestName("device_rear_port_ds_basic")
 	setUp := testAccNetboxDeviceRearPortSetUp(testName)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,

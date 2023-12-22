@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceNetboxDeviceRearPort() *schema.Resource {
+func dataSourceNetboxDeviceFrontPort() *schema.Resource {
 	return &schema.Resource{
-		Read:        dataSourceNetboxDeviceRearPortRead,
+		Read:        dataSourceNetboxDeviceFrontPortRead,
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/models/dcim/moduletype/):`,
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -32,7 +32,11 @@ func dataSourceNetboxDeviceRearPort() *schema.Resource {
 				Optional:    true,
 				Description: "One of [8p8c, 8p6c, 8p4c, 8p2c, 6p6c, 6p4c, 6p2c, 4p4c, 4p2c, gg45, tera-4p, tera-2p, tera-1p, 110-punch, bnc, f, n, mrj21, fc, lc, lc-pc, lc-upc, lc-apc, lsh, lsh-pc, lsh-upc, lsh-apc, mpo, mtrj, sc, sc-pc, sc-upc, sc-apc, st, cs, sn, sma-905, sma-906, urm-p2, urm-p4, urm-p8, splice, other]",
 			},
-			"positions": {
+			"rear_port_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"rear_port_position": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -56,14 +60,14 @@ func dataSourceNetboxDeviceRearPort() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			tagsKey: tagsSchema,
+			tagsKey: tagsSchemaRead,
 		},
 	}
 }
 
-func dataSourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
-	params := dcim.NewDcimRearPortsListParams()
+	params := dcim.NewDcimFrontPortsListParams()
 
 	params.Limit = int64ToPtr(2)
 	if deviceID, ok := d.Get("device_id").(int); ok && deviceID != 0 {
@@ -74,13 +78,13 @@ func dataSourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) e
 		params.SetName(&name)
 	}
 
-	res, err := api.Dcim.DcimRearPortsList(params, nil)
+	res, err := api.Dcim.DcimFrontPortsList(params, nil)
 	if err != nil {
 		return err
 	}
 
 	if count := *res.GetPayload().Count; count != 1 {
-		return fmt.Errorf("expected one `netbox_device_rear_port`, but got %d", count)
+		return fmt.Errorf("expected one `netbox_device_front_port`, but got %d", count)
 	}
 
 	result := res.GetPayload().Results[0]
@@ -88,7 +92,8 @@ func dataSourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) e
 	d.Set("device_id", result.Device.ID)
 	d.Set("name", result.Name)
 	d.Set("type", result.Type.Value)
-	d.Set("positions", result.Positions)
+	d.Set("rear_port_id", result.RearPort.ID)
+	d.Set("rear_port_position", result.RearPortPosition)
 
 	if result.Module != nil {
 		d.Set("module_id", result.Module.ID)

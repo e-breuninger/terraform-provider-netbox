@@ -56,7 +56,7 @@ func dataSourceNetboxDeviceRearPort() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			tagsKey: tagsSchema,
+			tagsKey: tagsSchemaRead,
 		},
 	}
 }

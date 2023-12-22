@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func testAccNetboxDeviceRearPortSetUp(testName string) string {
+func testAccNetboxDeviceFrontPortSetUp(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_manufacturer" "test" {
   name = "%[1]s"
@@ -50,48 +50,66 @@ resource "netbox_device_rear_port" "test" {
   type           = "8p8c"
   positions      = 2
   mark_connected = true
+}
+
+resource "netbox_device_front_port" "test" {
+  device_id = netbox_device.test.id
+  name = "%[1]s"
+  type = "8p8c"
+  rear_port_id = netbox_device_rear_port.test.id
+  rear_port_position = 1
+
+  mark_connected = true
+  label = "%[1]s_label"
+  #color_hex = "123456"
+  description = "test_description"
+  #tags = ["%[1]sa"]
 }`, testName)
 }
 
-const testAccNetboxDeviceRearPortNoResult = `
-data "netbox_device_rear_port" "test" {
+const testAccNetboxDeviceFrontPortNoResult = `
+data "netbox_device_front_port" "test" {
   device_id = netbox_device.test.id
   name = "_does_not_exist_"
   depends_on = [
-      netbox_device_rear_port.test
+      netbox_device_front_port.test
     ]
 }`
 
-func testAccNetboxDeviceRearPortByName(testName string) string {
+func testAccNetboxDeviceFrontPortByName(testName string) string {
 	return fmt.Sprintf(`
-data "netbox_device_rear_port" "test" {
+data "netbox_device_front_port" "test" {
   device_id = netbox_device.test.id
   name = "%[1]s"
   depends_on = [
-      netbox_device_rear_port.test
+      netbox_device_front_port.test
     ]
 }`, testName)
 }
 
-func TestAccNetboxDeviceRearPortDataSource_basic(t *testing.T) {
-	testName := testAccGetTestName("module_bay_ds_basic")
-	setUp := testAccNetboxDeviceRearPortSetUp(testName)
+func TestAccNetboxDeviceFrontPortDataSource_basic(t *testing.T) {
+	testName := testAccGetTestName("device_front_port_ds_basic")
+	setUp := testAccNetboxDeviceFrontPortSetUp(testName)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      setUp + testAccNetboxDeviceRearPortNoResult,
+				Config:      setUp + testAccNetboxDeviceFrontPortNoResult,
 				ExpectError: regexp.MustCompile("expected one"),
 			},
 			{
-				Config: setUp + testAccNetboxDeviceRearPortByName(testName),
+				Config: setUp + testAccNetboxDeviceFrontPortByName(testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("data.netbox_device_rear_port.test", "id", "netbox_device_rear_port.test", "id"),
-					resource.TestCheckResourceAttr("data.netbox_device_rear_port.test", "name", testName),
-					resource.TestCheckResourceAttr("data.netbox_device_rear_port.test", "description", "test_description"),
-					resource.TestCheckResourceAttr("data.netbox_device_rear_port.test", "type", "8p8c"),
-					resource.TestCheckResourceAttr("data.netbox_device_rear_port.test", "positions", "2"),
-					resource.TestCheckResourceAttr("data.netbox_device_rear_port.test", "mark_connected", "true"),
+					resource.TestCheckResourceAttrPair("data.netbox_device_front_port.test", "id", "netbox_device_front_port.test", "id"),
+					resource.TestCheckResourceAttr("data.netbox_device_front_port.test", "name", testName),
+					resource.TestCheckResourceAttr("data.netbox_device_front_port.test", "type", "8p8c"),
+					resource.TestCheckResourceAttrPair("data.netbox_device_front_port.test", "rear_port_id", "netbox_device_front_port.test", "rear_port_id"),
+					resource.TestCheckResourceAttr("data.netbox_device_front_port.test", "rear_port_position", "1"),
+					resource.TestCheckResourceAttr("data.netbox_device_front_port.test", "module_id", "0"),
+					resource.TestCheckResourceAttr("data.netbox_device_front_port.test", "label", testName+"_label"),
+					resource.TestCheckResourceAttr("data.netbox_device_front_port.test", "color_hex", ""),
+					resource.TestCheckResourceAttr("data.netbox_device_front_port.test", "description", "test_description"),
+					resource.TestCheckResourceAttr("data.netbox_device_front_port.test", "mark_connected", "true"),
 				),
 			},
 		},
