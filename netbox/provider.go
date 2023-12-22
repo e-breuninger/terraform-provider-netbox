@@ -159,6 +159,7 @@ func Provider() *schema.Provider {
 			"netbox_prefix":            dataSourceNetboxPrefix(),
 			"netbox_prefixes":          dataSourceNetboxPrefixes(),
 			"netbox_devices":           dataSourceNetboxDevices(),
+			"netbox_device_rear_port":  dataSourceNetboxDeviceRearPort(),
 			"netbox_device_module_bay": dataSourceNetboxDeviceModuleBay(),
 			"netbox_device_role":       dataSourceNetboxDeviceRole(),
 			"netbox_device_type":       dataSourceNetboxDeviceType(),

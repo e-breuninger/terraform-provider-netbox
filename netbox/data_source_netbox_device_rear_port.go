@@ -54,7 +54,6 @@ func dataSourceNetboxDeviceRearPort() *schema.Resource {
 			},
 			"mark_connected": {
 				Type:     schema.TypeBool,
-				Default:  false,
 				Optional: true,
 			},
 			tagsKey: tagsSchema,
@@ -64,41 +63,44 @@ func dataSourceNetboxDeviceRearPort() *schema.Resource {
 
 func dataSourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
-	params := dcim.NewDcimModuleTypesListParams()
+	params := dcim.NewDcimRearPortsListParams()
 
 	params.Limit = int64ToPtr(2)
-	if manufacturerID, ok := d.Get("manufacturer_id").(int); ok && manufacturerID != 0 {
-		manufacturerID := strconv.Itoa(manufacturerID)
-		params.SetManufacturerID(&manufacturerID)
+	if deviceID, ok := d.Get("device_id").(int); ok && deviceID != 0 {
+		deviceID := strconv.Itoa(deviceID)
+		params.SetDeviceID(&deviceID)
 	}
-	if model, ok := d.Get("model").(string); ok && model != "" {
-		params.SetModel(&model)
+	if name, ok := d.Get("name").(string); ok && name != "" {
+		params.SetName(&name)
 	}
 
-	res, err := api.Dcim.DcimModuleTypesList(params, nil)
+	res, err := api.Dcim.DcimRearPortsList(params, nil)
 	if err != nil {
 		return err
 	}
 
 	if count := *res.GetPayload().Count; count != 1 {
-		return fmt.Errorf("expected one `netbox_module_type`, but got %d", count)
+		return fmt.Errorf("expected one `netbox_device_rear_port`, but got %d", count)
 	}
 
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
-	d.Set("manufacturer_id", result.Manufacturer.ID)
-	d.Set("model", result.Model)
-	d.Set("part_number", result.PartNumber)
-	d.Set("weight", result.Weight)
+	d.Set("device_id", result.Device.ID)
+	d.Set("name", result.Name)
+	d.Set("type", result.Type.Value)
+	d.Set("positions", result.Positions)
 
-	if result.WeightUnit != nil {
-		d.Set("weight_unit", result.WeightUnit.Value)
+	if result.Module != nil {
+		d.Set("module_id", result.Module.ID)
 	} else {
-		d.Set("weight_unit", nil)
+		d.Set("module_id", nil)
 	}
 
+	d.Set("label", result.Label)
+	d.Set("color_hex", result.Color)
 	d.Set("description", result.Description)
-	d.Set("comments", result.Comments)
+	d.Set("mark_connected", result.MarkConnected)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))
 
 	return nil
