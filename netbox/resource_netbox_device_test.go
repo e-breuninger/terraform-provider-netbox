@@ -258,6 +258,7 @@ func TestAccNetboxDevice_virtual_chassis(t *testing.T) {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
+	tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -280,6 +281,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
+	tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -300,6 +302,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
+	tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -317,6 +320,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
+	tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
