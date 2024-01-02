@@ -1,3 +1,18 @@
+## 3.7.6 (January 2nd, 2024)
+
+ENHANCEMENTS
+
+* resource/netbox_webhook: Add `additional_headers` and `conditions` attributes ([#505](https://github.com/e-breuninger/terraform-provider-netbox/pull/505) by [@Ikke](https://github.com/Ikke))
+* data-source/netbox_vrfs: Allow filtering by `tag` ([#513](https://github.com/e-breuninger/terraform-provider-netbox/pull/513) by [@sjurtf](https://github.com/sjurtf))
+* data-source/netbox_virtual_machines: Allow filtering by `tenant_id` ([#511](https://github.com/e-breuninger/terraform-provider-netbox/pull/511) by [@sjurtf](https://github.com/sjurtf))
+* data-source/netbox_ip_addresses: Allow filtering by `tag` ([#510](https://github.com/e-breuninger/terraform-provider-netbox/pull/510) by [@sjurtf](https://github.com/sjurtf))
+* data-source/netbox_cluster: Allow filtering by `cluster_group_id` ([#528](https://github.com/e-breuninger/terraform-provider-netbox/pull/528) by [@Ikke](https://github.com/Ikke))
+
+BUG FIXES
+
+* resources/netbox_webhook: Fix a bug where JSON encoding would break drift detection ([#505](https://github.com/e-breuninger/terraform-provider-netbox/pull/505) by [@Ikke](https://github.com/Ikke))
+* data-source/netbox_site: Mark optionally searchable attributes as `computed` as well ([#520](https://github.com/e-breuninger/terraform-provider-netbox/pull/520) by [@tagur87](https://github.com/tagur87))
+
 ## 3.7.5 (November 27th, 2023)
 
 * **New Data Source:** `netbox_locations` ([#503](https://github.com/e-breuninger/terraform-provider-netbox/pull/503) by [@Ikke](https://github.com/Ikke))
