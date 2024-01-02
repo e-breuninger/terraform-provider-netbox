@@ -207,6 +207,13 @@ func virtualChassisUpdateMaster(api *client.NetBoxAPI, id int64, master *int64) 
 	}
 	vcData := vcRes.GetPayload()
 	vcData.Master = nil
+	newTags := make([]*models.NestedTag, 0)
+	for _, Tag := range vcData.Tags {
+		Tag.Display = ""
+		Tag.ID = 0
+		Tag.URL = ""
+		newTags = append(newTags,Tag)
+	}
 
 	// Need to manually copy data because there is no automatic method to convert
 	// from VirtualChassis to WritableVirtualChassis
@@ -216,7 +223,7 @@ func virtualChassisUpdateMaster(api *client.NetBoxAPI, id int64, master *int64) 
 		Domain:      vcData.Domain,
 		Name:        vcData.Name,
 		Comments:    vcData.Comments,
-		Tags:        vcData.Tags,
+		Tags:        newTags,
 		Master:      master,
 	}
 
