@@ -394,8 +394,8 @@ resource "netbox_ip_address" "test" {
 }
 
 func TestAccNetboxIPAddress_nat(t *testing.T) {
-	testIP := "1.1.1.8/32"
-	testIPInside := "1.1.1.9/32"
+	testIP := "1.1.1.10/32"
+	testIPInside := "1.1.1.11/32"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

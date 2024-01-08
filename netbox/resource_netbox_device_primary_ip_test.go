@@ -90,7 +90,7 @@ resource "netbox_device_interface" "test" {
 }
 
 resource "netbox_ip_address" "test_v4" {
-  ip_address = "1.1.1.1/32"
+  ip_address = "1.1.1.12/32"
   status = "active"
   interface_id = netbox_device_interface.test.id
   object_type = "dcim.interface"
