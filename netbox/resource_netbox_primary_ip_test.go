@@ -82,7 +82,7 @@ resource "netbox_interface" "test" {
 }
 
 resource "netbox_ip_address" "test_v4" {
-  ip_address = "1.1.1.1/32"
+  ip_address = "1.1.1.13/32"
   status = "active"
   virtual_machine_interface_id = netbox_interface.test.id
 }
