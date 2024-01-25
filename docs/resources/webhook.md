@@ -18,10 +18,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/integrations
 ```terraform
 resource "netbox_webhook" "test" {
   name              = "test"
-  enabled           = "true"
-  trigger_on_create = true
   payload_url       = "https://example.com/webhook"
-  content_types     = ["dcim.site"]
   bodytemplate      = "Sample body"
 }
 ```
@@ -31,7 +28,6 @@ resource "netbox_webhook" "test" {
 
 ### Required
 
-- `content_types` (Set of String)
 - `name` (String)
 - `payload_url` (String)
 
@@ -39,13 +35,8 @@ resource "netbox_webhook" "test" {
 
 - `additional_headers` (String)
 - `body_template` (String)
-- `conditions` (String)
-- `enabled` (Boolean)
 - `http_content_type` (String) The complete list of official content types is available [here](https://www.iana.org/assignments/media-types/media-types.xhtml). Defaults to `application/json`.
 - `http_method` (String) Valid values are `GET`, `POST`, `PUT`, `PATCH` and `DELETE`. Defaults to `POST`.
-- `trigger_on_create` (Boolean)
-- `trigger_on_delete` (Boolean)
-- `trigger_on_update` (Boolean)
 
 ### Read-Only
 

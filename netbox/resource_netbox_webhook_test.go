@@ -15,10 +15,7 @@ import (
 
 func TestAccNetboxWebhook_basic(t *testing.T) {
 	testName := testAccGetTestName("webhook_basic")
-	testEnabled := "true"
-	triggerOnCreate := "true"
 	testPayloadURL := "https://example.com/webhook"
-	testContentType := "dcim.site"
 	testBodyTemplate := "Sample Body"
 	testAdditionalHeaders := "Authentication: Bearer abcdef123456"
 	resource.ParallelTest(t, resource.TestCase{
@@ -29,26 +26,15 @@ func TestAccNetboxWebhook_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_webhook" "test" {
   name               = "%s"
-  enabled            = "%s"
-  trigger_on_create  = "%s"
   payload_url        = "%s"
-  content_types      = ["%s"]
   body_template      = "%s"
   additional_headers = "%s"
-  conditions         = <<-JSON
-    {"and": [{"attr": "status.value", "value": "active"}]}
-  JSON
-}`, testName, testEnabled, triggerOnCreate, testPayloadURL, testContentType, testBodyTemplate, testAdditionalHeaders),
+}`, testName, testPayloadURL, testBodyTemplate, testAdditionalHeaders),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "enabled", testEnabled),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_create", triggerOnCreate),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "payload_url", testPayloadURL),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "content_types.#", "1"),
-					resource.TestCheckTypeSetElemAttr("netbox_webhook.test", "content_types.*", testContentType),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "body_template", testBodyTemplate),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "additional_headers", testAdditionalHeaders),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "conditions", `{"and":[{"attr":"status.value","value":"active"}]}`),
 				),
 			},
 			{
@@ -62,13 +48,7 @@ resource "netbox_webhook" "test" {
 
 func TestAccNetboxWebhook_update(t *testing.T) {
 	testName := testAccGetTestName("webhook_update")
-	testEnabled := "true"
 	testPayloadURL := "https://example.com/webhookupdate"
-	triggerOnCreate := "true"
-	triggerOnUpdate := "true"
-	triggerOnDelete := "true"
-	testContentType := "dcim.site"
-	testContentType1 := "dcim.cable"
 	testBodyTemplate := `{"text": "This is a sample json"}`
 	testHTTPMethod := "PUT"
 	testHTTPContentType := "application/xml"
@@ -81,27 +61,16 @@ func TestAccNetboxWebhook_update(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_webhook" "test" {
 	name              = "%s"
-	enabled           = "%s"
-	trigger_on_create = "%s"
-	trigger_on_update = "%s"
-	trigger_on_delete = "%s"
 	payload_url       = "%s"
-	content_types     = ["%s"]
 	body_template        = <<-EOT
 	{"text": "This is a sample json"}
 	EOT
         http_method       = "%s"
         http_content_type = "%s"
-  }`, testName, testEnabled, triggerOnCreate, triggerOnUpdate, triggerOnDelete, testPayloadURL, testContentType, testHTTPMethod, testHTTPContentType),
+  }`, testName, testPayloadURL, testHTTPMethod, testHTTPContentType),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "enabled", testEnabled),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_create", triggerOnCreate),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_update", triggerOnUpdate),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_delete", triggerOnDelete),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "payload_url", testPayloadURL),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "content_types.#", "1"),
-					resource.TestCheckTypeSetElemAttr("netbox_webhook.test", "content_types.*", testContentType),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "body_template", testBodyTemplate),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "http_method", testHTTPMethod),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "http_content_type", testHTTPContentType),
@@ -111,26 +80,14 @@ resource "netbox_webhook" "test" {
 				Config: fmt.Sprintf(`
 resource "netbox_webhook" "test" {
   name                 = "%s_updated"
-  enabled              = "%s"
-  trigger_on_create    = "%s"
-  trigger_on_update    = "%s"
-  trigger_on_delete    = "%s"
   payload_url          = "%s"
-  content_types        = ["%s", "%s"]
   body_template        = <<-EOT
   {"text": "This is a sample json"}
   EOT
-}`, testName, testEnabled, triggerOnCreate, triggerOnUpdate, triggerOnDelete, testPayloadURL, testContentType, testContentType1),
+}`, testName, testPayloadURL),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName+"_updated"),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "enabled", testEnabled),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_create", triggerOnCreate),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_update", triggerOnUpdate),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_delete", triggerOnDelete),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "payload_url", testPayloadURL),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "content_types.#", "2"),
-					resource.TestCheckTypeSetElemAttr("netbox_webhook.test", "content_types.*", testContentType),
-					resource.TestCheckTypeSetElemAttr("netbox_webhook.test", "content_types.*", testContentType1),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "body_template", testBodyTemplate),
 				),
 			},
@@ -140,12 +97,7 @@ resource "netbox_webhook" "test" {
 
 func TestAccNetboxWebhook_import(t *testing.T) {
 	testName := testAccGetTestName("webhook_import")
-	triggerOnCreate := "true"
-	triggerOnUpdate := "false"
-	triggerOnDelete := "false"
-	testEnabled := "true"
 	testPayloadURL := "https://test2.com/webhook"
-	testContentType := "dcim.site"
 
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -155,22 +107,11 @@ func TestAccNetboxWebhook_import(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_webhook" "test" {
   name                   = "%s"
-  enabled                = "%s"
-  trigger_on_create 	 = "%s"
-  trigger_on_update 	 = "%s"
-  trigger_on_delete 	 = "%s"
   payload_url            = "%s"
-  content_types          = ["%s"]
-}`, testName, testEnabled, triggerOnCreate, triggerOnUpdate, triggerOnDelete, testPayloadURL, testContentType),
+}`, testName, testPayloadURL),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "enabled", testEnabled),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_create", triggerOnCreate),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_update", triggerOnUpdate),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "trigger_on_delete", triggerOnDelete),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "payload_url", testPayloadURL),
-					resource.TestCheckResourceAttr("netbox_webhook.test", "content_types.#", "1"),
-					resource.TestCheckTypeSetElemAttr("netbox_webhook.test", "content_types.*", testContentType),
 				),
 			},
 			{
