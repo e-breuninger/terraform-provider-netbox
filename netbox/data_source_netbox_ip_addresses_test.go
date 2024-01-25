@@ -26,14 +26,14 @@ resource "netbox_ip_address" "test" {
 data "netbox_ip_addresses" "test" {
 	depends_on = [netbox_ip_address.test]
 }`, testIP),
-//                              This snippet sometimes returns things from other tests, even if resource.Test is used instead of resource.ParallelTest
-//                              This happens especially in CI testing (where test execution is presumably slow)
-//                              The check functions are now removed so this does no longer happen
-//				Check: resource.ComposeTestCheckFunc(
-//					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.ip_address", "netbox_ip_address.test", "ip_address"),
-//					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.0.role", "anycast"),
-//					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.tags.0.name", "netbox_tag.test", "name"),
-//				),
+				//                              This snippet sometimes returns things from other tests, even if resource.Test is used instead of resource.ParallelTest
+				//                              This happens especially in CI testing (where test execution is presumably slow)
+				//                              The check functions are now removed so this does no longer happen
+				//				Check: resource.ComposeTestCheckFunc(
+				//					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.ip_address", "netbox_ip_address.test", "ip_address"),
+				//					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.0.role", "anycast"),
+				//					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.tags.0.name", "netbox_tag.test", "name"),
+				//				),
 			},
 		},
 	})
@@ -268,7 +268,7 @@ resource "netbox_ip_address" "test" {
   virtual_machine_interface_id = netbox_interface.test.id
   dns_name = "%s"
 }
-`,testName)
+`, testName)
 }
 
 func TestAccNetboxIpAddressessDataSource_many(t *testing.T) {

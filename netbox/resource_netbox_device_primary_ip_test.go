@@ -88,20 +88,6 @@ resource "netbox_device_interface" "test" {
   name = "%[1]s"
   type = "1000base-t"
 }
-
-resource "netbox_ip_address" "test_v4" {
-  ip_address = "1.1.1.12/32"
-  status = "active"
-  interface_id = netbox_device_interface.test.id
-  object_type = "dcim.interface"
-}
-
-resource "netbox_ip_address" "test_v6" {
-  ip_address = "2000::1/128"
-  status = "active"
-  interface_id = netbox_device_interface.test.id
-  object_type = "dcim.interface"
-}
 `, testName)
 }
 
@@ -114,6 +100,13 @@ func TestAccNetboxDevicePrimaryIP4_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxDevicePrimaryIPFullDependencies(testName) + `
+resource "netbox_ip_address" "test_v4" {
+  ip_address = "1.1.1.12/32"
+  status = "active"
+  interface_id = netbox_device_interface.test.id
+  object_type = "dcim.interface"
+}
+
 resource "netbox_device_primary_ip" "test_v4" {
   device_id = netbox_device.test.id
   ip_address_id = netbox_ip_address.test_v4.id
@@ -140,7 +133,7 @@ resource "netbox_device_primary_ip" "test_v4" {
 }
 
 func TestAccNetboxDevicePrimaryIP6_basic(t *testing.T) {
-	testSlug := "pr_ip_basic"
+	testSlug := "pr_ipv6_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -148,6 +141,12 @@ func TestAccNetboxDevicePrimaryIP6_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxDevicePrimaryIPFullDependencies(testName) + `
+resource "netbox_ip_address" "test_v6" {
+  ip_address = "2001::1/128"
+  status = "active"
+  interface_id = netbox_device_interface.test.id
+  object_type = "dcim.interface"
+}
 resource "netbox_device_primary_ip" "test_v6" {
   device_id = netbox_device.test.id
   ip_address_id = netbox_ip_address.test_v6.id

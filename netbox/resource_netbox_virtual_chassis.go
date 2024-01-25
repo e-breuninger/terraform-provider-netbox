@@ -212,7 +212,7 @@ func virtualChassisUpdateMaster(api *client.NetBoxAPI, id int64, master *int64) 
 		Tag.Display = ""
 		Tag.ID = 0
 		Tag.URL = ""
-		newTags = append(newTags,Tag)
+		newTags = append(newTags, Tag)
 	}
 
 	// Need to manually copy data because there is no automatic method to convert
