@@ -1,3 +1,17 @@
+## 3.8.0 (January 30th, 2024)
+
+**BREAKING CHANGES**
+Due to a change in NetBox 3.7's behavior regarding Webhooks and the corresponding changes in the API,
+the `netbox_webhook` resource might cause problems with NetBox versions older than 3.7.0.
+For all other resources and data sources, the provider should still perform fine with older NetBox versions.
+
+* resource/netbox_webhook: Removed `enabled`, `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `content_types` and `conditions`
+
+ENHANCEMENTS
+
+* provider: Now officially supports NetBox 3.7
+* **New Resource:** `netbox_event_rule`
+
 ## 3.7.7 (January 30th, 2024)
 
 BUG FIXES
