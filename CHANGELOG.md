@@ -1,3 +1,9 @@
+## 3.7.7 (January 30th, 2024)
+
+BUG FIXES
+
+* resource/netbox_device: Fix Virtual Chassis Master Update Function for Tag Input ([#532](https://github.com/e-breuninger/terraform-provider-netbox/pull/532) by [@adelekanley](https://github.com/adelekanley))
+
 ## 3.7.6 (January 2nd, 2024)
 
 ENHANCEMENTS
