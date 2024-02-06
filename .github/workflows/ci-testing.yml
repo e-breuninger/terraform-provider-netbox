@@ -34,6 +34,7 @@ jobs:
         netbox-version:
           - v3.7.0
           - v3.7.1
+          - v3.7.2
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go
