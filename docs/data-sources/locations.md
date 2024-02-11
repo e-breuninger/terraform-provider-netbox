@@ -43,6 +43,7 @@ Read-Only:
 - `description` (String)
 - `id` (String)
 - `name` (String)
+- `parent_id` (Number)
 - `site_id` (Number)
 - `slug` (String)
 - `status` (String)

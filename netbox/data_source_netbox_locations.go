@@ -83,6 +83,10 @@ func dataSourceNetboxLocations() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"parent_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -113,6 +117,8 @@ func dataSourceNetboxLocationsRead(d *schema.ResourceData, m interface{}) error 
 				params.Site = &vString
 			case "site_id":
 				params.SiteID = &vString
+			case "parent_id":
+				params.ParentID = &vString
 			case "tenant":
 				params.Tenant = &vString
 			case "tenant_id":
@@ -148,6 +154,10 @@ func dataSourceNetboxLocationsRead(d *schema.ResourceData, m interface{}) error 
 		mapping["slug"] = v.Slug
 		mapping["site_id"] = v.Site.ID
 		mapping["description"] = v.Description
+
+		if v.Parent != nil {
+			mapping["parent_id"] = v.Parent.ID
+		}
 
 		if v.Status != nil {
 			mapping["status"] = v.Status.Value

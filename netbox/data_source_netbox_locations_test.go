@@ -90,6 +90,7 @@ data "netbox_locations" "by_tags" {
 					resource.TestCheckResourceAttrPair("data.netbox_locations.by_name", "locations.0.name", "netbox_location.test", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_locations.by_name", "locations.0.site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_locations.by_name", "locations.0.tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttr("data.netbox_locations.by_name", "locations.0.parent_id", "0"),
 					resource.TestCheckResourceAttr("data.netbox_locations.by_name", "locations.0.description", "my-description"),
 					resource.TestCheckResourceAttr("data.netbox_locations.no_match", "locations.#", "0"),
 					resource.TestCheckResourceAttr("data.netbox_locations.by_site_slug", "locations.#", "1"),
@@ -161,6 +162,61 @@ data "netbox_locations" "by_tag" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_locations.by_site", "locations.#", "2"),
 					resource.TestCheckResourceAttr("data.netbox_locations.by_tag", "locations.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxLocationsDataSource_sublocations(t *testing.T) {
+	testSlug := "sublocations_ds_multiple"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_site" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_tenant" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_location" "parent" {
+  name        = "%[1]s_1"
+  site_id     = netbox_site.test.id
+  tenant_id   = netbox_tenant.test.id
+}
+
+resource "netbox_location" "test1" {
+  name        = "%[1]s_1"
+  parent_id   = netbox_location.parent.id
+  site_id     = netbox_site.test.id
+  tenant_id   = netbox_tenant.test.id
+}
+
+resource "netbox_location" "test2" {
+  name        = "%[1]s_2"
+  parent_id   = netbox_location.parent.id
+  site_id     = netbox_site.test.id
+  tenant_id   = netbox_tenant.test.id
+}
+
+data "netbox_locations" "by_parent" {
+	filter {
+		name  = "parent_id"
+		value = netbox_location.parent.id
+	}
+	depends_on = [netbox_location.test1, netbox_location.test2]
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_locations.by_parent", "locations.#", "2"),
+					resource.TestCheckResourceAttrPair("data.netbox_locations.by_parent", "locations.0.parent_id", "netbox_location.parent", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_locations.by_parent", "locations.1.parent_id", "netbox_location.parent", "id"),
+					//resource.TestCheckResourceAttr("data.netbox_locations.by_parent", "locations.1.parent_id", "223"),
+					//resource.TestCheckResourceAttr("data.netbox_locations.by_tag", "locations.#", "1"),
 				),
 			},
 		},

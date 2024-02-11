@@ -18,6 +18,7 @@ description: |-
 ### Optional
 
 - `name` (String)
+- `parent_id` (Number)
 - `site_id` (Number)
 - `slug` (String)
 
