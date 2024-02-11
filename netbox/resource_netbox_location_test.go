@@ -14,7 +14,9 @@ import (
 func TestAccNetboxLocation_basic(t *testing.T) {
 	testSlug := "location_basic"
 	testName := testAccGetTestName(testSlug)
+	testNameSub := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
+	randomSlugSub := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -35,13 +37,22 @@ resource "netbox_location" "test" {
   description = "my-description"
   site_id     = netbox_site.test.id
   tenant_id   = netbox_tenant.test.id
-}`, testName, randomSlug),
+}
+
+resource "netbox_location" "test-sub" {
+  name        = "%[3]s"
+  slug        = "%[4]s"
+  description = "my-description"
+  parent_id   = netbox_location.test.id
+  site_id     = netbox_site.test.id
+}`, testName, randomSlug, testNameSub, randomSlugSub),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_location.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_location.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_location.test", "description", "my-description"),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_location.test", "id", "netbox_location.test-sub", "parent_id"),
 				),
 			},
 			{
