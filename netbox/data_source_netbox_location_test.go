@@ -49,7 +49,7 @@ data "netbox_location" "by_name_and_site" {
 }
 
 data "netbox_location" "sub_by_name" {
-  name = netbox_location.test-sub.name
+  name = netbox_location.test_sub.name
 }
 
 data "netbox_location" "by_id" {
