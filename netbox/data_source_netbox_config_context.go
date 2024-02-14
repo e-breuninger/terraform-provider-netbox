@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"encoding/json"
 	"errors"
 	"strconv"
 
@@ -23,9 +24,8 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 				Computed: true,
 			},
 			"data": &schema.Schema{
-				Type:     schema.TypeMap,
+				Type:     schema.TypeString,
 				Computed: true,
-				//				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
 			"cluster_groups": &schema.Schema{
 				Type:     schema.TypeList,
@@ -159,7 +159,13 @@ func dataSourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) er
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("weight", result.Weight)
-	d.Set("data", result.Data)
+	if result.Data != nil {
+		if jsonArr, err := json.Marshal(result.Data); err == nil {
+			d.Set("data", string(jsonArr))
+		}
+	} else {
+		d.Set("data", nil)
+	}
 	cluster_groups := make([]int64, len(result.ClusterGroups))
 	for i, v := range result.ClusterGroups {
 		cluster_groups[i] = int64(v.ID)

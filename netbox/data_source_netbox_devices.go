@@ -4,15 +4,18 @@
 package netbox
 
 import (
+	"encoding/json"
 	"fmt"
-	"regexp"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"net"
+	"regexp"
+	"strings"
 )
 
 func dataSourceNetboxDevices() *schema.Resource {

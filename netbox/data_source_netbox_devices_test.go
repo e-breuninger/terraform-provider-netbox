@@ -4,6 +4,7 @@
 package netbox
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -200,7 +201,7 @@ resource "netbox_device" "test0" {
   serial = "ABCDEF0"
   status = "staged"
   tags = [netbox_tag.test_a.name]
-  local_context_data = {"testkey0"="testvalue0"}
+  local_context_data = jsonencode({"testkey0"="testvalue0"})
 }
 
 resource "netbox_device" "test1" {
@@ -213,7 +214,7 @@ resource "netbox_device" "test1" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF1"
-  local_context_data = {"testkey1"="testvalue1"}
+  local_context_data = jsonencode({"testkey1"="testvalue1"})
 }
 
 resource "netbox_device" "test2" {
@@ -227,7 +228,7 @@ resource "netbox_device" "test2" {
   location_id = netbox_location.test.id
   serial = "ABCDEF2"
   tags = [netbox_tag.test_b.name, netbox_tag.test_c.name]
-  local_context_data = {"testkey2"="testvalue2"}
+  local_context_data = jsonencode({"testkey2"="testvalue2"})
 }
 
 resource "netbox_device" "test3" {
@@ -240,7 +241,7 @@ resource "netbox_device" "test3" {
   platform_id = netbox_platform.test.id
   location_id = netbox_location.test.id
   serial = "ABCDEF3"
-  local_context_data = {"testkey3"="testvalue3"}
+  local_context_data = jsonencode({"testkey3"="testvalue3"})
 }
 `, testName)
 }

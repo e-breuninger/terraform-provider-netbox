@@ -23,11 +23,11 @@ func TestAccNetboxConfigContext_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_config_context" "test" {
   name = "%s"
-  data = {"testkey" = "testval"}
+  data = jsonencode({"testkey" = "testval"})
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_config_context.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_config_context.test", "data.testkey", "testval"),
+					resource.TestCheckResourceAttr("netbox_config_context.test", "data", "{\"testkey\":\"testval\"}"),
 				),
 			},
 			{
@@ -51,7 +51,7 @@ func TestAccNetboxConfigContext_defaultWeight(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_config_context" "test" {
   name = "%s"
-  data = {"testkey" = "testval"}
+  data = jsonencode({"testkey" = "testval"})
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_config_context.test", "name", testName),
@@ -140,7 +140,7 @@ resource "netbox_device_type" "test" {
 # Untested: cluster_groups, regions, site_groups, tenant_groups
 resource "netbox_config_context" "test" {
   name = "%[1]s"
-  data = {"testkey" = "testval"}
+  data = jsonencode({"testkey" = "testval"})
   regions = [netbox_region.test.id]
   tenant_groups = [netbox_tenant_group.test.id]
   tenants = [netbox_tenant.test.id]

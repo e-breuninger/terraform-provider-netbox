@@ -65,10 +65,6 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"local_context_data": {
-				Type:     schema.TypeMap,
-				Optional: true,
-			},
 			"memory_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -416,7 +412,6 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		local_context_data := map[string]string{}
 		data.LocalContextData = local_context_data
 	}
-
 
 	localContextValue, ok := d.GetOk("local_context_data")
 	if ok {

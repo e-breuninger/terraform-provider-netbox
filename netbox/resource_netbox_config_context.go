@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"encoding/json"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -32,7 +33,7 @@ func resourceNetboxConfigContext() *schema.Resource {
 				Default:  1000,
 			},
 			"data": &schema.Schema{
-				Type:     schema.TypeMap,
+				Type:     schema.TypeString,
 				Required: true,
 				//				ValidateFunc: validation.StringLenBetween(0, 30),
 			},
@@ -153,8 +154,14 @@ func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) er
 
 	name := d.Get("name").(string)
 	data.Name = &name
-	dataJson := d.Get("data").(map[string]interface{})
-	data.Data = &dataJson
+	dataJson, ok := d.GetOk("data")
+	if ok {
+		var jsonObj any
+		localContextBA := []byte(dataJson.(string))
+		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
+			data.Data = jsonObj
+		}
+	}
 
 	cluster_groups := d.Get("cluster_groups").([]interface{})
 	data.ClusterGroups = make([]int64, len(cluster_groups))
@@ -264,7 +271,13 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("weight", res.GetPayload().Weight)
-	d.Set("data", res.GetPayload().Data)
+	if res.GetPayload().Data != nil {
+		if jsonArr, err := json.Marshal(res.GetPayload().Data); err == nil {
+			d.Set("data", string(jsonArr))
+		}
+	} else {
+		d.Set("data", nil)
+	}
 
 	cluster_groups := res.GetPayload().ClusterGroups
 	clusterGroupsSlice := make([]int64, len(cluster_groups))
@@ -411,8 +424,15 @@ func resourceNetboxConfigContextUpdate(d *schema.ResourceData, m interface{}) er
 
 	name := d.Get("name").(string)
 	data.Name = &name
-	dataJson := d.Get("data").(map[string]interface{})
-	data.Data = &dataJson
+
+	dataValue, ok := d.GetOk("data")
+	if ok {
+		var jsonObj any
+		localContextBA := []byte(dataValue.(string))
+		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
+			data.Data = jsonObj
+		}
+	}
 
 	cluster_groups := d.Get("cluster_groups").([]interface{})
 	data.ClusterGroups = make([]int64, len(cluster_groups))

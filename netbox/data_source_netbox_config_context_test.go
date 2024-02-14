@@ -19,7 +19,7 @@ func TestAccNetboxConfigContextDataSource_basic(t *testing.T) {
 resource "netbox_config_context" "test" {
   name = "%[1]s"
   weight = 1000
-  data = {"testkey" = "testval"}
+  data = jsonencode({"testkey" = "testval"})
 }
 data "netbox_config_context" "test" {
   depends_on = [netbox_config_context.test]
