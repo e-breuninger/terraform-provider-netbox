@@ -124,3 +124,10 @@ resource "netbox_webhook" "testwebhook" {
   content_types = "dcim.site"
   body_template = "Sample Body"
 }
+
+resource "netbox_config_context" "test" {
+  name = "My Config Context"
+  data = jsonencode(
+    { "testkey" = "testval" }
+  )
+}
