@@ -187,9 +187,12 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Site = int64ToPtr(int64(siteIDValue.(int)))
 	}
 
-	parentIDValue, ok := d.GetOk("parent_id")
-	if ok {
-		data.Parent = int64ToPtr(int64(parentIDValue.(int)))
+	parentIDValue := d.Get("parent_id")
+	data.Parent = int64ToPtr(int64(parentIDValue.(int)))
+
+	// remove parent (set null) if we got zero ID
+	if parentIDValue == 0 {
+		data.Parent = nil
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
