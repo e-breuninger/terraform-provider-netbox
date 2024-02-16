@@ -97,6 +97,10 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"platform_slug": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"primary_ip": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -253,6 +257,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		}
 		if v.Platform != nil {
 			mapping["platform_id"] = v.Platform.ID
+			mapping["platform_slug"] = v.Platform.Slug
 		}
 		if v.PrimaryIP != nil {
 			mapping["primary_ip"] = v.PrimaryIP.Address
