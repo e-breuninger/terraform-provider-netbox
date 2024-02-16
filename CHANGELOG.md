@@ -1,3 +1,15 @@
+## 3.8.1 (February 16th, 2024)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_vpn_tunnel_group`
+* **New Resource:** `netbox_vpn_tunnel`
+* data-source/netbox_virtual_machines: Add `platform_slug` attribute
+* data-source/netbox_locations: Add `parent_id` attribute ([#548](https://github.com/e-breuninger/terraform-provider-netbox/pull/548) by [@GennadySpb](https://github.com/GennadySpb))
+* data-source/netbox_location: Add `parent_id` attribute ([#548](https://github.com/e-breuninger/terraform-provider-netbox/pull/548) by [@GennadySpb](https://github.com/GennadySpb))
+* resource/netbox_location: Add `parent_id` attribute ([#548](https://github.com/e-breuninger/terraform-provider-netbox/pull/548) by [@GennadySpb](https://github.com/GennadySpb))
+* resource/device_type: Add `is_full_depth` attribute
+
 ## 3.8.0 (January 30th, 2024)
 
 **BREAKING CHANGES**
