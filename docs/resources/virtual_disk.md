@@ -40,7 +40,7 @@ resource "netbox_virtual_disk" "example" {
 ### Required
 
 - `name` (String)
-- `size` (Number)
+- `size_gb` (Number)
 - `virtual_machine_id` (Number)
 
 ### Optional

@@ -30,7 +30,7 @@ func resourceNetboxVirtualDisks() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"size": {
+			"size_gb": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
@@ -51,7 +51,7 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-	size := d.Get("size").(int)
+	size := d.Get("size_gb").(int)
 	virtualMachineID := d.Get("virtual_machine_id").(int)
 
 	data := models.WritableVirtualDisk{
@@ -110,7 +110,7 @@ func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData,
 	d.Set("description", VirtualDisks.Description)
 
 	if VirtualDisks.Size != nil {
-		d.Set("size", *VirtualDisks.Size)
+		d.Set("size_gb", *VirtualDisks.Size)
 	}
 	if VirtualDisks.VirtualMachine != nil {
 		d.Set("virtual_machine_id", VirtualDisks.VirtualMachine.ID)
@@ -132,7 +132,7 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 	data := models.WritableVirtualDisk{}
 
 	name := d.Get("name").(string)
-	size := int64(d.Get("size").(int))
+	size := int64(d.Get("size_gb").(int))
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
 
 	data.Name = &name
