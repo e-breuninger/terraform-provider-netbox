@@ -1,3 +1,10 @@
+## 3.8.2 (March 4th, 2024)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_virtual_disk` ([#558](https://github.com/e-breuninger/terraform-provider-netbox/pull/558) by [@Ikke](https://github.com/Ikke))
+* resource/netbox_prefix: Add `custom_fields` attribute ([#553](https://github.com/e-breuninger/terraform-provider-netbox/pull/553) by [@nothinux](https://github.com/nothinux))
+
 ## 3.8.1 (February 16th, 2024)
 
 ENHANCEMENTS
