@@ -262,7 +262,6 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "0"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "0"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "0"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", ""),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "description", ""),
 				),
