@@ -24,7 +24,7 @@ resource "netbox_tenant" "test" {
 }
 
 resource "netbox_tag" "test" {
-	name = "%[1]s"
+  name = "%[1]s"
 }
 
 resource "netbox_location" "test" {
@@ -32,58 +32,58 @@ resource "netbox_location" "test" {
   description = "my-description"
   site_id     = netbox_site.test.id
   tenant_id   = netbox_tenant.test.id
-	tags        = [netbox_tag.test.slug]
+  tags        = [netbox_tag.test.slug]
 }
 
 data "netbox_locations" "by_name" {
-	filter {
-		name  = "name"
-		value = netbox_location.test.name
-	}
+  filter {
+    name  = "name"
+    value = netbox_location.test.name
+  }
 }
 
 data "netbox_locations" "no_match" {
-	filter {
-		name  = "name"
-		value = "non-existent"
-	}
+  filter {
+    name  = "name"
+    value = "non-existent"
+  }
 }
 
 data "netbox_locations" "by_site_slug" {
-	filter {
-		name  = "site"
-		value = netbox_site.test.slug
-	}
-	depends_on = [netbox_location.test]
+  filter {
+    name  = "site"
+    value = netbox_site.test.slug
+  }
+  depends_on = [netbox_location.test]
 }
 
 data "netbox_locations" "by_site_id" {
-	filter {
-		name  = "site_id"
-		value = netbox_site.test.id
-	}
-	depends_on = [netbox_location.test]
+  filter {
+    name  = "site_id"
+    value = netbox_site.test.id
+  }
+  depends_on = [netbox_location.test]
 }
 
 data "netbox_locations" "by_tenant_slug" {
-	filter {
-		name  = "tenant"
-		value = netbox_tenant.test.slug
-	}
-	depends_on = [netbox_location.test]
+  filter {
+    name  = "tenant"
+    value = netbox_tenant.test.slug
+  }
+  depends_on = [netbox_location.test]
 }
 
 data "netbox_locations" "by_tenant_id" {
-	filter {
-		name  = "tenant_id"
-		value = netbox_tenant.test.id
-	}
-	depends_on = [netbox_location.test]
+  filter {
+    name  = "tenant_id"
+    value = netbox_tenant.test.id
+  }
+  depends_on = [netbox_location.test]
 }
 
 data "netbox_locations" "by_tags" {
-	tags 			 = [netbox_tag.test.slug]
-	depends_on = [netbox_location.test]
+  tags       = [netbox_tag.test.slug]
+  depends_on = [netbox_location.test]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_locations.by_name", "locations.#", "1"),
@@ -126,38 +126,38 @@ resource "netbox_tenant" "test" {
 }
 
 resource "netbox_tag" "test1" {
-	name = "%[1]s_1"
+  name = "%[1]s_1"
 }
 
 resource "netbox_tag" "test2" {
-	name = "%[1]s_2"
+  name = "%[1]s_2"
 }
 
 resource "netbox_location" "test1" {
   name        = "%[1]s_1"
   site_id     = netbox_site.test.id
   tenant_id   = netbox_tenant.test.id
-	tags        = [netbox_tag.test1.slug]
+  tags        = [netbox_tag.test1.slug]
 }
 
 resource "netbox_location" "test2" {
   name        = "%[1]s_2"
   site_id     = netbox_site.test.id
   tenant_id   = netbox_tenant.test.id
-	tags        = [netbox_tag.test2.slug]
+  tags        = [netbox_tag.test2.slug]
 }
 
 data "netbox_locations" "by_site" {
-	filter {
-		name  = "site"
-		value = netbox_site.test.name
-	}
-	depends_on = [netbox_location.test1, netbox_location.test2]
+  filter {
+    name  = "site"
+    value = netbox_site.test.name
+  }
+  depends_on = [netbox_location.test1, netbox_location.test2]
 }
 
 data "netbox_locations" "by_tag" {
-	tags = [netbox_tag.test1.slug]
-	depends_on = [netbox_location.test1, netbox_location.test2]
+  tags = [netbox_tag.test1.slug]
+  depends_on = [netbox_location.test1, netbox_location.test2]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_locations.by_site", "locations.#", "2"),
@@ -171,7 +171,7 @@ data "netbox_locations" "by_tag" {
 func TestAccNetboxLocationsDataSource_sublocations(t *testing.T) {
 	testSlug := "sublocations_ds_multiple"
 	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -185,38 +185,36 @@ resource "netbox_tenant" "test" {
 }
 
 resource "netbox_location" "parent" {
-  name        = "%[1]s_1"
-  site_id     = netbox_site.test.id
-  tenant_id   = netbox_tenant.test.id
+  name      = "%[1]s_p"
+  site_id   = netbox_site.test.id
+  tenant_id = netbox_tenant.test.id
 }
 
 resource "netbox_location" "test1" {
-  name        = "%[1]s_1"
-  parent_id   = netbox_location.parent.id
-  site_id     = netbox_site.test.id
-  tenant_id   = netbox_tenant.test.id
+  name      = "%[1]s_1"
+  parent_id = netbox_location.parent.id
+  site_id   = netbox_site.test.id
+  tenant_id = netbox_tenant.test.id
 }
 
 resource "netbox_location" "test2" {
-  name        = "%[1]s_2"
-  parent_id   = netbox_location.parent.id
-  site_id     = netbox_site.test.id
-  tenant_id   = netbox_tenant.test.id
+  name      = "%[1]s_2"
+  parent_id = netbox_location.parent.id
+  site_id   = netbox_site.test.id
+  tenant_id = netbox_tenant.test.id
 }
 
 data "netbox_locations" "by_parent" {
-	filter {
-		name  = "parent_id"
-		value = netbox_location.parent.id
-	}
-	depends_on = [netbox_location.test1, netbox_location.test2]
+  filter {
+    name  = "parent_id"
+    value = netbox_location.parent.id
+  }
+  depends_on = [netbox_location.test1, netbox_location.test2]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_locations.by_parent", "locations.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_locations.by_parent", "locations.0.parent_id", "netbox_location.parent", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_locations.by_parent", "locations.1.parent_id", "netbox_location.parent", "id"),
-					//resource.TestCheckResourceAttr("data.netbox_locations.by_parent", "locations.1.parent_id", "223"),
-					//resource.TestCheckResourceAttr("data.netbox_locations.by_tag", "locations.#", "1"),
 				),
 			},
 		},
