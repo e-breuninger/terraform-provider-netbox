@@ -143,6 +143,7 @@ func Provider() *schema.Provider {
 			"netbox_event_rule":                 resourceNetboxEventRule(),
 			"netbox_vpn_tunnel_group":           resourceNetboxVpnTunnelGroup(),
 			"netbox_vpn_tunnel":                 resourceNetboxVpnTunnel(),
+			"netbox_vpn_tunnel_termination":     resourceNetboxVpnTunnelTermination(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":               dataSourceNetboxAsn(),
