@@ -1,3 +1,9 @@
+## 3.8.3 (March 8th, 2024)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_vpn_tunnel_termination`
+
 ## 3.8.2 (March 4th, 2024)
 
 ENHANCEMENTS
