@@ -135,12 +135,12 @@ func init() {
 				return err
 			}
 			for _, vpnTunnelTermination := range res.GetPayload().Results {
-                                deleteParams := vpn.NewVpnTunnelTerminationsDeleteParams().WithID(vpnTunnelTermination.ID)
-                                _, err := api.Vpn.VpnTunnelTerminationsDelete(deleteParams, nil)
-                                if err != nil {
-                                        return err
-                                }
-                                log.Print("[DEBUG] Deleted a vpn tunnel termination")
+				deleteParams := vpn.NewVpnTunnelTerminationsDeleteParams().WithID(vpnTunnelTermination.ID)
+				_, err := api.Vpn.VpnTunnelTerminationsDelete(deleteParams, nil)
+				if err != nil {
+					return err
+				}
+				log.Print("[DEBUG] Deleted a vpn tunnel termination")
 			}
 			return nil
 		},

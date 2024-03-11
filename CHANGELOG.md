@@ -1,3 +1,9 @@
+## 3.8.4 (March 8th, 2024)
+
+ENHANCEMENTS
+
+* data-source/netbox_interfaces: Add `limit` attribute
+
 ## 3.8.3 (March 8th, 2024)
 
 ENHANCEMENTS

@@ -37,6 +37,12 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: dependencies + testAccNetboxInterfacesDataSourceFilterVMWithLimit,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(testResource, "interfaces.#", "1"),
+				),
+			},
+			{
 				Config: dependencies + testAccNetboxInterfacesDataSourceNameRegex,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(testResource, "interfaces.#", "1"),
@@ -81,13 +87,21 @@ resource "netbox_interface" "vm1_1" {
 resource "netbox_interface" "vm1_2" {
   name = "%[1]s_2_regex"
   virtual_machine_id = netbox_virtual_machine.test1.id
-}
-
-`, testName)
+}`, testName)
 }
 
 const testAccNetboxInterfacesDataSourceFilterVM = `
 data "netbox_interfaces" "test" {
+  filter {
+    name  = "vm_id"
+    value = netbox_virtual_machine.test1.id
+  }
+}`
+
+const testAccNetboxInterfacesDataSourceFilterVMWithLimit = `
+data "netbox_interfaces" "test" {
+  limit = 1
+
   filter {
     name  = "vm_id"
     value = netbox_virtual_machine.test1.id

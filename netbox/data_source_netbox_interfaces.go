@@ -34,6 +34,13 @@ func dataSourceNetboxInterfaces() *schema.Resource {
 					},
 				},
 			},
+			"limit": {
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          0,
+				Description:      "The limit of objects to return from the API lookup.",
+			},
 			"name_regex": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -139,6 +146,8 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 	api := m.(*client.NetBoxAPI)
 
 	params := virtualization.NewVirtualizationInterfacesListParams()
+
+	params.Limit = getOptionalInt(d, "limit")
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
