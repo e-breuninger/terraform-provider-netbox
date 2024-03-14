@@ -28,6 +28,7 @@ data "netbox_interface" "myvm_eth0" {
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
+- `limit` (Number) The limit of objects to return from the API lookup. Defaults to `0`.
 - `name_regex` (String)
 
 ### Read-Only
