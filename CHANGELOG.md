@@ -1,4 +1,10 @@
-## 3.8.4 (March 8th, 2024)
+## 3.8.5 (March 18th, 2024)
+
+BUG FIXES
+
+* All resources with `slug` attributes now properly allow for up to 100 characters in that attribute
+
+## 3.8.4 (March 11th, 2024)
 
 ENHANCEMENTS
 
