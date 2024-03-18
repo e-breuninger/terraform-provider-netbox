@@ -32,7 +32,7 @@ func resourceNetboxTenant() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 30),
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			tagsKey: tagsSchema,
 			"group_id": {

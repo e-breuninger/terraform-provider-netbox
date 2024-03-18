@@ -32,7 +32,7 @@ Each location must have a name that is unique within its parent site and locatio
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 30),
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"description": {
 				Type:     schema.TypeString,
