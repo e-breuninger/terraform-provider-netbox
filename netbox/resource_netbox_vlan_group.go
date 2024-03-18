@@ -29,8 +29,9 @@ func resourceNetboxVlanGroup() *schema.Resource {
 				Required: true,
 			},
 			"slug": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"min_vid": {
 				Type:         schema.TypeInt,

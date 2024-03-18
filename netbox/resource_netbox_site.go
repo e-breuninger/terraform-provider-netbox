@@ -34,7 +34,7 @@ func resourceNetboxSite() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 100),
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"status": {
 				Type:         schema.TypeString,

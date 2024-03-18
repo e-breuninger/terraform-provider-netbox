@@ -29,9 +29,10 @@ func resourceNetboxTag() *schema.Resource {
 				Required: true,
 			},
 			"slug": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"color_hex": {
 				Type:         schema.TypeString,

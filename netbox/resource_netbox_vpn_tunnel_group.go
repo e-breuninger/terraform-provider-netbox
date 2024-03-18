@@ -30,7 +30,7 @@ func resourceNetboxVpnTunnelGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 100),
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"description": {
 				Type:     schema.TypeString,
