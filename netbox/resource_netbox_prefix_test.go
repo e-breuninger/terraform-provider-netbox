@@ -239,7 +239,7 @@ resource "netbox_custom_field" "test" {
   content_types = ["ipam.prefix"]
 }
 
-resource "netbox_prefix" "test_customfield" {
+resource "netbox_prefix" "test" {
   prefix = "%s"
   description = "%s 2"
   status = "active"
@@ -247,15 +247,15 @@ resource "netbox_prefix" "test_customfield" {
   mark_utilized = true
 
   custom_fields = {
-	"${netbox_custom_field.test.name}" = "test-field"
+    "${netbox_custom_field.test.name}" = "test-field"
   }
 }`, testPrefix, testDesc),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_prefix.test_customfield", "custom_fields.test", "test-field"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "custom_fields.test", "test-field"),
 				),
 			},
 			{
-				ResourceName:      "netbox_prefix.test_customfield",
+				ResourceName:      "netbox_prefix.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
