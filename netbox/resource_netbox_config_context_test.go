@@ -23,6 +23,7 @@ func TestAccNetboxConfigContext_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_config_context" "test" {
   name = "%s"
+  description = "test description"
   data = jsonencode({"testkey" = "testval"})
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(

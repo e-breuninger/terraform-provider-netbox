@@ -15,19 +15,23 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 		Read:        dataSourceNetboxConfigContextRead,
 		Description: `:meta:subcategory:Extras:`,
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"weight": &schema.Schema{
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"data": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cluster_groups": &schema.Schema{
+			"weight": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"data": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cluster_groups": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -35,7 +39,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"cluster_types": &schema.Schema{
+			"cluster_types": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -43,7 +47,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"clusters": &schema.Schema{
+			"clusters": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -51,7 +55,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"device_types": &schema.Schema{
+			"device_types": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -59,7 +63,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"locations": &schema.Schema{
+			"locations": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -67,7 +71,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"platforms": &schema.Schema{
+			"platforms": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -75,7 +79,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -83,7 +87,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"roles": &schema.Schema{
+			"roles": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -91,7 +95,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"site_groups": &schema.Schema{
+			"site_groups": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -99,7 +103,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"sites": &schema.Schema{
+			"sites": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -107,7 +111,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"tenant_groups": &schema.Schema{
+			"tenant_groups": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -115,7 +119,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"tenants": &schema.Schema{
+			"tenants": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
@@ -123,7 +127,7 @@ func dataSourceNetboxConfigContext() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Default:  nil,
