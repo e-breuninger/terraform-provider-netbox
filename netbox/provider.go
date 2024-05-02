@@ -139,8 +139,11 @@ func Provider() *schema.Provider {
 			"netbox_webhook":                    resourceNetboxWebhook(),
 			"netbox_custom_field_choice_set":    resourceNetboxCustomFieldChoiceSet(),
 			"netbox_virtual_chassis":            resourceNetboxVirtualChassis(),
+			"netbox_virtual_disk":               resourceNetboxVirtualDisks(),
 			"netbox_event_rule":                 resourceNetboxEventRule(),
-			"netbox_config_context":             resourceNetboxConfigContext(),
+			"netbox_vpn_tunnel_group":           resourceNetboxVpnTunnelGroup(),
+			"netbox_vpn_tunnel":                 resourceNetboxVpnTunnel(),
+			"netbox_vpn_tunnel_termination":     resourceNetboxVpnTunnelTermination(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":               dataSourceNetboxAsn(),
@@ -288,7 +291,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-		supportedVersions := []string{"3.7.0", "3.7.1", "3.7.2"}
+		supportedVersions := []string{"3.7.0", "3.7.1", "3.7.2", "3.7.3", "3.7.4", "3.7.5", "3.7.6"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
 			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864

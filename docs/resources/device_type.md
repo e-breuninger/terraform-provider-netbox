@@ -37,6 +37,7 @@ resource "netbox_device_type" "test" {
 
 ### Optional
 
+- `is_full_depth` (Boolean)
 - `part_number` (String)
 - `slug` (String)
 - `tags` (Set of String)

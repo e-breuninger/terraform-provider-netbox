@@ -46,6 +46,7 @@ resource "netbox_location" "test" {
 
 - `custom_fields` (Map of String)
 - `description` (String)
+- `parent_id` (Number)
 - `site_id` (Number)
 - `slug` (String)
 - `tags` (Set of String)

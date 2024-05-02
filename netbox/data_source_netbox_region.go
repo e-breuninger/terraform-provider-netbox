@@ -7,7 +7,6 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func dataSourceNetboxRegion() *schema.Resource {
@@ -29,9 +28,8 @@ func dataSourceNetboxRegion() *schema.Resource {
 							Optional: true,
 						},
 						"slug": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(0, 30),
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},

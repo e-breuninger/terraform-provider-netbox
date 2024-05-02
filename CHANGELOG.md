@@ -1,3 +1,40 @@
+## 3.8.5 (March 18th, 2024)
+
+BUG FIXES
+
+* All resources with `slug` attributes now properly allow for up to 100 characters in that attribute
+
+## 3.8.4 (March 11th, 2024)
+
+ENHANCEMENTS
+
+* data-source/netbox_interfaces: Add `limit` attribute
+
+## 3.8.3 (March 8th, 2024)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_vpn_tunnel_termination`
+
+## 3.8.2 (March 4th, 2024)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_virtual_disk` ([#558](https://github.com/e-breuninger/terraform-provider-netbox/pull/558) by [@Ikke](https://github.com/Ikke))
+* resource/netbox_prefix: Add `custom_fields` attribute ([#553](https://github.com/e-breuninger/terraform-provider-netbox/pull/553) by [@nothinux](https://github.com/nothinux))
+
+## 3.8.1 (February 16th, 2024)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_vpn_tunnel_group`
+* **New Resource:** `netbox_vpn_tunnel`
+* data-source/netbox_virtual_machines: Add `platform_slug` attribute
+* data-source/netbox_locations: Add `parent_id` attribute ([#548](https://github.com/e-breuninger/terraform-provider-netbox/pull/548) by [@GennadySpb](https://github.com/GennadySpb))
+* data-source/netbox_location: Add `parent_id` attribute ([#548](https://github.com/e-breuninger/terraform-provider-netbox/pull/548) by [@GennadySpb](https://github.com/GennadySpb))
+* resource/netbox_location: Add `parent_id` attribute ([#548](https://github.com/e-breuninger/terraform-provider-netbox/pull/548) by [@GennadySpb](https://github.com/GennadySpb))
+* resource/device_type: Add `is_full_depth` attribute
+
 ## 3.8.0 (January 30th, 2024)
 
 **BREAKING CHANGES**

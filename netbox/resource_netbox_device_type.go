@@ -30,7 +30,7 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 30),
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"manufacturer_id": {
 				Type:     schema.TypeInt,
@@ -44,6 +44,10 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Optional: true,
 				Default:  "1.0",
+			},
+			"is_full_depth": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			tagsKey: tagsSchema,
 		},
@@ -80,6 +84,10 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 
 	if uHeightValue, ok := d.GetOk("u_height"); ok {
 		data.UHeight = float64ToPtr(float64(uHeightValue.(float64)))
+	}
+
+	if isFullDepthValue, ok := d.GetOk("is_full_depth"); ok {
+		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
@@ -121,6 +129,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("manufacturer_id", deviceType.Manufacturer.ID)
 	d.Set("part_number", deviceType.PartNumber)
 	d.Set("u_height", deviceType.UHeight)
+	d.Set("is_full_depth", deviceType.IsFullDepth)
 	d.Set(tagsKey, getTagListFromNestedTagList(deviceType.Tags))
 
 	return nil
@@ -154,6 +163,10 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 
 	if uHeightValue, ok := d.GetOk("u_height"); ok {
 		data.UHeight = float64ToPtr(float64(uHeightValue.(float64)))
+	}
+
+	if isFullDepthValue, ok := d.GetOk("is_full_depth"); ok {
+		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))

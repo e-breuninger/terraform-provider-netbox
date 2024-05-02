@@ -32,13 +32,17 @@ Each location must have a name that is unique within its parent site and locatio
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 30),
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"parent_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -76,6 +80,11 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
 		data.Site = int64ToPtr(int64(siteIDValue.(int)))
+	}
+
+	parentIDValue, ok := d.GetOk("parent_id")
+	if ok {
+		data.Parent = int64ToPtr(int64(parentIDValue.(int)))
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
@@ -133,6 +142,12 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("site_id", nil)
 	}
 
+	if res.GetPayload().Parent != nil {
+		d.Set("parent_id", res.GetPayload().Parent.ID)
+	} else {
+		d.Set("parent_id", nil)
+	}
+
 	if res.GetPayload().Tenant != nil {
 		d.Set("tenant_id", res.GetPayload().Tenant.ID)
 	} else {
@@ -170,6 +185,14 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
 		data.Site = int64ToPtr(int64(siteIDValue.(int)))
+	}
+
+	parentIDValue := d.Get("parent_id")
+	data.Parent = int64ToPtr(int64(parentIDValue.(int)))
+
+	// remove parent (set null) if we got zero ID
+	if parentIDValue == 0 {
+		data.Parent = nil
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")

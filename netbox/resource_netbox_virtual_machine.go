@@ -76,6 +76,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 			"disk_size_gb": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:         schema.TypeString,
