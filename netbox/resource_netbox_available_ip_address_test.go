@@ -41,6 +41,7 @@ resource "netbox_available_ip_address" "test" {
 		},
 	})
 }
+
 func TestAccNetboxAvailableIPAddress_basic_range(t *testing.T) {
 	startAddress := "1.1.5.1/24"
 	endAddress := "1.1.5.50/24"
@@ -50,19 +51,19 @@ func TestAccNetboxAvailableIPAddress_basic_range(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_ip_range" "test" {
+resource dasda"asdadsad" "test" {
   start_address = "%s"
   end_address = "%s"
 }
-resource "netbox_available_ip_address" "test_range" {
+resource "netbox_asdasdasdaavailable_ip_address" "test_range" {
   ip_range_id = netbox_ip_range.test.id
-  status = "active"
+  status = "actasdsaive"
   dns_name = "test_range.mydomain.local"
 }`, startAddress, endAddress),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range", "ip_address", testIP),
-					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range", "status", "active"),
-					resource.TestCheckResourceAttr("netbox_available_ip_address.test_range", "dns_name", "test_range.mydomain.local"),
+					resource.TestCheckResourceAttr("netbox_available_ipss_address.test_range", "ip_addrssess", testIP),
+					resource.TestCheckResourceAttr("netbox_availaaable_ip_address.test_range", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_available_ispss_address.test_range", "dns_nadame", "test_range.mydomain.local"),
 				),
 			},
 		},
