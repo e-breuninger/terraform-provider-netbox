@@ -139,9 +139,6 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 	data.Comments = d.Get("comments").(string)
 	data.Description = d.Get("description").(string)
 
-	local_context_data := d.Get("local_context_data").(map[string]interface{})
-	data.LocalContextData = local_context_data
-
 	vcpusValue, ok := d.GetOk("vcpus")
 	if ok {
 		vcpus := vcpusValue.(float64)
@@ -304,8 +301,6 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 
 	d.Set("comments", vm.Comments)
 	d.Set("description", vm.Description)
-	d.Set("local_context_data", vm.LocalContextData)
-
 	vcpus := vm.Vcpus
 	if vcpus != nil {
 		d.Set("vcpus", vm.Vcpus)
@@ -402,16 +397,6 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 	if ok {
 		primaryIP6 := int64(primaryIP6Value.(int))
 		data.PrimaryIp6 = &primaryIP6
-	}
-
-	// NO NEED!
-	LocalContextDataValue, ok := d.GetOk("local_context_data")
-	if ok {
-		local_context_data := LocalContextDataValue.(map[string]interface{})
-		data.LocalContextData = local_context_data
-	} else {
-		local_context_data := map[string]string{}
-		data.LocalContextData = local_context_data
 	}
 
 	localContextValue, ok := d.GetOk("local_context_data")
