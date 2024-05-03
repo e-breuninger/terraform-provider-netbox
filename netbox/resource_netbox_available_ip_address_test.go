@@ -286,6 +286,42 @@ resource "netbox_available_ip_address" "test" {
 	})
 }
 
+func TestAccNetboxAvailableIPAddress_multiple_cidrs(t *testing.T) {
+	testPrefix1 := "1.1.2.0/24"
+	testPrefix2 := "2.1.2.0/24"
+	testIP := "1.1.2.1/24"
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_prefix" "test1" {
+  prefix = "%[1]s"
+  status = "active"
+  is_pool = false
+}
+resource "netbox_prefix" "test2" {
+	prefix = "%[2]s"
+	status = "active"
+	is_pool = false
+  }
+resource "netbox_available_ip_address_multiple_cidrs" "test" {
+  prefix_ids = [netbox_prefix.test1.id, netbox_prefix.test2.id]
+  status = "active"
+  dns_name = "test.mydomain.local"
+  role = "loopback"
+}`, testPrefix1, testPrefix2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "ip_address", testIP),
+					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "dns_name", "test.mydomain.local"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "role", "loopback"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_available_ip_address", &resource.Sweeper{
 		Name:         "netbox_available_ip_address",

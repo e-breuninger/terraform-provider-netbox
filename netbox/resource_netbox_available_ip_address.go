@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -35,12 +36,28 @@ This resource will retrieve the next available IP address from a given prefix or
 			"prefix_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
+				ExactlyOneOf: []string{"prefix_id", "ip_range_id", "prefix_ids", "ip_range_ids"},
+			},
+			"prefix_ids": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				ExactlyOneOf: []string{"prefix_id", "ip_range_id", "prefix_ids", "ip_range_ids"},
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 			},
 			"ip_range_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
+				ExactlyOneOf: []string{"prefix_id", "ip_range_id", "prefix_ids", "ip_range_ids"},
+			},
+			"ip_range_ids": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				ExactlyOneOf: []string{"prefix_id", "ip_range_id", "prefix_ids", "ip_range_ids"},
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
@@ -108,8 +125,11 @@ This resource will retrieve the next available IP address from a given prefix or
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	prefixID := int64(d.Get("prefix_id").(int))
-	vrfID := int64(int64(d.Get("vrf_id").(int)))
 	rangeID := int64(d.Get("ip_range_id").(int))
+	prefixIDs := d.Get("prefix_ids").([]int64)
+	rangeIDs := d.Get("ip_range_ids").([]int64)
+
+	vrfID := int64(d.Get("vrf_id").(int))
 	nestedvrf := models.NestedVRF{
 		ID: vrfID,
 	}
@@ -122,6 +142,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
+		d.Set("prefix_id", prefixID)
 	}
 	if rangeID != 0 {
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
@@ -129,6 +150,51 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
+		d.Set("ip_range_id", rangeID)
+	}
+	if len(prefixIDs) > 0 {
+		var res *ipam.IpamPrefixesAvailableIpsCreateCreated
+		var err error
+		var id int64
+		// Try prefixes until one does not return an error
+		for _, id = range prefixIDs {
+			// q: Ask for forgivnes or check first?
+			params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(id).WithData([]*models.AvailableIP{&data})
+			res, err = api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+			if err == nil {
+				// There is avalible ips
+				break
+			}
+		}
+		if err != nil {
+			return fmt.Errorf("unable to create a ip address for prefixes: %v, err: %w", prefixIDs, err)
+		}
+		// Since we generated the ip_address, set that now
+		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
+		d.Set("ip_address", *res.Payload[0].Address)
+		d.Set("prefix_id", id)
+	}
+	if len(rangeIDs) > 0 {
+		var res *ipam.IpamIPRangesAvailableIpsCreateCreated
+		var err error
+		var id int64
+		// Try Ranges until one does not return an error
+		for _, id := range prefixIDs {
+			// q: Ask for forgivnes or check first?
+			params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(id).WithData([]*models.AvailableIP{&data})
+			res, err = api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+			if err == nil {
+				// There is avalible ips
+				break
+			}
+		}
+		if err != nil {
+			return fmt.Errorf("unable to create a ip address for ip Ranges: %v, err: %w", prefixIDs, err)
+		}
+		// Since we generated the ip_address, set that now
+		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
+		d.Set("ip_address", *res.Payload[0].Address)
+		d.Set("ip_range_id", id)
 	}
 	return resourceNetboxAvailableIPAddressUpdate(d, m)
 }
