@@ -59,6 +59,11 @@ This resource will retrieve the next available IP address from a given prefix or
 					Type: schema.TypeInt,
 				},
 			},
+			"selected_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The ID of the prefix or IP range that was used to generate the IP address.",
+			},
 			"ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -147,7 +152,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("prefix_id", prefixID)
+		d.Set("selected_id", prefixID)
 	}
 	if rangeID != 0 {
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
@@ -155,14 +160,14 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("ip_range_id", rangeID)
+		d.Set("selected_id", rangeID)
 	}
 	if len(prefixIDs) > 0 {
 		var res *ipam.IpamPrefixesAvailableIpsCreateCreated
 		var err error
 		var id int64
 		// Try prefixes until one does not return an error
-		for _, id = range prefixIDs {
+		for _, id := range prefixIDs {
 			// q: Ask for forgivnes or check first?
 			params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(id).WithData([]*models.AvailableIP{&data})
 			res, err = api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
@@ -177,14 +182,14 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("prefix_id", id)
+		d.Set("selected_id", id)
 	}
 	if len(rangeIDs) > 0 {
 		var res *ipam.IpamIPRangesAvailableIpsCreateCreated
 		var err error
 		var id int64
 		// Try Ranges until one does not return an error
-		for _, id := range prefixIDs {
+		for _, id = range prefixIDs {
 			// q: Ask for forgivnes or check first?
 			params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(id).WithData([]*models.AvailableIP{&data})
 			res, err = api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
@@ -199,7 +204,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("ip_range_id", id)
+		d.Set("selected_id", id)
 	}
 	return resourceNetboxAvailableIPAddressUpdate(d, m)
 }
