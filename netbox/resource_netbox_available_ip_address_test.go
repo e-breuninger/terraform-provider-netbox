@@ -322,6 +322,62 @@ resource "netbox_available_ip_address" "test" {
 	})
 }
 
+func TestAccNetboxAvailableIPAddress_multiple_cidrs_overflow(t *testing.T) {
+	ipaddresses := []string{}
+	for i := 0; i < 20; i++ {
+		ipaddresses = append(ipaddresses, fmt.Sprintf("3.0.0.%d/30", i))
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+resource "netbox_prefix" "test" {
+  count = 5
+  prefix = "3.0.0.${4 * count.index}/30"
+  status = "active"
+  is_pool = true
+}
+// Consume most of the available IPs
+resource "netbox_available_ip_address" "_test" {
+  count = 19
+  prefix_ids = netbox_prefix.test.*.id
+  status = "active"
+  dns_name = "_test.mydomain.local"
+  role = "loopback"
+}
+resource "netbox_available_ip_address" "test" {
+	depends_on = [netbox_available_ip_address._test]
+	prefix_ids = netbox_prefix.test.*.id
+	status = "active"
+	dns_name = "test.mydomain.local"
+	role = "loopback"
+}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrWith("netbox_available_ip_address.test", "ip_address", func(value string) error {
+						if !stringInSlice(value, ipaddresses) {
+							return fmt.Errorf("IP address %s not in list", value)
+						}
+						return nil
+					}),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "dns_name", "test.mydomain.local"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "role", "loopback"),
+				),
+			},
+		},
+	})
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_available_ip_address", &resource.Sweeper{
 		Name:         "netbox_available_ip_address",
