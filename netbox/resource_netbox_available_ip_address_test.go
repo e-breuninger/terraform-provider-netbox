@@ -41,6 +41,7 @@ resource "netbox_available_ip_address" "test" {
 		},
 	})
 }
+
 func TestAccNetboxAvailableIPAddress_basic_range(t *testing.T) {
 	startAddress := "1.1.5.1/24"
 	endAddress := "1.1.5.50/24"

@@ -11,9 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxAvailableIPAddressMultipleCIRDS() *schema.Resource {
+func resourceNetboxAvailableIPAddressMultiplecidrs() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxAvailableIPAddressMultipleCIRDSCreate,
+		Create: resourceNetboxAvailableIPAddressMultiplecidrsCreate,
 		Read:   resourceNetboxAvailableIPAddressRead,
 		Update: resourceNetboxAvailableIPAddressUpdate,
 		Delete: resourceNetboxAvailableIPAddressDelete,
@@ -37,11 +37,17 @@ This resource will retrieve the next available IP address from a collection of g
 				Type:         schema.TypeList,
 				Optional:     true,
 				ExactlyOneOf: []string{"prefix_ids", "ip_range_ids"},
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 			},
 			"ip_range_ids": {
-				Type:         schema.TypeInt,
+				Type:         schema.TypeList,
 				Optional:     true,
 				ExactlyOneOf: []string{"prefix_ids", "ip_range_ids"},
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
@@ -49,7 +55,7 @@ This resource will retrieve the next available IP address from a collection of g
 			},
 			// IF prefix_ids is given then prefix_id will be populated with the selected prefix_id
 			"prefix_id": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			// IF ip_range_ids is given then ip_range_id will be populated with the selected ip_range_id
@@ -121,31 +127,21 @@ func extractTFCollectionInt64(d *schema.ResourceData, id string) ([]int64, bool)
 	// TODO: Unsure if this works
 	var numbers []int64
 	var isSet bool
-	if numberInterface, isSet := d.GetOk("prefix_ids"); isSet {
+	var numberInterface interface{}
+	if numberInterface, isSet = d.GetOk("prefix_ids"); isSet {
 		numbers := numberInterface.([]interface{})
 		for _, number := range numbers {
 			numbers = append(numbers, int64(number.(int)))
 		}
 	}
+	isSet = isSet && len(numbers) > 0
 	return numbers, isSet
 }
 
-func xor(a, b bool) bool {
-	return (a || b) && !(a && b)
-}
-
-func resourceNetboxAvailableIPAddressMultipleCIRDSCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxAvailableIPAddressMultiplecidrsCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	rangeIDs, rangeIDsIsSet := extractTFCollectionInt64(d, "ip_range_ids")
 	prefixIDs, prefixIDsIsSet := extractTFCollectionInt64(d, "prefix_ids")
-	// TODO: Test this
-	// Fail instead of undefinided behaviour for consumer
-	if !xor(rangeIDsIsSet, prefixIDsIsSet) {
-		return fmt.Errorf("Either prefix_ids or ip_range_ids must be set, not boths")
-	}
-	if len(rangeIDs) == 0 && len(prefixIDs) == 0 {
-		return fmt.Errorf("Either prefix_ids or ip_range_ids must be set, both are empty")
-	}
 
 	vrfID := int64(int64(d.Get("vrf_id").(int)))
 	nestedvrf := models.NestedVRF{
