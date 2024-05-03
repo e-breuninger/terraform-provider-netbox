@@ -128,13 +128,14 @@ func extractTFCollectionInt64(d *schema.ResourceData, id string) ([]int64, bool)
 	var numbers []int64
 	var isSet bool
 	var numberInterface interface{}
-	if numberInterface, isSet = d.GetOk("prefix_ids"); isSet {
-		numbers := numberInterface.([]interface{})
-		for _, number := range numbers {
+	if numberInterface, isSet = d.GetOk(id); isSet {
+		numbersInterface := numberInterface.([]interface{})
+		for _, number := range numbersInterface {
 			numbers = append(numbers, int64(number.(int)))
 		}
 	}
 	isSet = isSet && len(numbers) > 0
+
 	return numbers, isSet
 }
 
@@ -143,21 +144,20 @@ func resourceNetboxAvailableIPAddressMultiplecidrsCreate(d *schema.ResourceData,
 	rangeIDs, rangeIDsIsSet := extractTFCollectionInt64(d, "ip_range_ids")
 	prefixIDs, prefixIDsIsSet := extractTFCollectionInt64(d, "prefix_ids")
 
-	vrfID := int64(int64(d.Get("vrf_id").(int)))
+	vrfID := int64(d.Get("vrf_id").(int))
 	nestedvrf := models.NestedVRF{
 		ID: vrfID,
 	}
 	data := models.AvailableIP{
 		Vrf: &nestedvrf,
 	}
-
 	if prefixIDsIsSet {
 		var params *ipam.IpamPrefixesAvailableIpsCreateParams
-		var prefixId int64
+		var prefixID int64
 		for _, id := range prefixIDs {
 			params = ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(id).WithData([]*models.AvailableIP{&data})
 			if len(params.Data) != 0 {
-				prefixId = id
+				prefixID = id
 				break
 			}
 		}
@@ -172,15 +172,15 @@ func resourceNetboxAvailableIPAddressMultiplecidrsCreate(d *schema.ResourceData,
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("prefix_id", prefixId)
+		d.Set("prefix_id", prefixID)
 	}
 	if rangeIDsIsSet {
 		var params *ipam.IpamIPRangesAvailableIpsCreateParams
-		var rangeId int64
+		var rangeID int64
 		for _, id := range rangeIDs {
 			params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(id).WithData([]*models.AvailableIP{&data})
 			if len(params.Data) != 0 {
-				rangeId = id
+				rangeID = id
 				break
 			}
 		}
@@ -191,7 +191,7 @@ func resourceNetboxAvailableIPAddressMultiplecidrsCreate(d *schema.ResourceData,
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("ip_range_id", rangeId)
+		d.Set("ip_range_id", rangeID)
 	}
 	return resourceNetboxAvailableIPAddressUpdate(d, m)
 }

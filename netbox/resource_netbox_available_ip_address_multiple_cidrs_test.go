@@ -12,24 +12,30 @@ import (
 )
 
 func TestAccNetboxAvailableIPAddressMultipleCidrs_basic(t *testing.T) {
-	testPrefix := "1.1.2.0/24"
+	testPrefix1 := "1.1.2.0/24"
+	testPrefix2 := "2.1.2.0/24"
 	testIP := "1.1.2.1/24"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_prefix" "test" {
-  prefix = "%s"
+resource "netbox_prefix" "test1" {
+  prefix = "%[1]s"
   status = "active"
   is_pool = false
 }
+resource "netbox_prefix" "test2" {
+	prefix = "%[2]s"
+	status = "active"
+	is_pool = false
+  }
 resource "netbox_available_ip_address_multiple_cidrs" "test" {
-  prefix_ids = [netbox_prefix.test.id]
+  prefix_ids = [netbox_prefix.test1.id, netbox_prefix.test2.id]
   status = "active"
   dns_name = "test.mydomain.local"
   role = "loopback"
-}`, testPrefix),
+}`, testPrefix1, testPrefix2),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "status", "active"),
