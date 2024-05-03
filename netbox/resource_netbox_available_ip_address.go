@@ -126,9 +126,14 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	api := m.(*client.NetBoxAPI)
 	prefixID := int64(d.Get("prefix_id").(int))
 	rangeID := int64(d.Get("ip_range_id").(int))
-	prefixIDs := d.Get("prefix_ids").([]int64)
-	rangeIDs := d.Get("ip_range_ids").([]int64)
-
+	prefixIDs, err := assertInterfaceToInt64Slice(d.Get("prefix_ids"))
+	if err != nil {
+		return fmt.Errorf("unable to convert prefixIDs to []int64: %w", err)
+	}
+	rangeIDs, err := assertInterfaceToInt64Slice(d.Get("ip_range_ids"))
+	if err != nil {
+		return fmt.Errorf("unable to convert rangeIDs to []int64: %w", err)
+	}
 	vrfID := int64(d.Get("vrf_id").(int))
 	nestedvrf := models.NestedVRF{
 		ID: vrfID,
@@ -197,6 +202,23 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		d.Set("ip_range_id", id)
 	}
 	return resourceNetboxAvailableIPAddressUpdate(d, m)
+}
+
+func assertInterfaceToInt64Slice(x interface{}) ([]int64, error) {
+	var intSlice []int64
+	var number int
+	var ok bool
+	xSlice, ok := x.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("assertInterfaceToInt64Slice: Unable to convert x:%v to []interface{}", x)
+	}
+	for _, v := range xSlice {
+		if number, ok = v.(int); !ok {
+			return nil, fmt.Errorf("assertSliceInterfaceToInt64: Unable to convert number:%v to int", v)
+		}
+		intSlice = append(intSlice, int64(number))
+	}
+	return intSlice, nil
 }
 
 func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{}) error {
