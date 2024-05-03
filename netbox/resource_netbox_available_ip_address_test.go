@@ -305,17 +305,17 @@ resource "netbox_prefix" "test2" {
 	status = "active"
 	is_pool = false
   }
-resource "netbox_available_ip_address_multiple_cidrs" "test" {
+resource "netbox_available_ip_address" "test" {
   prefix_ids = [netbox_prefix.test1.id, netbox_prefix.test2.id]
   status = "active"
   dns_name = "test.mydomain.local"
   role = "loopback"
 }`, testPrefix1, testPrefix2),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "ip_address", testIP),
-					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "status", "active"),
-					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "dns_name", "test.mydomain.local"),
-					resource.TestCheckResourceAttr("netbox_available_ip_address_multiple_cidrs.test", "role", "loopback"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", testIP),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "dns_name", "test.mydomain.local"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "role", "loopback"),
 				),
 			},
 		},
