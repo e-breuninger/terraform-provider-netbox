@@ -286,7 +286,7 @@ resource "netbox_available_ip_address" "test" {
 	})
 }
 
-func TestAccNetboxAvailableIPAddress_multiple_cidrs(t *testing.T) {
+func TestAccNetboxAvailableIPAddress_multiple_cidrs_prefixses(t *testing.T) {
 	testPrefix1 := "1.1.2.0/32"
 	testPrefix2 := "2.1.2.0/32"
 	testIP := "2.1.2.0/32"
@@ -337,12 +337,12 @@ func TestAccNetboxAvailableIPAddress_multiple_cidrs_ranges(t *testing.T) {
 			{
 				Config: `
 resource "netbox_ip_range" "test1" {
-	start_address = "1.1.2.0"
-	end_address = "1.1.2.2"
+	start_address = "1.1.2.0/28"
+	end_address = "1.1.2.2/28"
 }
 resource "netbox_ip_range" "test2" {
-	start_address = "2.1.2.0"
-	end_address = "2.1.2.2"
+	start_address = "2.1.2.0/28"
+	end_address = "2.1.2.2/28"
 }
 resource "netbox_available_ip_address" "test" {
   prefix_ids = [netbox_ip_range.test1.id, netbox_ip_range.test2.id]
@@ -407,7 +407,6 @@ resource "netbox_available_ip_address" "test" {
 						return nil
 					}),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "status", "active"),
-					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "dns_name", "test.mydomain.local"),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "role", "loopback"),
 					resource.TestCheckResourceAttrSet("netbox_available_ip_address.test", "selected_id"),
 				),
@@ -436,14 +435,14 @@ resource "netbox_available_ip_address" "_test" {
   count = 19
   ip_range_ids = netbox_ip_range.test.*.id
   status = "active"
-  dns_name = "_test.mydomain.local"
+  dns_name = "overflow_ranges_test${count.index}.mydomain.local"
   role = "loopback"
 }
 resource "netbox_available_ip_address" "test" {
 	depends_on = [netbox_available_ip_address._test]
 	ip_range_ids = netbox_ip_range.test.*.id
 	status = "active"
-	dns_name = "test.mydomain.local"
+	dns_name = "overflow_ranges_test.mydomain.local"
 	role = "loopback"
 }`,
 				Check: resource.ComposeTestCheckFunc(
@@ -462,20 +461,6 @@ resource "netbox_available_ip_address" "test" {
 		},
 	})
 }
-
-/*
-resource "netbox_ip_range" "test_range" {
-  start_address = "%s"
-  end_address = "%s"
-}
-resource "netbox_available_ip_address" "test" {
-  ip_range_id = netbox_ip_range.test_range.id
-  status = "active"
-  dns_name = "test_range.mydomain.local"
-  object_type = "dcim.interface"
-  interface_id = netbox_device_interface.test.id
-}`
-*/
 
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {

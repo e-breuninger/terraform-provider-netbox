@@ -133,6 +133,7 @@ type ipamIPAvailableIpsCreateCreated interface {
 
 func createPayloadHandler(res ipamIPAvailableIpsCreateCreated) (int64, string, error) {
 	if res == nil {
+		// Ranges causes issues here.
 		return 0, "", fmt.Errorf("payload is nil")
 	}
 	if len(res.GetPayload()) != 1 {
@@ -143,9 +144,9 @@ func createPayloadHandler(res ipamIPAvailableIpsCreateCreated) (int64, string, e
 
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
+	var selectedID int64
 	prefixID := int64(d.Get("prefix_id").(int))
 	rangeID := int64(d.Get("ip_range_id").(int))
-	var selectedID int64
 	prefixIDs, err := assertInterfaceToInt64Slice(d.Get("prefix_ids"))
 	if err != nil {
 		return fmt.Errorf("unable to convert prefixIDs to []int64: %w", err)
@@ -171,7 +172,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	if rangeID != 0 {
 		selectedID = rangeID
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
-		res, _ = api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+		res, err = api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
 		// Since we generated the ip_address, set that now
 	}
 	if len(prefixIDs) > 0 {
@@ -192,7 +193,6 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	if len(rangeIDs) > 0 {
 		// Try Ranges until one does not return an error
 		for _, selectedID = range prefixIDs {
-			// q: Ask for forgivnes or check first?
 			params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(selectedID).WithData([]*models.AvailableIP{&data})
 			res, err = api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
 			if err == nil {
