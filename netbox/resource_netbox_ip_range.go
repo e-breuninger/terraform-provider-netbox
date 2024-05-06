@@ -25,12 +25,14 @@ func resourceNetboxIPRange() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"start_address": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: ValidationIPHasPrefixLenght,
 			},
 			"end_address": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: ValidationIPHasPrefixLenght,
 			},
 			"status": {
 				Type:         schema.TypeString,
