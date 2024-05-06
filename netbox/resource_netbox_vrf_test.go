@@ -138,6 +138,33 @@ resource "netbox_vrf" "test_tenant" {
 	})
 }
 
+func TestAccNetboxVrf_rd(t *testing.T) {
+	testSlug := "vrf_rd"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_vrf" "test_rd" {
+	name        = "%s"
+	rd          = "123:456"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vrf.test_rd", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vrf.test_rd", "rd", "123:456"),
+				),
+			},
+			{
+				ResourceName:      "netbox_vrf.test_rd",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_vrf", &resource.Sweeper{
 		Name:         "netbox_vrf",
