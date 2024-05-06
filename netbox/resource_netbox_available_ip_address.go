@@ -127,10 +127,25 @@ This resource will retrieve the next available IP address from a given prefix or
 	}
 }
 
+type ipamIPAvailableIpsCreateCreated interface {
+	GetPayload() []*models.IPAddress
+}
+
+func payloadHandler(res ipamIPAvailableIpsCreateCreated) (int64, string, error) {
+	if res == nil {
+		return 0, "", fmt.Errorf("payload is nil")
+	}
+	if len(res.GetPayload()) != 1 {
+		return 0, "", fmt.Errorf("expected 1 ip address, got %d", len(res.GetPayload()))
+	}
+	return res.GetPayload()[0].ID, *res.GetPayload()[0].Address, nil
+}
+
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	prefixID := int64(d.Get("prefix_id").(int))
 	rangeID := int64(d.Get("ip_range_id").(int))
+	var selectedID int64
 	prefixIDs, err := assertInterfaceToInt64Slice(d.Get("prefix_ids"))
 	if err != nil {
 		return fmt.Errorf("unable to convert prefixIDs to []int64: %w", err)
@@ -146,30 +161,24 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	data := models.AvailableIP{
 		Vrf: &nestedvrf,
 	}
+
+	var res ipamIPAvailableIpsCreateCreated
 	if prefixID != 0 {
 		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
-		res, _ := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
-		// Since we generated the ip_address, set that now
-		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
-		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("selected_id", prefixID)
+		res, _ = api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+		selectedID = prefixID
 	}
 	if rangeID != 0 {
+		selectedID = rangeID
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
-		res, _ := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+		res, _ = api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
 		// Since we generated the ip_address, set that now
-		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
-		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("selected_id", rangeID)
 	}
 	if len(prefixIDs) > 0 {
-		var res *ipam.IpamPrefixesAvailableIpsCreateCreated
-		var err error
-		var id int64
-		// Try prefixes until one does not return an error
-		for _, id := range prefixIDs {
+
+		for _, selectedID := range prefixIDs {
 			// q: Ask for forgivnes or check first?
-			params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(id).WithData([]*models.AvailableIP{&data})
+			params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(selectedID).WithData([]*models.AvailableIP{&data})
 			res, err = api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
 			if err == nil {
 				// There is avalible ips
@@ -179,19 +188,12 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		if err != nil {
 			return fmt.Errorf("unable to create a ip address for prefixes: %v, err: %w", prefixIDs, err)
 		}
-		// Since we generated the ip_address, set that now
-		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
-		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("selected_id", id)
 	}
 	if len(rangeIDs) > 0 {
-		var res *ipam.IpamIPRangesAvailableIpsCreateCreated
-		var err error
-		var id int64
 		// Try Ranges until one does not return an error
-		for _, id = range prefixIDs {
+		for _, selectedID = range prefixIDs {
 			// q: Ask for forgivnes or check first?
-			params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(id).WithData([]*models.AvailableIP{&data})
+			params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(selectedID).WithData([]*models.AvailableIP{&data})
 			res, err = api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
 			if err == nil {
 				// There is avalible ips
@@ -201,11 +203,15 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		if err != nil {
 			return fmt.Errorf("unable to create a ip address for ip Ranges: %v, err: %w", prefixIDs, err)
 		}
-		// Since we generated the ip_address, set that now
-		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
-		d.Set("ip_address", *res.Payload[0].Address)
-		d.Set("selected_id", id)
+
 	}
+	netboxID, ipaddress, err := payloadHandler(res)
+	if err != nil {
+		return fmt.Errorf("unable to handle payload: %w", err)
+	}
+	d.SetId(strconv.FormatInt(netboxID, 10))
+	d.Set("ip_address", ipaddress)
+	d.Set("selected_id", selectedID)
 	return resourceNetboxAvailableIPAddressUpdate(d, m)
 }
 

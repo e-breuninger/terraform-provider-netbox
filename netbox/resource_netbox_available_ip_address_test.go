@@ -368,10 +368,10 @@ resource "netbox_available_ip_address" "test2" {
 	})
 }
 
-func TestAccNetboxAvailableIPAddress_multiple_cidrs_overflow(t *testing.T) {
+func TestAccNetboxAvailableIPAddress_multiple_cidrs_overflow_prefix(t *testing.T) {
 	ipaddresses := []string{}
 	for i := 0; i < 20; i++ {
-		ipaddresses = append(ipaddresses, fmt.Sprintf("3.0.0.%d/30", i))
+		ipaddresses = append(ipaddresses, fmt.Sprintf("13.0.0.%d/30", i))
 	}
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -380,7 +380,7 @@ func TestAccNetboxAvailableIPAddress_multiple_cidrs_overflow(t *testing.T) {
 				Config: `
 resource "netbox_prefix" "test" {
   count = 5
-  prefix = "3.0.0.${4 * count.index}/30"
+  prefix = "13.0.0.${4 * count.index}/30"
   status = "active"
   is_pool = true
 }
