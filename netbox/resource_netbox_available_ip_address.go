@@ -131,7 +131,7 @@ type ipamIPAvailableIpsCreateCreated interface {
 	GetPayload() []*models.IPAddress
 }
 
-func payloadHandler(res ipamIPAvailableIpsCreateCreated) (int64, string, error) {
+func createPayloadHandler(res ipamIPAvailableIpsCreateCreated) (int64, string, error) {
 	if res == nil {
 		return 0, "", fmt.Errorf("payload is nil")
 	}
@@ -205,7 +205,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		}
 
 	}
-	netboxID, ipaddress, err := payloadHandler(res)
+	netboxID, ipaddress, err := createPayloadHandler(res)
 	if err != nil {
 		return fmt.Errorf("unable to handle payload: %w", err)
 	}
