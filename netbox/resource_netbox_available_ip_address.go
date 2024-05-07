@@ -134,7 +134,7 @@ type ipamIPAvailableIpsCreateCreated interface {
 func payloadHandlerCreate(res ipamIPAvailableIpsCreateCreated) (int64, string, error) {
 	if res == nil {
 		// Ranges causes issues here.
-		return 0, "", fmt.Errorf("payload is nil, this could be caused by providing the wrong ID.")
+		return 0, "", fmt.Errorf("payload is nil, this could be caused by providing the wrong ID")
 	}
 	if len(res.GetPayload()) != 1 {
 		return 0, "", fmt.Errorf("expected 1 ip address, got %d", len(res.GetPayload()))
