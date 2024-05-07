@@ -132,7 +132,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritableVRF{}
 
 	name := d.Get("name").(string)
-	enforce_unique := d.Get("enforce_unique").(bool)
+	enforceUnique := d.Get("enforce_unique").(bool)
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -141,7 +141,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
 	data.Description = getOptionalStr(d, "description", true)
-	data.EnforceUnique = enforce_unique
+	data.EnforceUnique = enforceUnique
 
 	if rd, ok := d.GetOk("rd"); ok {
 		data.Rd = strToPtr(rd.(string))
