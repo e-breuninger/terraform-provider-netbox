@@ -32,7 +32,7 @@ resource "netbox_user" "test" {
 ### Optional
 
 - `active` (Boolean) Defaults to `true`.
-- `groups` (Set of Number)
+- `group_ids` (Set of Number)
 - `staff` (Boolean) Defaults to `false`.
 
 ### Read-Only
