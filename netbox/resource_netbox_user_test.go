@@ -59,13 +59,13 @@ resource "netbox_user" "test_group" {
 	  password = "abcdefghijkl"
 	  active = true
 	  staff = true
-	  groups = [netbox_group.test_group.id]
+	  group_ids = [netbox_group.test_group.id]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_user.test_group", "username", testName),
 					resource.TestCheckResourceAttr("netbox_user.test_group", "active", "true"),
 					resource.TestCheckResourceAttr("netbox_user.test_group", "staff", "true"),
-					resource.TestCheckResourceAttr("netbox_user.test_group", "groups.#", "1"),
+					resource.TestCheckResourceAttr("netbox_user.test_group", "group_ids.#", "1"),
 				),
 			},
 			{
