@@ -27,12 +27,12 @@ func resourceNetboxIPRange() *schema.Resource {
 			"start_address": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: ValidationIPHasPrefixLenght,
+				ValidateFunc: validation.IsCIDR,
 			},
 			"end_address": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: ValidationIPHasPrefixLenght,
+				ValidateFunc: validation.IsCIDR,
 			},
 			"status": {
 				Type:         schema.TypeString,

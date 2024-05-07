@@ -1,8 +1,6 @@
 package netbox
 
 import (
-	"net"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
@@ -18,10 +16,3 @@ var (
 	validatePositiveInt16 = validation.IntBetween(0, maxInt16)
 	validatePositiveInt32 = validation.IntBetween(0, maxInt32)
 )
-
-func ValidationIPHasPrefixLenght(i interface{}, s string) ([]string, []error) {
-	if _, _, err := net.ParseCIDR(s); err != nil {
-		return nil, []error{err}
-	}
-	return nil, nil
-}
