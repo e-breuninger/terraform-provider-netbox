@@ -287,9 +287,9 @@ resource "netbox_available_ip_address" "test" {
 }
 
 func TestAccNetboxAvailableIPAddress_multiple_cidrs_prefixses(t *testing.T) {
-	testPrefix1 := "1.1.2.0/32"
-	testPrefix2 := "2.1.2.0/32"
-	testIP := "2.1.2.0/32"
+	testPrefix1 := "1.3.2.0/32"
+	testPrefix2 := "2.3.2.0/32"
+	testIP := "2.3.2.0/32"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -312,6 +312,7 @@ resource "netbox_available_ip_address" "test" {
   role = "loopback"
 }
 resource "netbox_available_ip_address" "test2" {
+	depends_on = [netbox_available_ip_address.test]
 	prefix_ids = [netbox_prefix.test1.id, netbox_prefix.test2.id]
 	status = "active"
 	dns_name = "test.mydomain.local"
@@ -330,16 +331,16 @@ resource "netbox_available_ip_address" "test2" {
 }
 
 func TestAccNetboxAvailableIPAddress_multiple_cidrs_ranges(t *testing.T) {
-	testIP := "1.1.2.0/28"
-	testIP2 := "1.1.2.1/28"
+	testIP := "1.4.2.0/28"
+	testIP2 := "1.4.2.1/28"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: `
 resource "netbox_ip_range" "test1" {
-	start_address = "1.1.2.0/28"
-	end_address = "1.1.2.2/28"
+	start_address = "1.4.2.0/28"
+	end_address = "1.4.2.2/28"
 }
 resource "netbox_ip_range" "test2" {
 	start_address = "2.1.2.0/28"
@@ -417,8 +418,8 @@ func TestAccNetboxAvailableIPAddress_multiple_cidrs_overflow_ranges(t *testing.T
 				Config: `
 resource "netbox_ip_range" "test" {
   count = 5
-  start_address = "4.0.0.${4 * count.index}"
-  end_address = "4.0.0.${4 * count.index + 3}"
+  start_address = "4.0.0.${4 * count.index}/32"
+  end_address = "4.0.0.${4 * count.index + 3}/32"
 }
 // Consume most of the available IPs
 resource "netbox_available_ip_address" "_test" {

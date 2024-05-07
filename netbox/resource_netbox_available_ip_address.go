@@ -131,10 +131,10 @@ type ipamIPAvailableIpsCreateCreated interface {
 	GetPayload() []*models.IPAddress
 }
 
-func createPayloadHandler(res ipamIPAvailableIpsCreateCreated) (int64, string, error) {
+func payloadHandlerCreate(res ipamIPAvailableIpsCreateCreated) (int64, string, error) {
 	if res == nil {
 		// Ranges causes issues here.
-		return 0, "", fmt.Errorf("payload is nil")
+		return 0, "", fmt.Errorf("payload is nil, this could be caused by providing the wrong ID.")
 	}
 	if len(res.GetPayload()) != 1 {
 		return 0, "", fmt.Errorf("expected 1 ip address, got %d", len(res.GetPayload()))
@@ -206,7 +206,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	} else if err != nil {
 		return fmt.Errorf("unable to convert rangeIDs to []int64: %w", err)
 	}
-	netboxID, ipaddress, err := createPayloadHandler(res)
+	netboxID, ipaddress, err := payloadHandlerCreate(res)
 	if err != nil {
 		return fmt.Errorf("unable to handle payload: %w", err)
 	}
