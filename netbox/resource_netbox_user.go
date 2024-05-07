@@ -38,6 +38,13 @@ func resourceNetboxUser() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"group_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -52,13 +59,13 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	password := d.Get("password").(string)
 	active := d.Get("active").(bool)
 	staff := d.Get("staff").(bool)
+	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
 	data.Password = &password
 	data.IsActive = active
 	data.IsStaff = staff
-
-	data.Groups = []int64{}
+	data.Groups = groupIDs
 
 	params := users.NewUsersUsersCreateParams().WithData(&data)
 	res, err := api.Users.UsersUsersCreate(params, nil)
@@ -94,6 +101,7 @@ func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("staff", res.GetPayload().IsStaff)
 	d.Set("active", res.GetPayload().IsActive)
+	d.Set("group_ids", getIDsFromNestedGroup(res.GetPayload().Groups))
 
 	// Passwords cannot be set and not read
 
@@ -109,13 +117,13 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	password := d.Get("password").(string)
 	active := d.Get("active").(bool)
 	staff := d.Get("staff").(bool)
+	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
 	data.Password = &password
 	data.IsActive = active
 	data.IsStaff = staff
-
-	data.Groups = []int64{}
+	data.Groups = groupIDs
 
 	params := users.NewUsersUsersUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Users.UsersUsersUpdate(params, nil)
@@ -141,4 +149,12 @@ func resourceNetboxUserDelete(d *schema.ResourceData, m interface{}) error {
 	}
 	d.SetId("")
 	return nil
+}
+
+func getIDsFromNestedGroup(nestedGroups []*models.NestedGroup) []int64 {
+	var groupIDs []int64
+	for _, group := range nestedGroups {
+		groupIDs = append(groupIDs, group.ID)
+	}
+	return groupIDs
 }
