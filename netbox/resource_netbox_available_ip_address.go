@@ -202,7 +202,6 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		if err != nil {
 			return fmt.Errorf("unable to create a ip address for ip Ranges: %v, err: %w", rangeIDs, err)
 		}
-
 	} else if err != nil {
 		return fmt.Errorf("unable to convert rangeIDs to []int64: %w", err)
 	}
