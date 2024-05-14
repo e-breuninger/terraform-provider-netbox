@@ -147,7 +147,7 @@ func resourceNetboxConfigContext() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -157,10 +157,10 @@ func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) er
 	data := models.WritableConfigContext{}
 	data.Name = strToPtr(d.Get("name").(string))
 
-	dataJson, ok := d.GetOk("data")
+	dataJSON, ok := d.GetOk("data")
 	if ok {
 		var jsonObj any
-		localContextBA := []byte(dataJson.(string))
+		localContextBA := []byte(dataJSON.(string))
 		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
 			data.Data = jsonObj
 		}
@@ -222,16 +222,16 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 		d.Set("data", nil)
 	}
 
-	cluster_groups := res.GetPayload().ClusterGroups
-	clusterGroupsSlice := make([]int64, len(cluster_groups))
-	for i, v := range cluster_groups {
+	clusterGroups := res.GetPayload().ClusterGroups
+	clusterGroupsSlice := make([]int64, len(clusterGroups))
+	for i, v := range clusterGroups {
 		clusterGroupsSlice[i] = int64(v.ID)
 	}
 	d.Set("cluster_groups", clusterGroupsSlice)
 
-	cluster_types := res.GetPayload().ClusterTypes
-	clusterTypesSlice := make([]int64, len(cluster_types))
-	for i, v := range cluster_types {
+	clusterTypes := res.GetPayload().ClusterTypes
+	clusterTypesSlice := make([]int64, len(clusterTypes))
+	for i, v := range clusterTypes {
 		clusterTypesSlice[i] = int64(v.ID)
 	}
 	d.Set("cluster_types", clusterTypesSlice)
@@ -243,9 +243,9 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 	}
 	d.Set("clusters", clustersSlice)
 
-	device_types := res.GetPayload().DeviceTypes
-	deviceTypesSlice := make([]int64, len(device_types))
-	for i, v := range device_types {
+	deviceTypes := res.GetPayload().DeviceTypes
+	deviceTypesSlice := make([]int64, len(deviceTypes))
+	for i, v := range deviceTypes {
 		deviceTypesSlice[i] = int64(v.ID)
 	}
 	d.Set("device_types", deviceTypesSlice)
@@ -278,9 +278,9 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 	}
 	d.Set("roles", rolesSlice)
 
-	site_groups := res.GetPayload().SiteGroups
-	siteGroupsSlice := make([]int64, len(site_groups))
-	for i, v := range site_groups {
+	siteGroups := res.GetPayload().SiteGroups
+	siteGroupsSlice := make([]int64, len(siteGroups))
+	for i, v := range siteGroups {
 		siteGroupsSlice[i] = int64(v.ID)
 	}
 	d.Set("site_groups", siteGroupsSlice)
@@ -299,9 +299,9 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 	}
 	d.Set("tags", tagsSlice)
 
-	tenant_groups := res.GetPayload().TenantGroups
-	tenantGroupsSlice := make([]int64, len(tenant_groups))
-	for i, v := range tenant_groups {
+	tenantGroups := res.GetPayload().TenantGroups
+	tenantGroupsSlice := make([]int64, len(tenantGroups))
+	for i, v := range tenantGroups {
 		tenantGroupsSlice[i] = int64(v.ID)
 	}
 	d.Set("tenant_groups", tenantGroupsSlice)

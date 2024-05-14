@@ -154,10 +154,10 @@ func dataSourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) er
 	}
 
 	if *res.GetPayload().Count > int64(1) {
-		return errors.New("More than one result. Specify a more narrow filter")
+		return errors.New("more than one result. Specify a more narrow filter")
 	}
 	if *res.GetPayload().Count == int64(0) {
-		return errors.New("No result")
+		return errors.New("no result")
 	}
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
@@ -170,26 +170,26 @@ func dataSourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) er
 	} else {
 		d.Set("data", nil)
 	}
-	cluster_groups := make([]int64, len(result.ClusterGroups))
+	clusterGroups := make([]int64, len(result.ClusterGroups))
 	for i, v := range result.ClusterGroups {
-		cluster_groups[i] = int64(v.ID)
+		clusterGroups[i] = int64(v.ID)
 	}
-	d.Set("cluster_groups", cluster_groups)
-	cluster_types := make([]int64, len(result.ClusterTypes))
+	d.Set("cluster_groups", clusterGroups)
+	clusterTypes := make([]int64, len(result.ClusterTypes))
 	for i, v := range result.ClusterTypes {
-		cluster_types[i] = int64(v.ID)
+		clusterTypes[i] = int64(v.ID)
 	}
-	d.Set("cluster_types", cluster_types)
+	d.Set("cluster_types", clusterTypes)
 	clusters := make([]int64, len(result.Clusters))
 	for i, v := range result.Clusters {
 		clusters[i] = int64(v.ID)
 	}
 	d.Set("clusters", clusters)
-	device_types := make([]int64, len(result.DeviceTypes))
+	deviceTypes := make([]int64, len(result.DeviceTypes))
 	for i, v := range result.DeviceTypes {
-		device_types[i] = int64(v.ID)
+		deviceTypes[i] = int64(v.ID)
 	}
-	d.Set("device_types", device_types)
+	d.Set("device_types", deviceTypes)
 	locations := make([]int64, len(result.Locations))
 	for i, v := range result.Locations {
 		locations[i] = int64(v.ID)
@@ -210,21 +210,21 @@ func dataSourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) er
 		roles[i] = int64(v.ID)
 	}
 	d.Set("roles", roles)
-	site_groups := make([]int64, len(result.SiteGroups))
+	siteGroups := make([]int64, len(result.SiteGroups))
 	for i, v := range result.SiteGroups {
-		site_groups[i] = int64(v.ID)
+		siteGroups[i] = int64(v.ID)
 	}
-	d.Set("site_groups", site_groups)
+	d.Set("site_groups", siteGroups)
 	sites := make([]int64, len(result.Sites))
 	for i, v := range result.Sites {
 		sites[i] = int64(v.ID)
 	}
 	d.Set("sites", sites)
-	tenant_groups := make([]int64, len(result.TenantGroups))
+	tenantGroups := make([]int64, len(result.TenantGroups))
 	for i, v := range result.TenantGroups {
-		tenant_groups[i] = int64(v.ID)
+		tenantGroups[i] = int64(v.ID)
 	}
-	d.Set("tenant_groups", tenant_groups)
+	d.Set("tenant_groups", tenantGroups)
 	tenants := make([]int64, len(result.Tenants))
 	for i, v := range result.Tenants {
 		tenants[i] = int64(v.ID)

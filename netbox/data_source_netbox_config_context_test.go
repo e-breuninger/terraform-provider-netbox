@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxConfigContextDataSource_basic(t *testing.T) {
-
 	testSlug := "cfct_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

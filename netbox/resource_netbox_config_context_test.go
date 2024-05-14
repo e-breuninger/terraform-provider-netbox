@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxConfigContext_basic(t *testing.T) {
-
 	testSlug := "config_context_assignments"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -41,7 +40,6 @@ resource "netbox_config_context" "test" {
 }
 
 func TestAccNetboxConfigContext_defaultWeight(t *testing.T) {
-
 	testSlug := "config_context_assignments"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -64,7 +62,6 @@ resource "netbox_config_context" "test" {
 }
 
 func TestAccNetboxConfigContext_assignments(t *testing.T) {
-
 	testSlug := "config_context_assignments"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -192,9 +189,9 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, config_context := range res.GetPayload().Results {
-				if strings.HasPrefix(*config_context.Name, testPrefix) {
-					deleteParams := extras.NewExtrasConfigContextsDeleteParams().WithID(config_context.ID)
+			for _, configContext := range res.GetPayload().Results {
+				if strings.HasPrefix(*configContext.Name, testPrefix) {
+					deleteParams := extras.NewExtrasConfigContextsDeleteParams().WithID(configContext.ID)
 					_, err := api.Extras.ExtrasConfigContextsDelete(deleteParams, nil)
 					if err != nil {
 						return err
