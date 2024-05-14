@@ -32,6 +32,7 @@ resource "netbox_vrf" "cust_a_prod" {
 ### Optional
 
 - `description` (String)
+- `rd` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
 

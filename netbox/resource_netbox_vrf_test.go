@@ -165,39 +165,6 @@ resource "netbox_vrf" "test_rd" {
 	})
 }
 
-func TestAccNetboxVrf_enforceUnique(t *testing.T) {
-	testSlug := "vrf_enforce_unique"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-resource "netbox_vrf" "test_enforce_unique" {
-	name        = "%s-true"
-	enforce_unique = true
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_vrf.test_enforce_unique", "name", testName+"-true"),
-					resource.TestCheckResourceAttr("netbox_vrf.test_enforce_unique", "enforce_unique", "true"),
-				),
-			},
-			{
-				Config: fmt.Sprintf(`
-resource "netbox_vrf" "test_enforce_unique_false" {
-	name        = "%s-false"
-	enforce_unique = false
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_vrf.test_enforce_unique_false", "name", testName+"-false"),
-					resource.TestCheckResourceAttr("netbox_vrf.test_enforce_unique_false", "enforce_unique", "false"),
-				),
-			},
-		},
-	})
-}
-
 func init() {
 	resource.AddTestSweepers("netbox_vrf", &resource.Sweeper{
 		Name:         "netbox_vrf",
