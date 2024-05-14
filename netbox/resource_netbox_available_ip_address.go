@@ -173,7 +173,6 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		}
 	}
 	if prefixIDs, err := assertInterfaceToInt64Slice(d.Get("prefix_ids")); err == nil && len(prefixIDs) > 0 {
-
 		for _, selectedID := range prefixIDs {
 			// q: Ask for forgivnes or check first?
 			params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(selectedID).WithData([]*models.AvailableIP{&data})
