@@ -34,6 +34,11 @@ func resourceNetboxVrf() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"enforce_unique": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"rd": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -54,6 +59,7 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	tenantID := int64(d.Get("tenant_id").(int))
+	enforceUnique := d.Get("enforce_unique").(bool)
 	rd := d.Get("rd").(string)
 
 	data.Name = &name
@@ -62,6 +68,7 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Description = getOptionalStr(d, "description", true)
+	data.EnforceUnique = enforceUnique
 	if rd != "" {
 		data.Rd = &rd
 	}
@@ -104,6 +111,7 @@ func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 	vrf := res.GetPayload()
 	d.Set("name", vrf.Name)
 	d.Set("description", vrf.Description)
+	d.Set("enforce_unique", vrf.EnforceUnique)
 	if vrf.Rd != nil {
 		d.Set("rd", *vrf.Rd)
 	} else {
@@ -124,6 +132,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritableVRF{}
 
 	name := d.Get("name").(string)
+	enforceUnique := d.Get("enforce_unique").(bool)
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -132,6 +141,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
 	data.Description = getOptionalStr(d, "description", true)
+	data.EnforceUnique = enforceUnique
 
 	if rd, ok := d.GetOk("rd"); ok {
 		data.Rd = strToPtr(rd.(string))
