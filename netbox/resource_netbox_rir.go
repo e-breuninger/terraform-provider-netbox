@@ -36,12 +36,18 @@ func resourceNetboxRir() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"is_private": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
+
 func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 	data := models.RIR{}
@@ -60,6 +66,7 @@ func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 	data.Slug = &slug
 	data.Description = getOptionalStr(d, "description", true)
 	data.Tags = []*models.NestedTag{}
+	data.IsPrivate = d.Get("is_private").(bool)
 
 	params := ipam.NewIpamRirsCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamRirsCreate(params, nil)
@@ -94,6 +101,7 @@ func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", rir.Name)
 	d.Set("slug", rir.Slug)
 	d.Set("description", rir.Description)
+	d.Set("is_private", rir.IsPrivate)
 
 	return nil
 }
@@ -117,6 +125,7 @@ func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Slug = &slug
 	data.Description = getOptionalStr(d, "description", true)
 	data.Tags = []*models.NestedTag{}
+	data.IsPrivate = d.Get("is_private").(bool)
 
 	params := ipam.NewIpamRirsUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamRirsUpdate(params, nil)

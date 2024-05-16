@@ -41,6 +41,57 @@ resource "netbox_rir" "test_basic" {
 	})
 }
 
+func TestAccNetboxRir_privacy(t *testing.T) {
+	testSlug := "rir_privacy"
+	testName := testAccGetTestName(testSlug)
+	randomSlug := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_rir" "test_privacy" {
+  name        = "%s"
+  slug        = "%s"
+  is_private  = false
+}`, testName, randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "name", testName),
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "is_private", "false"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_rir" "test_privacy" {
+  name        = "%s"
+  slug        = "%s"
+  is_private  = true
+}`, testName, randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "name", testName),
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "is_private", "true"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_rir" "test_privacy" {
+  name        = "%s"
+  slug        = "%s"
+  is_private  = false
+}`, testName, randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "name", testName),
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_rir.test_privacy", "is_private", "false"),
+				),
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_rir", &resource.Sweeper{
 		Name:         "netbox_rir",
