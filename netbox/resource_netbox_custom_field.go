@@ -40,7 +40,12 @@ func resourceCustomField() *schema.Resource {
 					models.CustomFieldTypeValueSelect,
 					models.CustomFieldTypeValueMultiselect,
 					models.CustomFieldTypeValueJSON,
+					models.CustomFieldTypeValueObject,
 				}, false),
+			},
+			"object_type": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"content_types": {
 				Type:     schema.TypeSet,
@@ -108,6 +113,7 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableCustomField{
 		Name:            strToPtr(d.Get("name").(string)),
 		Type:            d.Get("type").(string),
+		ObjectType:      d.Get("object_type").(string),
 		Description:     d.Get("description").(string),
 		GroupName:       d.Get("group_name").(string),
 		Label:           d.Get("label").(string),
@@ -154,6 +160,7 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableCustomField{
 		Name:            strToPtr(d.Get("name").(string)),
 		Type:            d.Get("type").(string),
+		ObjectType:      d.Get("object_type").(string),
 		Description:     d.Get("description").(string),
 		GroupName:       d.Get("group_name").(string),
 		Label:           d.Get("label").(string),
@@ -217,6 +224,7 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 	customField := res.GetPayload()
 	d.Set("name", customField.Name)
 	d.Set("type", *customField.Type.Value)
+	d.Set("object_type", customField.ObjectType)
 
 	d.Set("content_types", customField.ContentTypes)
 

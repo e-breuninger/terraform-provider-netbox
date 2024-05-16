@@ -64,6 +64,35 @@ resource "netbox_custom_field" "test" {
 	})
 }
 
+func TestAccNetboxCustomField_object(t *testing.T) {
+	testSlug := "custom_fields_object"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name = "%s"
+  type = "object"
+  object_type = "ipam.prefix"
+  content_types = ["virtualization.vminterface"]
+  group_name = "mygroup"
+  weight = 100
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "object"),
+					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "content_types.*", "virtualization.vminterface"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "group_name", "mygroup"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "100"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccNetboxCustomField_integer(t *testing.T) {
 	testSlug := "custom_fields_integer"
 	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
