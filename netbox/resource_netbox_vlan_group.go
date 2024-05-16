@@ -47,7 +47,7 @@ func resourceNetboxVlanGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice(resourceNetboxVlanGroupScopeTypeOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxPrefixStatusOptions),
+				Description:  buildValidValueDescription(resourceNetboxVlanGroupScopeTypeOptions),
 			},
 			"scope_id": {
 				Type:         schema.TypeInt,
