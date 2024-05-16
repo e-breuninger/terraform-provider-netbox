@@ -32,6 +32,7 @@ resource "netbox_rir" "test" {
 ### Optional
 
 - `description` (String)
+- `is_private` (Boolean) Defaults to `false`.
 - `slug` (String)
 
 ### Read-Only
