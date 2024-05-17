@@ -1,3 +1,12 @@
+## 3.8.6 (May 17th, 2024)
+
+ENHANCEMENTS
+
+* resource/netbox_rir: Add `is_private` attribute ([#594](https://github.com/e-breuninger/terraform-provider-netbox/pull/594) by [@thibaultbustarret-ovhcloud](https://github.com/thibaultbustarret-ovhcloud))
+* resource/netbox_vrf: Add `rd` and `enforce_unique` attributes ([#585](https://github.com/e-breuninger/terraform-provider-netbox/pull/585) by [@thibaultbustarret-ovhcloud](https://github.com/thibaultbustarret-ovhcloud))
+* **New Resource:** `netbox_group` ([#584](https://github.com/e-breuninger/terraform-provider-netbox/pull/584) by [@thibaultbustarret-ovhcloud](https://github.com/thibaultbustarret-ovhcloud))
+* resource/netbox_user: Add `group_ids` attribute ([#584](https://github.com/e-breuninger/terraform-provider-netbox/pull/584) by [@thibaultbustarret-ovhcloud](https://github.com/thibaultbustarret-ovhcloud))
+
 ## 3.8.5 (March 18th, 2024)
 
 BUG FIXES
