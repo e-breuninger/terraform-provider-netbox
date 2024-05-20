@@ -48,7 +48,7 @@ func resourceNetboxVirtualChassis() *schema.Resource {
 }
 
 func resourceNetboxVirtualChassisCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 
 	name := d.Get("name").(string)
 
@@ -94,7 +94,7 @@ func resourceNetboxVirtualChassisCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -129,7 +129,7 @@ func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualChassisUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualChassis{}
@@ -178,7 +178,7 @@ func resourceNetboxVirtualChassisUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualChassisDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimVirtualChassisDeleteParams().WithID(id)

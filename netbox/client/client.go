@@ -1,13 +1,15 @@
-package netbox
+package client
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"time"
 
-	netboxclient "github.com/fbreckle/go-netbox/netbox/client"
+	netboxlegacy "github.com/fbreckle/go-netbox/netbox/client"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/goware/urlx"
+	netbox "github.com/netbox-community/go-netbox/v3"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,11 +30,13 @@ type customHeaderTransport struct {
 	headers  map[string]interface{}
 }
 
-// Client does the heavy lifting of establishing a base Open API client to Netbox.
-func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
+// NewLegacyClient creates a NetBox API client based of github.com/fbreckle/go-netbox.
+// It uses the legacy API client, which is based on the OpenAPI 2.0 specification.
+// This client is deprecated and will be removed in the future.
+func NewLegacyClient(cfg *Config) (*netboxlegacy.NetBoxAPI, error) {
 	log.WithFields(log.Fields{
 		"server_url": cfg.ServerURL,
-	}).Debug("Initializing Netbox client")
+	}).Debug("Initializing Netbox legacy client")
 
 	if cfg.APIToken == "" {
 		return nil, fmt.Errorf("missing netbox API key")
@@ -76,12 +80,43 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 		Timeout:   time.Second * time.Duration(cfg.RequestTimeout),
 	}
 
-	transport := httptransport.NewWithClient(parsedURL.Host, parsedURL.Path+netboxclient.DefaultBasePath, desiredRuntimeClientSchemes, httpClient)
+	transport := httptransport.NewWithClient(parsedURL.Host, parsedURL.Path+netboxlegacy.DefaultBasePath, desiredRuntimeClientSchemes, httpClient)
 	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", fmt.Sprintf("Token %v", cfg.APIToken))
 	transport.SetLogger(log.StandardLogger())
-	netboxClient := netboxclient.New(transport, nil)
+	netboxClient := netboxlegacy.New(transport, nil)
 
 	return netboxClient, nil
+}
+
+// NewClient creates a NetBox API client based on github.com/netbox-community/go-netbox.
+// This client is based on the OpenAPI 3.0 specification.
+func NewClient(cfg *Config) (*netbox.APIClient, error) {
+	log.WithFields(log.Fields{
+		"server_url": cfg.ServerURL,
+	}).Debug("Initializing Netbox client")
+	if cfg.APIToken == "" {
+		return nil, fmt.Errorf("missing netbox API key")
+	}
+
+	headers := map[string]string{}
+	for k, v := range cfg.Headers {
+		headers[k] = fmt.Sprintf("%v", v)
+	}
+	headers["Authorization"] = fmt.Sprintf("Token %v", cfg.APIToken)
+
+	return netbox.NewAPIClient(&netbox.Configuration{
+		Servers: []netbox.ServerConfiguration{{
+			URL:         cfg.ServerURL,
+			Description: "NetBox",
+		}},
+		HTTPClient: &http.Client{
+			Timeout: time.Second * time.Duration(cfg.RequestTimeout),
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: cfg.AllowInsecureHTTPS},
+			},
+		},
+		DefaultHeader: headers,
+	}), nil
 }
 
 // RoundTrip adds the headers specified in the transport on every request.

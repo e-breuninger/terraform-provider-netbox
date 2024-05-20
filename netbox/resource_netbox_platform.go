@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,7 +39,7 @@ func resourceNetboxPlatform() *schema.Resource {
 }
 
 func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 
 	name := d.Get("name").(string)
 
@@ -73,7 +72,7 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPlatformsReadParams().WithID(id)
 
@@ -97,7 +96,7 @@ func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritablePlatform{}
@@ -128,7 +127,7 @@ func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPlatformsDeleteParams().WithID(id)

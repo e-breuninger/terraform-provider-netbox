@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -63,7 +62,7 @@ func resourceNetboxService() *schema.Resource {
 	}
 }
 func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 	data := models.WritableService{}
 
 	dataName := d.Get("name").(string)
@@ -111,7 +110,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesReadParams().WithID(id)
 
@@ -142,7 +141,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableService{}
 
@@ -186,7 +185,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*Config).LegacyClient
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamServicesDelete(params, nil)

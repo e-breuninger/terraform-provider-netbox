@@ -4,13 +4,34 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
-	"github.com/fbreckle/go-netbox/netbox/client/status"
+	netboxlegacy "github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"golang.org/x/exp/slices"
+	netbox "github.com/netbox-community/go-netbox/v3"
+
+	"github.com/e-breuninger/terraform-provider-netbox/netbox/client"
 )
+
+var supportedVersions = []string{
+	"3.7.0",
+	"3.7.1",
+	"3.7.2",
+	"3.7.3",
+	"3.7.4",
+	"3.7.5",
+	"3.7.6",
+	"3.7.7",
+	"3.7.8",
+}
+
+// Config is a container struct passed to the provider functions as meta argument.
+type Config struct {
+	Client       *netbox.APIClient
+	LegacyClient *netboxlegacy.NetBoxAPI
+}
 
 // This makes the description contain the default value, particularly useful for the docs
 // From https://github.com/hashicorp/terraform-plugin-docs/issues/65#issuecomment-1152842370
@@ -239,7 +260,8 @@ func Provider() *schema.Provider {
 func providerConfigure(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	config := Config{
+	cfg := client.Config{
+		ServerURL:                   data.Get("server_url").(string),
 		APIToken:                    data.Get("api_token").(string),
 		AllowInsecureHTTPS:          data.Get("allow_insecure_https").(bool),
 		Headers:                     data.Get("headers").(map[string]interface{}),
@@ -247,52 +269,41 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		StripTrailingSlashesFromURL: data.Get("strip_trailing_slashes_from_url").(bool),
 	}
 
-	serverURL := data.Get("server_url").(string)
-
 	// Unless explicitly switched off, strip trailing slashes from the server url
 	// Trailing slashes cause errors as seen in https://github.com/e-breuninger/terraform-provider-netbox/issues/198
 	// and https://github.com/e-breuninger/terraform-provider-netbox/issues/300
 	stripTrailingSlashesFromURL := data.Get("strip_trailing_slashes_from_url").(bool)
 
-	if stripTrailingSlashesFromURL {
-		trimmed := false
-
-		// This is Go's poor man's while loop
-		for strings.HasSuffix(serverURL, "/") {
-			serverURL = strings.TrimRight(serverURL, "/")
-			trimmed = true
-		}
-		if trimmed {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  "Stripped trailing slashes from the `server_url` parameter",
-				Detail:   "Trailing slashes in the `server_url` parameter lead to problems in most setups, so all trailing slashes were stripped. Use the `strip_trailing_slashes_from_url` parameter to disable this feature or remove all trailing slashes in the `server_url` to disable this warning.",
-			})
-		}
+	if stripTrailingSlashesFromURL && strings.HasSuffix(cfg.ServerURL, "/") {
+		cfg.ServerURL = strings.TrimRight(cfg.ServerURL, "/")
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Stripped trailing slashes from the `server_url` parameter",
+			Detail:   "Trailing slashes in the `server_url` parameter lead to problems in most setups, so all trailing slashes were stripped. Use the `strip_trailing_slashes_from_url` parameter to disable this feature or remove all trailing slashes in the `server_url` to disable this warning.",
+		})
 	}
 
-	config.ServerURL = serverURL
-
-	netboxClient, clientError := config.Client()
-	if clientError != nil {
-		return nil, diag.FromErr(clientError)
+	apiClient, err := client.NewClient(&cfg)
+	if err != nil {
+		return nil, diag.Errorf("initializing netbox client: %s", err)
 	}
 
-	// Unless explicitly switched off, use the client to retrieve the Netbox version
-	// so we can determine compatibility of the provider with the used Netbox
+	legacyClient, err := client.NewLegacyClient(&cfg)
+	if err != nil {
+		return nil, diag.Errorf("initializing netbox legacy client: %s", err)
+	}
+
+	// // Unless explicitly switched off, use the client to retrieve the Netbox version
+	// // so we can determine compatibility of the provider with the used Netbox
 	skipVersionCheck := data.Get("skip_version_check").(bool)
-
 	if !skipVersionCheck {
-		req := status.NewStatusListParams()
-		res, err := netboxClient.Status.StatusList(req, nil)
+		req := apiClient.StatusAPI.StatusRetrieve(context.Background())
+		payload, _, err := req.Execute()
 		if err != nil {
-			return nil, diag.FromErr(err)
+			return nil, diag.Errorf("getting netbox status: %s", err)
 		}
 
-		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
-
-		supportedVersions := []string{"3.7.0", "3.7.1", "3.7.2", "3.7.3", "3.7.4", "3.7.5", "3.7.6", "3.7.7", "3.7.8"}
-
+		netboxVersion := payload["netbox-version"].(string)
 		if !slices.Contains(supportedVersions, netboxVersion) {
 			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864
 			diags = append(diags, diag.Diagnostic{
@@ -303,5 +314,8 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		}
 	}
 
-	return netboxClient, diags
+	return &Config{
+		Client:       apiClient,
+		LegacyClient: legacyClient,
+	}, diags
 }

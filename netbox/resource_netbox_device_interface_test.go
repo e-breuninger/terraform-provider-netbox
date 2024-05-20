@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -305,7 +304,7 @@ func TestAccNetboxDeviceInterface_vlans(t *testing.T) {
 
 func testAccCheckDeviceInterfaceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*client.NetBoxAPI)
+	conn := testAccProvider.Meta().(*Config).LegacyClient
 
 	// loop through the resources in state, verifying each interface
 	// is destroyed
@@ -345,7 +344,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*Config).LegacyClient
 			params := dcim.NewDcimInterfacesListParams()
 			res, err := api.Dcim.DcimInterfacesList(params, nil)
 			if err != nil {

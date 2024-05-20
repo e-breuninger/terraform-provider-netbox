@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/e-breuninger/terraform-provider-netbox/netbox/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -55,16 +56,25 @@ func providerInvalidConfigure() schema.ConfigureContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		var diags diag.Diagnostics
 
-		config := &Config{}
-		config.ServerURL = "https://fake.netbox.server"
-		config.APIToken = "1234567890"
-
-		netboxClient, clientError := config.Client()
-		if clientError != nil {
-			return nil, diag.FromErr(clientError)
+		config := &client.Config{
+			ServerURL: "https://fake.netbox.server",
+			APIToken:  "1234567890",
 		}
 
-		return netboxClient, diags
+		legacyClient, err := client.NewLegacyClient(config)
+		if err != nil {
+			return nil, diag.FromErr(err)
+		}
+
+		apiClient, err := client.NewClient(config)
+		if err != nil {
+			return nil, diag.FromErr(err)
+		}
+
+		return &Config{
+			Client:       apiClient,
+			LegacyClient: legacyClient,
+		}, diags
 	}
 }
 
