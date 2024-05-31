@@ -25,6 +25,7 @@ description: |-
 - `cluster_types` (List of Number)
 - `clusters` (List of Number)
 - `data` (String)
+- `description` (String)
 - `device_types` (List of Number)
 - `id` (String) The ID of this resource.
 - `locations` (List of Number)

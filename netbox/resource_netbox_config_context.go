@@ -214,6 +214,7 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("name", res.GetPayload().Name)
 	d.Set("description", res.GetPayload().Description)
 	d.Set("weight", res.GetPayload().Weight)
+
 	if res.GetPayload().Data != nil {
 		if jsonArr, err := json.Marshal(res.GetPayload().Data); err == nil {
 			d.Set("data", string(jsonArr))
