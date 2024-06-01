@@ -146,6 +146,7 @@ func Provider() *schema.Provider {
 			"netbox_vpn_tunnel_group":           resourceNetboxVpnTunnelGroup(),
 			"netbox_vpn_tunnel":                 resourceNetboxVpnTunnel(),
 			"netbox_vpn_tunnel_termination":     resourceNetboxVpnTunnelTermination(),
+			"netbox_config_context":             resourceNetboxConfigContext(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":               dataSourceNetboxAsn(),
@@ -187,6 +188,7 @@ func Provider() *schema.Provider {
 			"netbox_site_group":        dataSourceNetboxSiteGroup(),
 			"netbox_racks":             dataSourceNetboxRacks(),
 			"netbox_rack_role":         dataSourceNetboxRackRole(),
+			"netbox_config_context":    dataSourceNetboxConfigContext(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {

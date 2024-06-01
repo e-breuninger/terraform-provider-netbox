@@ -4,7 +4,9 @@
 package netbox
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -60,6 +62,14 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Computed: true,
 						},
 						"comments": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"config_context": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"local_context_data": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -233,6 +243,16 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Description != "" {
 			mapping["description"] = device.Description
+		}
+		if device.ConfigContext != nil {
+			if configContext, err := json.Marshal(device.ConfigContext); err == nil {
+				mapping["config_context"] = string(configContext)
+			}
+		}
+		if device.LocalContextData != nil {
+			if localContextData, err := json.Marshal(device.LocalContextData); err == nil {
+				mapping["local_context_data"] = string(localContextData)
+			}
 		}
 		mapping["device_id"] = device.ID
 		if device.DeviceType != nil {
