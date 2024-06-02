@@ -46,6 +46,11 @@ This resource will retrieve the next available IP address from a given prefix or
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"external_assignment": {
+				Type:          schema.TypeBool,
+				Optional:      true,
+				ConflictsWith: []string{"interface_id", "virtual_machine_interface_id", "device_interface_id"},
+			},
 			"interface_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -152,7 +157,10 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	}
 
 	ipAddress := res.GetPayload()
-	if ipAddress.AssignedObjectID != nil {
+
+	externallyAssigned := d.Get("external_assignment").(bool)
+
+	if !externallyAssigned && ipAddress.AssignedObjectID != nil {
 		vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
 		deviceInterfaceID := getOptionalInt(d, "device_interface_id")
 		interfaceID := getOptionalInt(d, "interface_id")
@@ -220,21 +228,41 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	deviceInterfaceID := getOptionalInt(d, "device_interface_id")
 	interfaceID := getOptionalInt(d, "interface_id")
 
-	switch {
-	case vmInterfaceID != nil:
-		data.AssignedObjectType = strToPtr("virtualization.vminterface")
-		data.AssignedObjectID = vmInterfaceID
-	case deviceInterfaceID != nil:
-		data.AssignedObjectType = strToPtr("dcim.interface")
-		data.AssignedObjectID = deviceInterfaceID
-	// if interfaceID is given, object_type must be set as well
-	case interfaceID != nil:
-		data.AssignedObjectType = strToPtr(d.Get("object_type").(string))
-		data.AssignedObjectID = interfaceID
-	// default = ip is not linked to anything
-	default:
-		data.AssignedObjectType = strToPtr("")
-		data.AssignedObjectID = nil
+	// if assignment is done externally, we just pull the information, if any
+	if d.Get("external_assignment").(bool) {
+		params := ipam.NewIpamIPAddressesReadParams().WithID(id)
+
+		res, err := api.Ipam.IpamIPAddressesRead(params, nil)
+		if err != nil {
+			return err
+		}
+
+		ipAddress := res.GetPayload()
+
+		if ipAddress.AssignedObjectType != nil {
+			data.AssignedObjectType = ipAddress.AssignedObjectType
+			data.AssignedObjectID = ipAddress.AssignedObjectID
+		} else {
+			data.AssignedObjectType = strToPtr("")
+			data.AssignedObjectID = nil
+		}
+	} else {
+		switch {
+		case vmInterfaceID != nil:
+			data.AssignedObjectType = strToPtr("virtualization.vminterface")
+			data.AssignedObjectID = vmInterfaceID
+		case deviceInterfaceID != nil:
+			data.AssignedObjectType = strToPtr("dcim.interface")
+			data.AssignedObjectID = deviceInterfaceID
+		// if interfaceID is given, object_type must be set as well
+		case interfaceID != nil:
+			data.AssignedObjectType = strToPtr(d.Get("object_type").(string))
+			data.AssignedObjectID = interfaceID
+		// default = ip is not linked to anything
+		default:
+			data.AssignedObjectType = strToPtr("")
+			data.AssignedObjectID = nil
+		}
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))

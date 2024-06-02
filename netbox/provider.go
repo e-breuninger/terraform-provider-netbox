@@ -89,6 +89,7 @@ func Provider() *schema.Provider {
 			"netbox_tenant_group":               resourceNetboxTenantGroup(),
 			"netbox_vrf":                        resourceNetboxVrf(),
 			"netbox_ip_address":                 resourceNetboxIPAddress(),
+			"netbox_ip_address_assignment":      resourceNetboxIPAddressAssignment(),
 			"netbox_interface_template":         resourceNetboxInterfaceTemplate(),
 			"netbox_interface":                  resourceNetboxInterface(),
 			"netbox_service":                    resourceNetboxService(),

@@ -285,6 +285,116 @@ resource "netbox_available_ip_address" "test" {
 	})
 }
 
+func TestAccNetboxAvailableIPAddress_deviceByObjectType_external(t *testing.T) {
+	startAddress := "1.4.7.1/24"
+	endAddress := "1.4.7.50/24"
+	testSlug := "av_ipa_dev_ot_ext"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_range" {
+  start_address = "%s"
+  end_address = "%s"
+}
+resource "netbox_available_ip_address" "test" {
+  ip_range_id = netbox_ip_range.test_range.id
+  status = "active"
+  external_assignment = true
+  dns_name = "test_range.mydomain.local"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_available_ip_address.test.id
+  object_type = "dcim.interface"
+  interface_id = netbox_device_interface.test.id
+}`, startAddress, endAddress),
+			},
+			// we update the description, to see if the ip and assignment don't conflict
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_range" {
+  start_address = "%s"
+  end_address = "%s"
+}
+resource "netbox_available_ip_address" "test" {
+  ip_range_id = netbox_ip_range.test_range.id
+  status = "active"
+  external_assignment = true
+  dns_name = "test_range.mydomain.local"
+  description = "update"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_available_ip_address.test.id
+  object_type = "dcim.interface"
+  interface_id = netbox_device_interface.test.id
+}`, startAddress, endAddress),
+			},
+			{
+				ResourceName:            "netbox_available_ip_address.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ip_range_id", "external_assignment", "interface_id", "object_type"},
+			},
+		},
+	})
+}
+
+func TestAccNetboxAvailableIPAddress_deviceByFieldName_external(t *testing.T) {
+	startAddress := "1.3.7.1/24"
+	endAddress := "1.3.7.50/24"
+	testSlug := "av_ipa_dev_fn_ext"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_range" {
+  start_address = "%s"
+  end_address = "%s"
+}
+resource "netbox_available_ip_address" "test" {
+  ip_range_id = netbox_ip_range.test_range.id
+  status = "active"
+  external_assignment = true
+  dns_name = "test_range.mydomain.local"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_available_ip_address.test.id
+  device_interface_id = netbox_device_interface.test.id
+}`, startAddress, endAddress),
+			},
+			// we update the description, to see if the ip and assignment don't conflict
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_range" {
+  start_address = "%s"
+  end_address = "%s"
+}
+resource "netbox_available_ip_address" "test" {
+  ip_range_id = netbox_ip_range.test_range.id
+  status = "active"
+  external_assignment = true
+  dns_name = "test_range.mydomain.local"
+  description = "update"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_available_ip_address.test.id
+  device_interface_id = netbox_device_interface.test.id
+}`, startAddress, endAddress),
+			},
+			{
+				ResourceName:            "netbox_available_ip_address.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ip_range_id", "external_assignment", "interface_id", "object_type"},
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_available_ip_address", &resource.Sweeper{
 		Name:         "netbox_available_ip_address",
