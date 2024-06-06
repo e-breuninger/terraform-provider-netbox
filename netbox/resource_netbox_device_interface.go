@@ -38,6 +38,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"label": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -111,6 +115,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
+	label := d.Get("label").(string)
 	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
@@ -125,6 +130,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	data := models.WritableInterface{
 		Name:         &name,
 		Description:  description,
+		Label:        label,
 		Type:         &interfaceType,
 		Enabled:      enabled,
 		MgmtOnly:     mgmtonly,
@@ -191,6 +197,7 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 
 	d.Set("name", iface.Name)
 	d.Set("description", iface.Description)
+	d.Set("label", iface.Label)
 	d.Set("type", iface.Type.Value)
 	d.Set("enabled", iface.Enabled)
 	d.Set("mgmtonly", iface.MgmtOnly)
@@ -226,6 +233,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
+	label := d.Get("label").(string)
 	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
@@ -240,6 +248,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	data := models.WritableInterface{
 		Name:         &name,
 		Description:  description,
+		Label:        label,
 		Type:         &interfaceType,
 		Enabled:      enabled,
 		MgmtOnly:     mgmtonly,
