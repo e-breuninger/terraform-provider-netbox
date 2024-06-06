@@ -74,6 +74,7 @@ func testAccNetboxDeviceInterfaceOpts(testName string, testMac string) string {
 resource "netbox_device_interface" "test" {
   name = "%[1]s"
   description = "%[1]s"
+	label = "%[1]s"
   enabled = true
   mgmtonly = true
   mac_address = "%[2]s"
@@ -241,6 +242,7 @@ func TestAccNetboxDeviceInterface_opts(t *testing.T) {
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "description", testName),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "label", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "enabled", "true"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "mgmtonly", "true"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "0a:01:02:03:04:05"),
