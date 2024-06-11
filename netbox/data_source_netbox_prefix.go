@@ -25,55 +25,61 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Deprecated:    "The `cidr` parameter is deprecated in favor of the canonical `prefix` attribute.",
 				ConflictsWith: []string{"prefix"},
 				ValidateFunc:  validation.IsCIDR,
-				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 				Description:  "Description to include in the data source filter.",
 			},
 			"family": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 				ValidateFunc: validation.IntInSlice([]int{4, 6}),
 				Description:  "The IP family of the prefix. One of 4 or 6",
+			},
+			"role_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 			},
 			"prefix": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ValidateFunc:  validation.IsCIDR,
 				ConflictsWith: []string{"cidr"},
-				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 			},
 			"vlan_vid": {
 				Type:         schema.TypeFloat,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 			},
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 			},
 			"site_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 			},
 			"tag": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
 				Description:  "Tag to include in the data source filter (must match the tag's slug).",
 			},
 			"tag__n": {
@@ -112,6 +118,10 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	if family, ok := d.Get("family").(int); ok && family != 0 {
 		familyFloat := float64(family)
 		params.Family = &familyFloat
+	}
+
+	if roleID, ok := d.Get("role_id").(int); ok && roleID != 0 {
+		params.RoleID = strToPtr(strconv.Itoa(roleID))
 	}
 
 	if prefix, ok := d.Get("prefix").(string); ok && prefix != "" {
