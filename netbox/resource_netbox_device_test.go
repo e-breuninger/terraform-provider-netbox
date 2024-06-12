@@ -85,8 +85,8 @@ resource "netbox_device_type" "test" {
 }
 
 resource "netbox_config_template" "test" {
-	name = "%[1]s"
-	template_code = "hostname {{ name }}"
+  name = "%[1]s"
+  template_code = "hostname {{ name }}"
 }`, testName)
 }
 
@@ -113,7 +113,7 @@ resource "netbox_device" "test" {
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
-	config_template_id = netbox_config_template.test.id
+  config_template_id = netbox_config_template.test.id
   status = "staged"
   serial = "ABCDEF"
   rack_id = netbox_rack.test.id
@@ -158,7 +158,7 @@ resource "netbox_device" "test" {
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
-	config_template_id = netbox_config_template.test.id
+  config_template_id = netbox_config_template.test.id
   rack_id = netbox_rack.test.id
   status = "staged"
   serial = "ABCDEF"
@@ -201,7 +201,7 @@ resource "netbox_device" "test" {
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
-	config_template_id = netbox_config_template.test.id
+  config_template_id = netbox_config_template.test.id
   status = "staged"
   serial = "ABCDEF"
   local_context_data = jsonencode({"context_string"="context_value"})
@@ -269,7 +269,7 @@ func TestAccNetboxDevice_virtual_chassis(t *testing.T) {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
-	tags = [netbox_tag.test_a.name]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -292,7 +292,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
-	tags = [netbox_tag.test_a.name]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -313,7 +313,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
-	tags = [netbox_tag.test_a.name]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -331,7 +331,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
-	tags = [netbox_tag.test_a.name]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
