@@ -29,5 +29,6 @@ data "netbox_platform" "PANOS" {
 
 - `id` (String) The ID of this resource.
 - `slug` (String)
+- `manufacturer_id` (String)
 
 
