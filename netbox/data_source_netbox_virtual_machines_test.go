@@ -297,35 +297,35 @@ resource "netbox_tag" "servicea" {
 }
 
 resource "netbox_virtual_machine" "test0" {
-  name = "%[1]s_0"
-  cluster_id = netbox_cluster.test.id
-  site_id = netbox_site.test.id
-  comments = "thisisacomment"
-  memory_mb = 1024
-  disk_size_gb = 256
-  tenant_id = netbox_tenant.test.id
-  role_id = netbox_device_role.test.id
-  platform_id = netbox_platform.test.id
-  vcpus = 4
+	name = "%[1]s_0"
+	cluster_id = netbox_cluster.test.id
+	site_id = netbox_site.test.id
+	comments = "thisisacomment"
+	memory_mb = 1024
+	disk_size_gb = 256
+	tenant_id = netbox_tenant.test.id
+	role_id = netbox_device_role.test.id
+	platform_id = netbox_platform.test.id
+	vcpus = 4
 	status = "active"
-  tags = [
+	tags = [
 		netbox_tag.servicea.name,
 	]
 }
 
 resource "netbox_virtual_machine" "test1" {
-  name = "%[1]s_1"
-  cluster_id = netbox_cluster.test.id
-  site_id = netbox_site.test.id
-  comments = "thisisacomment"
-  memory_mb = 1024
-  disk_size_gb = 256
-  tenant_id = netbox_tenant.test.id
-  role_id = netbox_device_role.test.id
-  platform_id = netbox_platform.test.id
-  vcpus = 4
+	name = "%[1]s_1"
+	cluster_id = netbox_cluster.test.id
+	site_id = netbox_site.test.id
+	comments = "thisisacomment"
+	memory_mb = 1024
+	disk_size_gb = 256
+	tenant_id = netbox_tenant.test.id
+	role_id = netbox_device_role.test.id
+	platform_id = netbox_platform.test.id
+	vcpus = 4
 	status = "decommissioning"
-  tags = [
+	tags = [
 		netbox_tag.servicea.name,
 	]
 }`, testName)
