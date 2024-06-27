@@ -98,7 +98,7 @@ func TestAccNetboxVirtualMachinesDataSource_status(t *testing.T) {
 	testSlug := "vm_ds_tags"
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependenciesWithStatus(testName)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
