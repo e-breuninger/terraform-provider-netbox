@@ -94,6 +94,29 @@ func TestAccNetboxVirtualMachinesDataSource_tags(t *testing.T) {
 	})
 }
 
+func TestAccNetboxVirtualMachinesDataSource_status(t *testing.T) {
+	testSlug := "vm_ds_tags"
+	testName := testAccGetTestName(testSlug)
+	dependencies := testAccNetboxVirtualMachineDataSourceDependenciesWithStatus(testName)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: dependencies,
+			},
+			{
+				Config: dependencies + testAccNetboxVirtualMachineDataSourceStatusActive + testAccNetboxVirtualMachineDataSourceStatusDecommissioning,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test_active", "vms.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test_decommissioning", "vms.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test_active", "vms.0.status", "netbox_virtual_machine.test0", "status"),
+					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test_decommissioning", "vms.0.status", "netbox_virtual_machine.test1", "status"),
+				),
+			},
+		},
+	})
+}
+
 func testAccNetboxVirtualMachineDataSourceDependencies(testName string) string {
 	return testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_machine" "test0" {
@@ -248,5 +271,62 @@ data "netbox_virtual_machines" "tag-ab" {
     name  = "tag"
     value = "%[1]s_service-b"
 	}
+}`, testName)
+}
+
+const testAccNetboxVirtualMachineDataSourceStatusActive = `
+data "netbox_virtual_machines" "test_active" {
+  filter {
+    name  = "status"
+    value = "active"
+  }
+}`
+
+const testAccNetboxVirtualMachineDataSourceStatusDecommissioning = `
+data "netbox_virtual_machines" "test_decommissioning" {
+  filter {
+    name  = "status"
+    value = "decommissioning"
+  }
+}`
+
+func testAccNetboxVirtualMachineDataSourceDependenciesWithStatus(testName string) string {
+	return testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_tag" "servicea" {
+	name      = "%[1]s_service-a"
+}
+
+resource "netbox_virtual_machine" "test0" {
+  name = "%[1]s_0"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+  comments = "thisisacomment"
+  memory_mb = 1024
+  disk_size_gb = 256
+  tenant_id = netbox_tenant.test.id
+  role_id = netbox_device_role.test.id
+  platform_id = netbox_platform.test.id
+  vcpus = 4
+	status = "active"
+  tags = [
+		netbox_tag.servicea.name,
+	]
+}
+
+resource "netbox_virtual_machine" "test1" {
+  name = "%[1]s_1"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+  comments = "thisisacomment"
+  memory_mb = 1024
+  disk_size_gb = 256
+  tenant_id = netbox_tenant.test.id
+  role_id = netbox_device_role.test.id
+  platform_id = netbox_platform.test.id
+  vcpus = 4
+	status = "decommissioning"
+  tags = [
+		netbox_tag.servicea.name,
+	]
 }`, testName)
 }
