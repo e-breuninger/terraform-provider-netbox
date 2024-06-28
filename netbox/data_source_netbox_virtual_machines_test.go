@@ -95,7 +95,7 @@ func TestAccNetboxVirtualMachinesDataSource_tags(t *testing.T) {
 }
 
 func TestAccNetboxVirtualMachinesDataSource_status(t *testing.T) {
-	testSlug := "vm_ds_tags"
+	testSlug := "vm_ds_status"
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependenciesWithStatus(testName)
 	resource.Test(t, resource.TestCase{
