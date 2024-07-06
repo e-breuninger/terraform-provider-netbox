@@ -234,6 +234,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_REQUEST_TIMEOUT", 10),
 				Description: "Netbox API HTTP request timeout in seconds. Can be set via the `NETBOX_REQUEST_TIMEOUT` environment variable.",
 			},
+			"journal_entry": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_JOURNAL_ENTRY", ""),
+				Description: "Text for a journal entry to be written on a resource change (Markdown allowed). Journal is not written if this is empty.",
+			},
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -249,6 +255,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		Headers:                     data.Get("headers").(map[string]interface{}),
 		RequestTimeout:              data.Get("request_timeout").(int),
 		StripTrailingSlashesFromURL: data.Get("strip_trailing_slashes_from_url").(bool),
+		JournalEntry:                data.Get("journal_entry").(string),
 	}
 
 	serverURL := data.Get("server_url").(string)
