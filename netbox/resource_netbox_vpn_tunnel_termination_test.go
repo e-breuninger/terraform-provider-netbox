@@ -115,6 +115,33 @@ resource "netbox_vpn_tunnel_termination" "vm" {
 				),
 			},
 			{
+				Config: testAccNetboxVpnTunnelTerminationFullDependencies(testName) + `
+resource "netbox_ip_address" "outside_ip" {
+	ip_address = "203.0.113.2/24"
+	status = "active"
+}
+
+resource "netbox_vpn_tunnel_termination" "device" {
+	role = "peer"
+	tunnel_id = netbox_vpn_tunnel.test.id
+	device_interface_id = netbox_device_interface.test.id
+	outside_ip_address_id = netbox_ip_address.outside_ip.id
+
+	tags = [netbox_tag.test.name]
+}
+resource "netbox_vpn_tunnel_termination" "vm" {
+	role = "peer"
+	tunnel_id = netbox_vpn_tunnel.test.id
+	virtual_machine_interface_id = netbox_interface.test.id
+
+	outside_ip_address_id = netbox_ip_address.vm_1.id
+}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_vpn_tunnel_termination.device", "tunnel_id", "netbox_vpn_tunnel.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_vpn_tunnel_termination.device", "outside_ip_address_id", "netbox_ip_address.outside_ip", "id"),
+				),
+			},
+			{
 				ResourceName:      "netbox_vpn_tunnel.test",
 				ImportState:       true,
 				ImportStateVerify: true,
