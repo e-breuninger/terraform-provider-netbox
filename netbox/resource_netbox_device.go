@@ -64,6 +64,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"config_template_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"comments": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -202,6 +206,12 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.Site = &siteID
 	}
 
+	configTemplateIDValue, ok := d.GetOk("config_template_id")
+	if ok {
+		configTemplateID := int64(configTemplateIDValue.(int))
+		data.ConfigTemplate = &configTemplateID
+	}
+
 	data.Rack = getOptionalInt(d, "rack_id")
 	data.Face = getOptionalStr(d, "rack_face", false)
 
@@ -334,6 +344,12 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("site_id", nil)
 	}
 
+	if device.ConfigTemplate != nil {
+		d.Set("config_template_id", device.ConfigTemplate.ID)
+	} else {
+		d.Set("config_template_id", nil)
+	}
+
 	cf := getCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
@@ -440,6 +456,12 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	if ok {
 		siteID := int64(siteIDValue.(int))
 		data.Site = &siteID
+	}
+
+	configTemplateIDValue, ok := d.GetOk("config_template_id")
+	if ok {
+		configTemplateID := int64(configTemplateIDValue.(int))
+		data.ConfigTemplate = &configTemplateID
 	}
 
 	primaryIP4Value, ok := d.GetOk("primary_ipv4")

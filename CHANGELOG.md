@@ -1,3 +1,18 @@
+## 3.8.7 (June 28th, 2024)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_interface_template` ([#588](https://github.com/e-breuninger/terraform-provider-netbox/pull/588) by [@thibaultbustarret-ovhcloud](https://github.com/thibaultbustarret-ovhcloud))
+* **New Resource:** `netbox_config_context` ([#590](https://github.com/e-breuninger/terraform-provider-netbox/pull/590) by [@diogenxs](https://github.com/diogenxs))
+* **New Data Source:** `netbox_config_context` ([#590](https://github.com/e-breuninger/terraform-provider-netbox/pull/590) by [@diogenxs](https://github.com/diogenxs))
+* data-source/netbox_devices: Add `config_context` and `local_context_data` attributes ([#590](https://github.com/e-breuninger/terraform-provider-netbox/pull/590) by [@diogenxs](https://github.com/diogenxs))
+* resource/netbox_device_interface: Add `label` attribute ([#605](https://github.com/e-breuninger/terraform-provider-netbox/pull/605) by [@thibaultbustarret-ovhcloud](https://github.com/thibaultbustarret-ovhcloud))
+* **New Resource:** `netbox_config_template` ([#604](https://github.com/e-breuninger/terraform-provider-netbox/pull/604) by [@thibaultbustarret-ovhcloud](https://github.com/thibaultbustarret-ovhcloud))
+* resource/netbox_device: Add `config_template_id` attribute ([#604](https://github.com/e-breuninger/terraform-provider-netbox/pull/604) by [@thibaultbustarret-ovhcloud](https://github.com/thibaultbustarret-ovhcloud))
+* data-source/netbox_prefix: Add `role_id` and `custom_fields` attributes ([#607](https://github.com/e-breuninger/terraform-provider-netbox/pull/607) by [@ad8lmondy](https://github.com/ad8lmondy))
+* resource/netbox_platform: Add `manufacturer_id` attribute ([#608](https://github.com/e-breuninger/terraform-provider-netbox/pull/608) by [@ad8lmondy](https://github.com/ad8lmondy))
+* data-source/netbox_platform: Add `manufacturer_id` attribute ([#608](https://github.com/e-breuninger/terraform-provider-netbox/pull/608) by [@ad8lmondy](https://github.com/ad8lmondy))
+
 ## 3.8.6 (May 17th, 2024)
 
 ENHANCEMENTS

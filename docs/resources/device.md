@@ -61,6 +61,7 @@ resource "netbox_device" "test" {
 - `asset_tag` (String)
 - `cluster_id` (Number)
 - `comments` (String)
+- `config_template_id` (Number)
 - `custom_fields` (Map of String)
 - `description` (String)
 - `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.

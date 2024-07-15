@@ -142,6 +142,7 @@ func Provider() *schema.Provider {
 			"netbox_custom_field_choice_set":    resourceNetboxCustomFieldChoiceSet(),
 			"netbox_virtual_chassis":            resourceNetboxVirtualChassis(),
 			"netbox_virtual_disk":               resourceNetboxVirtualDisks(),
+			"netbox_config_template":            resourceNetboxConfigTemplate(),
 			"netbox_event_rule":                 resourceNetboxEventRule(),
 			"netbox_vpn_tunnel_group":           resourceNetboxVpnTunnelGroup(),
 			"netbox_vpn_tunnel":                 resourceNetboxVpnTunnel(),

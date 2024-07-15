@@ -140,7 +140,8 @@ func resourceNetboxVpnTunnelTerminationUpdate(d *schema.ResourceData, m interfac
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableTunnelTermination{}
 
-	data.Tunnel = int64ToPtr(d.Get("tunnel_id").(int64))
+	tunnelID := int64(d.Get("tunnel_id").(int))
+	data.Tunnel = &tunnelID
 	data.Role = d.Get("role").(string)
 
 	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")

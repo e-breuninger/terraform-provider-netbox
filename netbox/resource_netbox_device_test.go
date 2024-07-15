@@ -82,6 +82,11 @@ resource "netbox_manufacturer" "test" {
 resource "netbox_device_type" "test" {
   model = "%[1]s"
   manufacturer_id = netbox_manufacturer.test.id
+}
+
+resource "netbox_config_template" "test" {
+  name = "%[1]s"
+  template_code = "hostname {{ name }}"
 }`, testName)
 }
 
@@ -108,6 +113,7 @@ resource "netbox_device" "test" {
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
+  config_template_id = netbox_config_template.test.id
   status = "staged"
   serial = "ABCDEF"
   rack_id = netbox_rack.test.id
@@ -124,6 +130,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "rack_id", "netbox_rack.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "config_template_id", "netbox_config_template.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "asset_tag", "TAGGEDITAGGEDITAG"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_device.test", "description", "thisisadescription"),
@@ -151,6 +158,7 @@ resource "netbox_device" "test" {
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
+  config_template_id = netbox_config_template.test.id
   rack_id = netbox_rack.test.id
   status = "staged"
   serial = "ABCDEF"
@@ -165,6 +173,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "rack_id", "netbox_rack.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "config_template_id", "netbox_config_template.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "asset_tag", "TAGGEDITAGGEDITAG_TAGGEDITAGGEDITAGGEDITAG"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_device.test", "description", "thisisadescription"),
@@ -192,6 +201,7 @@ resource "netbox_device" "test" {
   site_id = netbox_site.test.id
   cluster_id = netbox_cluster.test.id
   location_id = netbox_location.test.id
+  config_template_id = netbox_config_template.test.id
   status = "staged"
   serial = "ABCDEF"
   local_context_data = jsonencode({"context_string"="context_value"})
@@ -204,6 +214,7 @@ resource "netbox_device" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device.test", "role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device.test", "cluster_id", "netbox_cluster.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device.test", "config_template_id", "netbox_config_template.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device.test", "asset_tag", "TAGGEDITAGGEDITAG"),
 					resource.TestCheckResourceAttr("netbox_device.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_device.test", "description", "thisisadescription"),
@@ -258,7 +269,7 @@ func TestAccNetboxDevice_virtual_chassis(t *testing.T) {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
-	tags = [netbox_tag.test_a.name]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -281,7 +292,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
-	tags = [netbox_tag.test_a.name]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -302,7 +313,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
-	tags = [netbox_tag.test_a.name]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {
@@ -320,7 +331,7 @@ resource "netbox_device" "test" {
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_virtual_chassis" "test" {
   name = "%[1]s"
-	tags = [netbox_tag.test_a.name]
+  tags = [netbox_tag.test_a.name]
 }
 
 resource "netbox_device" "test" {

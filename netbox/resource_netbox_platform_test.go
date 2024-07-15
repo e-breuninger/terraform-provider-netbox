@@ -39,6 +39,41 @@ resource "netbox_platform" "test" {
 	})
 }
 
+func TestAccNetboxPlatform_manufacturer(t *testing.T) {
+	testSlug := "platform_manufacturer"
+	testName := testAccGetTestName(testSlug)
+	testManufacturer := "manu_test"
+	randomSlug := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%[3]s"
+}
+
+resource "netbox_platform" "test" {
+  name = "%[1]s"
+  slug = "%[2]s"
+  manufacturer_id = netbox_manufacturer.test.id
+}`, testName, randomSlug, testManufacturer),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_platform.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_platform.test", "slug", randomSlug),
+					resource.TestCheckResourceAttrPair("netbox_platform.test", "manufacturer_id", "netbox_manufacturer.test", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_platform.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxPlatform_defaultSlug(t *testing.T) {
 	testSlug := "platform_defSlug"
 	testName := testAccGetTestName(testSlug)

@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -31,12 +32,17 @@ resource "netbox_site" "test" {
   name = "%[1]s_site"
 }
 
+resource "netbox_ipam_role" "test" {
+  name        = "%[1]s_role"
+}
+
 resource "netbox_prefix" "testv4" {
   prefix = "%[2]s"
   status = "active"
   vrf_id = netbox_vrf.test.id
   vlan_id = netbox_vlan.test.id
   site_id = netbox_site.test.id
+  role_id = netbox_ipam_role.test.id
   description = "%[1]s_description_test_idv4"
 }
 
@@ -87,6 +93,11 @@ data "netbox_prefix" "by_site_id" {
   family  = 4
 }
 
+data "netbox_prefix" "by_role_id" {
+  depends_on = [netbox_prefix.testv4]
+  role_id = netbox_ipam_role.test.id
+}
+
 data "netbox_prefix" "by_family" {
   depends_on = [netbox_prefix.testv6]
 	family     = 6
@@ -101,7 +112,47 @@ data "netbox_prefix" "by_family" {
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_id", "id", "netbox_prefix.testv4", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_vlan_vid", "id", "netbox_prefix.testv4", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_site_id", "id", "netbox_prefix.testv4", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_role_id", "id", "netbox_prefix.testv4", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_family", "id", "netbox_prefix.testv6", "id"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxPrefixDataSource_customFields(t *testing.T) {
+	testSlug := "prefix_customfields"
+	testPrefix := "10.0.0.0/24"
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name = "%[1]s"
+  type = "text"
+  content_types = ["ipam.prefix"]
+  weight        = 100
+}
+
+resource "netbox_prefix" "test" {
+  prefix = "%[2]s"
+  status = "active"
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "test value"
+  }
+}
+
+data "netbox_prefix" "test_output" {
+  depends_on = [netbox_prefix.test]
+  prefix = "%[2]s"
+}`, testField, testPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "status", "active"),
+					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "prefix", testPrefix),
+					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "custom_fields."+testField, "test value"),
 				),
 			},
 		},
