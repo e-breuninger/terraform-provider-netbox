@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccNetboxPrefixesDataSource_basic(t *testing.T) {
-	testPrefixes := []string{"10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24", "10.0.7.0/24"}
+	testPrefixes := []string{"10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24", "10.0.7.0/24", "10.0.8.0/24"}
 	testSlug := "prefixes_ds_basic"
 	testVlanVids := []int{4093, 4094}
 	testName := testAccGetTestName(testSlug)
@@ -47,6 +47,11 @@ resource "netbox_prefix" "with_site_id" {
   prefix  = "%[5]s"
   status  = "active"
   site_id = netbox_site.test.id
+}
+
+resource "netbox_prefix" "with_container" {
+  prefix = "%[8]s"
+  status = "container"
 }
 
 resource "netbox_vrf" "test_vrf" {
@@ -117,7 +122,16 @@ data "netbox_prefixes" "find_prefix_with_site_id" {
     value = netbox_site.test.id
   }
 }
-`, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testVlanVids[0], testVlanVids[1]),
+
+data "netbox_prefixes" "find_prefix_with_contains" {
+  depends_on = [netbox_prefix.with_container]
+  filter {
+    name  = "contains"
+    value = "10.0.8.50"
+  }
+}
+
+`, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testVlanVids[0], testVlanVids[1], testPrefixes[4]),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_vrf", "prefixes.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vrf", "prefixes.1.vlan_vid", "netbox_vlan.test_vlan2", "vid"),
@@ -127,6 +141,8 @@ data "netbox_prefixes" "find_prefix_with_site_id" {
 					resource.TestCheckResourceAttr("data.netbox_prefixes.no_results", "prefixes.#", "0"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_site_id", "prefixes.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_site_id", "prefixes.0.prefix", "10.0.7.0/24"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_contains", "prefixes.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_contains", "prefixes.0.prefix", "10.0.8.0/24"),
 				),
 			},
 		},
