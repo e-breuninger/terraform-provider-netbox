@@ -49,9 +49,15 @@ resource "netbox_prefix" "with_site_id" {
   site_id = netbox_site.test.id
 }
 
+resource "netbox_site" "test2" {
+  name = "site2-%[1]s"
+  timezone = "Europe/Berlin"
+}
+
 resource "netbox_prefix" "with_container" {
-  prefix = "%[8]s"
-  status = "container"
+  prefix  = "%[8]s"
+  status  = "container"
+  site_id = netbox_site.test2.id
 }
 
 resource "netbox_vrf" "test_vrf" {
@@ -143,6 +149,7 @@ data "netbox_prefixes" "find_prefix_with_contains" {
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_site_id", "prefixes.0.prefix", "10.0.7.0/24"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_contains", "prefixes.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_contains", "prefixes.0.prefix", "10.0.8.0/24"),
+					resource.TestCheckResourceAttrSet("data.netbox_prefixes.find_prefix_with_contains", "prefixes.0.site_id"),
 				),
 			},
 		},

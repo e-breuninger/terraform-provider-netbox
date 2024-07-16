@@ -59,6 +59,10 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"site_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"vlan_vid": {
 							Type:     schema.TypeFloat,
 							Computed: true,
@@ -145,6 +149,9 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if v.Vrf != nil {
 			mapping["vrf_id"] = v.Vrf.ID
+		}
+		if v.Site != nil {
+			mapping["site_id"] = v.Site.ID
 		}
 		mapping["status"] = v.Status.Value
 		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
