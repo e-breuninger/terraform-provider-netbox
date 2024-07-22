@@ -1,3 +1,13 @@
+## 3.8.8 (July 22th, 2024)
+
+ENHANCEMENTS
+
+* data-source/netbox_prefixes: Add `contains` and `site_id` attributes ([#617](https://github.com/e-breuninger/terraform-provider-netbox/pull/617) by [@tagur87](https://github.com/tagur87))
+
+BUG FIXES
+
+* resource/netbox_vpn_tunnel_termination: Fix a interface conversion panic when updating tunnel terminations ([#616](https://github.com/e-breuninger/terraform-provider-netbox/pull/616) by [@mraerino](https://github.com/mraerino))
+
 ## 3.8.7 (June 28th, 2024)
 
 ENHANCEMENTS
