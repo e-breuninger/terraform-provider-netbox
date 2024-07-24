@@ -71,6 +71,13 @@ func dataSourceNetboxVlans() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"tag_ids": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeInt,
+							},
+						},
 						"tenant": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -93,6 +100,7 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
+	    var tags []string
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
@@ -118,6 +126,9 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 				params.GroupID = &vString
 			case "group_id__n":
 				params.GroupIDn = &vString
+			case "tag":
+				tags = append(tags, vString)
+				params.Tag = tags
 			case "tenant":
 				params.Tenant = &vString
 			case "tenant__n":
@@ -174,7 +185,13 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 		if v.Tenant != nil {
 			mapping["tenant"] = v.Tenant.ID
 		}
-
+		if v.Tags != nil {
+			var tagIDs []int64
+			for _, t := range v.Tags {
+				tagIDs = append(tagIDs, t.ID)
+			}
+			mapping["tag_ids"] = tagIDs
+		}
 		s = append(s, mapping)
 	}
 
