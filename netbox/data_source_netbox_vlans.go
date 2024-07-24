@@ -134,6 +134,8 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 				params.TenantID = &vString
 			case "tenant_id__n":
 				params.TenantIDn = &vString
+			case "status":
+				params.Status = &vString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
