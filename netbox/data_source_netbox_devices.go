@@ -174,6 +174,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			case "cluster_id":
 				var clusterString = v.(string)
 				params.ClusterID = &clusterString
+			case "device_type_id":
+				var deviceTypeIDString = v.(string)
+				params.DeviceTypeID = &deviceTypeIDString
 			case "name":
 				var nameString = v.(string)
 				params.Name = &nameString
