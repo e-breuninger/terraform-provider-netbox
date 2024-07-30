@@ -101,6 +101,7 @@ func resourceNetboxDevicePrimaryIPUpdate(d *schema.ResourceData, m interface{}) 
 
 	// then update the FULL device with ALL tracked attributes
 	data := models.WritableDeviceWithConfigContext{}
+
 	data.Name = device.Name
 	data.Tags = device.Tags
 	// the netbox API sends the URL property as part of NestedTag, but it does not accept the URL property when we send it back
@@ -111,23 +112,12 @@ func resourceNetboxDevicePrimaryIPUpdate(d *schema.ResourceData, m interface{}) 
 		tag.Display = ""
 	}
 
-	data.Comments = device.Comments
-	data.Serial = device.Serial
-
 	if device.DeviceType != nil {
 		data.DeviceType = &device.DeviceType.ID
 	}
 
-	if device.Cluster != nil {
-		data.Cluster = &device.Cluster.ID
-	}
-
 	if device.Site != nil {
 		data.Site = &device.Site.ID
-	}
-
-	if device.Location != nil {
-		data.Location = &device.Location.ID
 	}
 
 	if device.Role != nil {
@@ -140,30 +130,6 @@ func resourceNetboxDevicePrimaryIPUpdate(d *schema.ResourceData, m interface{}) 
 
 	if device.PrimaryIp6 != nil {
 		data.PrimaryIp6 = &device.PrimaryIp6.ID
-	}
-
-	if device.Platform != nil {
-		data.Platform = &device.Platform.ID
-	}
-
-	if device.Tenant != nil {
-		data.Tenant = &device.Tenant.ID
-	}
-
-	if device.Status != nil {
-		data.Status = *device.Status.Value
-	}
-
-	if device.Rack != nil {
-		data.Rack = &device.Rack.ID
-	}
-
-	if device.Face != nil {
-		data.Face = *device.Face.Value
-	}
-
-	if device.Position != nil {
-		data.Position = device.Position
 	}
 
 	// unset primary ip address if -1 is passed as id
@@ -181,9 +147,9 @@ func resourceNetboxDevicePrimaryIPUpdate(d *schema.ResourceData, m interface{}) 
 		}
 	}
 
-	updateParams := dcim.NewDcimDevicesUpdateParams().WithID(deviceID).WithData(&data)
+	updateParams := dcim.NewDcimDevicesPartialUpdateParams().WithID(deviceID).WithData(&data)
 
-	_, err = api.Dcim.DcimDevicesUpdate(updateParams, nil)
+	_, err = api.Dcim.DcimDevicesPartialUpdate(updateParams, nil)
 	if err != nil {
 		return err
 	}
