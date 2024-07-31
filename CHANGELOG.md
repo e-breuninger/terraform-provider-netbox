@@ -1,3 +1,12 @@
+## 3.8.9 (July 31st, 2024)
+
+ENHANCEMENTS
+
+* data-source/netbox_virtual_machines: Add `status` attribute ([#612](https://github.com/e-breuninger/terraform-provider-netbox/pull/612) by [@twink0r](https://github.com/twink0r))
+* data-source/netbox_vlans: Add `tag_ids` attribute ([#621](https://github.com/e-breuninger/terraform-provider-netbox/pull/621) by [@Piethan](https://github.com/Piethan))
+* data-source/netbox_vlans: Add `status` attribute ([#622](https://github.com/e-breuninger/terraform-provider-netbox/pull/622) by [@Piethan](https://github.com/Piethan))
+* data-source/netbox_devices: Add `device_type_id` attribute ([#624](https://github.com/e-breuninger/terraform-provider-netbox/pull/624) by [@Piethan](https://github.com/Piethan))
+
 ## 3.8.8 (July 22th, 2024)
 
 ENHANCEMENTS
