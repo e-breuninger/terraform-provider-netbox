@@ -25,7 +25,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "The name of the field to filter on. Supported fields are: `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `site_id`, & `tag`.",
+							Description: "The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `site_id`, & `tag`.",
 						},
 						"value": {
 							Type:        schema.TypeString,
@@ -57,6 +57,10 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 						},
 						"description": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"site_id": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"vlan_vid": {
@@ -107,6 +111,8 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 					return err
 				}
 				params.VlanVid = &float
+			case "contains":
+				params.Contains = &vString
 			case "vrf_id":
 				params.VrfID = &vString
 			case "vlan_id":
@@ -143,6 +149,9 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if v.Vrf != nil {
 			mapping["vrf_id"] = v.Vrf.ID
+		}
+		if v.Site != nil {
+			mapping["site_id"] = v.Site.ID
 		}
 		mapping["status"] = v.Status.Value
 		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
