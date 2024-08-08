@@ -126,9 +126,12 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	data.Tags = tags
 
+	ctypes := d.Get("content_types").(*schema.Set).List()
+	objectTypes := make([]string, 0, len(ctypes))
 	for _, contentType := range d.Get("content_types").(*schema.Set).List() {
-		data.ContentTypes = append(data.ContentTypes, contentType.(string))
+		objectTypes = append(objectTypes, contentType.(string))
 	}
+	data.ObjectTypes = objectTypes
 
 	if conditionsData, ok := d.GetOk("conditions"); ok {
 		var conditions any
@@ -172,7 +175,7 @@ func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", eventRule.Name)
 	d.Set("description", eventRule.Description)
 	d.Set("action_type", eventRule.ActionType.Value)
-	d.Set("content_types", eventRule.ContentTypes)
+	d.Set("content_types", eventRule.ObjectTypes)
 
 	d.Set("trigger_on_create", eventRule.TypeCreate)
 	d.Set("trigger_on_update", eventRule.TypeUpdate)
@@ -236,9 +239,12 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	data.Tags = tags
 
+	ctypes := d.Get("content_types").(*schema.Set).List()
+	objectTypes := make([]string, 0, len(ctypes))
 	for _, contentType := range d.Get("content_types").(*schema.Set).List() {
-		data.ContentTypes = append(data.ContentTypes, contentType.(string))
+		objectTypes = append(objectTypes, contentType.(string))
 	}
+	data.ObjectTypes = objectTypes
 
 	params := extras.NewExtrasEventRulesUpdateParams().WithID(id).WithData(&data)
 
