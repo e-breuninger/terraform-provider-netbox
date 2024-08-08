@@ -25,10 +25,13 @@ data "netbox_platform" "PANOS" {
 
 - `name` (String)
 
+### Optional
+
+- `manufacturer_id` (Number)
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `slug` (String)
-- `manufacturer_id` (String)
 
 

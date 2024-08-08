@@ -37,6 +37,7 @@ resource "netbox_device_interface" "test" {
 
 - `description` (String)
 - `enabled` (Boolean) Defaults to `true`.
+- `label` (String)
 - `lag_device_interface_id` (Number) If this device is a member of a LAG group, you can reference the LAG interface here.
 - `mac_address` (String)
 - `mgmtonly` (Boolean)

@@ -14,16 +14,16 @@ From the [official documentation](https://docs.netbox.dev/en/stable/models/extra
 
 > Configuration templates can be used to render device configurations from context data. Templates are written in the Jinja2 language and can be associated with devices roles, platforms, and/or individual devices.
 
-Context data is made available to devices and/or virtual machines based on their relationships to other objects in NetBox. For example, context data can be associated only with devices assigned to a particular site, or only to virtual machines in a certain cluster.
+> Context data is made available to devices and/or virtual machines based on their relationships to other objects in NetBox. For example, context data can be associated only with devices assigned to a particular site, or only to virtual machines in a certain cluster.
 
 ## Example Usage
 
 ```terraform
 resource "netbox_config_template" "test" {
-	name = "test"
-	description = "test description"
-	template_code = "hostname {{ name }}"
-	environment_params = jsonencode({"name" = "my-hostname"})
+  name               = "test"
+  description        = "test description"
+  template_code      = "hostname {{ name }}"
+  environment_params = jsonencode({ "name" = "my-hostname" })
 }
 ```
 

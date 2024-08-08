@@ -45,6 +45,7 @@ Read-Only:
 - `role` (Number)
 - `site` (Number)
 - `status` (String)
+- `tag_ids` (List of Number)
 - `tenant` (Number)
 - `vid` (Number)
 
