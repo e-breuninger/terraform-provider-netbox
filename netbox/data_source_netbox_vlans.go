@@ -100,7 +100,7 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
-	    var tags []string
+		var tags []string
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
