@@ -32,15 +32,15 @@ jobs:
     strategy:
       matrix:
         netbox-version:
-          - v3.7.0
-          - v3.7.1
-          - v3.7.2
-          - v3.7.3
-          - v3.7.4
-          - v3.7.5
-          - v3.7.6
-          - v3.7.7
-          - v3.7.8
+          - v4.0.0
+          - v4.0.1
+          - v4.0.2
+          - v4.0.3
+          # - v4.0.4 does not exist for some reason
+          - v4.0.5
+          - v4.0.6
+          - v4.0.7
+          - v4.0.8
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go

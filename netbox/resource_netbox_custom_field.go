@@ -123,9 +123,12 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 
 	ctypes, ok := d.GetOk("content_types")
 	if ok {
-		for _, t := range ctypes.(*schema.Set).List() {
-			data.ContentTypes = append(data.ContentTypes, t.(string))
+		ctypes := ctypes.(*schema.Set).List()
+		objectTypes := make([]string, 0, len(ctypes))
+		for _, t := range ctypes {
+			objectTypes = append(objectTypes, t.(string))
 		}
+		data.ObjectTypes = objectTypes
 	}
 
 	vmax, ok := d.GetOk("validation_maximum")
@@ -169,9 +172,12 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 
 	ctypes, ok := d.GetOk("content_types")
 	if ok {
-		for _, t := range ctypes.(*schema.Set).List() {
-			data.ContentTypes = append(data.ContentTypes, t.(string))
+		ctypes := ctypes.(*schema.Set).List()
+		objectTypes := make([]string, 0, len(ctypes))
+		for _, t := range ctypes {
+			objectTypes = append(objectTypes, t.(string))
 		}
+		data.ObjectTypes = objectTypes
 	}
 
 	vmax, ok := d.GetOk("validation_maximum")
@@ -218,7 +224,7 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("name", customField.Name)
 	d.Set("type", *customField.Type.Value)
 
-	d.Set("content_types", customField.ContentTypes)
+	d.Set("content_types", customField.ObjectTypes)
 
 	choiceSet := customField.ChoiceSet
 	if choiceSet != nil {

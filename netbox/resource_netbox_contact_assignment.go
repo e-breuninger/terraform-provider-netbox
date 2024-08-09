@@ -64,7 +64,7 @@ func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}
 
 	data := &models.WritableContactAssignment{}
 
-	data.ContentType = &contentType
+	data.ObjectType = contentType
 	data.ObjectID = &objectID
 	data.Contact = &contactID
 	data.Role = &roleID
@@ -100,7 +100,7 @@ func resourceNetboxContactAssignmentRead(d *schema.ResourceData, m interface{}) 
 		return err
 	}
 
-	d.Set("content_type", res.GetPayload().ContentType)
+	d.Set("content_type", res.GetPayload().ObjectType)
 
 	if res.GetPayload().ObjectID != nil {
 		d.Set("object_id", res.GetPayload().ObjectID)
@@ -130,7 +130,7 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	roleID := int64(d.Get("role_id").(int))
 	priority := d.Get("priority").(string)
 
-	data.ContentType = &contentType
+	data.ObjectType = contentType
 	if objectID != 0 {
 		data.ObjectID = &objectID
 	}
