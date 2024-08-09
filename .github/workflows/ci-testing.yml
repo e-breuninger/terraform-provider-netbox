@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         netbox-version:
-          - v4.0.0
+          # - v4.0.0 has mandatory tenant group
           - v4.0.1
           - v4.0.2
           - v4.0.3
