@@ -193,7 +193,10 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
 	d.Set(tagsKey, getTagListFromNestedTagList(ipAddress.Tags))
-	d.Set(customFieldsKey, getCustomFields(ipAddress.CustomFields))
+	cf := getCustomFields(ipAddress.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
 	return nil
 }
 
