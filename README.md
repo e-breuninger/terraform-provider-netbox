@@ -98,7 +98,7 @@ make testacc
 ```
 
 If you notice a failed test, it might be due to a stale netbox data volume. Before concluding there is a problem,
-refresh the docker containers by running `docker-compose down --volumes` in the `docker` directory. Then run the tests again.
+refresh the docker containers by running `docker compose down --volumes` in the `docker` directory. Then run the tests again.
 
 If you get `too many open files` errors when running the acceptance test suite locally on Linux, your user limit for open file descriptors might be too low. You can increase that limit with `ulimit -n 2048`.
 

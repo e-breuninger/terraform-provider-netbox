@@ -297,19 +297,20 @@ resource "netbox_prefix" "test" {
   status = "active"
   is_pool = false
 }
-resource "netbox_custom_field" "test" {
-	name          = "custom_field"
+resource "netbox_custom_field" "test_ip_address" {
+	name          = "custom_field_ip_address"
 	type          = "text"
+	content_types = ["ipam.ipaddress"]
 }
 resource "netbox_available_ip_address" "test" {
   prefix_id = netbox_prefix.test.id
   status = "active"
-  custom_fields = {"${netbox_custom_field.test.name}" = "HelloWorld"}
+  custom_fields = {"${netbox_custom_field.test_ip_address.name}" = "HelloWorld"}
 }`, testPrefix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", testIP),
 					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "status", "active"),
-					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "custom_fields.custom_field", "HelloWorld"),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "custom_fields.custom_field_ip_address", "HelloWorld"),
 				),
 			},
 		},
