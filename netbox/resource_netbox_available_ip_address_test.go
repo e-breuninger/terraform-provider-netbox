@@ -285,8 +285,8 @@ resource "netbox_available_ip_address" "test" {
 	})
 }
 func TestAccNetboxAvailableIPAddress_customField(t *testing.T) {
-	testPrefix := "1.1.3.0/24"
-	testIP := "1.1.3.1/24"
+	testPrefix := "1.1.8.0/24"
+	testIP := "1.1.8.1/24"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
