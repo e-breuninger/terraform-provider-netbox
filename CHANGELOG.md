@@ -1,3 +1,15 @@
+## 3.9.1 (September 2nd, 2024)
+
+ENHANCEMENTS
+
+provider: Include 4.0.9 and 4.0.10 in supported versions
+
+## 3.9.0 (August 10th, 2024)
+
+ENHANCEMENTS
+
+provider: Now is tested against (= supports) the NetBox 4.0.x range
+
 ## 3.8.9 (July 31st, 2024)
 
 ENHANCEMENTS
