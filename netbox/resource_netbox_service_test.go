@@ -138,6 +138,119 @@ func testAccCheckServiceDestroy(s *terraform.State) error {
 	return nil
 }
 
+func TestAccNetboxService_withDescriptionDeviceID(t *testing.T) {
+	testSlug := "svc_with_desc_tags_device"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_service" "test" {
+  name = "%s"
+  device_id = netbox_device.test_device.id
+  ports = [666]
+  protocol = "tcp"
+  description = "Test service description"
+}
+  resource "netbox_site" "test_site" {
+  name = "%[1]s_site"
+  slug = "%[1]s_site"
+}
+
+resource "netbox_device_role" "test_role" {
+  name = "%[1]s_role"
+  slug = "%[1]s_role"
+  color_hex = "123456"
+}
+
+resource "netbox_manufacturer" "test_manufacturer" {
+  name = "%[1]s_manufacturer"
+}
+
+resource "netbox_device_type" "test_type" {
+  model = "%[1]s_type"
+  manufacturer_id = netbox_manufacturer.test_manufacturer.id
+}
+
+resource "netbox_device" "test_device" {
+  name = "%[1]s_device"
+  role_id = netbox_device_role.test_role.id
+  device_type_id = netbox_device_type.test_type.id
+  site_id = netbox_site.test_site.id
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_service.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_service.test", "device_id", "netbox_device.test_device", "id"),
+					resource.TestCheckResourceAttr("netbox_service.test", "ports.#", "1"),
+					resource.TestCheckResourceAttr("netbox_service.test", "ports.0", "666"),
+					resource.TestCheckResourceAttr("netbox_service.test", "protocol", "tcp"),
+					resource.TestCheckResourceAttr("netbox_service.test", "description", "Test service description"),
+				),
+			},
+			{
+				ResourceName:      "netbox_service.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxService_withDescriptionTagsVirtualMachine(t *testing.T) {
+	testSlug := "svc_with_desc_tags_device"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxServiceFullDependencies(testName) + fmt.Sprintf(
+					`
+					resource "netbox_tag" "tag1" {
+						name = "tag1"
+						slug = "tag1"
+					}
+					resource "netbox_tag" "tag2" {
+						name = "tag2"
+						slug = "tag2"
+					}
+					resource "netbox_service" "test" {
+						name = "%s"
+						virtual_machine_id = netbox_virtual_machine.test.id
+						ports = [666]
+						protocol = "tcp"
+						description = "Test service description"
+						tags = [netbox_tag.tag1.name, netbox_tag.tag2.name]
+					}
+				`,
+					testName,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_service.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_service.test", "tags.#", "2"),
+					resource.TestCheckResourceAttr("netbox_service.test", "tags.0", "tag1"),
+					resource.TestCheckResourceAttr("netbox_service.test", "tags.1", "tag2"),
+					resource.TestCheckResourceAttrPair("netbox_service.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+					resource.TestCheckResourceAttr("netbox_service.test", "ports.#", "1"),
+					resource.TestCheckResourceAttr("netbox_service.test", "ports.0", "666"),
+					resource.TestCheckResourceAttr("netbox_service.test", "protocol", "tcp"),
+					resource.TestCheckResourceAttr("netbox_service.test", "description", "Test service description"),
+				),
+			},
+			{
+				ResourceName:      "netbox_service.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_service", &resource.Sweeper{
 		Name:         "netbox_service",
