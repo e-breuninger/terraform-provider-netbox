@@ -108,6 +108,7 @@ func resourceNetboxIPAddress() *schema.Resource {
 					},
 				},
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -152,6 +153,11 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = cf
+	}
 
 	params := ipam.NewIpamIPAddressesCreateParams().WithData(&data)
 
@@ -255,6 +261,10 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
 	d.Set(tagsKey, getTagListFromNestedTagList(ipAddress.Tags))
+	cf := getCustomFields(res.GetPayload().CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
 	return nil
 }
 
@@ -296,6 +306,10 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+
+	if cf, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = cf
+	}
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 

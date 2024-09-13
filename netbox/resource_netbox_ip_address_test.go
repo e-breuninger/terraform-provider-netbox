@@ -204,6 +204,30 @@ resource "netbox_ip_address" "test" {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"interface_id", "object_type"},
 			},
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "test"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.ipaddress"]
+}
+resource "netbox_ip_address" "test_customfield" {
+  ip_address = "%s"
+  status = "active"
+  custom_fields = {
+	"${netbox_custom_field.test.name}" = "test-field"
+  }
+}`, testIP),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_address.test_customfield", "custom_fields.test", "test-field"),
+				),
+			},
+			{
+				ResourceName:      "netbox_ip_address.test_customfield",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

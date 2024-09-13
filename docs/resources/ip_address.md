@@ -112,6 +112,7 @@ resource "netbox_ip_address" "this" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `device_interface_id` (Number) Conflicts with `interface_id` and `virtual_machine_interface_id`.
 - `dns_name` (String)
