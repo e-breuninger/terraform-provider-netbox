@@ -116,7 +116,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		data.VirtualMachine = &dataVirtualMachineID
 	}
 
-	v, ok := d.GetOk("tags")
+	v := d.Get("tags")
 	tags, _ := getNestedTagListFromResourceDataSet(api, v)
 	data.Tags = tags
 
@@ -220,7 +220,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Ipaddresses = []int64{}
 
-	v, ok := d.GetOk("tags")
+	v := d.Get("tags")
 	tags, _ := getNestedTagListFromResourceDataSet(api, v)
 	data.Tags = tags
 
