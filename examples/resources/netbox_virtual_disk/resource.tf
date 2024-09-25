@@ -11,6 +11,6 @@ resource "netbox_virtual_machine" "base_vm" {
 resource "netbox_virtual_disk" "example" {
   name               = "disk-01"
   description        = "Main disk"
-  size               = 50
+  size_gb            = 50
   virtual_machine_id = netbox_virtual_machine.base_vm.id
 }
