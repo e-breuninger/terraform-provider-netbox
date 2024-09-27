@@ -27,11 +27,11 @@ func TestAccNetboxVrfDataSource_basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("more than one vrf returned, specify a more narrow filter"),
 			},
 			{
-				Config:      advancedSetup + testAccNetboxVrfDataWithoutTenant(testName),
+				Config:      advancedSetup + testAccNetboxVrfDataWithoutTenantID(testName),
 				ExpectError: regexp.MustCompile("more than one vrf returned, specify a more narrow filter"),
 			},
 			{
-				Config: simpleSetup + advancedSetup + testAccNetboxVrfDataWithTenantId(testName),
+				Config: simpleSetup + advancedSetup + testAccNetboxVrfDataWithTenantID(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_vrf.vrf_a", "id", "netbox_vrf.vrf_a", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_vrf.vrf_b", "id", "netbox_vrf.vrf_b", "id"),
@@ -78,7 +78,7 @@ resource "netbox_vrf" "vrf_b" {
 `, testName)
 }
 
-func testAccNetboxVrfDataWithoutTenant(testName string) string {
+func testAccNetboxVrfDataWithoutTenantID(testName string) string {
 	return fmt.Sprintf(`
 data "netbox_vrf" "vrf_a" {
 	name       = "%[1]s"
@@ -86,7 +86,7 @@ data "netbox_vrf" "vrf_a" {
 `, testName)
 }
 
-func testAccNetboxVrfDataWithTenantId(testName string) string {
+func testAccNetboxVrfDataWithTenantID(testName string) string {
 	return fmt.Sprintf(`
 data "netbox_vrf" "vrf_a" {
 	name       = "%[1]s"
