@@ -65,7 +65,6 @@ resource "netbox_rack" "test" {
 - `serial` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
-- `type` (String) Valid values are `2-post-frame`, `4-post-frame`, `4-post-cabinet`, `wall-frame`, `wall-frame-vertical`, `wall-cabinet` and `wall-cabinet-vertical`.
 - `weight` (Number)
 - `weight_unit` (String) Valid values are `kg`, `g`, `lb` and `oz`. Required when `weight` and `max_weight` is set.
 

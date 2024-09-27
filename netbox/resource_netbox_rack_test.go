@@ -62,7 +62,6 @@ resource "netbox_rack" "test" {
   role_id = netbox_rack_role.test.id
   serial = "%[1]sserial"
   asset_tag = "%[1]sasset_tag"
-  type = "4-post-frame"
   desc_units = true
   outer_width = 10
   outer_depth = 15
@@ -92,7 +91,6 @@ resource "netbox_rack" "test2" {
 					resource.TestCheckResourceAttrPair("netbox_rack.test", "role_id", "netbox_rack_role.test", "id"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "serial", testName+"serial"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "asset_tag", testName+"asset_tag"),
-					resource.TestCheckResourceAttr("netbox_rack.test", "type", "4-post-frame"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "desc_units", "true"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "outer_width", "10"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "outer_depth", "15"),
@@ -129,7 +127,6 @@ resource "netbox_rack" "test" {
 					resource.TestCheckResourceAttr("netbox_rack.test", "role_id", "0"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "serial", ""),
 					resource.TestCheckResourceAttr("netbox_rack.test", "asset_tag", ""),
-					resource.TestCheckResourceAttr("netbox_rack.test", "type", ""),
 					resource.TestCheckResourceAttr("netbox_rack.test", "weight", "0"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "max_weight", "0"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "weight_unit", ""),

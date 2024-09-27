@@ -43,8 +43,6 @@ func TestAccNetboxVlanGroupDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "name", testName),
 					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "slug", testSlug),
 					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "description", "Test"),
-					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "min_vid", "20"),
-					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "max_vid", "200"),
 					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "scope_type", "dcim.site"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlan_group.test", "scope_id", "netbox_site.test", "id"),
 				),
@@ -56,8 +54,6 @@ func TestAccNetboxVlanGroupDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "name", testName),
 					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "slug", testSlug),
 					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "description", "Test"),
-					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "min_vid", "20"),
-					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "max_vid", "200"),
 					resource.TestCheckResourceAttr("data.netbox_vlan_group.test", "scope_type", "dcim.site"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlan_group.test", "scope_id", "netbox_site.test", "id"),
 				),
@@ -84,8 +80,6 @@ resource "netbox_vlan_group" "test" {
 	slug        = "%[1]s"
 	name        = "%[2]s"
 	description = "Test"
-	min_vid     = 20
-	max_vid     = 200
 	scope_type  = "dcim.site"
 	scope_id    = netbox_site.test.id
 	tags        = []
@@ -98,15 +92,11 @@ func testAccNetboxVlanGroupSetUpMore(testSlug, anotherSlug, testName string) str
 resource "netbox_vlan_group" "same_name" {
 	slug    = "%[1]s"
 	name    = "%[3]s"
-	min_vid = 20
-	max_vid = 200
 }
 
 resource "netbox_vlan_group" "not_same" {
 	slug    = "%[2]s"
 	name    = "%[3]s_unique"
-	min_vid = 20
-	max_vid = 200
 }
 `, testSlug, anotherSlug, testName)
 }

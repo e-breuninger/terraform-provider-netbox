@@ -244,7 +244,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			mapping["custom_fields"] = v.CustomFields
 		}
 		if v.Disk != nil {
-			mapping["disk_size_gb"] = *v.Disk
+			mapping["disk_size_gb"] = *v.Disk / 1000
 		}
 		if v.LocalContextData != nil {
 			if localContextData, err := json.Marshal(v.LocalContextData); err == nil {

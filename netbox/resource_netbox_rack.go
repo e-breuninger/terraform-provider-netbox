@@ -11,7 +11,6 @@ import (
 )
 
 var resourceNetboxRackStatusOptions = []string{"reserved", "available", "planned", "active", "deprecated"}
-var resourceNetboxRackTypeOptions = []string{"2-post-frame", "4-post-frame", "4-post-cabinet", "wall-frame", "wall-frame-vertical", "wall-cabinet", "wall-cabinet-vertical"}
 var resourceNetboxRackWeightUnitOptions = []string{"kg", "g", "lb", "oz"}
 var resourceNetboxRackOuterUnitOptions = []string{"mm", "in"}
 var resourceNetboxRackWidthOptions = []int{10, 19, 21, 23}
@@ -83,12 +82,6 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
-			},
-			"type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxRackTypeOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxRackTypeOptions),
 			},
 			"weight": {
 				Type:     schema.TypeFloat,
@@ -178,7 +171,6 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 	if assetTag := getOptionalStr(d, "asset_tag", false); assetTag != "" {
 		data.AssetTag = &assetTag
 	}
-	data.Type = getOptionalStr(d, "type", false)
 	data.Weight = getOptionalFloat(d, "weight")
 	data.MaxWeight = getOptionalInt(d, "max_weight")
 	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
@@ -279,12 +271,6 @@ func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("serial", rack.Serial)
 	d.Set("asset_tag", rack.AssetTag)
 
-	if rack.Type != nil {
-		d.Set("type", rack.Type.Value)
-	} else {
-		d.Set("type", nil)
-	}
-
 	d.Set("weight", rack.Weight)
 	d.Set("max_weight", rack.MaxWeight)
 
@@ -348,7 +334,6 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 	if assetTag := getOptionalStr(d, "asset_tag", false); assetTag != "" {
 		data.AssetTag = &assetTag
 	}
-	data.Type = getOptionalStr(d, "type", false)
 	data.Weight = getOptionalFloat(d, "weight")
 	data.MaxWeight = getOptionalInt(d, "max_weight")
 	data.WeightUnit = getOptionalStr(d, "weight_unit", false)

@@ -39,14 +39,6 @@ func dataSourceNetboxVlanGroup() *schema.Resource {
 				Optional:     true,
 				RequiredWith: []string{"scope_type"},
 			},
-			"min_vid": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"max_vid": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 			"vlan_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -93,8 +85,6 @@ func dataSourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error 
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
-	d.Set("min_vid", result.MinVid)
-	d.Set("max_vid", result.MaxVid)
 	d.Set("vlan_count", result.VlanCount)
 	d.Set("description", result.Description)
 	return nil
