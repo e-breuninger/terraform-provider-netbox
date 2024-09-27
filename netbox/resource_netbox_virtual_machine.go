@@ -153,8 +153,8 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	diskSizeValue, ok := d.GetOk("disk_size_gb")
 	if ok {
-		diskSize := int64(diskSizeValue.(int))
-		data.Disk = &diskSize
+		diskSizeMb := int64(diskSizeValue.(int)) * 1000
+		data.Disk = &diskSizeMb
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
@@ -308,7 +308,10 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		d.Set("vcpus", nil)
 	}
 	d.Set("memory_mb", vm.Memory)
-	d.Set("disk_size_gb", vm.Disk)
+	if vm.Disk != nil {
+		diskSizeGb := *vm.Disk / 1000
+		d.Set("disk_size_gb", diskSizeGb)
+	}
 	if vm.Status != nil {
 		d.Set("status", vm.Status.Value)
 	} else {
@@ -383,8 +386,8 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 
 	diskSizeValue, ok := d.GetOk("disk_size_gb")
 	if ok {
-		diskSize := int64(diskSizeValue.(int))
-		data.Disk = &diskSize
+		diskSizeMb := int64(diskSizeValue.(int)) * 1000
+		data.Disk = &diskSizeMb
 	}
 
 	primaryIP4Value, ok := d.GetOk("primary_ipv4")
