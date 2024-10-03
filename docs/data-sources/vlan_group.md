@@ -45,8 +45,6 @@ data "netbox_vlan_group" "example3" {
 
 - `description` (String)
 - `id` (String) The ID of this resource.
-- `max_vid` (Number)
-- `min_vid` (Number)
 - `vlan_count` (Number)
 
 
