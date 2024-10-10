@@ -1,3 +1,12 @@
+## 3.9.2 (October 10th, 2024)
+
+ENHANCEMENTS
+
+* provider: Include 4.0.11 in supported versions
+* resource/netbox_ip_address: Add `custom_fields` attribute ([#638](https://github.com/e-breuninger/terraform-provider-netbox/pull/638) by [@greatman](https://github.com/greatman))
+* resource/netbox_service: Add `device_id`, `description` and `tags` attributes ([#637](https://github.com/e-breuninger/terraform-provider-netbox/pull/637) by [@STANIAC](https://github.com/STANIAC))
+* data-source/netbox_vrf: Fix a bug where `tenant_id` was not used ([#643](https://github.com/e-breuninger/terraform-provider-netbox/pull/643) by [@c3JpbmkK](https://github.com/c3JpbmkK))
+
 ## 3.9.1 (September 2nd, 2024)
 
 ENHANCEMENTS
