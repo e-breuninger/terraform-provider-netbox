@@ -15,7 +15,7 @@ This resource is used to manage users.
 ```terraform
 resource "netbox_user" "test" {
   username = "johndoe"
-  password = "abcdefghijkl"
+  password = "Abcdefghijkl1"
   active   = true
   staff    = true
 }
