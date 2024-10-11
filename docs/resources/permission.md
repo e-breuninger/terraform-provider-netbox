@@ -20,7 +20,7 @@ This resource manages the object-based permissions for Netbox users, built into 
 ```terraform
 resource "netbox_user" "test" {
   username = "johndoe"
-  password = "abcdefghijkl"
+  password = "Abcdefghijkl1"
   active   = true
   staff    = true
 }
