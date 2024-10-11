@@ -19,6 +19,7 @@ type Config struct {
 	Headers                     map[string]interface{}
 	RequestTimeout              int
 	StripTrailingSlashesFromURL bool
+	JournalEntry                string
 }
 
 // customHeaderTransport is a transport that adds the specified headers on
@@ -82,6 +83,11 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", fmt.Sprintf("Token %v", cfg.APIToken))
 	transport.SetLogger(log.StandardLogger())
 	netboxClient := netboxclient.New(transport, nil)
+
+	if cfg.JournalEntry != "" {
+		jt := newJournalTransport(netboxClient.Transport, netboxClient, cfg.JournalEntry)
+		netboxClient.SetTransport(jt)
+	}
 
 	return netboxClient, nil
 }
