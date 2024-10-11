@@ -204,10 +204,21 @@ resource "netbox_ip_address" "test" {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"interface_id", "object_type"},
 			},
+		},
+	})
+}
+
+func TestAccNetboxIPAddress_cf(t *testing.T) {
+	testIP := "1.1.1.8/32"
+	testSlug := "ipaddr_cf"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_custom_field" "test" {
-  name   = "test"
+  name   = "%s"
   type   = "text"
   weight = 100
   content_types = ["ipam.ipaddress"]
@@ -216,11 +227,11 @@ resource "netbox_ip_address" "test_customfield" {
   ip_address = "%s"
   status = "active"
   custom_fields = {
-	"${netbox_custom_field.test.name}" = "test-field"
+    "${netbox_custom_field.test.name}" = "test-field"
   }
-}`, testIP),
+}`, testSlug, testIP),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_ip_address.test_customfield", "custom_fields.test", "test-field"),
+					resource.TestCheckResourceAttr("netbox_ip_address.test_customfield", fmt.Sprintf("custom_fields.%s", testSlug), "test-field"),
 				),
 			},
 			{
