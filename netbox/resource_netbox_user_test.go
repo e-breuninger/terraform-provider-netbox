@@ -22,7 +22,7 @@ func TestAccNetboxUser_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_user" "test_basic" {
   username = "%s"
-  password = "abcdefghijkl1"
+  password = "Abcdefghijkl1"
   active = true
   staff = true
 }`, testName),
@@ -56,7 +56,7 @@ resource "netbox_group" "test_group" {
 
 resource "netbox_user" "test_group" {
 	  username = "%[1]s"
-	  password = "abcdefghijkl1"
+	  password = "Abcdefghijkl1"
 	  active = true
 	  staff = true
 	  group_ids = [netbox_group.test_group.id]
