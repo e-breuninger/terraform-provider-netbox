@@ -108,6 +108,7 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableCustomField{
 		Name:            strToPtr(d.Get("name").(string)),
 		Type:            d.Get("type").(string),
+		Default:         d.Get("default").(string),
 		Description:     d.Get("description").(string),
 		GroupName:       d.Get("group_name").(string),
 		Label:           d.Get("label").(string),
@@ -157,6 +158,7 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableCustomField{
 		Name:            strToPtr(d.Get("name").(string)),
 		Type:            d.Get("type").(string),
+		Default:         d.Get("default").(string),
 		Description:     d.Get("description").(string),
 		GroupName:       d.Get("group_name").(string),
 		Label:           d.Get("label").(string),

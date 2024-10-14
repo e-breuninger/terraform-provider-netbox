@@ -22,6 +22,7 @@ resource "netbox_custom_field" "test" {
   type = "text"
   content_types = ["virtualization.vminterface"]
   weight = 100
+  default = "red"
   validation_regex = "^.*$"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -29,6 +30,7 @@ resource "netbox_custom_field" "test" {
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "text"),
 					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "content_types.*", "virtualization.vminterface"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "100"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "red"),
 					resource.TestCheckResourceAttr("netbox_custom_field.test", "validation_regex", "^.*$"),
 				),
 			},
