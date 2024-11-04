@@ -27,6 +27,7 @@ resource "netbox_vlan_group" "example2" {
   scope_id    = netbox_site.example.id
   description = "Second Example VLAN Group"
   tags        = [netbox_tag.example.id]
+  vid_ranges  = [[1, 2], [3, 4]]
 }
 ```
 
@@ -37,6 +38,7 @@ resource "netbox_vlan_group" "example2" {
 
 - `name` (String)
 - `slug` (String)
+- `vid_ranges` (List of List of Number)
 
 ### Optional
 
