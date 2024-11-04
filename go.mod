@@ -1,7 +1,8 @@
 module github.com/e-breuninger/terraform-provider-netbox
 
-go 1.21
-toolchain go1.22.5
+go 1.22.0
+
+toolchain go1.23.2
 
 require (
 	github.com/fbreckle/go-netbox v0.0.0-20240712203246-697d4aa8d19a
