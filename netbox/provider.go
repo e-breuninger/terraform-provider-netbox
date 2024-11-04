@@ -25,7 +25,7 @@ func init() {
 			desc += "."
 		}
 
-		if s.AtLeastOneOf != nil && len(s.AtLeastOneOf) > 0 {
+		if len(s.AtLeastOneOf) > 0 {
 			atLeastOneOf := make([]string, len(s.AtLeastOneOf))
 			for i, l := range s.AtLeastOneOf {
 				atLeastOneOf[i] = fmt.Sprintf("`%s`", l)
@@ -33,7 +33,7 @@ func init() {
 			desc += fmt.Sprintf(" At least one of %s must be given.", joinStringWithFinalConjunction(atLeastOneOf, ", ", "or"))
 		}
 
-		if s.ExactlyOneOf != nil && len(s.ExactlyOneOf) > 0 {
+		if len(s.ExactlyOneOf) > 0 {
 			exactlyOneOf := make([]string, len(s.ExactlyOneOf))
 			for i, l := range s.ExactlyOneOf {
 				exactlyOneOf[i] = fmt.Sprintf("`%s`", l)
@@ -41,7 +41,7 @@ func init() {
 			desc += fmt.Sprintf(" Exactly one of %s must be given.", joinStringWithFinalConjunction(exactlyOneOf, ", ", "or"))
 		}
 
-		if s.RequiredWith != nil && len(s.RequiredWith) > 0 {
+		if len(s.RequiredWith) > 0 {
 			requires := make([]string, len(s.RequiredWith))
 			for i, c := range s.RequiredWith {
 				requires[i] = fmt.Sprintf("`%s`", c)
@@ -49,7 +49,7 @@ func init() {
 			desc += fmt.Sprintf(" Required when %s is set.", joinStringWithFinalConjunction(requires, ", ", "and"))
 		}
 
-		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
+		if len(s.ConflictsWith) > 0 {
 			conflicts := make([]string, len(s.ConflictsWith))
 			for i, c := range s.ConflictsWith {
 				conflicts[i] = fmt.Sprintf("`%s`", c)
