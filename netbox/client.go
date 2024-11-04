@@ -62,7 +62,7 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 
 	trans.(*http.Transport).Proxy = http.ProxyFromEnvironment
 
-	if cfg.Headers != nil && len(cfg.Headers) > 0 {
+	if len(cfg.Headers) > 0 {
 		log.WithFields(log.Fields{
 			"custom_headers": cfg.Headers,
 		}).Debug("Setting custom headers on every request to Netbox")
