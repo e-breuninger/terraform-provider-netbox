@@ -49,6 +49,16 @@ func resourceNetboxVlanGroup() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
+			"vid_ranges": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeList,
+					Elem: &schema.Schema{
+						Type: schema.TypeInt,
+					},
+				},
+				Required: true,
+			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -64,6 +74,17 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 	name := d.Get("name").(string)
 	slug := d.Get("slug").(string)
 	description := d.Get("description").(string)
+	vidRanges := d.Get("vid_ranges").([]interface{})
+
+	var result = make([][]int64, 0)
+	for _, v := range vidRanges {
+		inner := v.([]interface{})
+		pair := make([]int64, 2)
+		pair[0] = int64(inner[0].(int))
+		pair[1] = int64(inner[1].(int))
+		result = append(result, pair)
+	}
+	data.VidRanges = result
 
 	data.Name = &name
 	data.Slug = &slug
@@ -112,6 +133,7 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", vlanGroup.Name)
 	d.Set("slug", vlanGroup.Slug)
 	d.Set("description", vlanGroup.Description)
+	d.Set("vid_ranges", vlanGroup.VidRanges)
 	d.Set(tagsKey, getTagListFromNestedTagList(vlanGroup.Tags))
 
 	if vlanGroup.ScopeType != nil {
@@ -133,6 +155,18 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 	name := d.Get("name").(string)
 	slug := d.Get("slug").(string)
 	description := d.Get("description").(string)
+
+	vidRanges := d.Get("vid_ranges").([]interface{})
+
+	var result = make([][]int64, 0)
+	for _, v := range vidRanges {
+		inner := v.([]interface{})
+		pair := make([]int64, 2)
+		pair[0] = int64(inner[0].(int))
+		pair[1] = int64(inner[1].(int))
+		result = append(result, pair)
+	}
+	data.VidRanges = result
 
 	data.Name = &name
 	data.Slug = &slug
