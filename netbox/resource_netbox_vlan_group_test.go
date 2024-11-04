@@ -14,7 +14,7 @@ import (
 func testAccNetboxVlanGroupFullDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_tag" "test" {
-	name = "%[1]s"
+  name = "%[1]s"
 }
 
 resource "netbox_site" "test" {
@@ -33,15 +33,20 @@ func TestAccNetboxVlanGroup_basic(t *testing.T) {
 			{
 				Config: testAccNetboxVlanGroupFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vlan_group" "test_basic" {
-  name    = "%s"
-  slug    = "%s"
-  tags    = []
+  name       = "%s"
+  slug       = "%s"
+  vid_ranges  = [[1, 2], [3, 4]]
+  tags       = []
 }`, testName, testSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "name", testName),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "slug", testSlug),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "description", ""),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "tags.#", "0"),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.0.0", "1"),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.0.1", "2"),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.1.0", "3"),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.1.1", "4"),
 				),
 			},
 			{
@@ -69,6 +74,7 @@ resource "netbox_vlan_group" "test_with_dependencies" {
   description = "%s"
   scope_type  = "dcim.site"
   scope_id    = netbox_site.test.id
+  vid_ranges  = [[1, 4094]]
   tags        = [netbox_tag.test.name]
 }`, testName, testSlug, testDescription),
 				Check: resource.ComposeTestCheckFunc(
