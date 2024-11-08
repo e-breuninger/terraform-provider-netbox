@@ -145,6 +145,10 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 				params.TenantID = &vString
 			case "tenant_id__n":
 				params.TenantIDn = &vString
+			case "site_id":
+				params.SiteID = &vString
+			case "site_id__n":
+				params.SiteIDn = &vString
 			case "status":
 				params.Status = &vString
 			default:
