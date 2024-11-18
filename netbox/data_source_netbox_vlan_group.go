@@ -19,19 +19,20 @@ func dataSourceNetboxVlanGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				AtLeastOneOf: []string{"name", "slug"},
+				AtLeastOneOf: []string{"name", "slug", "scope_type"},
 			},
 			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"name", "slug"},
+				AtLeastOneOf: []string{"name", "slug", "scope_type"},
 			},
 			"scope_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice(resourceNetboxVlanGroupScopeTypeOptions, false),
 				Description:  buildValidValueDescription(resourceNetboxVlanGroupScopeTypeOptions),
+				AtLeastOneOf: []string{"name", "slug", "scope_type"},
 			},
 			"scope_id": {
 				Type:         schema.TypeInt,
