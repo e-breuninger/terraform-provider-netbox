@@ -18,7 +18,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/rest-api/aut
 ```terraform
 resource "netbox_user" "test" {
   username = "johndoe"
-  password = "abcdefghijkl"
+  password = "Abcdefghijkl1"
 }
 
 resource "netbox_token" "test_basic" {
