@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -18,16 +19,30 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"name", "site_id", "id"},
+			},
+			"comments": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"site_id": {
 				Type:         schema.TypeInt,
 				Computed:     true,
 				Optional:     true,
-				AtLeastOneOf: []string{"name", "site_id"},
+				AtLeastOneOf: []string{"name", "site_id", "id"},
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"name", "site_id"},
+				AtLeastOneOf: []string{"name", "site_id", "id"},
 			},
 			"cluster_type_id": {
 				Type:     schema.TypeInt,
@@ -35,6 +50,11 @@ func dataSourceNetboxCluster() *schema.Resource {
 			},
 			"cluster_group_id": {
 				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+			},
+			"custom_fields": {
+				Type:     schema.TypeMap,
 				Computed: true,
 			},
 			tagsKey: tagsSchemaRead,
@@ -51,8 +71,17 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		params.Name = &name
 	}
 
-	if site_id, ok := d.Get("site_id").(int); ok && site_id != 0 {
-		params.SiteID = strToPtr(strconv.FormatInt(int64(site_id), 10))
+	if siteID, ok := d.Get("site_id").(int); ok && siteID != 0 {
+		params.SiteID = strToPtr(strconv.FormatInt(int64(siteID), 10))
+	}
+
+	if id, ok := d.Get("id").(string); ok && id != "0" {
+		params.SetID(&id)
+	}
+
+	if clustergroupID, ok := d.Get("cluster_group_id").(int); ok && clustergroupID != 0 {
+		clustGroupStr := fmt.Sprintf("%d", clustergroupID)
+		params.GroupID = &clustGroupStr
 	}
 
 	limit := int64(2) // Limit of 2 is enough
@@ -80,11 +109,15 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("cluster_group_id", nil)
 	}
-
+	d.Set("comments", result.Comments)
+	d.Set("description", result.Description)
 	if result.Site != nil {
 		d.Set("site_id", result.Site.ID)
 	} else {
 		d.Set("site_id", nil)
+	}
+	if result.CustomFields != nil {
+		d.Set("custom_fields", result.CustomFields)
 	}
 
 	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))

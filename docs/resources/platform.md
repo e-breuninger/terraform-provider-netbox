@@ -31,6 +31,7 @@ resource "netbox_platform" "PANOS" {
 
 ### Optional
 
+- `manufacturer_id` (Number)
 - `slug` (String)
 
 ### Read-Only

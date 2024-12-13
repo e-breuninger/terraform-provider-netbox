@@ -9,7 +9,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -65,6 +65,18 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 							Type:     schema.TypeMap,
 							Computed: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"device_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"device_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"disk_size_gb": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -83,6 +95,10 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 						},
 						"platform_id": {
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"platform_slug": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"primary_ip": {
@@ -142,28 +158,35 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
+		var tags []string
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
+			vString := v.(string)
 			switch k {
 			case "cluster_id":
-				var clusterString = v.(string)
-				params.ClusterID = &clusterString
+				params.ClusterID = &vString
 			case "cluster_group":
-				var clusterGroupString = v.(string)
-				params.ClusterGroup = &clusterGroupString
+				params.ClusterGroup = &vString
+			case "device_id":
+				params.Name = &vString
+			case "device":
+				params.Name = &vString
 			case "name":
-				var nameString = v.(string)
-				params.Name = &nameString
+				params.Name = &vString
 			case "region":
-				var regionString = v.(string)
-				params.Region = &regionString
+				params.Region = &vString
 			case "role":
-				var roleString = v.(string)
-				params.Role = &roleString
+				params.Role = &vString
 			case "site":
-				var siteString = v.(string)
-				params.Site = &siteString
+				params.Site = &vString
+			case "tenant_id":
+				params.TenantID = &vString
+			case "tag":
+				tags = append(tags, vString)
+				params.Tag = tags
+			case "status":
+				params.Status = &vString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -205,6 +228,13 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		if v.Comments != "" {
 			mapping["comments"] = v.Comments
 		}
+		if v.Description != "" {
+			mapping["description"] = v.Description
+		}
+		if v.Device != nil {
+			mapping["device_id"] = v.Device.ID
+			mapping["device_name"] = v.Device.Name
+		}
 		if v.ConfigContext != nil {
 			if configContext, err := json.Marshal(v.ConfigContext); err == nil {
 				mapping["config_context"] = string(configContext)
@@ -229,6 +259,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		}
 		if v.Platform != nil {
 			mapping["platform_id"] = v.Platform.ID
+			mapping["platform_slug"] = v.Platform.Slug
 		}
 		if v.PrimaryIP != nil {
 			mapping["primary_ip"] = v.PrimaryIP.Address
@@ -267,6 +298,6 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		s = append(s, mapping)
 	}
 
-	d.SetId(resource.UniqueId())
+	d.SetId(id.UniqueId())
 	return d.Set("vms", s)
 }

@@ -49,7 +49,19 @@ Read-Only:
 - `last_updated` (String)
 - `role` (String)
 - `status` (String)
+- `tags` (List of Object) (see [below for nested schema](#nestedobjatt--ip_addresses--tags))
 - `tenant` (List of Object) (see [below for nested schema](#nestedobjatt--ip_addresses--tenant))
+
+<a id="nestedobjatt--ip_addresses--tags"></a>
+### Nested Schema for `ip_addresses.tags`
+
+Read-Only:
+
+- `display` (String)
+- `id` (Number)
+- `name` (String)
+- `slug` (String)
+
 
 <a id="nestedobjatt--ip_addresses--tenant"></a>
 ### Nested Schema for `ip_addresses.tenant`

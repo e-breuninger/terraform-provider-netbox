@@ -10,6 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxRackStatusOptions = []string{"reserved", "available", "planned", "active", "deprecated"}
+var resourceNetboxRackTypeOptions = []string{"2-post-frame", "4-post-frame", "4-post-cabinet", "wall-frame", "wall-frame-vertical", "wall-cabinet", "wall-cabinet-vertical"}
+var resourceNetboxRackWeightUnitOptions = []string{"kg", "g", "lb", "oz"}
+var resourceNetboxRackOuterUnitOptions = []string{"mm", "in"}
+var resourceNetboxRackWidthOptions = []int{10, 19, 21, 23}
+
 func resourceNetboxRack() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxRackCreate,
@@ -37,14 +43,14 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
-				Description:  "One of [reserved available planned active deprecated]",
-				ValidateFunc: validation.StringInSlice([]string{"reserved", "available", "planned", "active", "deprecated"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxRackStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxRackStatusOptions),
 			},
 			"width": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				Description:  "One of [10, 19, 21, 23]",
-				ValidateFunc: validation.IntInSlice([]int{10, 19, 21, 23}),
+				ValidateFunc: validation.IntInSlice(resourceNetboxRackWidthOptions),
+				Description:  "Valid values are `10`, `19`, `21` and `23`",
 			},
 			"u_height": {
 				Type:         schema.TypeInt,
@@ -81,8 +87,8 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 			"type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Description:  "One of [2-post-frame 4-post-frame 4-post-cabinet wall-frame wall-frame-vertical wall-cabinet wall-cabinet-vertical]",
-				ValidateFunc: validation.StringInSlice([]string{"2-post-frame", "4-post-frame", "4-post-cabinet", "wall-frame", "wall-frame-vertical", "wall-cabinet", "wall-cabinet-vertical"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxRackTypeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxRackTypeOptions),
 			},
 			"weight": {
 				Type:     schema.TypeFloat,
@@ -97,8 +103,8 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"weight", "max_weight"},
-				Description:  "One of [kg, g, lb, oz]",
-				ValidateFunc: validation.StringInSlice([]string{"kg", "g", "lb", "oz"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxRackWeightUnitOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxRackWeightUnitOptions),
 			},
 			"desc_units": {
 				Type:        schema.TypeBool,
@@ -120,8 +126,8 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"outer_width", "outer_depth"},
-				Description:  "One of [mm, in]",
-				ValidateFunc: validation.StringInSlice([]string{"mm", "in"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxRackOuterUnitOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxRackOuterUnitOptions),
 			},
 			"mounting_depth": {
 				Type:         schema.TypeInt,
@@ -163,8 +169,8 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tenant = getOptionalInt(d, "tenant_id")
-	if facilityId := getOptionalStr(d, "facility_id", false); facilityId != "" {
-		data.FacilityID = strToPtr(facilityId)
+	if facilityID := getOptionalStr(d, "facility_id", false); facilityID != "" {
+		data.FacilityID = strToPtr(facilityID)
 	}
 	data.Location = getOptionalInt(d, "location_id")
 	data.Role = getOptionalInt(d, "role_id")
@@ -332,8 +338,8 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Tenant = getOptionalInt(d, "tenant_id")
 
-	if facilityId := getOptionalStr(d, "facility_id", false); facilityId != "" {
-		data.FacilityID = strToPtr(facilityId)
+	if facilityID := getOptionalStr(d, "facility_id", false); facilityID != "" {
+		data.FacilityID = strToPtr(facilityID)
 	}
 
 	data.Location = getOptionalInt(d, "location_id")

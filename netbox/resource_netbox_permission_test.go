@@ -29,8 +29,7 @@ resource "netbox_permission" "test_basic" {
   users = [1]
   constraints = jsonencode([{
     "status" = "active"
-  }]
-    )
+  }])
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_permission.test_basic", "name", testName),
@@ -44,6 +43,36 @@ resource "netbox_permission" "test_basic" {
 					resource.TestCheckResourceAttr("netbox_permission.test_basic", "users.#", "1"),
 					resource.TestCheckResourceAttr("netbox_permission.test_basic", "users.0", "1"),
 					resource.TestCheckResourceAttr("netbox_permission.test_basic", "constraints", "[{\"status\":\"active\"}]"),
+				),
+			},
+			{
+				ResourceName:      "netbox_permission.test_basic",
+				ImportState:       true,
+				ImportStateVerify: false,
+			},
+		},
+	})
+}
+
+func TestAccNetboxPermission_noConstraint(t *testing.T) {
+	testSlug := "user_perms_nocnstrnt"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_permission" "test_basic" {
+  name = "%s"
+  description = "This is a terraform test."
+  enabled = true
+  object_types = ["ipam.prefix"]
+  actions = ["add", "change"]
+  users = [1]
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_permission.test_basic", "name", testName),
 				),
 			},
 			{

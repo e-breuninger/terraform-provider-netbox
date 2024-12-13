@@ -3,6 +3,7 @@ package netbox
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
@@ -12,9 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxInterface() *schema.Resource {
-	validModes := []string{"access", "tagged", "tagged-all"}
+var resourceNetboxInterfaceModeOptions = []string{"access", "tagged", "tagged-all"}
 
+func resourceNetboxInterface() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetboxInterfaceCreate,
 		ReadContext:   resourceNetboxInterfaceRead,
@@ -46,11 +47,16 @@ func resourceNetboxInterface() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
+				// Netbox converts MAC addresses always to uppercase
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.EqualFold(old, new)
+				},
 			},
 			"mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice(validModes, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxInterfaceModeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxInterfaceModeOptions),
 			},
 			"mtu": {
 				Type:         schema.TypeInt,

@@ -47,7 +47,7 @@ resource "netbox_vlan" "test2" {
 }`, testName)
 }
 
-func testAccNetboxInterface_basic(testName string) string {
+func testAccNetboxInterfaceBasic(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_interface" "test" {
   name = "%s"
@@ -56,19 +56,19 @@ resource "netbox_interface" "test" {
 }`, testName)
 }
 
-func testAccNetboxInterface_opts(testName string, testMac string) string {
+func testAccNetboxInterfaceOpts(testName string, testMac string, enabled string) string {
 	return fmt.Sprintf(`
 resource "netbox_interface" "test" {
   name = "%[1]s"
   description = "%[1]s"
-  enabled = true
+  enabled = %[3]s
   mac_address = "%[2]s"
   mtu = 1440
   virtual_machine_id = netbox_virtual_machine.test.id
-}`, testName, testMac)
+}`, testName, testMac, enabled)
 }
 
-func testAccNetboxInterface_vlans(testName string) string {
+func testAccNetboxInterfaceVlans(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_interface" "test1" {
   name = "%[1]s_1"
@@ -103,7 +103,7 @@ func TestAccNetboxInterface_basic(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxInterface_basic(testName),
+				Config: setUp + testAccNetboxInterfaceBasic(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
@@ -131,11 +131,22 @@ func TestAccNetboxInterface_opts(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxInterface_opts(testName, testMac),
+				Config: setUp + testAccNetboxInterfaceOpts(testName, testMac, "true"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_interface.test", "description", testName),
 					resource.TestCheckResourceAttr("netbox_interface.test", "enabled", "true"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_interface.test", "mtu", "1440"),
+					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxInterfaceOpts(testName, testMac, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_interface.test", "description", testName),
+					resource.TestCheckResourceAttr("netbox_interface.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
 					resource.TestCheckResourceAttr("netbox_interface.test", "mtu", "1440"),
 					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
@@ -160,7 +171,7 @@ func TestAccNetboxInterface_vlans(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxInterface_vlans(testName),
+				Config: setUp + testAccNetboxInterfaceVlans(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test1", "mode", "access"),
 					resource.TestCheckResourceAttr("netbox_interface.test2", "mode", "tagged"),

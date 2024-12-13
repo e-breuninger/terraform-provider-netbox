@@ -30,7 +30,11 @@ func resourceNetboxPlatform() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 30),
+				ValidateFunc: validation.StringLenBetween(1, 100),
+			},
+			"manufacturer_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -53,13 +57,18 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	params := dcim.NewDcimPlatformsCreateParams().WithData(
-		&models.WritablePlatform{
-			Name: &name,
-			Slug: &slug,
-			Tags: []*models.NestedTag{},
-		},
-	)
+	data := models.WritablePlatform{
+		Name: &name,
+		Slug: &slug,
+		Tags: []*models.NestedTag{},
+	}
+
+	manufacturerIDValue, ok := d.GetOk("manufacturer_id")
+	if ok {
+		data.Manufacturer = int64ToPtr(int64(manufacturerIDValue.(int)))
+	}
+
+	params := dcim.NewDcimPlatformsCreateParams().WithData(&data)
 
 	res, err := api.Dcim.DcimPlatformsCreate(params, nil)
 	if err != nil {
@@ -91,8 +100,13 @@ func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("slug", res.GetPayload().Slug)
+	result := res.GetPayload()
+
+	d.Set("name", result.Name)
+	d.Set("slug", result.Slug)
+	if result.Manufacturer != nil {
+		d.Set("manufacturer_id", result.Manufacturer.ID)
+	}
 	return nil
 }
 
@@ -116,6 +130,11 @@ func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Slug = &slug
 	data.Name = &name
 	data.Tags = []*models.NestedTag{}
+
+	manufacturerIDValue, ok := d.GetOk("manufacturer_id")
+	if ok {
+		data.Manufacturer = int64ToPtr(int64(manufacturerIDValue.(int)))
+	}
 
 	params := dcim.NewDcimPlatformsPartialUpdateParams().WithID(id).WithData(&data)
 

@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func testAccNetboxAvailablePrefixFullDependencies(testName string, parent_prefix string) string {
+func testAccNetboxAvailablePrefixFullDependencies(testName string, parentPrefix string) string {
 	return fmt.Sprintf(`
 resource "netbox_tag" "test" {
   name = "%[1]s"
@@ -25,7 +25,7 @@ resource "netbox_prefix" "parent" {
   status = "container"
   tags = [netbox_tag.test.name]
 }
-`, testName, parent_prefix)
+`, testName, parentPrefix)
 }
 
 func TestAccNetboxAvailablePrefix_basic(t *testing.T) {
@@ -160,7 +160,7 @@ resource "netbox_available_prefix" "test3" {
 					resource.TestCheckResourceAttr("netbox_available_prefix.test1", "prefix", expectedPrefixes[0]),
 					resource.TestCheckResourceAttr("netbox_available_prefix.test2", "prefix", expectedPrefixes[1]),
 				),
-				ExpectError: regexp.MustCompile(".*Insufficient space is available.*"),
+				ExpectError: regexp.MustCompile(".*Insufficient resources are available to satisfy the request.*"),
 			},
 		},
 	})

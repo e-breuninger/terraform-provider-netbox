@@ -27,12 +27,13 @@ data "netbox_site" "get_by_slug" {
 
 ### Optional
 
-- `asn_ids` (Set of Number)
+- `facility` (String)
 - `name` (String)
 - `slug` (String)
 
 ### Read-Only
 
+- `asn_ids` (Set of Number)
 - `comments` (String)
 - `description` (String)
 - `group_id` (Number)

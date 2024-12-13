@@ -1,0 +1,12 @@
+---
+# See https://golangci-lint.run/usage/configuration/ for full list of options
+run:
+  timeout: 30m
+
+linters:
+  disable:
+    - errcheck
+  enable:
+    - whitespace
+    - staticcheck
+    - stylecheck

@@ -47,8 +47,8 @@ resource "netbox_vlan_group" "example2" {
 ### Optional
 
 - `description` (String) Defaults to `""`.
-- `scope_id` (Number)
-- `scope_type` (String)
+- `scope_id` (Number) Required when `scope_type` is set.
+- `scope_type` (String) Valid values are `dcim.location`, `dcim.site`, `dcim.sitegroup`, `dcim.region`, `dcim.rack`, `virtualization.cluster` and `virtualization.clustergroup`.
 - `tags` (Set of String)
 
 ### Read-Only

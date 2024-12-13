@@ -35,7 +35,6 @@ resource "netbox_tenant" "test_tenant_b" {
 }
 
 func TestAccNetboxVrf_basic(t *testing.T) {
-
 	testSlug := "vrf_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -63,7 +62,6 @@ resource "netbox_vrf" "test" {
 }
 
 func TestAccNetboxVrf_tags(t *testing.T) {
-
 	testSlug := "vrf_tag"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -108,7 +106,6 @@ resource "netbox_vrf" "test_tags" {
 }
 
 func TestAccNetboxVrf_tenant(t *testing.T) {
-
 	testSlug := "vrf_tenant"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -135,6 +132,66 @@ resource "netbox_vrf" "test_tenant" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vrf.test_tenant", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_vrf.test_tenant", "tenant_id", "netbox_tenant.test_tenant_b", "id"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxVrf_rd(t *testing.T) {
+	testSlug := "vrf_rd"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_vrf" "test_rd" {
+	name        = "%s"
+	rd          = "123:456"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vrf.test_rd", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vrf.test_rd", "rd", "123:456"),
+				),
+			},
+			{
+				ResourceName:      "netbox_vrf.test_rd",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxVrf_enforceUnique(t *testing.T) {
+	testSlug := "vrf_enforce_unique"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_vrf" "test_enforce_unique" {
+	name        = "%s-true"
+	enforce_unique = true
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vrf.test_enforce_unique", "name", testName+"-true"),
+					resource.TestCheckResourceAttr("netbox_vrf.test_enforce_unique", "enforce_unique", "true"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_vrf" "test_enforce_unique_false" {
+	name        = "%s-false"
+	enforce_unique = false
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vrf.test_enforce_unique_false", "name", testName+"-false"),
+					resource.TestCheckResourceAttr("netbox_vrf.test_enforce_unique_false", "enforce_unique", "false"),
 				),
 			},
 		},

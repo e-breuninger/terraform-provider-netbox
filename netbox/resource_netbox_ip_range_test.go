@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func testAccNetboxIpRangeFullDependencies(testStartAddress string, testSlug string) string {
+func testAccNetboxIPRangeFullDependencies(testStartAddress string, testSlug string) string {
 	return fmt.Sprintf(`
 resource "netbox_tag" "test" {
   name = "%[1]s"
@@ -37,7 +37,6 @@ resource "netbox_site" "test" {
 `, testStartAddress, testSlug)
 }
 func TestAccNetboxIpRange_basic(t *testing.T) {
-
 	testSlug := "range_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -49,7 +48,7 @@ func TestAccNetboxIpRange_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxIpRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
+				Config: testAccNetboxIPRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
 resource "netbox_ip_range" "test_basic" {
   start_address = "%s"
   end_address = "%s"
@@ -66,7 +65,7 @@ resource "netbox_ip_range" "test_basic" {
 				),
 			},
 			{
-				Config: testAccNetboxIpRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
+				Config: testAccNetboxIPRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
 resource "netbox_ip_range" "test_basic" {
   start_address = "%s"
   end_address = "%s"
@@ -96,7 +95,6 @@ resource "netbox_ip_range" "test_basic" {
 }
 
 func TestAccNetboxIpRange_with_dependencies(t *testing.T) {
-
 	testSlug := "range_with_dependencies"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -108,7 +106,7 @@ func TestAccNetboxIpRange_with_dependencies(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetboxIpRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
+				Config: testAccNetboxIPRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
 resource "netbox_ip_range" "test_with_dependencies" {
   start_address = "%s"
   end_address = "%s"

@@ -4,15 +4,18 @@
 package netbox
 
 import (
+	"encoding/json"
 	"fmt"
-	"regexp"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"net"
+	"regexp"
+	"strings"
 )
 
 func dataSourceNetboxDevices() *schema.Resource {
@@ -62,8 +65,20 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"config_context": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"local_context_data": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"custom_fields": {
 							Type:     schema.TypeMap,
+							Computed: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"device_id": {
@@ -126,6 +141,15 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeFloat,
 							Computed: true,
 						},
+						"primary_ipv4": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"primary_ipv6": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"tags": tagsSchemaRead,
 					},
 				},
 			},
@@ -150,6 +174,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			case "cluster_id":
 				var clusterString = v.(string)
 				params.ClusterID = &clusterString
+			case "device_type_id":
+				var deviceTypeIDString = v.(string)
+				params.DeviceTypeID = &deviceTypeIDString
 			case "name":
 				var nameString = v.(string)
 				params.Name = &nameString
@@ -157,14 +184,26 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 				var regionString = v.(string)
 				params.Region = &regionString
 			case "role_id":
-				var roleIdString = v.(string)
-				params.RoleID = &roleIdString
+				var roleIDString = v.(string)
+				params.RoleID = &roleIDString
 			case "site_id":
-				var siteIdString = v.(string)
-				params.SiteID = &siteIdString
+				var siteIDString = v.(string)
+				params.SiteID = &siteIDString
+			case "location_id":
+				var locationIDString = v.(string)
+				params.LocationID = &locationIDString
+			case "rack_id":
+				var rackIDString = v.(string)
+				params.RackID = &rackIDString
 			case "tenant_id":
-				var tenantIdString = v.(string)
-				params.TenantID = &tenantIdString
+				var tenantIDString = v.(string)
+				params.TenantID = &tenantIDString
+			case "tags":
+				var tagsString = v.(string)
+				params.Tag = strings.Split(tagsString, ",")
+			case "status":
+				var statusString = v.(string)
+				params.Status = &statusString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -205,6 +244,19 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		if device.Comments != "" {
 			mapping["comments"] = device.Comments
 		}
+		if device.Description != "" {
+			mapping["description"] = device.Description
+		}
+		if device.ConfigContext != nil {
+			if configContext, err := json.Marshal(device.ConfigContext); err == nil {
+				mapping["config_context"] = string(configContext)
+			}
+		}
+		if device.LocalContextData != nil {
+			if localContextData, err := json.Marshal(device.LocalContextData); err == nil {
+				mapping["local_context_data"] = string(localContextData)
+			}
+		}
 		mapping["device_id"] = device.ID
 		if device.DeviceType != nil {
 			mapping["device_type_id"] = device.DeviceType.ID
@@ -230,8 +282,8 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		if device.Tenant != nil {
 			mapping["tenant_id"] = device.Tenant.ID
 		}
-		if device.DeviceRole != nil {
-			mapping["role_id"] = device.DeviceRole.ID
+		if device.Role != nil {
+			mapping["role_id"] = device.Role.ID
 		}
 		if device.Serial != "" {
 			mapping["serial"] = device.Serial
@@ -251,9 +303,26 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		if device.Face != nil {
 			mapping["rack_face"] = device.Face.Value
 		}
+		if device.Tags != nil {
+			mapping["tags"] = getTagListFromNestedTagList(device.Tags)
+		}
+		if device.PrimaryIp4 != nil {
+			ip, _, err := net.ParseCIDR(*device.PrimaryIp4.Address)
+			if err == nil {
+				primaryIPv4 := ip.String()
+				mapping["primary_ipv4"] = &primaryIPv4
+			}
+		}
+		if device.PrimaryIp6 != nil {
+			ip, _, err := net.ParseCIDR(*device.PrimaryIp6.Address)
+			if err == nil {
+				primaryIPv6 := ip.String()
+				mapping["primary_ipv6"] = &primaryIPv6
+			}
+		}
 		s = append(s, mapping)
 	}
 
-	d.SetId(resource.UniqueId())
+	d.SetId(id.UniqueId())
 	return d.Set("devices", s)
 }

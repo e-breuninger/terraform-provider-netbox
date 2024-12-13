@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -11,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+var resourceNetboxVirtualMachineStatusOptions = []string{"offline", "active", "planned", "staged", "failed", "decommissioning"}
 
 func resourceNetboxVirtualMachine() *schema.Resource {
 	return &schema.Resource{
@@ -58,6 +61,10 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"memory_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -69,13 +76,14 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 			"disk_size_gb": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "staged", "failed", "decommissioning"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxVirtualMachineStatusOptions, false),
 				Default:      "active",
-				Description:  "Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`",
+				Description:  buildValidValueDescription(resourceNetboxVirtualMachineStatusOptions),
 			},
 			tagsKey: tagsSchema,
 			"primary_ipv4": {
@@ -85,6 +93,11 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 			"primary_ipv6": {
 				Type:     schema.TypeInt,
 				Computed: true,
+			},
+			"local_context_data": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "This is best managed through the use of `jsonencode` and a map of settings.",
 			},
 			customFieldsKey: customFieldsSchema,
 		},
@@ -123,8 +136,8 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Site = &siteID
 	}
 
-	comments := d.Get("comments").(string)
-	data.Comments = comments
+	data.Comments = d.Get("comments").(string)
+	data.Description = d.Get("description").(string)
 
 	vcpusValue, ok := d.GetOk("vcpus")
 	if ok {
@@ -168,10 +181,19 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Role = &roleID
 	}
 
+	localContextValue, ok := d.GetOk("local_context_data")
+	if ok {
+		var jsonObj any
+		localContextBA := []byte(localContextValue.(string))
+		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
+			data.LocalContextData = jsonObj
+		}
+	}
+
 	data.Status = d.Get("status").(string)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
-
+	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags = tags
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
 		data.CustomFields = ct
@@ -186,7 +208,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxVirtualMachineRead(ctx, d, m)
+	return append(resourceNetboxVirtualMachineRead(ctx, d, m), diags...)
 }
 
 func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -269,7 +291,16 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		d.Set("site_id", nil)
 	}
 
+	if vm.LocalContextData != nil {
+		if jsonArr, err := json.Marshal(vm.LocalContextData); err == nil {
+			d.Set("local_context_data", string(jsonArr))
+		}
+	} else {
+		d.Set("local_context_data", nil)
+	}
+
 	d.Set("comments", vm.Comments)
+	d.Set("description", vm.Description)
 	vcpus := vm.Vcpus
 	if vcpus != nil {
 		d.Set("vcpus", vm.Vcpus)
@@ -356,15 +387,6 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.Disk = &diskSize
 	}
 
-	commentsValue, ok := d.GetOk("comments")
-	if ok {
-		comments := commentsValue.(string)
-		data.Comments = comments
-	} else {
-		comments := " "
-		data.Comments = comments
-	}
-
 	primaryIP4Value, ok := d.GetOk("primary_ipv4")
 	if ok {
 		primaryIP4 := int64(primaryIP4Value.(int))
@@ -377,8 +399,17 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.PrimaryIp6 = &primaryIP6
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	localContextValue, ok := d.GetOk("local_context_data")
+	if ok {
+		var jsonObj any
+		localContextBA := []byte(localContextValue.(string))
+		if err := json.Unmarshal(localContextBA, &jsonObj); err == nil {
+			data.LocalContextData = jsonObj
+		}
+	}
 
+	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags = tags
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
 		data.CustomFields = cf
@@ -386,18 +417,22 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 
 	if d.HasChanges("comments") {
 		// check if comment is set
-		commentsValue, ok := d.GetOk("comments")
-		comments := ""
-		if !ok {
-			// Setting an space string deletes the comment
-			comments = " "
+		if commentsValue, ok := d.GetOk("comments"); ok {
+			data.Comments = commentsValue.(string)
 		} else {
-			comments = commentsValue.(string)
+			data.Comments = " "
 		}
-		data.Comments = comments
+	}
+	if d.HasChanges("description") {
+		// check if description is set
+		if descriptionValue, ok := d.GetOk("description"); ok {
+			data.Description = descriptionValue.(string)
+		} else {
+			data.Description = " "
+		}
 	}
 
-	//if d.HasChanges("status") {
+	// if d.HasChanges("status") {
 	if status, ok := d.GetOk("status"); ok {
 		data.Status = status.(string)
 	}
@@ -410,7 +445,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	return resourceNetboxVirtualMachineRead(ctx, d, m)
+	return append(resourceNetboxVirtualMachineRead(ctx, d, m), diags...)
 }
 
 func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

@@ -8,7 +8,6 @@ import (
 )
 
 func TestGetTagListFromNestedTagList(t *testing.T) {
-
 	tags := []*models.NestedTag{
 		{
 			Name: strToPtr("Foo"),

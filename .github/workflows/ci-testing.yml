@@ -11,12 +11,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.19
-      - uses: actions/cache@v3
+          go-version: 1.22
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cache/go-build
@@ -30,36 +30,28 @@ jobs:
   testacc:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         netbox-version:
-          - "v3.4.10"
-          - "v3.4.9"
-          - "v3.4.8"
-          - "v3.4.7"
-          - "v3.4.6"
-          - "v3.4.5"
-          - "v3.4.4"
-          - "v3.4.3"
-          - "v3.4.2"
-          - "v3.4.1"
-          - "v3.4.0"
-          - "v3.3.9"
-          - "v3.3.10"
-          - "v3.3.8"
-          - "v3.3.7"
-          - "v3.3.6"
-          - "v3.3.5"
-          - "v3.3.4"
-          - "v3.3.3"
-          - "v3.3.2"
-          - "v3.3.1"
+          # - v4.0.0 has mandatory tenant group
+          - v4.0.1
+          - v4.0.2
+          - v4.0.3
+          # - v4.0.4 does not exist for some reason
+          - v4.0.5
+          - v4.0.6
+          - v4.0.7
+          - v4.0.8
+          - v4.0.9
+          - v4.0.10
+          - v4.0.11
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.19
-      - uses: actions/cache@v3
+          go-version: 1.22
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cache/go-build

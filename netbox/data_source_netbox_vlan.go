@@ -1,7 +1,7 @@
 package netbox
 
 import (
-	"fmt"
+	"errors"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -84,8 +84,11 @@ func dataSourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	if count := *res.GetPayload().Count; count != int64(1) {
-		return fmt.Errorf("expected one device type, but got %d", count)
+	if *res.GetPayload().Count > int64(1) {
+		return errors.New("more than one vlan returned, specify a more narrow filter")
+	}
+	if *res.GetPayload().Count == int64(0) {
+		return errors.New("no vlan found matching filter")
 	}
 
 	vlan := res.GetPayload().Results[0]

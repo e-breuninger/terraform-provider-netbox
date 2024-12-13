@@ -18,10 +18,15 @@ Since version [1.6.6](https://github.com/e-breuninger/terraform-provider-netbox/
 
 | Netbox version  | Provider version |
 | --------------- | ---------------- |
-| v3.3.0 - 3.4.10 | v3.0.x and up    |
+| v4.0.0 - 4.0.11 | v3.9.0 and up    |
+| v3.7.0 - 3.7.8  | v3.8.0 - 3.8.9   |
+| v3.6.0 - 3.6.9  | v3.7.0 - 3.7.7   |
+| v3.5.1 - 3.5.9  | v3.6.x           |
+| v3.4.3 - 3.4.10 | v3.5.x           |
+| v3.3.0 - 3.4.2  | v3.0.x - 3.5.1   |
 | v3.2.0 - 3.2.9  | v2.0.x           |
-| v3.1.9          | v1.6.x and up    |
-| v3.1.3          | v1.1.x and up    |
+| v3.1.9          | v1.6.0 - 1.6.7   |
+| v3.1.3          | v1.1.x - 1.5.2   |
 | v3.0.9          | v1.0.x           |
 | v2.11.12        | v0.3.x           |
 | v2.10.10        | v0.2.x           |
@@ -68,11 +73,23 @@ If you wish to work on the provider, you need [Go](http://www.golang.org) instal
 
 To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
-To generate or update documentation, run `go generate`.
+To generate or update documentation, run `make docs`.
 
 In order to run the suite of unit tests, run `make test`.
 
 In order to run the full suite of acceptance tests, run `make testacc`.
+
+In order to run a single specific acceptance test, run
+
+```sh
+TEST_FUNC=<test_name> make testacc-specific-test
+```
+
+For example:
+
+```sh
+TEST_FUNC=TestAccNetboxLocationDataSource_basic make testacc-specific-test
+```
 
 _Note:_ Acceptance tests create a docker compose stack on port 8001.
 

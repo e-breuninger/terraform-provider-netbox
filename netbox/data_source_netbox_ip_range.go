@@ -10,9 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func dataSourceNetboxIpRange() *schema.Resource {
+func dataSourceNetboxIPRange() *schema.Resource {
 	return &schema.Resource{
-		Read:        dataSourceNetboxIpRangeRead,
+		Read:        dataSourceNetboxIPRangeRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -28,7 +28,7 @@ func dataSourceNetboxIpRange() *schema.Resource {
 	}
 }
 
-func dataSourceNetboxIpRangeRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	contains := d.Get("contains").(string)
@@ -45,10 +45,10 @@ func dataSourceNetboxIpRangeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if *res.GetPayload().Count > int64(1) {
-		return errors.New("more than one result, specify a more narrow filter")
+		return errors.New("more than one ip range returned, specify a more narrow filter")
 	}
 	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
+		return errors.New("no ip range found matching filter")
 	}
 	result := res.GetPayload().Results[0]
 	d.Set("id", result.ID)

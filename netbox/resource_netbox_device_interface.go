@@ -3,6 +3,7 @@ package netbox
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
@@ -12,9 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetboxDeviceInterface() *schema.Resource {
-	validModes := []string{"access", "tagged", "tagged-all"}
+var resourceNetboxDeviceInterfaceModeOptions = []string{"access", "tagged", "tagged-all"}
 
+func resourceNetboxDeviceInterface() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetboxDeviceInterfaceCreate,
 		ReadContext:   resourceNetboxDeviceInterfaceRead,
@@ -37,16 +38,28 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"label": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
+			"lag_device_interface_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "If this device is a member of a LAG group, you can reference the LAG interface here.",
+			},
 			"mac_address": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
-				ForceNew:     true,
+				// Netbox converts MAC addresses always to uppercase
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.EqualFold(old, new)
+				},
 			},
 			"mgmtonly": {
 				Type:     schema.TypeBool,
@@ -55,12 +68,22 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 			"mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice(validModes, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceInterfaceModeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxDeviceInterfaceModeOptions),
 			},
 			"mtu": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(1, 65536),
+			},
+			"parent_device_interface_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The netbox_device_interface id of the parent interface. Useful if this interface is a logical interface.",
+			},
+			"speed": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -92,7 +115,8 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
-	interface_type := d.Get("type").(string)
+	label := d.Get("label").(string)
+	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
 	mode := d.Get("mode").(string)
@@ -106,7 +130,8 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	data := models.WritableInterface{
 		Name:         &name,
 		Description:  description,
-		Type:         &interface_type,
+		Label:        label,
+		Type:         &interfaceType,
 		Enabled:      enabled,
 		MgmtOnly:     mgmtonly,
 		Mode:         mode,
@@ -119,8 +144,17 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	if macAddress := d.Get("mac_address").(string); macAddress != "" {
 		data.MacAddress = &macAddress
 	}
+	if lag, ok := d.Get("lag_device_interface_id").(int); ok && lag != 0 {
+		data.Lag = int64ToPtr(int64(lag))
+	}
 	if mtu, ok := d.Get("mtu").(int); ok && mtu != 0 {
 		data.Mtu = int64ToPtr(int64(mtu))
+	}
+	if parent, ok := d.Get("parent_device_interface_id").(int); ok && parent != 0 {
+		data.Parent = int64ToPtr(int64(parent))
+	}
+	if speed, ok := d.Get("speed").(int); ok && speed != 0 {
+		data.Speed = int64ToPtr(int64(speed))
 	}
 	if untaggedVlan, ok := d.Get("untagged_vlan").(int); ok && untaggedVlan != 0 {
 		data.UntaggedVlan = int64ToPtr(int64(untaggedVlan))
@@ -163,17 +197,25 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 
 	d.Set("name", iface.Name)
 	d.Set("description", iface.Description)
+	d.Set("label", iface.Label)
 	d.Set("type", iface.Type.Value)
 	d.Set("enabled", iface.Enabled)
 	d.Set("mgmtonly", iface.MgmtOnly)
 	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
+	d.Set("speed", iface.Speed)
 	d.Set(tagsKey, getTagListFromNestedTagList(iface.Tags))
 	d.Set("tagged_vlans", getIDsFromNestedVLANDevice(iface.TaggedVlans))
 	d.Set("device_id", iface.Device.ID)
 
+	if iface.Lag != nil {
+		d.Set("lag_device_interface_id", iface.Lag.ID)
+	}
 	if iface.Mode != nil {
 		d.Set("mode", iface.Mode.Value)
+	}
+	if iface.Parent != nil {
+		d.Set("parent_device_interface_id", iface.Parent.ID)
 	}
 	if iface.UntaggedVlan != nil {
 		d.Set("untagged_vlan", iface.UntaggedVlan.ID)
@@ -191,7 +233,8 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
-	interface_type := d.Get("type").(string)
+	label := d.Get("label").(string)
+	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
 	mode := d.Get("mode").(string)
@@ -205,7 +248,8 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	data := models.WritableInterface{
 		Name:         &name,
 		Description:  description,
-		Type:         &interface_type,
+		Label:        label,
+		Type:         &interfaceType,
 		Enabled:      enabled,
 		MgmtOnly:     mgmtonly,
 		Mode:         mode,
@@ -220,9 +264,21 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		macAddress := d.Get("mac_address").(string)
 		data.MacAddress = &macAddress
 	}
+	if d.HasChange("lag_device_interface_id") {
+		lag := int64(d.Get("lag_device_interface_id").(int))
+		data.Lag = &lag
+	}
 	if d.HasChange("mtu") {
 		mtu := int64(d.Get("mtu").(int))
 		data.Mtu = &mtu
+	}
+	if d.HasChange("parent_device_interface_id") {
+		parent := int64(d.Get("parent_device_interface_id").(int))
+		data.Parent = &parent
+	}
+	if d.HasChange("speed") {
+		speed := int64(d.Get("speed").(int))
+		data.Speed = &speed
 	}
 	if d.HasChange("untagged_vlan") {
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))

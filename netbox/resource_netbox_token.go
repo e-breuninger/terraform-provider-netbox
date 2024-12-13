@@ -52,6 +52,10 @@ func resourceNetboxToken() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -77,6 +81,7 @@ func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.WriteEnabled = d.Get("write_enabled").(bool)
+	data.Description = d.Get("description").(string)
 
 	params := users.NewUsersTokensCreateParams().WithData(&data)
 	res, err := api.Users.UsersTokensCreate(params, nil)
@@ -116,6 +121,7 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("expires", token.Expires)
 	d.Set("allowed_ips", token.AllowedIps)
 	d.Set("write_enabled", token.WriteEnabled)
+	d.Set("description", token.Description)
 
 	return nil
 }
@@ -138,6 +144,7 @@ func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.WriteEnabled = d.Get("write_enabled").(bool)
+	data.Description = d.Get("description").(string)
 
 	params := users.NewUsersTokensUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Users.UsersTokensUpdate(params, nil)

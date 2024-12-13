@@ -7,14 +7,14 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func dataSourceNetboxIpAddresses() *schema.Resource {
+func dataSourceNetboxIPAddresses() *schema.Resource {
 	return &schema.Resource{
-		Read:        dataSourceNetboxIpAddressesRead,
+		Read:        dataSourceNetboxIPAddressesRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"filter": {
@@ -105,6 +105,30 @@ func dataSourceNetboxIpAddresses() *schema.Resource {
 								},
 							},
 						},
+						"tags": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"display": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"slug": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -112,7 +136,7 @@ func dataSourceNetboxIpAddresses() *schema.Resource {
 	}
 }
 
-func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	params := ipam.NewIpamIPAddressesListParams()
@@ -123,6 +147,7 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
+		var tags []string
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
@@ -138,6 +163,19 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 				params.Address = &vString
 			case "vm_interface_id":
 				params.VminterfaceID = &vString
+			case "role":
+				params.Role = &vString
+			case "status":
+				params.Status = &vString
+			case "vrf":
+				params.Vrf = &vString
+			case "tenant":
+				params.Tenant = &vString
+			case "parent_prefix":
+				params.Parent = &vString
+			case "tag":
+				tags = append(tags, vString)
+				params.Tag = tags
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -153,10 +191,10 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 		return errors.New("no result")
 	}
 
-	filteredIpAddresses := res.GetPayload().Results
+	filteredIPAddresses := res.GetPayload().Results
 
 	var s []map[string]interface{}
-	for _, v := range filteredIpAddresses {
+	for _, v := range filteredIPAddresses {
 		var mapping = make(map[string]interface{})
 
 		mapping["id"] = v.ID
@@ -170,7 +208,16 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 		mapping["status"] = v.Status.Value
 		mapping["dns_name"] = v.DNSName
 		mapping["tenant"] = flattenTenant(v.Tenant)
-
+		var stags []map[string]interface{}
+		for _, t := range v.Tags {
+			var tagmapping = make(map[string]interface{})
+			tagmapping["name"] = t.Name
+			tagmapping["display"] = t.Display
+			tagmapping["slug"] = t.Slug
+			tagmapping["id"] = t.ID
+			stags = append(stags, tagmapping)
+		}
+		mapping["tags"] = stags
 		if v.Role != nil {
 			mapping["role"] = v.Role.Value
 		}
@@ -178,9 +225,8 @@ func dataSourceNetboxIpAddressesRead(d *schema.ResourceData, m interface{}) erro
 		s = append(s, mapping)
 	}
 
-	d.SetId(resource.UniqueId())
+	d.SetId(id.UniqueId())
 	return d.Set("ip_addresses", s)
-
 }
 
 func flattenTenant(tenant *models.NestedTenant) []map[string]interface{} {

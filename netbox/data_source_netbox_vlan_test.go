@@ -21,7 +21,7 @@ func TestAccNetboxVlanDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      setUp + testAccNetboxVlanDataNoResult,
-				ExpectError: regexp.MustCompile("expected one device type, but got 0"),
+				ExpectError: regexp.MustCompile("no vlan found matching filter"),
 			},
 			{
 				Config: setUp + testAccNetboxVlanDataByName(testName),
@@ -56,11 +56,11 @@ func TestAccNetboxVlanDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      setUp + extendedSetUp + testAccNetboxVlanDataByName(testName),
-				ExpectError: regexp.MustCompile("expected one device type, but got 2"),
+				ExpectError: regexp.MustCompile("more than one vlan returned, specify a more narrow filter"),
 			},
 			{
 				Config:      setUp + extendedSetUp + testAccNetboxVlanDataByVid(testVid),
-				ExpectError: regexp.MustCompile("expected one device type, but got 2"),
+				ExpectError: regexp.MustCompile("more than one vlan returned, specify a more narrow filter"),
 			},
 		},
 	})

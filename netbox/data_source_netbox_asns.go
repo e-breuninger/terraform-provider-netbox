@@ -6,7 +6,7 @@ import (
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -110,12 +110,12 @@ func dataSourceNetboxAsnsRead(d *schema.ResourceData, m interface{}) error {
 
 		mapping["id"] = v.ID
 		mapping["asn"] = v.Asn
-		mapping["rir_id"] = v.Rir
+		mapping["rir_id"] = v.Rir.ID
 		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
 
 		s = append(s, mapping)
 	}
 
-	d.SetId(resource.UniqueId())
+	d.SetId(id.UniqueId())
 	return d.Set("asns", s)
 }

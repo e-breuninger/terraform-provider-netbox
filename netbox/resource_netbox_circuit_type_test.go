@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxCircuitType_basic(t *testing.T) {
-
 	testSlug := "circuit_type"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)

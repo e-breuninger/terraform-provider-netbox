@@ -7,6 +7,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxVrf() *schema.Resource {
@@ -33,6 +34,17 @@ func resourceNetboxVrf() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"enforce_unique": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"rd": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(1, 21),
+			},
+
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -46,14 +58,20 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritableVRF{}
 
 	name := d.Get("name").(string)
-	tenant_id := int64(d.Get("tenant_id").(int))
+	tenantID := int64(d.Get("tenant_id").(int))
+	enforceUnique := d.Get("enforce_unique").(bool)
+	rd := d.Get("rd").(string)
 
 	data.Name = &name
-	if tenant_id != 0 {
-		data.Tenant = &tenant_id
+	if tenantID != 0 {
+		data.Tenant = &tenantID
 	}
 
 	data.Description = getOptionalStr(d, "description", true)
+	data.EnforceUnique = enforceUnique
+	if rd != "" {
+		data.Rd = &rd
+	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -93,6 +111,12 @@ func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 	vrf := res.GetPayload()
 	d.Set("name", vrf.Name)
 	d.Set("description", vrf.Description)
+	d.Set("enforce_unique", vrf.EnforceUnique)
+	if vrf.Rd != nil {
+		d.Set("rd", *vrf.Rd)
+	} else {
+		d.Set("rd", nil)
+	}
 	if vrf.Tenant != nil {
 		d.Set("tenant_id", vrf.Tenant.ID)
 	} else {
@@ -108,6 +132,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.WritableVRF{}
 
 	name := d.Get("name").(string)
+	enforceUnique := d.Get("enforce_unique").(bool)
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -116,6 +141,11 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
 	data.Description = getOptionalStr(d, "description", true)
+	data.EnforceUnique = enforceUnique
+
+	if rd, ok := d.GetOk("rd"); ok {
+		data.Rd = strToPtr(rd.(string))
+	}
 
 	if tenantID, ok := d.GetOk("tenant_id"); ok {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))

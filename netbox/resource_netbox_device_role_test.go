@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxDeviceRole_basic(t *testing.T) {
-
 	testSlug := "dvcrl_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -26,11 +25,13 @@ resource "netbox_device_role" "test" {
   name = "%s"
   slug = "%s"
   color_hex = "111111"
+  description = "Some fancy device role"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_role.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_role.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_device_role.test", "color_hex", "111111"),
+					resource.TestCheckResourceAttr("netbox_device_role.test", "description", "Some fancy device role"),
 				),
 			},
 			{
@@ -43,7 +44,6 @@ resource "netbox_device_role" "test" {
 }
 
 func TestAccNetboxDeviceRole_defaultSlug(t *testing.T) {
-
 	testSlug := "device_role_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -80,9 +80,9 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, device_role := range res.GetPayload().Results {
-				if strings.HasPrefix(*device_role.Name, testPrefix) {
-					deleteParams := dcim.NewDcimDeviceRolesDeleteParams().WithID(device_role.ID)
+			for _, deviceRole := range res.GetPayload().Results {
+				if strings.HasPrefix(*deviceRole.Name, testPrefix) {
+					deleteParams := dcim.NewDcimDeviceRolesDeleteParams().WithID(deviceRole.ID)
 					_, err := api.Dcim.DcimDeviceRolesDelete(deleteParams, nil)
 					if err != nil {
 						return err

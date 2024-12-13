@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -40,6 +39,7 @@ func resourceCustomField() *schema.Resource {
 					models.CustomFieldTypeValueURL,
 					models.CustomFieldTypeValueSelect,
 					models.CustomFieldTypeValueMultiselect,
+					models.CustomFieldTypeValueJSON,
 				}, false),
 			},
 			"content_types": {
@@ -56,14 +56,6 @@ func resourceCustomField() *schema.Resource {
 				DefaultFunc: func() (interface{}, error) {
 					return 100, nil
 				},
-			},
-			"choices": {
-				Type: schema.TypeSet,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				Default:  nil,
 			},
 			"default": {
 				Type:     schema.TypeString,
@@ -97,6 +89,10 @@ func resourceCustomField() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"choice_set_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -112,6 +108,7 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableCustomField{
 		Name:            strToPtr(d.Get("name").(string)),
 		Type:            d.Get("type").(string),
+		Default:         d.Get("default").(string),
 		Description:     d.Get("description").(string),
 		GroupName:       d.Get("group_name").(string),
 		Label:           d.Get("label").(string),
@@ -120,21 +117,19 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 		Weight:          int64ToPtr(int64(d.Get("weight").(int))),
 	}
 
-	choices, ok := d.GetOk("choices")
+	choiceSet, ok := d.GetOk("choice_set_id")
 	if ok {
-		if data.Type != "select" && data.Type != "multiselect" {
-			return fmt.Errorf("choices may be set only for custom selection fields")
-		}
-		for _, choice := range choices.(*schema.Set).List() {
-			data.Choices = append(data.Choices, choice.(string))
-		}
+		data.ChoiceSet = int64ToPtr(int64(choiceSet.(int)))
 	}
 
 	ctypes, ok := d.GetOk("content_types")
 	if ok {
-		for _, t := range ctypes.(*schema.Set).List() {
-			data.ContentTypes = append(data.ContentTypes, t.(string))
+		ctypes := ctypes.(*schema.Set).List()
+		objectTypes := make([]string, 0, len(ctypes))
+		for _, t := range ctypes {
+			objectTypes = append(objectTypes, t.(string))
 		}
+		data.ObjectTypes = objectTypes
 	}
 
 	vmax, ok := d.GetOk("validation_maximum")
@@ -163,6 +158,7 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableCustomField{
 		Name:            strToPtr(d.Get("name").(string)),
 		Type:            d.Get("type").(string),
+		Default:         d.Get("default").(string),
 		Description:     d.Get("description").(string),
 		GroupName:       d.Get("group_name").(string),
 		Label:           d.Get("label").(string),
@@ -171,21 +167,19 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 		Weight:          int64ToPtr(int64(d.Get("weight").(int))),
 	}
 
-	choices, ok := d.GetOk("choices")
+	choiceSet, ok := d.GetOk("choice_set_id")
 	if ok {
-		if data.Type != "select" && data.Type != "multiselect" {
-			return fmt.Errorf("choices may be set only for custom selection fields")
-		}
-		for _, choice := range choices.(*schema.Set).List() {
-			data.Choices = append(data.Choices, choice.(string))
-		}
+		data.ChoiceSet = int64ToPtr(int64(choiceSet.(int)))
 	}
 
 	ctypes, ok := d.GetOk("content_types")
 	if ok {
-		for _, t := range ctypes.(*schema.Set).List() {
-			data.ContentTypes = append(data.ContentTypes, t.(string))
+		ctypes := ctypes.(*schema.Set).List()
+		objectTypes := make([]string, 0, len(ctypes))
+		for _, t := range ctypes {
+			objectTypes = append(objectTypes, t.(string))
 		}
+		data.ObjectTypes = objectTypes
 	}
 
 	vmax, ok := d.GetOk("validation_maximum")
@@ -227,29 +221,31 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 		}
 		return err
 	}
-	d.Set("name", res.GetPayload().Name)
-	d.Set("type", *res.GetPayload().Type.Value)
 
-	d.Set("content_types", res.GetPayload().ContentTypes)
+	customField := res.GetPayload()
+	d.Set("name", customField.Name)
+	d.Set("type", *customField.Type.Value)
 
-	choices := res.GetPayload().Choices
-	if choices != nil {
-		d.Set("choices", res.GetPayload().Choices)
+	d.Set("content_types", customField.ObjectTypes)
+
+	choiceSet := customField.ChoiceSet
+	if choiceSet != nil {
+		d.Set("choice_set_id", customField.ChoiceSet.ID)
 	}
 
-	d.Set("weight", res.GetPayload().Weight)
-	if res.GetPayload().Default != nil {
-		d.Set("default", res.GetPayload().Default)
+	d.Set("weight", customField.Weight)
+	if customField.Default != nil {
+		d.Set("default", customField.Default)
 	}
 
-	d.Set("description", res.GetPayload().Description)
-	d.Set("group_name", res.GetPayload().GroupName)
-	d.Set("label", res.GetPayload().Label)
-	d.Set("required", res.GetPayload().Required)
+	d.Set("description", customField.Description)
+	d.Set("group_name", customField.GroupName)
+	d.Set("label", customField.Label)
+	d.Set("required", customField.Required)
 
-	d.Set("validation_maximum", res.GetPayload().ValidationMaximum)
-	d.Set("validation_minimum", res.GetPayload().ValidationMinimum)
-	d.Set("validation_regex", res.GetPayload().ValidationRegex)
+	d.Set("validation_maximum", customField.ValidationMaximum)
+	d.Set("validation_minimum", customField.ValidationMinimum)
+	d.Set("validation_regex", customField.ValidationRegex)
 
 	return nil
 }

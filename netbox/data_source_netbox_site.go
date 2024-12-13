@@ -1,7 +1,7 @@
 package netbox
 
 import (
-	"fmt"
+	"errors"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -17,14 +17,26 @@ func dataSourceNetboxSite() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"slug": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"facility": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"asn_ids": {
 				Type:     schema.TypeSet,
-				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
@@ -76,13 +88,23 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	if slug, ok := d.Get("slug").(string); ok && slug != "" {
 		params.SetSlug(&slug)
 	}
+	if id, ok := d.Get("id").(string); ok && id != "0" {
+		params.SetID(&id)
+	}
+	if facility, ok := d.Get("facility").(string); ok && facility != "" {
+		params.SetFacility(&facility)
+	}
 
 	res, err := api.Dcim.DcimSitesList(params, nil)
 	if err != nil {
 		return err
 	}
-	if count := *res.GetPayload().Count; count != 1 {
-		return fmt.Errorf("expected one site, but got %d", count)
+
+	if *res.GetPayload().Count > int64(1) {
+		return errors.New("more than one site returned, specify a more narrow filter")
+	}
+	if *res.GetPayload().Count == int64(0) {
+		return errors.New("no site found matching filter")
 	}
 
 	site := res.GetPayload().Results[0]
@@ -95,6 +117,7 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("site_id", site.ID)
 	d.Set("slug", site.Slug)
 	d.Set("time_zone", site.TimeZone)
+	d.Set("facility", site.Facility)
 
 	if site.Group != nil {
 		d.Set("group_id", site.Group.ID)

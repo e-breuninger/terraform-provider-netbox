@@ -7,6 +7,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxDeviceRole() *schema.Resource {
@@ -26,9 +27,10 @@ func resourceNetboxDeviceRole() *schema.Resource {
 				Required: true,
 			},
 			"slug": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"vm_role": {
 				Type:     schema.TypeBool,
@@ -38,6 +40,10 @@ func resourceNetboxDeviceRole() *schema.Resource {
 			"color_hex": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			tagsKey: tagsSchema,
 		},
@@ -63,16 +69,18 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 
 	color := d.Get("color_hex").(string)
 	vmRole := d.Get("vm_role").(bool)
+	description := d.Get("description").(string)
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimDeviceRolesCreateParams().WithData(
 		&models.DeviceRole{
-			Name:   &name,
-			Slug:   &slug,
-			Color:  color,
-			VMRole: vmRole,
-			Tags:   tags,
+			Name:        &name,
+			Slug:        &slug,
+			Color:       color,
+			Description: description,
+			VMRole:      vmRole,
+			Tags:        tags,
 		},
 	)
 
@@ -109,6 +117,7 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("vm_role", res.GetPayload().VMRole)
 	d.Set("color_hex", res.GetPayload().Color)
+	d.Set("description", res.GetPayload().Description)
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
@@ -122,6 +131,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	name := d.Get("name").(string)
 	color := d.Get("color_hex").(string)
 	vmRole := d.Get("vm_role").(bool)
+	description := d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
@@ -137,6 +147,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	data.Name = &name
 	data.VMRole = vmRole
 	data.Color = color
+	data.Description = description
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	data.Tags = tags

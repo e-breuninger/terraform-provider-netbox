@@ -7,7 +7,10 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+var resourceNetboxContactAssignmentPriorityOptions = []string{"primary", "secondary", "tertiary", "inactive"}
 
 func resourceNetboxContactAssignment() *schema.Resource {
 	return &schema.Resource{
@@ -37,6 +40,12 @@ func resourceNetboxContactAssignment() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"priority": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice(resourceNetboxContactAssignmentPriorityOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxContactAssignmentPriorityOptions),
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -47,17 +56,19 @@ func resourceNetboxContactAssignment() *schema.Resource {
 func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
-	content_type := d.Get("content_type").(string)
-	object_id := int64(d.Get("object_id").(int))
-	contact_id := int64(d.Get("contact_id").(int))
-	role_id := int64(d.Get("role_id").(int))
+	contentType := d.Get("content_type").(string)
+	objectID := int64(d.Get("object_id").(int))
+	contactID := int64(d.Get("contact_id").(int))
+	roleID := int64(d.Get("role_id").(int))
+	priority := d.Get("priority").(string)
 
 	data := &models.WritableContactAssignment{}
 
-	data.ContentType = &content_type
-	data.ObjectID = &object_id
-	data.Contact = &contact_id
-	data.Role = &role_id
+	data.ObjectType = contentType
+	data.ObjectID = &objectID
+	data.Contact = &contactID
+	data.Role = &roleID
+	data.Priority = priority
 
 	params := tenancy.NewTenancyContactAssignmentsCreateParams().WithData(data)
 
@@ -89,7 +100,7 @@ func resourceNetboxContactAssignmentRead(d *schema.ResourceData, m interface{}) 
 		return err
 	}
 
-	d.Set("content_type", res.GetPayload().ContentType)
+	d.Set("content_type", res.GetPayload().ObjectType)
 
 	if res.GetPayload().ObjectID != nil {
 		d.Set("object_id", res.GetPayload().ObjectID)
@@ -99,6 +110,9 @@ func resourceNetboxContactAssignmentRead(d *schema.ResourceData, m interface{}) 
 	}
 	if res.GetPayload().Role != nil {
 		d.Set("role_id", res.GetPayload().Role.ID)
+	}
+	if res.GetPayload().Priority != nil {
+		d.Set("priority", res.GetPayload().Priority.Value)
 	}
 
 	return nil
@@ -110,21 +124,23 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableContactAssignment{}
 
-	content_type := d.Get("content_type").(string)
-	object_id := int64(d.Get("object_id").(int))
-	contact_id := int64(d.Get("contact_id").(int))
-	role_id := int64(d.Get("role_id").(int))
+	contentType := d.Get("content_type").(string)
+	objectID := int64(d.Get("object_id").(int))
+	contactID := int64(d.Get("contact_id").(int))
+	roleID := int64(d.Get("role_id").(int))
+	priority := d.Get("priority").(string)
 
-	data.ContentType = &content_type
-	if object_id != 0 {
-		data.ObjectID = &object_id
+	data.ObjectType = contentType
+	if objectID != 0 {
+		data.ObjectID = &objectID
 	}
-	if contact_id != 0 {
-		data.Contact = &contact_id
+	if contactID != 0 {
+		data.Contact = &contactID
 	}
-	if role_id != 0 {
-		data.Role = &role_id
+	if roleID != 0 {
+		data.Role = &roleID
 	}
+	data.Priority = priority
 
 	params := tenancy.NewTenancyContactAssignmentsPartialUpdateParams().WithID(id).WithData(&data)
 

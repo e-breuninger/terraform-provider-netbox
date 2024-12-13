@@ -5,13 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	netboxClient "github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidClientWithAllData(t *testing.T) {
-
 	config := Config{
 		APIToken:  "07b12b765127747e4afd56cb531b7bf9c61f3c30",
 		ServerURL: "https://localhost:8080",
@@ -23,7 +21,6 @@ func TestValidClientWithAllData(t *testing.T) {
 }
 
 func TestURLMissingSchemaShouldWork(t *testing.T) {
-
 	config := Config{
 		APIToken:  "07b12b765127747e4afd56cb531b7bf9c61f3c30",
 		ServerURL: "localhost:8080",
@@ -35,7 +32,6 @@ func TestURLMissingSchemaShouldWork(t *testing.T) {
 }
 
 func TestURLMaleformedUrlShouldFail(t *testing.T) {
-
 	config := Config{
 		APIToken:  "07b12b765127747e4afd56cb531b7bf9c61f3c30",
 		ServerURL: "xyz:/localhost:8080",
@@ -46,7 +42,6 @@ func TestURLMaleformedUrlShouldFail(t *testing.T) {
 }
 
 func TestURLMissingPortShouldWork(t *testing.T) {
-
 	config := Config{
 		APIToken:  "07b12b765127747e4afd56cb531b7bf9c61f3c30",
 		ServerURL: "http://localhost",
@@ -58,7 +53,6 @@ func TestURLMissingPortShouldWork(t *testing.T) {
 }
 
 func TestURLMissingAccessKey(t *testing.T) {
-
 	config := Config{
 		APIToken:  "",
 		ServerURL: "http://localhost",
@@ -69,7 +63,6 @@ func TestURLMissingAccessKey(t *testing.T) {
 }
 
 func TestAdditionalHeadersSet(t *testing.T) {
-
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vals, ok := r.Header["Hello"]
 
@@ -91,7 +84,7 @@ func TestAdditionalHeadersSet(t *testing.T) {
 	assert.NoError(t, err)
 
 	req := status.NewStatusListParams()
-	client.(*netboxClient.NetBoxAPI).Status.StatusList(req, nil)
+	client.Status.StatusList(req, nil)
 }
 
 /* TODO

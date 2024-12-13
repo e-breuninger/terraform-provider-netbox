@@ -1,7 +1,7 @@
 package netbox
 
 import (
-	"fmt"
+	"errors"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -68,10 +68,13 @@ func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error
 	if err != nil {
 		return err
 	}
-	if count := *res.GetPayload().Count; count != int64(1) {
-		return fmt.Errorf("expected one device type, but got %d", count)
-	}
 
+	if *res.GetPayload().Count > int64(1) {
+		return errors.New("more than one device type returned, specify a more narrow filter")
+	}
+	if *res.GetPayload().Count == int64(0) {
+		return errors.New("no device type found matching filter")
+	}
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("is_full_depth", result.IsFullDepth)

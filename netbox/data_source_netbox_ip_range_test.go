@@ -8,9 +8,8 @@ import (
 )
 
 func TestAccNetboxIpRangeDataSource_basic(t *testing.T) {
-
-	testStartIp := "10.0.0.101/24"
-	testEndIp := "10.0.0.150/24"
+	testStartIP := "10.0.0.101/24"
+	testEndIP := "10.0.0.150/24"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -23,7 +22,7 @@ resource "netbox_ip_range" "test" {
 data "netbox_ip_range" "test" {
   depends_on = [netbox_ip_range.test]
   contains = "%[1]s"
-}`, testStartIp, testEndIp),
+}`, testStartIP, testEndIP),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_ip_range.test", "id", "netbox_ip_range.test", "id"),
 				),

@@ -15,7 +15,7 @@ import (
 type Config struct {
 	APIToken                    string
 	ServerURL                   string
-	AllowInsecureHttps          bool
+	AllowInsecureHTTPS          bool
 	Headers                     map[string]interface{}
 	RequestTimeout              int
 	StripTrailingSlashesFromURL bool
@@ -29,8 +29,7 @@ type customHeaderTransport struct {
 }
 
 // Client does the heavy lifting of establishing a base Open API client to Netbox.
-func (cfg *Config) Client() (interface{}, error) {
-
+func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 	log.WithFields(log.Fields{
 		"server_url": cfg.ServerURL,
 	}).Debug("Initializing Netbox client")
@@ -53,7 +52,7 @@ func (cfg *Config) Client() (interface{}, error) {
 
 	// build http client
 	clientOpts := httptransport.TLSClientOptions{
-		InsecureSkipVerify: cfg.AllowInsecureHttps,
+		InsecureSkipVerify: cfg.AllowInsecureHTTPS,
 	}
 
 	trans, err := httptransport.TLSTransport(clientOpts)
@@ -61,7 +60,9 @@ func (cfg *Config) Client() (interface{}, error) {
 		return nil, err
 	}
 
-	if cfg.Headers != nil && len(cfg.Headers) > 0 {
+	trans.(*http.Transport).Proxy = http.ProxyFromEnvironment
+
+	if len(cfg.Headers) > 0 {
 		log.WithFields(log.Fields{
 			"custom_headers": cfg.Headers,
 		}).Debug("Setting custom headers on every request to Netbox")
@@ -87,7 +88,6 @@ func (cfg *Config) Client() (interface{}, error) {
 
 // RoundTrip adds the headers specified in the transport on every request.
 func (t customHeaderTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-
 	for key, value := range t.headers {
 		r.Header.Add(key, fmt.Sprintf("%v", value))
 	}

@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxContactGroup_basic(t *testing.T) {
-
 	testSlug := "t_grp_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -38,7 +37,6 @@ resource "netbox_contact_group" "test" {
 }
 
 func TestAccNetboxContactGroup_defaultSlug(t *testing.T) {
-
 	testSlug := "contactgrp_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{

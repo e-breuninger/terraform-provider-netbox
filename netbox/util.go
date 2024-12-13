@@ -1,7 +1,9 @@
 package netbox
 
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -67,6 +69,14 @@ func joinStringWithFinalConjunction(elems []string, sep, con string) string {
 	return b.String()
 }
 
+func buildValidValueDescription(options []string) string {
+	var quoted []string
+	for _, option := range options {
+		quoted = append(quoted, fmt.Sprintf("`%s`", option))
+	}
+	return "Valid values are " + joinStringWithFinalConjunction(quoted, ", ", "and")
+}
+
 func getOptionalStr(d *schema.ResourceData, key string, useSpace bool) string {
 	strVal := ""
 	// check if key is set
@@ -101,4 +111,24 @@ func getOptionalInt(d *schema.ResourceData, key string) *int64 {
 
 func getOptionalFloat(d *schema.ResourceData, key string) *float64 {
 	return getOptionalVal[float64, float64](d, key)
+}
+
+// jsonSemanticCompare returns true when 2 json strings encode the same
+// structure, regardless of whitespace differences. This can be used in
+// DiffSuppressFunc implementations to prevent terraform showing whitespace
+// changes as differences on refresh.
+func jsonSemanticCompare(a, b string) (equal bool, err error) {
+	var aDecoded, bDecoded any
+
+	err = json.Unmarshal([]byte(a), &aDecoded)
+	if err != nil {
+		return false, fmt.Errorf("could not decode a: %w", err)
+	}
+
+	err = json.Unmarshal([]byte(b), &bDecoded)
+	if err != nil {
+		return false, fmt.Errorf("could not decode b: %w", err)
+	}
+
+	return reflect.DeepEqual(aDecoded, bDecoded), nil
 }

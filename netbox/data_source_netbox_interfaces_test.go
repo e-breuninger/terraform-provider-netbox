@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
-
 	testSlug := "interface_ds_basic"
 	testResource := "data.netbox_interfaces.test"
 	testName := testAccGetTestName(testSlug)
@@ -35,6 +34,12 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(testResource, "interfaces.#", "2"),
 					resource.TestCheckResourceAttrPair(testResource, "interfaces.0.vm_id", "netbox_virtual_machine.test1", "id"),
 					resource.TestCheckResourceAttrPair(testResource, "interfaces.1.vm_id", "netbox_virtual_machine.test1", "id"),
+				),
+			},
+			{
+				Config: dependencies + testAccNetboxInterfacesDataSourceFilterVMWithLimit,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(testResource, "interfaces.#", "1"),
 				),
 			},
 			{
@@ -82,13 +87,21 @@ resource "netbox_interface" "vm1_1" {
 resource "netbox_interface" "vm1_2" {
   name = "%[1]s_2_regex"
   virtual_machine_id = netbox_virtual_machine.test1.id
-}
-
-`, testName)
+}`, testName)
 }
 
 const testAccNetboxInterfacesDataSourceFilterVM = `
 data "netbox_interfaces" "test" {
+  filter {
+    name  = "vm_id"
+    value = netbox_virtual_machine.test1.id
+  }
+}`
+
+const testAccNetboxInterfacesDataSourceFilterVMWithLimit = `
+data "netbox_interfaces" "test" {
+  limit = 1
+
   filter {
     name  = "vm_id"
     value = netbox_virtual_machine.test1.id

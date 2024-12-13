@@ -17,8 +17,8 @@ description: |-
 
 ### Optional
 
-- `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `limit` (Number) Defaults to `0`.
+- `filter` (Block Set) A list of filters to apply to the API query when requesting prefixes. (see [below for nested schema](#nestedblock--filter))
+- `limit` (Number) The limit of objects to return from the API lookup. Defaults to `0`.
 
 ### Read-Only
 
@@ -30,8 +30,8 @@ description: |-
 
 Required:
 
-- `name` (String)
-- `value` (String)
+- `name` (String) The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `site_id`, & `tag`.
+- `value` (String) The value to pass to the specified filter.
 
 
 <a id="nestedatt--prefixes"></a>
@@ -42,6 +42,7 @@ Read-Only:
 - `description` (String)
 - `id` (Number)
 - `prefix` (String)
+- `site_id` (Number)
 - `status` (String)
 - `tags` (Set of String)
 - `vlan_id` (Number)

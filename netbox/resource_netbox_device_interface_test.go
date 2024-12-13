@@ -35,8 +35,8 @@ resource "netbox_manufacturer" "test" {
 }
 
 resource "netbox_device_type" "test" {
-	model = "%[1]s"
-	manufacturer_id = netbox_manufacturer.test.id
+  model = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
 }
 
 resource "netbox_device" "test" {
@@ -59,7 +59,7 @@ resource "netbox_vlan" "test2" {
 }`, testName)
 }
 
-func testAccNetboxDeviceInterface_basic(testName string) string {
+func testAccNetboxDeviceInterfaceBasic(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test" {
   name = "%s"
@@ -69,11 +69,12 @@ resource "netbox_device_interface" "test" {
 }`, testName)
 }
 
-func testAccNetboxDeviceInterface_opts(testName string, testMac string) string {
+func testAccNetboxDeviceInterfaceOpts(testName string, testMac string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test" {
   name = "%[1]s"
   description = "%[1]s"
+	label = "%[1]s"
   enabled = true
   mgmtonly = true
   mac_address = "%[2]s"
@@ -83,7 +84,40 @@ resource "netbox_device_interface" "test" {
 }`, testName, testMac)
 }
 
-func testAccNetboxDeviceInterface_vlans(testName string) string {
+func testAccNetboxDeviceInterfaceParentAndLAG(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_device_interface" "testLAG_parent" {
+  name = "%[1]s_parentlag"
+  device_id = netbox_device.test.id
+  type = "lag"
+}
+resource "netbox_device_interface" "testLAG_member1" {
+  name = "%[1]s_lagmember1"
+  device_id = netbox_device.test.id
+  lag_device_interface_id = "${netbox_device_interface.testLAG_parent.id}"
+  type = "25gbase-x-sfp28"
+}
+resource "netbox_device_interface" "testLAG_member2" {
+  name = "%[1]s_lagmember2"
+  device_id = netbox_device.test.id
+  lag_device_interface_id = "${netbox_device_interface.testLAG_parent.id}"
+  type = "25gbase-x-sfp28"
+}
+resource "netbox_device_interface" "testparent" {
+  name = "%[1]s_parent_parent"
+  device_id = netbox_device.test.id
+  type = "25gbase-x-sfp28"
+}
+resource "netbox_device_interface" "testparent_child1" {
+  name = "%[1]s_parent_child"
+  device_id = netbox_device.test.id
+  parent_device_interface_id = "${netbox_device_interface.testparent.id}"
+  type = "virtual"
+}
+`, testName)
+}
+
+func testAccNetboxDeviceInterfaceVlans(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test1" {
   name = "%[1]s_1"
@@ -121,7 +155,7 @@ func TestAccNetboxDeviceInterface_basic(t *testing.T) {
 		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxDeviceInterface_basic(testName),
+				Config: setUp + testAccNetboxDeviceInterfaceBasic(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
@@ -139,9 +173,8 @@ func TestAccNetboxDeviceInterface_basic(t *testing.T) {
 	})
 }
 
-func TestAccNetboxDeviceInterface_opts(t *testing.T) {
+func TestAccNetboxDeviceInterface_parentAndLAG(t *testing.T) {
 	testSlug := "iface_mac"
-	testMac := "00:01:02:03:04:05"
 	testName := testAccGetTestName(testSlug)
 	setUp := testAccNetboxDeviceInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
@@ -150,16 +183,77 @@ func TestAccNetboxDeviceInterface_opts(t *testing.T) {
 		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxDeviceInterface_opts(testName, testMac),
+				Config: setUp + testAccNetboxDeviceInterfaceParentAndLAG(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_interface.testLAG_parent", "name", testName+"_parentlag"),
+					resource.TestCheckResourceAttr("netbox_device_interface.testLAG_parent", "type", "lag"),
+					resource.TestCheckResourceAttr("netbox_device_interface.testLAG_member1", "type", "25gbase-x-sfp28"),
+					resource.TestCheckResourceAttr("netbox_device_interface.testLAG_member2", "type", "25gbase-x-sfp28"),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.testLAG_member1", "lag_device_interface_id", "netbox_device_interface.testLAG_parent", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.testLAG_member2", "lag_device_interface_id", "netbox_device_interface.testLAG_parent", "id"),
+
+					resource.TestCheckResourceAttr("netbox_device_interface.testparent_child1", "type", "virtual"),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.testparent_child1", "parent_device_interface_id", "netbox_device_interface.testparent", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device_interface.testLAG_parent",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_device_interface.testLAG_member1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_device_interface.testLAG_member2",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_device_interface.testparent",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "netbox_device_interface.testparent_child1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxDeviceInterface_opts(t *testing.T) {
+	testSlug := "iface_mac"
+	testMacUppercase := "0A:01:02:03:04:05"
+	testMacLowercase := "0a:01:02:03:04:05"
+	testName := testAccGetTestName(testSlug)
+	setUp := testAccNetboxDeviceInterfaceFullDependencies(testName)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName, testMacLowercase),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "description", testName),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "label", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "enabled", "true"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "mgmtonly", "true"),
-					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "00:01:02:03:04:05"),
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "0a:01:02:03:04:05"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "mtu", "1440"),
 					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "device_id", "netbox_device.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName, testMacUppercase),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "0A:01:02:03:04:05"),
 				),
 			},
 			{
@@ -181,7 +275,7 @@ func TestAccNetboxDeviceInterface_vlans(t *testing.T) {
 		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxDeviceInterface_vlans(testName),
+				Config: setUp + testAccNetboxDeviceInterfaceVlans(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_interface.test1", "mode", "access"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test2", "mode", "tagged"),

@@ -34,6 +34,7 @@ resource "netbox_site" "test" {
   region_id = netbox_region.test.id
   tenant_id = netbox_tenant.test.id
   timezone = "Europe/Berlin"
+  facility = "Facility"
 }`, testName)
 }
 
@@ -56,6 +57,20 @@ data "netbox_site" "test" {
 }`, testName)
 }
 
+func testAccNetboxSiteByID() string {
+	return `
+data "netbox_site" "test" {
+  id = netbox_site.test.id
+}`
+}
+
+func testAccNetboxSiteByFacility() string {
+	return `
+data "netbox_site" "test" {
+  facility = netbox_site.test.facility
+}`
+}
+
 func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("site_ds_basic")
 	setUp := testAccNetboxSiteSetUp(testName)
@@ -70,7 +85,7 @@ func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      setUp + testAccNetboxSiteNoResult,
-				ExpectError: regexp.MustCompile("expected one site, but got 0"),
+				ExpectError: regexp.MustCompile("no site found matching filter"),
 			},
 			{
 				Config: setUp + testAccNetboxSiteByName(testName),
@@ -89,6 +104,18 @@ func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_site.test", "status", "active"),
 					resource.TestCheckResourceAttrPair("data.netbox_site.test", "region_id", "netbox_region.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_site.test", "tenant_id", "netbox_tenant.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxSiteByID(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_site.test", "id", "netbox_site.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxSiteByFacility(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_site.test", "id", "netbox_site.test", "id"),
 				),
 			},
 		},

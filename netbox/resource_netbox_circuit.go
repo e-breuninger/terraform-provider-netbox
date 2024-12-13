@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxCircuitStatusOptions = []string{"planned", "provisioning", "active", "offline", "deprovisioning", "decommissioning"}
+
 func resourceNetboxCircuit() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxCircuitCreate,
@@ -43,7 +45,8 @@ func resourceNetboxCircuit() *schema.Resource {
 			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"planned", "provisioning", "active", "offline", "deprovisioning", "decommissioning"}, false),
+				ValidateFunc: validation.StringInSlice(resourceNetboxCircuitStatusOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxCircuitStatusOptions),
 			},
 		},
 		Importer: &schema.ResourceImporter{

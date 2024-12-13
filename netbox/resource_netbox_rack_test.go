@@ -25,8 +25,8 @@ resource "netbox_site" "test" {
 }
 
 resource "netbox_location" "test" {
-	name = "%[1]s"
-	site_id =netbox_site.test.id
+  name = "%[1]s"
+  site_id =netbox_site.test.id
 }
 
 resource "netbox_rack_role" "test" {
@@ -40,7 +40,6 @@ resource "netbox_tag" "test_a" {
 }
 
 func TestAccNetboxRack_basic(t *testing.T) {
-
 	testSlug := "rack_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -52,31 +51,31 @@ func TestAccNetboxRack_basic(t *testing.T) {
 				Config: testAccNetboxRackFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_rack" "test" {
   name = "%[1]s"
-	site_id = netbox_site.test.id
-	status = "reserved"
-	width = 19
-	u_height = 48
-	tags = ["%[1]sa"]
-	tenant_id = netbox_tenant.test.id
-	facility_id = "%[1]sfacility"
-	location_id = netbox_location.test.id
-	role_id = netbox_rack_role.test.id
-	serial = "%[1]sserial"
-	asset_tag = "%[1]sasset_tag"
-	type = "4-post-frame"
-	desc_units = true
-	outer_width = 10
-	outer_depth = 15
-	outer_unit = "mm"
-	comments = "%[1]scomments"
+  site_id = netbox_site.test.id
+  status = "reserved"
+  width = 19
+  u_height = 48
+  tags = ["%[1]sa"]
+  tenant_id = netbox_tenant.test.id
+  facility_id = "%[1]sfacility"
+  location_id = netbox_location.test.id
+  role_id = netbox_rack_role.test.id
+  serial = "%[1]sserial"
+  asset_tag = "%[1]sasset_tag"
+  type = "4-post-frame"
+  desc_units = true
+  outer_width = 10
+  outer_depth = 15
+  outer_unit = "mm"
+  comments = "%[1]scomments"
 }
 resource "netbox_rack" "test2" {
   name = "%[1]s2"
-	site_id = netbox_site.test.id
-	location_id = netbox_location.test.id
-	status = "reserved"
-	width = 19
-	u_height = 48
+  site_id = netbox_site.test.id
+  location_id = netbox_location.test.id
+  status = "reserved"
+  width = 19
+  u_height = 48
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -112,10 +111,10 @@ resource "netbox_rack" "test2" {
 				Config: testAccNetboxRackFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_rack" "test" {
   name = "%[1]s"
-	site_id = netbox_site.test.id
-	status = "reserved"
-	width = 19
-	u_height = 48
+  site_id = netbox_site.test.id
+  status = "reserved"
+  width = 19
+  u_height = 48
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_rack.test", "name", testName),

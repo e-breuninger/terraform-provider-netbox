@@ -60,7 +60,6 @@ func resourceNetboxVirtualMachineResourceV0() *schema.Resource {
 	}
 }
 func resourceNetboxVirtualMachineStateUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
-
 	v, ok := rawState["vcpus"]
 	if !ok {
 		return rawState, nil

@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxRackRole_basic(t *testing.T) {
-
 	testSlug := "rack_role_basic"
 	testName := testAccGetTestName(testSlug)
 	randomSlug := testAccGetTestName(testSlug)
@@ -43,7 +42,6 @@ resource "netbox_rack_role" "test" {
 }
 
 func TestAccNetboxRackRole_defaultSlug(t *testing.T) {
-
 	testSlug := "rack_role_defSlug"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -80,9 +78,9 @@ func init() {
 			if err != nil {
 				return err
 			}
-			for _, rack_role := range res.GetPayload().Results {
-				if strings.HasPrefix(*rack_role.Name, testPrefix) {
-					deleteParams := dcim.NewDcimRackRolesDeleteParams().WithID(rack_role.ID)
+			for _, rackRole := range res.GetPayload().Results {
+				if strings.HasPrefix(*rackRole.Name, testPrefix) {
+					deleteParams := dcim.NewDcimRackRolesDeleteParams().WithID(rackRole.ID)
 					_, err := api.Dcim.DcimRackRolesDelete(deleteParams, nil)
 					if err != nil {
 						return err

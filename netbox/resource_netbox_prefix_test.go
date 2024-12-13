@@ -47,8 +47,7 @@ resource "netbox_vlan" "test" {
 }
 
 func TestAccNetboxPrefix_basic(t *testing.T) {
-
-	testPrefix := "1.1.1.0/25"
+	testPrefix := "1.1.1.128/25"
 	testSlug := "prefix"
 	testVid := "123"
 	randomSlug := testAccGetTestName(testSlug)
@@ -224,6 +223,48 @@ resource "netbox_prefix" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_prefix.test", "prefix", testPrefix),
 					resource.TestCheckResourceAttr("netbox_prefix.test", "status", "active"),
+				),
+			},
+			{
+				ResourceName:      "netbox_prefix.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxPrefix_cf(t *testing.T) {
+	testPrefix := "1.1.2.128/25"
+	testSlug := "prefix_cf"
+	testVid := "124"
+	randomSlug := testAccGetTestName(testSlug)
+	testDesc := "test cf prefix"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.prefix"]
+}
+
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  description = "%s 2"
+  status = "active"
+  mark_utilized = true
+
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "test-field"
+  }
+}`, testSlug, testPrefix, testDesc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", fmt.Sprintf("custom_fields.%s", testSlug), "test-field"),
 				),
 			},
 			{

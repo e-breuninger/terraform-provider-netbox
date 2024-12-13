@@ -36,7 +36,6 @@ func getNestedTagListFromResourceDataSet(client *client.NetBoxAPI, d interface{}
 	tagList := d.(*schema.Set).List()
 	tags := []*models.NestedTag{}
 	for _, tag := range tagList {
-
 		tagString := tag.(string)
 		params := extras.NewExtrasTagsListParams()
 		params.Name = &tagString
@@ -45,26 +44,35 @@ func getNestedTagListFromResourceDataSet(client *client.NetBoxAPI, d interface{}
 		res, err := client.Extras.ExtrasTagsList(params, nil)
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Warning,
+				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
 				Detail:   fmt.Sprintf("API Error trying to retrieve tag %s from netbox", tag.(string)),
 			})
-		} else {
-			payload := res.GetPayload()
-			if *payload.Count == int64(1) {
-				tags = append(tags, &models.NestedTag{
-					Name: payload.Results[0].Name,
-					Slug: payload.Results[0].Slug,
-				})
-			} else {
-				diags = append(diags, diag.Diagnostic{
-					Severity: diag.Warning,
-					Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
-					Detail:   fmt.Sprintf("Could not map tag %s to unique tag in netbox", tag.(string)),
-				})
-			}
+			return tags, diags
+		}
+		payload := res.GetPayload()
+		switch *payload.Count {
+		case int64(0):
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
+				Detail:   fmt.Sprintf("Could not locate referenced tag %s in netbox", tag.(string)),
+			})
+			return tags, diags
+		case int64(1):
+			tags = append(tags, &models.NestedTag{
+				Name: payload.Results[0].Name,
+				Slug: payload.Results[0].Slug,
+			})
+		default:
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
+				Detail:   fmt.Sprintf("Could not map tag %s to unique tag in netbox", tag.(string)),
+			})
 		}
 	}
+
 	return tags, diags
 }
 

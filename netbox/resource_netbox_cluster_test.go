@@ -12,7 +12,6 @@ import (
 )
 
 func TestAccNetboxCluster_basic(t *testing.T) {
-
 	testSlug := "clstr_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -42,6 +41,8 @@ resource "netbox_cluster" "test" {
   name = "%[1]s"
   cluster_type_id = netbox_cluster_type.test.id
   cluster_group_id = netbox_cluster_group.test.id
+  comments = "%[1]scomments"
+  description = "%[1]sdescription"
   site_id = netbox_site.test.id
   tags = [netbox_tag.test.name]
 }`, testName),
@@ -49,6 +50,8 @@ resource "netbox_cluster" "test" {
 					resource.TestCheckResourceAttr("netbox_cluster.test", "name", testName),
 					resource.TestCheckResourceAttrPair("netbox_cluster.test", "cluster_type_id", "netbox_cluster_type.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_cluster.test", "cluster_group_id", "netbox_cluster_group.test", "id"),
+					resource.TestCheckResourceAttr("netbox_cluster.test", "comments", testName+"comments"),
+					resource.TestCheckResourceAttr("netbox_cluster.test", "description", testName+"description"),
 					resource.TestCheckResourceAttrPair("netbox_cluster.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("netbox_cluster.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_cluster.test", "tags.0", testName),

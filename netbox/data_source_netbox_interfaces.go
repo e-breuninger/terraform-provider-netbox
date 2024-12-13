@@ -8,7 +8,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -33,6 +33,13 @@ func dataSourceNetboxInterfaces() *schema.Resource {
 						},
 					},
 				},
+			},
+			"limit": {
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          0,
+				Description:      "The limit of objects to return from the API lookup.",
 			},
 			"name_regex": {
 				Type:         schema.TypeString,
@@ -140,6 +147,8 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 
 	params := virtualization.NewVirtualizationInterfacesListParams()
 
+	params.Limit = getOptionalInt(d, "limit")
+
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
 		for _, f := range filterParams.List() {
@@ -227,9 +236,8 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 		s = append(s, mapping)
 	}
 
-	d.SetId(resource.UniqueId())
+	d.SetId(id.UniqueId())
 	return d.Set("interfaces", s)
-
 }
 
 func flattenVlanAttributes(vlans []*models.NestedVLAN) []map[string]interface{} {

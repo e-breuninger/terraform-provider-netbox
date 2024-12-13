@@ -39,6 +39,10 @@ resource "netbox_device" "test" {
   device_type_id = netbox_device_type.test.id
   role_id        = netbox_device_role.test.id
   site_id        = netbox_site.test.id
+  local_context_data = jsonencode({
+    "setting_a" = "Some Setting"
+    "setting_b" = 42
+  })
 }
 ```
 
@@ -54,18 +58,26 @@ resource "netbox_device" "test" {
 
 ### Optional
 
+- `asset_tag` (String)
 - `cluster_id` (Number)
 - `comments` (String)
+- `config_template_id` (Number)
 - `custom_fields` (Map of String)
+- `description` (String)
+- `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 - `location_id` (Number)
 - `platform_id` (Number)
-- `rack_face` (String)
+- `rack_face` (String) Valid values are `front` and `rear`. Required when `rack_position` is set.
 - `rack_id` (Number)
 - `rack_position` (Number)
 - `serial` (String)
-- `status` (String) Defaults to `active`.
+- `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `inventory`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
+- `virtual_chassis_id` (Number) Required when `virtual_chassis_master` and `virtual_chassis_id` is set.
+- `virtual_chassis_master` (Boolean) Required when `virtual_chassis_master` and `virtual_chassis_id` is set.
+- `virtual_chassis_position` (Number)
+- `virtual_chassis_priority` (Number)
 
 ### Read-Only
 

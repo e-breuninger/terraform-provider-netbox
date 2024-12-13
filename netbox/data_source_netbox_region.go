@@ -7,7 +7,6 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func dataSourceNetboxRegion() *schema.Resource {
@@ -29,9 +28,8 @@ func dataSourceNetboxRegion() *schema.Resource {
 							Optional: true,
 						},
 						"slug": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(0, 30),
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},
@@ -70,10 +68,10 @@ func dataSourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
 		for _, f := range filterParams.List() {
 			id := f.(map[string]interface{})["id"]
 			if id != nil {
-				vId := id.(int)
-				if vId != 0 {
-					vIdString := strconv.Itoa(vId)
-					params.ID = &vIdString
+				vID := id.(int)
+				if vID != 0 {
+					vIDString := strconv.Itoa(vID)
+					params.ID = &vIDString
 				}
 			}
 			name := f.(map[string]interface{})["name"]
@@ -95,10 +93,10 @@ func dataSourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if *res.GetPayload().Count > int64(1) {
-		return errors.New("more than one result, specify a more narrow filter")
+		return errors.New("more than one region returned, specify a more narrow filter")
 	}
 	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
+		return errors.New("no region found matching filter")
 	}
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))

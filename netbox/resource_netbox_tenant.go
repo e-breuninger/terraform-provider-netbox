@@ -32,7 +32,7 @@ func resourceNetboxTenant() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 30),
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			tagsKey: tagsSchema,
 			"group_id": {
@@ -54,7 +54,7 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	name := d.Get("name").(string)
-	group_id := int64(d.Get("group_id").(int))
+	groupID := int64(d.Get("group_id").(int))
 	description := d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
@@ -75,8 +75,8 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 	data.Description = description
 	data.Tags = tags
 
-	if group_id != 0 {
-		data.Group = &group_id
+	if groupID != 0 {
+		data.Group = &groupID
 	}
 
 	params := tenancy.NewTenancyTenantsCreateParams().WithData(data)
@@ -127,7 +127,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
-	group_id := int64(d.Get("group_id").(int))
+	groupID := int64(d.Get("group_id").(int))
 	slugValue, slugOk := d.GetOk("slug")
 	var slug string
 	// Default slug to generated slug if not given
@@ -143,8 +143,8 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Name = &name
 	data.Description = description
 	data.Tags = tags
-	if group_id != 0 {
-		data.Group = &group_id
+	if groupID != 0 {
+		data.Group = &groupID
 	}
 
 	params := tenancy.NewTenancyTenantsPartialUpdateParams().WithID(id).WithData(&data)

@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxServiceProtocolOptions = []string{"tcp", "udp", "sctp"}
+
 func resourceNetboxService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxServiceCreate,
@@ -30,13 +32,15 @@ func resourceNetboxService() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"virtual_machine_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"virtual_machine_id", "device_id"},
 			},
 			"protocol": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{"tcp", "udp", "sctp"}, false)),
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice(resourceNetboxServiceProtocolOptions, false)),
+				Description:      buildValidValueDescription(resourceNetboxServiceProtocolOptions),
 			},
 			"port": {
 				Type:         schema.TypeInt,
@@ -52,6 +56,23 @@ func resourceNetboxService() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tags": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"device_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"virtual_machine_id", "device_id"},
+			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -85,11 +106,30 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
-	data.VirtualMachine = &dataVirtualMachineID
+	if v, ok := d.GetOk("device_id"); ok {
+		deviceID := int64(v.(int))
+		data.Device = &deviceID
+	}
 
-	data.Tags = []*models.NestedTag{}
+	if v, ok := d.GetOk("virtual_machine_id"); ok {
+		dataVirtualMachineID := int64(v.(int))
+		data.VirtualMachine = &dataVirtualMachineID
+	}
+
+	v := d.Get("tags")
+	tags, _ := getNestedTagListFromResourceDataSet(api, v)
+	data.Tags = tags
+
+	if v, ok := d.GetOk("description"); ok {
+		data.Description = v.(string)
+	}
+
 	data.Ipaddresses = []int64{}
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
 
 	params := ipam.NewIpamServicesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamServicesCreate(params, nil)
@@ -122,7 +162,33 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", res.GetPayload().Name)
 	d.Set("protocol", res.GetPayload().Protocol.Value)
 	d.Set("ports", res.GetPayload().Ports)
-	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
+	d.Set("description", res.GetPayload().Description)
+
+	if res.GetPayload().VirtualMachine != nil {
+		d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
+	} else {
+		d.Set("virtual_machine_id", nil)
+	}
+
+	if res.GetPayload().Device != nil {
+		d.Set("device_id", res.GetPayload().Device.ID)
+	} else {
+		d.Set("device_id", nil)
+	}
+
+	if tags := res.GetPayload().Tags; tags != nil {
+		var tagList []interface{}
+		for _, tag := range tags {
+			tagName := tag.Name
+			tagList = append(tagList, *tagName)
+		}
+		d.Set("tags", tagList)
+	}
+
+	cf := getCustomFields(res.GetPayload().CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
 
 	return nil
 }
@@ -152,11 +218,30 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	data.Tags = []*models.NestedTag{}
 	data.Ipaddresses = []int64{}
 
-	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
-	data.VirtualMachine = &dataVirtualMachineID
+	v := d.Get("tags")
+	tags, _ := getNestedTagListFromResourceDataSet(api, v)
+	data.Tags = tags
+
+	if v, ok := d.GetOk("description"); ok {
+		data.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("device_id"); ok {
+		deviceID := int64(v.(int))
+		data.Device = &deviceID
+	}
+
+	if v, ok := d.GetOk("virtual_machine_id"); ok {
+		dataVirtualMachineID := int64(v.(int))
+		data.VirtualMachine = &dataVirtualMachineID
+	}
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = cf
+	}
 
 	params := ipam.NewIpamServicesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamServicesUpdate(params, nil)

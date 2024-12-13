@@ -1,0 +1,50 @@
+---
+page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
+subcategory: "IP Address Management (IPAM)"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+## Example Usage
+
+### Creating an IP address that is assigned to a virtual machine interface
+
+Starting with provider version 3.5.0, you can use the `virtual_machine_interface_id` attribute to assign an IP address to a virtual machine interface.
+You can also use the `interface_id` and `object_type` attributes instead.
+
+With `virtual_machine_interface_id`:
+{{ tffile "examples/resources/netbox_ip_address/virtual_machine_interface_id.tf" }}
+
+With `object_type` and `interface_id`:
+{{ tffile "examples/resources/netbox_ip_address/object_type_virtual_machine.tf" }}
+
+### Creating an IP address that is assigned to a device interface
+
+Starting with provider version 3.5.0, you can use the `device_interface_id` attribute to assign an IP address to a device interface.
+You can also use the `interface_id` and `object_type` attributes instead.
+
+With `device_interface_id`:
+{{ tffile "examples/resources/netbox_ip_address/device_interface_id.tf" }}
+
+With `object_type` and `interface_id`:
+{{ tffile "examples/resources/netbox_ip_address/object_type_device.tf" }}
+
+### Creating an IP address that is not assigned to anything
+
+You can create an IP address that is not assigend to anything by omitting the attributes mentioned above.
+
+{{ tffile "examples/resources/netbox_ip_address/standalone.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
+
+{{ if .HasImport -}}
+## Import
+
+Import is supported using the following syntax:
+
+{{ printf "{{codefile \"shell\" %q}}" .ImportFile }}
+{{- end }}

@@ -7,6 +7,7 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxRackRole() *schema.Resource {
@@ -26,9 +27,10 @@ func resourceNetboxRackRole() *schema.Resource {
 				Required: true,
 			},
 			"slug": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"description": {
 				Type:     schema.TypeString,
