@@ -36,6 +36,46 @@ resource "netbox_vlan_group" "test_group" {
 }
 `, testName)
 }
+
+func testAccNetboxVlanWithCustomFields(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_vlan" "test_with_custom_fields" {
+  name          = "%s"
+  vid           = 888
+  custom_fields = {
+    field1 = "value1"
+    field2 = "value2"
+  }
+}
+`, testName)
+}
+
+func TestAccNetboxVlan_customFields(t *testing.T) {
+	testSlug := "vlan_custom_fields"
+	testName := testAccGetTestName(testSlug)
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVlanWithCustomFields(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_custom_fields", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_custom_fields", "vid", "888"),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_custom_fields", "custom_fields.field1", "value1"),
+					resource.TestCheckResourceAttr("netbox_vlan.test_with_custom_fields", "custom_fields.field2", "value2"),
+				),
+			},
+			{
+				ResourceName:      "netbox_vlan.test_with_custom_fields",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxVlan_basic(t *testing.T) {
 	testSlug := "vlan_basic"
 	testName := testAccGetTestName(testSlug)

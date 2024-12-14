@@ -62,7 +62,8 @@ func resourceNetboxVlan() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
-			tagsKey: tagsSchema,
+			"custom_fields": customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -98,6 +99,10 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 
 	if roleID, ok := d.GetOk("role_id"); ok {
 		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	if customFields, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = getCustomFields(customFields)
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
@@ -136,6 +141,12 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("vid", vlan.Vid)
 	d.Set("description", vlan.Description)
 	d.Set(tagsKey, getTagListFromNestedTagList(vlan.Tags))
+
+	if vlan.CustomFields != nil {
+		d.Set(customFieldsKey, vlan.CustomFields)
+	} else {
+		d.Set(customFieldsKey, nil)
+	}
 
 	if vlan.Status != nil {
 		d.Set("status", vlan.Status.Value)
@@ -184,6 +195,10 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if roleID, ok := d.GetOk("role_id"); ok {
 		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	if customFields, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = getCustomFields(customFields)
 	}
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
