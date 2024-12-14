@@ -22,6 +22,20 @@ resource "netbox_vlan" "test_3" {
   name = "VLAN1236"
   vid  = 1236
 }
+  type = "text"
+  content_types = ["ipam.vlan"]
+  weight = 100
+  default = "red"
+  validation_regex = "^.*$"
+}
+resource "netbox_custom_field" "test_field2" {
+  name = "field2"
+  type = "text"
+  content_types = ["ipam.vlan"]
+  weight = 100
+  default = "red"
+  validation_regex = "^.*$"
+}
 resource "netbox_vlan" "test_with_custom_fields" {
   name = "VLAN_CUSTOM"
   vid  = 999

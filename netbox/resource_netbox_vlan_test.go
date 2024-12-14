@@ -39,6 +39,22 @@ resource "netbox_vlan_group" "test_group" {
 
 func testAccNetboxVlanWithCustomFields(testName string) string {
 	return fmt.Sprintf(`
+resource "netbox_custom_field" "test_field1" {
+  name = "field1"
+  type = "text"
+  content_types = ["ipam.vlan"]
+  weight = 100
+  default = "red"
+  validation_regex = "^.*$"
+}
+resource "netbox_custom_field" "test_field2" {
+  name = "field2"
+  type = "text"
+  content_types = ["ipam.vlan"]
+  weight = 100
+  default = "red"
+  validation_regex = "^.*$"
+}
 resource "netbox_vlan" "test_with_custom_fields" {
   name          = "%s"
   vid           = 888
