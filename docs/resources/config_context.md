@@ -18,7 +18,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/models/extra
 ```terraform
 resource "netbox_config_context" "test" {
   name = "%s"
-  data = jsonencode({"testkey" = "testval"})
+  data = jsonencode({ "testkey" = "testval" })
 }
 ```
 
