@@ -100,7 +100,7 @@ for more information on available lookup expressions.`,
 				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
 			customFieldsKey: customFieldsSchemaRead,
-			tagsKey: tagsSchemaRead,
+			tagsKey:         tagsSchemaRead,
 		},
 	}
 }

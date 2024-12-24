@@ -51,7 +51,7 @@ Each location must have a name that is unique within its parent site and locatio
 				Optional: true,
 			},
 			customFieldsKey: customFieldsSchema,
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
 		},
 		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{

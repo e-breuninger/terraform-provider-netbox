@@ -54,7 +54,7 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Optional: true,
 			},
 			customFieldsKey: customFieldsSchemaRead,
-			tagsKey: tagsSchemaRead,
+			tagsKey:         tagsSchemaRead,
 		},
 	}
 }

@@ -134,7 +134,7 @@ func resourceNetboxDevice() *schema.Resource {
 				Description: "This is best managed through the use of `jsonencode` and a map of settings.",
 			},
 			customFieldsKey: customFieldsSchema,
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
 		},
 		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{

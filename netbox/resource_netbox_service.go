@@ -66,7 +66,7 @@ func resourceNetboxService() *schema.Resource {
 				ExactlyOneOf: []string{"virtual_machine_id", "device_id"},
 			},
 			customFieldsKey: customFieldsSchema,
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
 		},
 		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{

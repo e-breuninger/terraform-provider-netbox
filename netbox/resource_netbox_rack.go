@@ -143,7 +143,7 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Optional: true,
 			},
 			customFieldsKey: customFieldsSchema,
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
 		},
 		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{

@@ -108,7 +108,7 @@ func resourceNetboxIPAddress() *schema.Resource {
 				},
 			},
 			customFieldsKey: customFieldsSchema,
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
 		},
 		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{

@@ -136,7 +136,7 @@ func dataSourceNetboxRacks() *schema.Resource {
 							Computed: true,
 						},
 						customFieldsKey: customFieldsSchemaRead,
-						tagsKey: tagsSchemaRead,
+						tagsKey:         tagsSchemaRead,
 					},
 				},
 			},
