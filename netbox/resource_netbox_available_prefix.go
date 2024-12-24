@@ -76,6 +76,7 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			customFieldsKey: customFieldsSchema,
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
