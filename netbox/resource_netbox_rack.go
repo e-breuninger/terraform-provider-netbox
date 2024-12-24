@@ -57,7 +57,6 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Required:     true,
 				ValidateFunc: validation.IntBetween(1, 100),
 			},
-			tagsKey: tagsSchema,
 			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -144,7 +143,9 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Optional: true,
 			},
 			customFieldsKey: customFieldsSchema,
+			tagsKey: tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -194,12 +195,9 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 	data.Description = getOptionalStr(d, "description", false)
 	data.Comments = getOptionalStr(d, "comments", false)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimRacksCreateParams().WithData(&data)
 
@@ -308,10 +306,8 @@ func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", rack.Description)
 	d.Set("comments", rack.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
@@ -364,12 +360,9 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Description = getOptionalStr(d, "description", true)
 	data.Comments = getOptionalStr(d, "comments", true)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimRacksPartialUpdateParams().WithID(id).WithData(&data)
 

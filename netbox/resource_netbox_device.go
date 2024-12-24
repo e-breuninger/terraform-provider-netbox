@@ -80,7 +80,6 @@ func resourceNetboxDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			tagsKey: tagsSchema,
 			"primary_ipv4": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -135,7 +134,9 @@ func resourceNetboxDevice() *schema.Resource {
 				Description: "This is best managed through the use of `jsonencode` and a map of settings.",
 			},
 			customFieldsKey: customFieldsSchema,
+			tagsKey: tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -235,10 +236,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		}
 	}
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.CustomFields = computeCustomFieldsModel(d)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -350,10 +348,7 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("config_template_id", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 
 	d.Set("asset_tag", device.AssetTag)
 
@@ -481,10 +476,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		}
 	}
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
-	}
+	data.CustomFields = computeCustomFieldsModel(d)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 

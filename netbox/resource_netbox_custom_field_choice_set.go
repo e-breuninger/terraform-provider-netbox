@@ -76,7 +76,6 @@ A choice set must define a base choice set and/or a set of arbitrary extra choic
 				Description: "experimental",
 				Default:     false,
 			},
-			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,

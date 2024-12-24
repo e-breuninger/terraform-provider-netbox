@@ -27,7 +27,6 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				ValidateFunc:  validation.IsCIDR,
 				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
-			customFieldsKey: customFieldsSchema,
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -100,7 +99,8 @@ for more information on available lookup expressions.`,
 				Optional:     true,
 				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
-			"tags": tagsSchemaRead,
+			customFieldsKey: customFieldsSchemaRead,
+			tagsKey: tagsSchemaRead,
 		},
 	}
 }
@@ -189,12 +189,11 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("status", result.Status.Value)
 	d.Set("description", result.Description)
 	d.Set("family", int(*result.Family.Value))
-	d.Set("tags", getTagListFromNestedTagList(result.Tags))
 
-	cf := getCustomFields(result.CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, result.CustomFields)
+
+	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))
+
 	if result.Role != nil {
 		d.Set("role_id", result.Role.ID)
 	}

@@ -85,7 +85,6 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Default:      "active",
 				Description:  buildValidValueDescription(resourceNetboxVirtualMachineStatusOptions),
 			},
-			tagsKey: tagsSchema,
 			"primary_ipv4": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -100,7 +99,9 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Description: "This is best managed through the use of `jsonencode` and a map of settings.",
 			},
 			customFieldsKey: customFieldsSchema,
+			tagsKey: tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -192,12 +193,10 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	data.Status = d.Get("status").(string)
 
+	data.CustomFields = computeCustomFieldsModel(d)
+
 	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	data.Tags = tags
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
 
 	params := virtualization.NewVirtualizationVirtualMachinesCreateParams().WithData(&data)
 
@@ -314,12 +313,10 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	} else {
 		d.Set("status", nil)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(vm.Tags))
 
-	cf := getCustomFields(vm.CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
+	d.Set(tagsKey, getTagListFromNestedTagList(vm.Tags))
 
 	return diags
 }
@@ -408,12 +405,10 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
+	data.CustomFields = computeCustomFieldsModel(d)
+
 	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	data.Tags = tags
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
-	}
 
 	if d.HasChanges("comments") {
 		// check if comment is set

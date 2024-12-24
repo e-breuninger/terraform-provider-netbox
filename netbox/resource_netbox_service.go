@@ -60,20 +60,15 @@ func resourceNetboxService() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"device_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ExactlyOneOf: []string{"virtual_machine_id", "device_id"},
 			},
 			customFieldsKey: customFieldsSchema,
+			tagsKey: tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -116,20 +111,15 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		data.VirtualMachine = &dataVirtualMachineID
 	}
 
-	v := d.Get("tags")
-	tags, _ := getNestedTagListFromResourceDataSet(api, v)
-	data.Tags = tags
-
 	if v, ok := d.GetOk("description"); ok {
 		data.Description = v.(string)
 	}
 
 	data.Ipaddresses = []int64{}
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.CustomFields = computeCustomFieldsModel(d)
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamServicesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamServicesCreate(params, nil)
@@ -176,19 +166,9 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("device_id", nil)
 	}
 
-	if tags := res.GetPayload().Tags; tags != nil {
-		var tagList []interface{}
-		for _, tag := range tags {
-			tagName := tag.Name
-			tagList = append(tagList, *tagName)
-		}
-		d.Set("tags", tagList)
-	}
+	d.Set(customFieldsKey, computeCustomFieldsAttr(res.GetPayload().CustomFields))
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -220,10 +200,6 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Ipaddresses = []int64{}
 
-	v := d.Get("tags")
-	tags, _ := getNestedTagListFromResourceDataSet(api, v)
-	data.Tags = tags
-
 	if v, ok := d.GetOk("description"); ok {
 		data.Description = v.(string)
 	}
@@ -238,10 +214,9 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		data.VirtualMachine = &dataVirtualMachineID
 	}
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
-	}
+	data.CustomFields = computeCustomFieldsModel(d)
+
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := ipam.NewIpamServicesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamServicesUpdate(params, nil)
