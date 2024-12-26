@@ -28,10 +28,10 @@ func dataSourceNetboxPrefix() *schema.Resource {
 			},
 			customFieldsKey: customFieldsSchema,
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				Description:  "Description to include in the data source filter.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Description to include in the data source filter.",
 			},
 			"family": {
 				Type:         schema.TypeInt,
@@ -41,9 +41,9 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Description:  "The IP family of the prefix. One of 4 or 6",
 			},
 			"role_id": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"prefix": {
 				Type:          schema.TypeString,
@@ -58,21 +58,21 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
-				Type:         schema.TypeInt,
-				Optional:     true,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"vlan_id": {
-				Type:         schema.TypeInt,
-				Optional:     true,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"site_id": {
-				Type:         schema.TypeInt,
-				Optional:     true,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"tag": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  "Tag to include in the data source filter (must match the tag's slug).",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Tag to include in the data source filter (must match the tag's slug).",
 			},
 			"tag__n": {
 				Type:     schema.TypeString,
