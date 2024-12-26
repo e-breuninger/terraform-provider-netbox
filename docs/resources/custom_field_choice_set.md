@@ -39,6 +39,7 @@ resource "netbox_custom_field_choice_set" "test" {
 ### Optional
 
 - `base_choices` (String) Valid values are `IATA`, `ISO_3166` and `UN_LOCODE`. At least one of `base_choices` or `extra_choices` must be given.
+- `custom_fields` (Map of String)
 - `description` (String)
 - `extra_choices` (List of List of String) This length of the inner lists must be exactly two, where the first value is the value of a choice and the second value is the label of the choice. At least one of `base_choices` or `extra_choices` must be given.
 - `order_alphabetically` (Boolean) experimental. Defaults to `false`.
