@@ -53,7 +53,7 @@ resource "netbox_prefix" "testv4" {
 
 resource "netbox_prefix" "testv6" {
   prefix      = "%[3]s"
-  status      = "active"
+  status      = "container"
   vrf_id      = netbox_vrf.test.id
   vlan_id     = netbox_vlan.test.id
   tenant_id   = netbox_tenant.test.id
@@ -110,6 +110,11 @@ data "netbox_prefix" "by_role_id" {
   role_id    = netbox_ipam_role.test.id
 }
 
+data "netbox_prefix" "by_status" {
+  depends_on = [netbox_prefix.testv4]
+  status     = "active"
+}
+
 data "netbox_prefix" "by_family" {
   depends_on = [netbox_prefix.testv6]
 	family   = 6
@@ -126,6 +131,7 @@ data "netbox_prefix" "by_family" {
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_tenant_id", "id", "netbox_prefix.testv4", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_site_id", "id", "netbox_prefix.testv4", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_role_id", "id", "netbox_prefix.testv4", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_status", "id", "netbox_prefix.testv4", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_family", "id", "netbox_prefix.testv6", "id"),
 				),
 			},
