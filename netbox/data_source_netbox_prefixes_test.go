@@ -28,14 +28,14 @@ resource "netbox_prefix" "test_prefix1" {
 
 resource "netbox_prefix" "test_prefix2" {
   prefix  = "%[3]s"
-  status  = "active"
+  status  = "container"
   vrf_id  = netbox_vrf.test_vrf.id
   vlan_id = netbox_vlan.test_vlan2.id
 }
 
 resource "netbox_prefix" "without_vrf_and_vlan" {
   prefix = "%[4]s"
-  status = "active"
+  status = "container"
 }
 
 resource "netbox_tenant" "test" {
@@ -44,7 +44,7 @@ resource "netbox_tenant" "test" {
 
 resource "netbox_prefix" "with_tenant_id" {
   prefix    = "%[5]s"
-  status    = "active"
+  status    = "container"
   tenant_id = netbox_tenant.test.id
 }
 
@@ -55,7 +55,7 @@ resource "netbox_site" "test" {
 
 resource "netbox_prefix" "with_site_id" {
   prefix  = "%[6]s"
-  status  = "active"
+  status  = "container"
   site_id = netbox_site.test.id
 }
 
@@ -116,6 +116,14 @@ data "netbox_prefixes" "by_tag" {
   }
 }
 
+data "netbox_prefixes" "by_status" {
+  depends_on = [netbox_prefix.test_prefix1]
+  filter {
+    name  = "status"
+    value = "active"
+  }
+}
+
 data "netbox_prefixes" "no_results" {
   depends_on = [netbox_prefix.test_prefix1]
   filter {
@@ -163,6 +171,8 @@ data "netbox_prefixes" "find_prefix_with_contains" {
 					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vid", "prefixes.0.vlan_vid", "netbox_vlan.test_vlan1", "vid"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_tag", "prefixes.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_tag", "prefixes.0.description", "my-description"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.by_status", "prefixes.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.by_status", "prefixes.0.description", "my-description"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.no_results", "prefixes.#", "0"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_tenant_id", "prefixes.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_tenant_id", "prefixes.0.prefix", "10.0.7.0/24"),
