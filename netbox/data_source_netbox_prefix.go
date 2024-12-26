@@ -103,6 +103,7 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*client.NetBoxAPI)
 
 	params := ipam.NewIpamPrefixesListParams()
+	var opts []ipam.ClientOption
 
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
@@ -155,7 +156,11 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		params.Tagn = &tagn
 	}
 
-	res, err := api.Ipam.IpamPrefixesList(params, nil)
+	if cfm, ok := d.Get(customFieldsKey).(map[string]interface{}); ok {
+		opts = append(opts, WithCustomFieldParamsOption(cfm))
+	}
+
+	res, err := api.Ipam.IpamPrefixesList(params, nil, opts...)
 	if err != nil {
 		return err
 	}
