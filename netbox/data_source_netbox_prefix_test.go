@@ -147,7 +147,9 @@ resource "netbox_prefix" "test" {
 
 data "netbox_prefix" "test_output" {
   depends_on = [netbox_prefix.test]
-  prefix = "%[2]s"
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "test value"
+  }
 }`, testField, testPrefix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "status", "active"),
