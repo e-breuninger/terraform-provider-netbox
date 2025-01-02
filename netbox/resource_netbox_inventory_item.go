@@ -85,9 +85,10 @@ func resourceNetboxInventoryItem() *schema.Resource {
 				Optional:     true,
 				RequiredWith: []string{"component_type"},
 			},
-			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -118,12 +119,9 @@ func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) er
 		data.ComponentID = getOptionalInt(d, "component_id")
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimInventoryItemsCreateParams().WithData(&data)
 
@@ -188,10 +186,8 @@ func resourceNetboxInventoryItemRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("component_type", item.ComponentType)
 	d.Set("component_id", item.ComponentID)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
@@ -224,12 +220,9 @@ func resourceNetboxInventoryItemUpdate(d *schema.ResourceData, m interface{}) er
 		data.ComponentID = getOptionalInt(d, "component_id")
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimInventoryItemsPartialUpdateParams().WithID(id).WithData(&data)
 

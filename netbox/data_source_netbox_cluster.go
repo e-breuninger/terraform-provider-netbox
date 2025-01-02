@@ -53,11 +53,8 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"custom_fields": {
-				Type:     schema.TypeMap,
-				Computed: true,
-			},
-			tagsKey: tagsSchemaRead,
+			customFieldsKey: customFieldsSchemaRead,
+			tagsKey:         tagsSchemaRead,
 		},
 	}
 }
@@ -116,10 +113,10 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("site_id", nil)
 	}
-	if result.CustomFields != nil {
-		d.Set("custom_fields", result.CustomFields)
-	}
+
+	d.Set(customFieldsKey, result.CustomFields)
 
 	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))
+
 	return nil
 }

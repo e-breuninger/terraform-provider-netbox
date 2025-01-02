@@ -67,7 +67,6 @@ func dataSourceNetboxRacks() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						tagsKey: tagsSchemaRead,
 						"tenant_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -136,10 +135,8 @@ func dataSourceNetboxRacks() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"custom_fields": {
-							Type:     schema.TypeMap,
-							Computed: true,
-						},
+						customFieldsKey: customFieldsSchemaRead,
+						tagsKey:         tagsSchemaRead,
 					},
 				},
 			},
@@ -246,7 +243,6 @@ func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
 			mapping["width"] = v.Width.Value
 		}
 		mapping["u_height"] = v.UHeight
-		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
 		if v.Tenant != nil {
 			mapping["tenant_id"] = v.Tenant.ID
 		}
@@ -273,7 +269,10 @@ func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
 		mapping["mounting_depth"] = v.MountingDepth
 		mapping["description"] = v.Description
 		mapping["comments"] = v.Comments
-		mapping["custom_fields"] = getCustomFields(v.CustomFields)
+
+		mapping[customFieldsKey] = v.CustomFields
+
+		mapping[tagsKey] = getTagListFromNestedTagList(v.Tags)
 
 		s = append(s, mapping)
 	}

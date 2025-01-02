@@ -100,6 +100,50 @@ resource "netbox_available_prefix" "test" {
 	})
 }
 
+func TestAccNetboxAvailablePrefix_cf(t *testing.T) {
+	testParentPrefix := "1.1.0.0/24"
+	testPrefixLength := 25
+	expectedPrefix := "1.1.0.0/25"
+	testSlug := "prefix_cf"
+	testDesc := "test cf prefix"
+	testName := testAccGetTestName(testSlug)
+
+	resourceName := "netbox_available_prefix.test"
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxAvailablePrefixFullDependencies(testName, testParentPrefix) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.prefix"]
+}
+
+resource "netbox_available_prefix" "test" {
+  parent_prefix_id = netbox_prefix.parent.id
+  prefix_length = %d
+  description = "%s"
+  status = "active"
+  tags = [netbox_tag.test.name]
+  mark_utilized = true
+  is_pool = true
+
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "test-field"
+  }
+}`, testSlug, testPrefixLength, testDesc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "prefix", expectedPrefix),
+					//resource.TestCheckResourceAttr("netbox_available_prefix.test", fmt.Sprintf("custom_fields.%s", testSlug), "test-field"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccNetboxAvailablePrefix_multiplePrefixesSerial(t *testing.T) {
 	testParentPrefix := "1.1.0.0/24"
 	testPrefixLength := 25
