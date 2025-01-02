@@ -26,7 +26,15 @@ resource "netbox_event_rule" "test" {
   content_types     = ["dcim.site", "virtualization.cluster"]
   action_type       = "webhook"
   action_object_id  = netbox_webhook.test.id
-  trigger_on_create = true
+  event_types       = [
+    "object_created",
+    "object_updated",
+    "object_deleted",
+    "job_started",
+    "job_completed",
+    "job_failed",
+    "job_errored"
+  ]
 }
 ```
 
@@ -38,6 +46,7 @@ resource "netbox_event_rule" "test" {
 - `action_object_id` (Number)
 - `action_type` (String) Valid values are `webhook`.
 - `content_types` (Set of String)
+- `event_types` (Set of String) The types of event which will trigger this rule. By default, valid values are `object_created`, `oject_updated`, `object_deleted`, `job_started`, `job_completed`, `job_failed` and `job_errored`.
 - `name` (String)
 
 ### Optional
@@ -46,11 +55,6 @@ resource "netbox_event_rule" "test" {
 - `description` (String)
 - `enabled` (Boolean) Defaults to `true`.
 - `tags` (Set of String)
-- `trigger_on_create` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
-- `trigger_on_delete` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
-- `trigger_on_job_end` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
-- `trigger_on_job_start` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
-- `trigger_on_update` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
 
 ### Read-Only
 
