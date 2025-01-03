@@ -50,31 +50,33 @@ func TestAccNetboxRack_basic(t *testing.T) {
 			{
 				Config: testAccNetboxRackFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_rack" "test" {
-  name = "%[1]s"
-  site_id = netbox_site.test.id
-  status = "reserved"
-  width = 19
-  u_height = 48
-  tags = ["%[1]sa"]
-  tenant_id = netbox_tenant.test.id
+  name        = "%[1]s"
+  site_id     = netbox_site.test.id
+  status      = "reserved"
+  width       = 19
+  u_height    = 48
+  tags        = ["%[1]sa"]
+  tenant_id   = netbox_tenant.test.id
   facility_id = "%[1]sfacility"
   location_id = netbox_location.test.id
-  role_id = netbox_rack_role.test.id
-  serial = "%[1]sserial"
-  asset_tag = "%[1]sasset_tag"
-  desc_units = true
+  role_id     = netbox_rack_role.test.id
+  serial      = "%[1]sserial"
+  asset_tag   = "%[1]sasset_tag"
+  desc_units  = true
   outer_width = 10
   outer_depth = 15
-  outer_unit = "mm"
-  comments = "%[1]scomments"
+  outer_unit  = "mm"
+  comments    = "%[1]scomments"
+  form_factor = "2-post-frame"
 }
+
 resource "netbox_rack" "test2" {
-  name = "%[1]s2"
-  site_id = netbox_site.test.id
+  name        = "%[1]s2"
+  site_id     = netbox_site.test.id
   location_id = netbox_location.test.id
-  status = "reserved"
-  width = 19
-  u_height = 48
+  status      = "reserved"
+  width       = 19
+  u_height    = 48
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -96,6 +98,7 @@ resource "netbox_rack" "test2" {
 					resource.TestCheckResourceAttr("netbox_rack.test", "outer_depth", "15"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "outer_unit", "mm"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "comments", testName+"comments"),
+					resource.TestCheckResourceAttr("netbox_rack.test", "form_factor", "2-post-frame"),
 
 					resource.TestCheckResourceAttr("netbox_rack.test2", "name", testName+"2"),
 					resource.TestCheckResourceAttrPair("netbox_rack.test2", "site_id", "netbox_site.test", "id"),
@@ -108,10 +111,10 @@ resource "netbox_rack" "test2" {
 			{
 				Config: testAccNetboxRackFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_rack" "test" {
-  name = "%[1]s"
-  site_id = netbox_site.test.id
-  status = "reserved"
-  width = 19
+  name     = "%[1]s"
+  site_id  = netbox_site.test.id
+  status   = "reserved"
+  width    = 19
   u_height = 48
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -137,6 +140,7 @@ resource "netbox_rack" "test" {
 					resource.TestCheckResourceAttr("netbox_rack.test", "mounting_depth", "0"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "description", ""),
 					resource.TestCheckResourceAttr("netbox_rack.test", "comments", ""),
+					resource.TestCheckResourceAttr("netbox_rack.test", "form_factor", ""),
 				),
 			},
 			{
@@ -147,6 +151,62 @@ resource "netbox_rack" "test" {
 		},
 	})
 }
+
+/*
+Not sure if creating a rack from rack type is a sustainable process when using terraform
+func TestAccNetboxRack_fromRackType(t *testing.T) {
+	testSlug := "rack_fromType"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRackDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_site" "test" {
+  name   = "%[1]s"
+  status = "active"
+}
+
+resource "netbox_rack_type" "test" {
+  model             = "%[1]s"
+  manufacturer_id   = netbox_manufacturer.test.id
+  width             = 19
+  u_height          = 48
+  starting_unit     = 1
+  form_factor       = "2-post-frame"
+}
+
+resource "netbox_rack" "test" {
+  name = "%[1]s"
+  site_id = netbox_site.test.id
+  status = "active"
+  comments = "%[1]scomments"
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_rack.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_rack.test", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttr("netbox_rack.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_rack.test", "width", "19"),
+					resource.TestCheckResourceAttr("netbox_rack.test", "u_height", "48"),
+					resource.TestCheckResourceAttr("netbox_rack.test", "tags.#", "1"),
+				),
+			},
+			{
+				ResourceName:      "netbox_rack.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+*/
 
 func testAccCheckRackDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
