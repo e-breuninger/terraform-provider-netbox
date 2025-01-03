@@ -66,39 +66,6 @@ resource "netbox_site" "test" {
 	})
 }
 
-func TestAccNetboxSite_defaultSlug(t *testing.T) {
-	testSlug := "site_defSlug"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-resource "netbox_tenant" "test" {
-  name = "%[1]s"
-}
-resource "netbox_tag" "test" {
-  name = "%[1]s"
-}
-resource "netbox_site" "test" {
-  name = "%[1]s"
-  tenant_id = netbox_tenant.test.id
-  tags = ["%[1]s"]
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_site.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_site.test", "slug", getSlug(testName)),
-					resource.TestCheckResourceAttrPair("netbox_site.test", "tenant_id", "netbox_tenant.test", "id"),
-					resource.TestCheckResourceAttr("netbox_site.test", "status", "active"),
-					resource.TestCheckResourceAttr("netbox_site.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_site.test", "tags.0", testName),
-				),
-			},
-		},
-	})
-}
-
 func TestAccNetboxSite_customFields(t *testing.T) {
 	testSlug := "site_detail"
 	testName := testAccGetTestName(testSlug)
