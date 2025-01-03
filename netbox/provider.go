@@ -122,6 +122,7 @@ func Provider() *schema.Provider {
 			"netbox_location":                   resourceNetboxLocation(),
 			"netbox_site_group":                 resourceNetboxSiteGroup(),
 			"netbox_rack":                       resourceNetboxRack(),
+			"netbox_rack_type":                  resourceNetboxRackType(),
 			"netbox_rack_role":                  resourceNetboxRackRole(),
 			"netbox_rack_reservation":           resourceNetboxRackReservation(),
 			"netbox_cable":                      resourceNetboxCable(),
