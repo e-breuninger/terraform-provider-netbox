@@ -28,8 +28,8 @@ func testAccNetboxTagsByName() string {
 	return `
 data "netbox_tags" "test" {
   filter {
-	name  = "name"
-	value = "Tag1234"
+    name  = "name"
+    value = "Tag1234"
   }
 }`
 }
@@ -38,8 +38,8 @@ func testAccNetboxTagsBySlug() string {
 	return `
 data "netbox_tags" "test" {
   filter {
-	name = "slug"
-	value = "weird"
+    name = "slug"
+    value = "weird"
   }
 }`
 }

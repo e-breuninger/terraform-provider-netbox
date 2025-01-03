@@ -14,7 +14,7 @@ import (
 func testAccNetboxVlanGroupFullDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_tag" "test" {
-	name = "%[1]s"
+  name = "%[1]s"
 }
 
 resource "netbox_site" "test" {
@@ -26,8 +26,6 @@ resource "netbox_site" "test" {
 func TestAccNetboxVlanGroup_basic(t *testing.T) {
 	testSlug := "vlan_group_basic"
 	testName := testAccGetTestName(testSlug)
-	testMinVid := "777"
-	testMaxVid := "1777"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -35,19 +33,20 @@ func TestAccNetboxVlanGroup_basic(t *testing.T) {
 			{
 				Config: testAccNetboxVlanGroupFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vlan_group" "test_basic" {
-  name    = "%s"
-  slug    = "%s"
-  min_vid = "%s"
-  max_vid = "%s"
-  tags    = []
-}`, testName, testSlug, testMinVid, testMaxVid),
+  name       = "%s"
+  slug       = "%s"
+  vid_ranges  = [[1, 2], [3, 4]]
+  tags       = []
+}`, testName, testSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "name", testName),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "slug", testSlug),
-					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "min_vid", testMinVid),
-					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "max_vid", testMaxVid),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "description", ""),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "tags.#", "0"),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.0.0", "1"),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.0.1", "2"),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.1.0", "3"),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.1.1", "4"),
 				),
 			},
 			{
@@ -62,8 +61,6 @@ resource "netbox_vlan_group" "test_basic" {
 func TestAccNetboxVlanGroup_with_dependencies(t *testing.T) {
 	testSlug := "vlan_group_with_dependencies"
 	testName := testAccGetTestName(testSlug)
-	testMinVid := "777"
-	testMaxVid := "1777"
 	testDescription := "Test Description"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -75,17 +72,14 @@ resource "netbox_vlan_group" "test_with_dependencies" {
   name        = "%s"
   slug        = "%s"
   description = "%s"
-  min_vid     = "%s"
-  max_vid     = "%s"
   scope_type  = "dcim.site"
   scope_id    = netbox_site.test.id
+  vid_ranges  = [[1, 4094]]
   tags        = [netbox_tag.test.name]
-}`, testName, testSlug, testDescription, testMinVid, testMaxVid),
+}`, testName, testSlug, testDescription),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_with_dependencies", "name", testName),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_with_dependencies", "slug", testSlug),
-					resource.TestCheckResourceAttr("netbox_vlan_group.test_with_dependencies", "min_vid", testMinVid),
-					resource.TestCheckResourceAttr("netbox_vlan_group.test_with_dependencies", "max_vid", testMaxVid),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_with_dependencies", "description", testDescription),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_with_dependencies", "scope_type", "dcim.site"),
 					resource.TestCheckResourceAttrPair("netbox_vlan_group.test_with_dependencies", "scope_id", "netbox_site.test", "id"),

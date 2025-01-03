@@ -38,30 +38,14 @@ func resourceNetboxEventRule() *schema.Resource {
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"trigger_on_create": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
-			},
-			"trigger_on_update": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
-			},
-			"trigger_on_delete": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
-			},
-			"trigger_on_job_start": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
-			},
-			"trigger_on_job_end": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
+			"event_types": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem: &schema.Schema{
+					// We do not enforce event-type validation, because plugins might extend the list of valid events
+					Type: schema.TypeString,
+				},
+				Description: "The types of event which will trigger this rule. By default, valid values are `object_created`, `oject_updated`, `object_deleted`, `job_started`, `job_completed`, `job_failed` and `job_errored`",
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
@@ -109,16 +93,12 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 	// Currently, we just support the webhook action type
 	data.ActionObjectType = strToPtr("extras.webhook")
 
-	triggerOnCreate := d.Get("trigger_on_create").(bool)
-	data.TypeCreate = triggerOnCreate
-	triggerOnUpdate := d.Get("trigger_on_update").(bool)
-	data.TypeUpdate = triggerOnUpdate
-	triggerOnDelete := d.Get("trigger_on_delete").(bool)
-	data.TypeDelete = triggerOnDelete
-	triggerOnJobStart := d.Get("trigger_on_job_start").(bool)
-	data.TypeJobStart = triggerOnJobStart
-	triggerOnJobEnd := d.Get("trigger_on_job_end").(bool)
-	data.TypeJobEnd = triggerOnJobEnd
+	eventTypes := make([]string, 0)
+	for _, eventType := range d.Get("event_types").(*schema.Set).List() {
+		eventTypes = append(eventTypes, eventType.(string))
+	}
+	data.EventTypes = eventTypes
+
 	enabled := d.Get("enabled").(bool)
 	data.Enabled = enabled
 	data.ActionObjectID = getOptionalInt(d, "action_object_id")
@@ -176,12 +156,8 @@ func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", eventRule.Description)
 	d.Set("action_type", eventRule.ActionType.Value)
 	d.Set("content_types", eventRule.ObjectTypes)
+	d.Set("event_types", eventRule.EventTypes)
 
-	d.Set("trigger_on_create", eventRule.TypeCreate)
-	d.Set("trigger_on_update", eventRule.TypeUpdate)
-	d.Set("trigger_on_delete", eventRule.TypeDelete)
-	d.Set("trigger_on_job_start", eventRule.TypeJobStart)
-	d.Set("trigger_on_job_end", eventRule.TypeJobEnd)
 	d.Set("enabled", eventRule.Enabled)
 	d.Set("action_object_id", eventRule.ActionObjectID)
 
@@ -213,16 +189,12 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 	// Currently, we just support the webhook action type
 	data.ActionObjectType = strToPtr("extras.webhook")
 
-	triggerOnCreate := d.Get("trigger_on_create").(bool)
-	data.TypeCreate = triggerOnCreate
-	triggerOnUpdate := d.Get("trigger_on_update").(bool)
-	data.TypeUpdate = triggerOnUpdate
-	triggerOnDelete := d.Get("trigger_on_delete").(bool)
-	data.TypeDelete = triggerOnDelete
-	triggerOnJobStart := d.Get("trigger_on_job_start").(bool)
-	data.TypeJobStart = triggerOnJobStart
-	triggerOnJobEnd := d.Get("trigger_on_job_end").(bool)
-	data.TypeJobEnd = triggerOnJobEnd
+	eventTypes := make([]string, 0)
+	for _, eventType := range d.Get("event_types").(*schema.Set).List() {
+		eventTypes = append(eventTypes, eventType.(string))
+	}
+	data.EventTypes = eventTypes
+
 	enabled := d.Get("enabled").(bool)
 	data.Enabled = enabled
 	data.ActionObjectID = getOptionalInt(d, "action_object_id")

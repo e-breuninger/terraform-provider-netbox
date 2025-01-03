@@ -27,12 +27,11 @@ resource "netbox_site" "test" {
 }
 
 resource "netbox_vlan_group" "test_group" {
-	name       = "%[1]s"
-	slug       = "%[1]s"
-	min_vid    = 1
-	max_vid    = 4094
-	scope_type = "dcim.site"
-	scope_id   = netbox_site.test.id
+  name       = "%[1]s"
+  slug       = "%[1]s"
+  scope_type = "dcim.site"
+  scope_id   = netbox_site.test.id
+  vid_ranges = [[1, 4094]]
 }
 `, testName)
 }

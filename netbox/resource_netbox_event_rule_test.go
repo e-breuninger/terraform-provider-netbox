@@ -27,16 +27,12 @@ resource "netbox_webhook" "test" {
 }
 
 resource "netbox_event_rule" "test" {
-  name                 = "%[1]s"
-  description          = "foo description"
-  content_types        = ["dcim.site"]
-  action_type          = "webhook"
-  action_object_id     = netbox_webhook.test.id
-  trigger_on_create    = true
-  trigger_on_update    = true
-  trigger_on_delete    = true
-  trigger_on_job_start = true
-  trigger_on_job_end   = true
+  name             = "%[1]s"
+  description      = "foo description"
+  content_types    = ["dcim.site"]
+  action_type      = "webhook"
+  action_object_id = netbox_webhook.test.id
+  event_types      = ["object_created", "object_updated", "object_deleted", "job_started", "job_completed", "job_failed", "job_errored"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_event_rule.test", "name", testName),
@@ -44,11 +40,7 @@ resource "netbox_event_rule" "test" {
 					resource.TestCheckResourceAttr("netbox_event_rule.test", "content_types.0", "dcim.site"),
 					resource.TestCheckResourceAttr("netbox_event_rule.test", "action_type", "webhook"),
 					resource.TestCheckResourceAttr("netbox_event_rule.test", "description", "foo description"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_create", "true"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_update", "true"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_delete", "true"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_job_start", "true"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_job_end", "true"),
+					resource.TestCheckResourceAttr("netbox_event_rule.test", "event_types.#", "7"),
 				),
 			},
 			{
@@ -59,11 +51,11 @@ resource "netbox_webhook" "test" {
 }
 
 resource "netbox_event_rule" "test" {
-  name                 = "%[1]s"
-  content_types        = ["dcim.site", "virtualization.cluster"]
-  action_type          = "webhook"
-  action_object_id     = netbox_webhook.test.id
-  trigger_on_create    = true
+  name             = "%[1]s"
+  content_types    = ["dcim.site", "virtualization.cluster"]
+  action_type      = "webhook"
+  action_object_id = netbox_webhook.test.id
+  event_types      = ["object_created"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_event_rule.test", "name", testName),
@@ -71,11 +63,7 @@ resource "netbox_event_rule" "test" {
 					resource.TestCheckResourceAttr("netbox_event_rule.test", "content_types.0", "dcim.site"),
 					resource.TestCheckResourceAttr("netbox_event_rule.test", "content_types.1", "virtualization.cluster"),
 					resource.TestCheckResourceAttr("netbox_event_rule.test", "action_type", "webhook"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_create", "true"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_update", "false"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_delete", "false"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_job_start", "false"),
-					resource.TestCheckResourceAttr("netbox_event_rule.test", "trigger_on_job_end", "false"),
+					resource.TestCheckResourceAttr("netbox_event_rule.test", "event_types.#", "1"),
 				),
 			},
 			{
