@@ -44,8 +44,6 @@ resource "netbox_rack" "test" {
 - `name` (String)
 - `site_id` (Number)
 - `status` (String) Valid values are `reserved`, `available`, `planned`, `active` and `deprecated`.
-- `u_height` (Number)
-- `width` (Number) Valid values are `10`, `19`, `21` and `23`.
 
 ### Optional
 
@@ -55,6 +53,7 @@ resource "netbox_rack" "test" {
 - `desc_units` (Boolean) If rack units are descending. Defaults to `false`.
 - `description` (String)
 - `facility_id` (String)
+- `form_factor` (String) Valid values are `2-post-frame`, `4-post-frame`, `4-post-cabinet`, `wall-frame`, `wall-frame-vertical`, `wall-cabinet` and `wall-cabinet-vertical`.
 - `location_id` (Number)
 - `max_weight` (Number)
 - `mounting_depth` (Number)
@@ -65,8 +64,10 @@ resource "netbox_rack" "test" {
 - `serial` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
+- `u_height` (Number)
 - `weight` (Number)
 - `weight_unit` (String) Valid values are `kg`, `g`, `lb` and `oz`. Required when `weight` and `max_weight` is set.
+- `width` (Number) Valid values are `10`, `19`, `21` and `23`.
 
 ### Read-Only
 

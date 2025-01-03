@@ -14,6 +14,7 @@ var resourceNetboxRackStatusOptions = []string{"reserved", "available", "planned
 var resourceNetboxRackWeightUnitOptions = []string{"kg", "g", "lb", "oz"}
 var resourceNetboxRackOuterUnitOptions = []string{"mm", "in"}
 var resourceNetboxRackWidthOptions = []int{10, 19, 21, 23}
+var resourceNetboxRackFormFactorOptions = []string{"2-post-frame", "4-post-frame", "4-post-cabinet", "wall-frame", "wall-frame-vertical", "wall-cabinet", "wall-cabinet-vertical"}
 
 func resourceNetboxRack() *schema.Resource {
 	return &schema.Resource{
@@ -46,14 +47,16 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Description:  buildValidValueDescription(resourceNetboxRackStatusOptions),
 			},
 			"width": {
-				Type:         schema.TypeInt,
-				Required:     true,
+				Type: schema.TypeInt,
+				//Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.IntInSlice(resourceNetboxRackWidthOptions),
 				Description:  "Valid values are `10`, `19`, `21` and `23`",
 			},
 			"u_height": {
-				Type:         schema.TypeInt,
-				Required:     true,
+				Type: schema.TypeInt,
+				//Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.IntBetween(1, 100),
 			},
 			tagsKey: tagsSchema,
@@ -137,6 +140,12 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Optional: true,
 			},
 			customFieldsKey: customFieldsSchema,
+			"form_factor": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice(resourceNetboxRackFormFactorOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxRackFormFactorOptions),
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -185,6 +194,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 	data.MountingDepth = getOptionalInt(d, "mounting_depth")
 	data.Description = getOptionalStr(d, "description", false)
 	data.Comments = getOptionalStr(d, "comments", false)
+	data.FormFactor = getOptionalStr(d, "form_factor", false)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -294,6 +304,12 @@ func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", rack.Description)
 	d.Set("comments", rack.Comments)
 
+	if rack.FormFactor != nil {
+		d.Set("form_factor", rack.FormFactor.Value)
+	} else {
+		d.Set("form_factor", nil)
+	}
+
 	cf := getCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
@@ -348,6 +364,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 	data.MountingDepth = getOptionalInt(d, "mounting_depth")
 	data.Description = getOptionalStr(d, "description", true)
 	data.Comments = getOptionalStr(d, "comments", true)
+	data.FormFactor = getOptionalStr(d, "form_factor", false)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
