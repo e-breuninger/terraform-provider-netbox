@@ -48,6 +48,10 @@ func dataSourceNetboxIPAddresses() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"assigned_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -84,7 +88,6 @@ func dataSourceNetboxIPAddresses() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"tenant": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -198,11 +201,11 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 		var mapping = make(map[string]interface{})
 
 		mapping["id"] = v.ID
+		mapping["assigned_id"] = v.AssignedObjectID
 		mapping["description"] = v.Description
 		mapping["created"] = v.Created.String()
 		mapping["last_updated"] = v.LastUpdated.String()
 		mapping["custom_fields"] = v.CustomFields
-
 		mapping["ip_address"] = v.Address
 		mapping["address_family"] = v.Family.Label
 		mapping["status"] = v.Status.Value
