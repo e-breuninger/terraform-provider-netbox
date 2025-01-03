@@ -31,10 +31,15 @@ resource "netbox_asn" "test" {
   asn    = 1337
   rir_id = netbox_rir.test.id
 
+  description = "test"
+  comments = "test"
+
   tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_asn.test", "asn", "1337"),
+					resource.TestCheckResourceAttr("netbox_asn.test", "description", "test"),
+					resource.TestCheckResourceAttr("netbox_asn.test", "comments", "test"),
 					resource.TestCheckResourceAttr("netbox_asn.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_asn.test", "tags.0", testName+"a"),
 				),
