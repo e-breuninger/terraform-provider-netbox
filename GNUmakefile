@@ -1,5 +1,5 @@
 TEST?=netbox/*.go
-TEST_FUNC?=TestAccNetboxRack_basic
+TEST_FUNC?=TestAccNetboxVirtualMachine*
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
 DOCKER_COMPOSE=docker compose
 

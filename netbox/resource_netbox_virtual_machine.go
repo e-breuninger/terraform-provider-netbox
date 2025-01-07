@@ -73,7 +73,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Optional: true,
 			},
-			"disk_size_gb": {
+			"disk_size_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -104,12 +104,17 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-		SchemaVersion: 1,
+		SchemaVersion: 2,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceNetboxVirtualMachineResourceV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceNetboxVirtualMachineStateUpgradeV0,
 				Version: 0,
+			},
+			{
+				Type:    resourceNetboxVirtualMachineResourceV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceNetboxVirtualMachineStateUpgradeV1,
+				Version: 1,
 			},
 		},
 	}
@@ -151,10 +156,10 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Memory = &memoryMb
 	}
 
-	diskSizeValue, ok := d.GetOk("disk_size_gb")
+	diskSizeValue, ok := d.GetOk("disk_size_mb")
 	if ok {
-		diskSizeMb := int64(diskSizeValue.(int)) * 1000
-		data.Disk = &diskSizeMb
+		diskSize := int64(diskSizeValue.(int))
+		data.Disk = &diskSize
 	}
 
 	tenantIDValue, ok := d.GetOk("tenant_id")
@@ -308,10 +313,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		d.Set("vcpus", nil)
 	}
 	d.Set("memory_mb", vm.Memory)
-	if vm.Disk != nil {
-		diskSizeGb := *vm.Disk / 1000
-		d.Set("disk_size_gb", diskSizeGb)
-	}
+	d.Set("disk_size_mb", vm.Disk)
 	if vm.Status != nil {
 		d.Set("status", vm.Status.Value)
 	} else {
@@ -384,10 +386,10 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.Vcpus = &vcpus
 	}
 
-	diskSizeValue, ok := d.GetOk("disk_size_gb")
+	diskSizeValue, ok := d.GetOk("disk_size_mb")
 	if ok {
-		diskSizeMb := int64(diskSizeValue.(int)) * 1000
-		data.Disk = &diskSizeMb
+		diskSize := int64(diskSizeValue.(int))
+		data.Disk = &diskSize
 	}
 
 	primaryIP4Value, ok := d.GetOk("primary_ipv4")
