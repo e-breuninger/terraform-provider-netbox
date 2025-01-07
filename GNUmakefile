@@ -1,9 +1,9 @@
 TEST?=netbox/*.go
-TEST_FUNC?=TestAccNetboxRackType_basic
+TEST_FUNC?=TestAccNetboxRack_basic
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
 DOCKER_COMPOSE=docker compose
 
-export NETBOX_VERSION=v4.1.10
+export NETBOX_VERSION=v4.1.11
 export NETBOX_SERVER_URL=http://localhost:8001
 export NETBOX_API_TOKEN=0123456789abcdef0123456789abcdef01234567
 export NETBOX_TOKEN=$(NETBOX_API_TOKEN)
