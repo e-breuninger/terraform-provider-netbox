@@ -4,11 +4,11 @@ resource "netbox_webhook" "test" {
 }
 
 resource "netbox_event_rule" "test" {
-  name              = "my-event-rule"
-  content_types     = ["dcim.site", "virtualization.cluster"]
-  action_type       = "webhook"
-  action_object_id  = netbox_webhook.test.id
-  event_types       = [
+  name             = "my-event-rule"
+  content_types    = ["dcim.site", "virtualization.cluster"]
+  action_type      = "webhook"
+  action_object_id = netbox_webhook.test.id
+  event_types = [
     "object_created",
     "object_updated",
     "object_deleted",

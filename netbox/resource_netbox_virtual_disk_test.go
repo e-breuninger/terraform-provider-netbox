@@ -37,7 +37,7 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_disk" "test" {
 	name = "%[1]s"
 	description = "description"
-	size_gb = 30
+	size_mb = 30
 	virtual_machine_id = netbox_virtual_machine.test.id
 	tags = [netbox_tag.tag_a.name]
 }
@@ -60,7 +60,7 @@ resource "netbox_virtual_machine" "test" {
 resource "netbox_virtual_disk" "test" {
 	name = "%[1]s_updated"
 	description = "description updated"
-	size_gb = 60
+	size_mb = 60
 	virtual_machine_id = netbox_virtual_machine.test.id
 	tags = [netbox_tag.tag_a.name]
 }

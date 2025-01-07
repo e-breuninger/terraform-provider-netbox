@@ -77,7 +77,7 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"disk_size_gb": {
+						"disk_size_mb": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -244,7 +244,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			mapping["custom_fields"] = v.CustomFields
 		}
 		if v.Disk != nil {
-			mapping["disk_size_gb"] = *v.Disk / 1000
+			mapping["disk_size_mb"] = *v.Disk
 		}
 		if v.LocalContextData != nil {
 			if localContextData, err := json.Marshal(v.LocalContextData); err == nil {

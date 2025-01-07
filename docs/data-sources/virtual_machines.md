@@ -62,7 +62,7 @@ Read-Only:
 - `description` (String)
 - `device_id` (Number)
 - `device_name` (String)
-- `disk_size_gb` (Number)
+- `disk_size_mb` (Number)
 - `local_context_data` (String)
 - `memory_mb` (Number)
 - `name` (String)
