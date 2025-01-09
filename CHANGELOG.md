@@ -1,3 +1,21 @@
+## 3.10.0 (January 9th, 2025)
+
+**BREAKING CHANGES**
+
+NetBox 4.1 came with some breaking changes and these are reflected in the provider.
+
+* resource/netbox_event_rule: Replace `trigger_on_X` attributes with `event_types` list attribute
+* resource/netbox_racks: Remove `type` attribute
+* resource/netbox_virtual_disk: Change `size_gb` attribute to `size_mb`
+* resource/netbox_virtual_machine: Change `disk_size_gb` attribute to `disk_size_mb`
+* resource/netbox_vlan_group: Remove `min_vid` and `max_vid` attributes in favor of `vid_ranges` attribute
+
+ENHANCEMENTS
+
+provider: Now supports NetBox 4.1.x
+* **New Resource:** `netbox_rack_type`
+* resource/netbox_racks: Add `form_factor` attribute
+
 ## 3.9.3 (January 9th, 2025)
 
 ENHANCEMENTS
