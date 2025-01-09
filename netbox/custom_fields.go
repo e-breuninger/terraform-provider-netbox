@@ -52,5 +52,5 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 	if !ok || len(cfm) == 0 {
 		return nil
 	}
-	return cfm
+	flattenMap(cfm)
 }
