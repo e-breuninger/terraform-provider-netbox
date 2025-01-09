@@ -14,7 +14,7 @@ func TestAccNetboxPrefixDataSource_basic(t *testing.T) {
 	testSlug := "prefix_ds_basic"
 	testVlanVid := 4090
 	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -118,9 +118,7 @@ data "netbox_prefix" "by_status" {
 data "netbox_prefix" "by_family" {
   depends_on = [netbox_prefix.testv6]
 	family   = 6
-}
-
-`, testName, testv4Prefix, testv6Prefix, testVlanVid),
+}`, testName, testv4Prefix, testv6Prefix, testVlanVid),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_prefix", "id", "netbox_prefix.testv4", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_description", "id", "netbox_prefix.testv4", "id"),
