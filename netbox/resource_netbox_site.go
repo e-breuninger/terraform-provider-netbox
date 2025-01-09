@@ -83,7 +83,6 @@ func resourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			tagsKey: tagsSchema,
 			"timezone": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -96,7 +95,9 @@ func resourceNetboxSite() *schema.Resource {
 				},
 			},
 			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -173,12 +174,9 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimSitesCreateParams().WithData(&data)
 
@@ -243,10 +241,8 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("tenant_id", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
@@ -332,12 +328,9 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)
 

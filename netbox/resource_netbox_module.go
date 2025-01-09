@@ -58,9 +58,10 @@ Similar to devices, modules are instantiated from module types, and any componen
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -84,12 +85,9 @@ func resourceNetboxModuleCreate(d *schema.ResourceData, m interface{}) error {
 		data.AssetTag = &assetTag
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimModulesCreateParams().WithData(&data)
 
@@ -151,10 +149,8 @@ func resourceNetboxModuleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", module.Description)
 	d.Set("comments", module.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
@@ -179,12 +175,9 @@ func resourceNetboxModuleUpdate(d *schema.ResourceData, m interface{}) error {
 		data.AssetTag = &assetTag
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimModulesPartialUpdateParams().WithID(id).WithData(&data)
 

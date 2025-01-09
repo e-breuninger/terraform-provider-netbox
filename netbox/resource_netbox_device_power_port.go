@@ -59,9 +59,10 @@ func resourceNetboxDevicePowerPort() *schema.Resource {
 				Default:  false,
 				Optional: true,
 			},
-			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -83,12 +84,9 @@ func resourceNetboxDevicePowerPortCreate(d *schema.ResourceData, m interface{}) 
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimPowerPortsCreateParams().WithData(&data)
 
@@ -149,10 +147,8 @@ func resourceNetboxDevicePowerPortRead(d *schema.ResourceData, m interface{}) er
 	d.Set("description", powerPort.Description)
 	d.Set("mark_connected", powerPort.MarkConnected)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
@@ -175,12 +171,9 @@ func resourceNetboxDevicePowerPortUpdate(d *schema.ResourceData, m interface{}) 
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimPowerPortsPartialUpdateParams().WithID(id).WithData(&data)
 

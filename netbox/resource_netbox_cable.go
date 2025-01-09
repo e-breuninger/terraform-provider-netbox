@@ -80,9 +80,10 @@ func resourceNetboxCable() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -110,12 +111,9 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 	bTerminations := d.Get("b_termination").(*schema.Set)
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimCablesCreateParams().WithData(&data)
 
@@ -178,10 +176,8 @@ func resourceNetboxCableRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", cable.Description)
 	d.Set("comments", cable.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
@@ -210,12 +206,9 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 	bTerminations := d.Get("b_termination").(*schema.Set)
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimCablesPartialUpdateParams().WithID(id).WithData(&data)
 

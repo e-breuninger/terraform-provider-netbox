@@ -72,6 +72,7 @@ func resourceNetboxPrefix() *schema.Resource {
 			customFieldsKey: customFieldsSchema,
 			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -115,10 +116,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = cf
-	}
+	data.CustomFields = computeCustomFieldsModel(d)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -190,10 +188,7 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("role_id", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, computeCustomFieldsAttr(res.GetPayload().CustomFields))
 
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
@@ -242,9 +237,7 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
-	}
+	data.CustomFields = computeCustomFieldsModel(d)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 

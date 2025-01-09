@@ -43,9 +43,10 @@ func resourceNetboxDeviceModuleBay() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -63,12 +64,9 @@ func resourceNetboxDeviceModuleBayCreate(d *schema.ResourceData, m interface{}) 
 		Description: getOptionalStr(d, "description", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimModuleBaysCreateParams().WithData(&data)
 
@@ -112,10 +110,8 @@ func resourceNetboxDeviceModuleBayRead(d *schema.ResourceData, m interface{}) er
 	d.Set("position", moduleBay.Position)
 	d.Set("description", moduleBay.Description)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
@@ -134,12 +130,9 @@ func resourceNetboxDeviceModuleBayUpdate(d *schema.ResourceData, m interface{}) 
 		Description: getOptionalStr(d, "description", true),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimModuleBaysPartialUpdateParams().WithID(id).WithData(&data)
 

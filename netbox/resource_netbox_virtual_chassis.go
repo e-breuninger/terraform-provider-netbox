@@ -38,9 +38,10 @@ func resourceNetboxVirtualChassis() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -74,10 +75,7 @@ func resourceNetboxVirtualChassisCreate(ctx context.Context, d *schema.ResourceD
 		data.Comments = comments
 	}
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.CustomFields = computeCustomFieldsModel(d)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
@@ -119,10 +117,7 @@ func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("description", virtualChassis.Description)
 	d.Set("comments", virtualChassis.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
 
 	d.Set(tagsKey, getTagListFromNestedTagList(virtualChassis.Tags))
 	return nil
@@ -143,10 +138,7 @@ func resourceNetboxVirtualChassisUpdate(ctx context.Context, d *schema.ResourceD
 		data.Domain = domain
 	}
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.CustomFields = computeCustomFieldsModel(d)
 
 	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 

@@ -39,9 +39,10 @@ func resourceNetboxInventoryItemRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
+		CustomizeDiff: customFieldsDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -57,12 +58,9 @@ func resourceNetboxInventoryItemRoleCreate(d *schema.ResourceData, m interface{}
 		Color:       getOptionalStr(d, "color_hex", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimInventoryItemRolesCreateParams().WithData(&data)
 
@@ -99,10 +97,8 @@ func resourceNetboxInventoryItemRoleRead(d *schema.ResourceData, m interface{}) 
 	d.Set("color_hex", role.Color)
 	d.Set("description", role.Description)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	d.Set(customFieldsKey, res.GetPayload().CustomFields)
+
 	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
@@ -120,12 +116,9 @@ func resourceNetboxInventoryItemRoleUpdate(d *schema.ResourceData, m interface{}
 		Color:       getOptionalStr(d, "color_hex", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.CustomFields = computeCustomFieldsModel(d)
 
-	ct, ok := d.GetOk(customFieldsKey)
-	if ok {
-		data.CustomFields = ct
-	}
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 
 	params := dcim.NewDcimInventoryItemRolesPartialUpdateParams().WithID(id).WithData(&data)
 
