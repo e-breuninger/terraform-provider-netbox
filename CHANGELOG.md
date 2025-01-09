@@ -1,3 +1,14 @@
+## 3.9.3 (January 9th, 2025)
+
+ENHANCEMENTS
+
+* resource/netbox_custom_field: Add `default` attribute ([#647](https://github.com/e-breuninger/terraform-provider-netbox/pull/647) by [@jenxie](https://github.com/jenxie))
+* data-source/netbox_vlans: Allow filtering by `site_id` ([#654](https://github.com/e-breuninger/terraform-provider-netbox/pull/654) by [@i-am-smolli](https://github.com/i-am-smolli))
+* data-source/netbox_vlan_group: Make `name` and `slug` definitions optional when `scope_type` is defined ([#657](https://github.com/e-breuninger/terraform-provider-netbox/pull/657) by [@TGM](https://github.com/TGM))
+* resource/netbox_asn: Add `description` and `comments` attributes ([#664](https://github.com/e-breuninger/terraform-provider-netbox/pull/664) by [@ymylei](https://github.com/ymylei))
+* data-source/netbox_prefix: Allow searching by `tenant_id` and `status` ([#666](https://github.com/e-breuninger/terraform-provider-netbox/pull/666) by [@xabinapal](https://github.com/xabinapal))
+* data-source/netbox_prefixes: Allow searching by `tenant_id` ([#666](https://github.com/e-breuninger/terraform-provider-netbox/pull/666) by [@xabinapal](https://github.com/xabinapal))
+
 ## 3.9.2 (October 10th, 2024)
 
 ENHANCEMENTS
