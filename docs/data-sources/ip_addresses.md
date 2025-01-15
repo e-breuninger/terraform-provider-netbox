@@ -40,7 +40,6 @@ Required:
 Read-Only:
 
 - `address_family` (String)
-- `assigned_id` (Number)
 - `created` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
