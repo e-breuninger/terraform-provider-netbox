@@ -134,6 +134,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Optional:    true,
 				Description: "This is best managed through the use of `jsonencode` and a map of settings.",
 			},
+			"config_context": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -398,6 +402,14 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		}
 	} else {
 		d.Set("local_context_data", nil)
+	}
+
+	if device.ConfigContext != nil {
+		if jsonArr, err := json.Marshal(device.ConfigContext); err == nil {
+			d.Set("config_context", string(jsonArr))
+		}
+	} else {
+		d.Set("config_context", nil)
 	}
 
 	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
