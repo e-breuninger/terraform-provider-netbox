@@ -11,7 +11,7 @@ func TestAccNetboxDeviceInterfacesDataSource_basic(t *testing.T) {
 	testSlug := "dev_ifaces_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxDeviceInterfacesDataSourceDependencies(testName)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{

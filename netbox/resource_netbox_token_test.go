@@ -23,7 +23,7 @@ func TestAccNetboxToken_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_user" "test" {
   username = "%s"
-  password = "abcdefghijkl"
+  password = "Abcdefghijkl1"
 }
 
 resource "netbox_token" "test_basic" {

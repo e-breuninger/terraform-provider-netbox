@@ -36,17 +36,15 @@ data "netbox_vlan_group" "example3" {
 
 ### Optional
 
-- `name` (String) At least one of `name` or `slug` must be given.
+- `name` (String) At least one of `name`, `slug` or `scope_type` must be given.
 - `scope_id` (Number) Required when `scope_type` is set.
-- `scope_type` (String) Valid values are `dcim.location`, `dcim.site`, `dcim.sitegroup`, `dcim.region`, `dcim.rack`, `virtualization.cluster` and `virtualization.clustergroup`.
-- `slug` (String) At least one of `name` or `slug` must be given.
+- `scope_type` (String) Valid values are `dcim.location`, `dcim.site`, `dcim.sitegroup`, `dcim.region`, `dcim.rack`, `virtualization.cluster` and `virtualization.clustergroup`. At least one of `name`, `slug` or `scope_type` must be given.
+- `slug` (String) At least one of `name`, `slug` or `scope_type` must be given.
 
 ### Read-Only
 
 - `description` (String)
 - `id` (String) The ID of this resource.
-- `max_vid` (Number)
-- `min_vid` (Number)
 - `vlan_count` (Number)
 
 
