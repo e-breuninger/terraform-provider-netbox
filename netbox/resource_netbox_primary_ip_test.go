@@ -64,7 +64,7 @@ resource "netbox_virtual_machine" "test" {
   site_id = netbox_site.test.id
   comments = "thisisacomment"
   memory_mb = 1024
-  disk_size_gb = 256
+  disk_size_mb = 256
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
@@ -115,7 +115,7 @@ resource "netbox_primary_ip" "test_v4" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_mb", "256"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "planned"),
@@ -159,7 +159,7 @@ resource "netbox_primary_ip" "test_v6" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "comments", "thisisacomment"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_mb", "256"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "planned"),

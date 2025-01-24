@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var resourceNetboxDeviceStatusOptions = []string{"offline", "active", "planned", "staged", "failed", "inventory"}
+var resourceNetboxDeviceStatusOptions = []string{"offline", "active", "planned", "staged", "failed", "inventory", "decommissioning"}
 var resourceNetboxDeviceRackFaceOptions = []string{"front", "rear"}
 
 func resourceNetboxDevice() *schema.Resource {

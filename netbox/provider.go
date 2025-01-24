@@ -122,6 +122,7 @@ func Provider() *schema.Provider {
 			"netbox_location":                   resourceNetboxLocation(),
 			"netbox_site_group":                 resourceNetboxSiteGroup(),
 			"netbox_rack":                       resourceNetboxRack(),
+			"netbox_rack_type":                  resourceNetboxRackType(),
 			"netbox_rack_role":                  resourceNetboxRackRole(),
 			"netbox_rack_reservation":           resourceNetboxRackReservation(),
 			"netbox_cable":                      resourceNetboxCable(),
@@ -295,7 +296,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-		supportedVersions := []string{"4.0.0", "4.0.1", "4.0.2", "4.0.3", "4.0.5", "4.0.6", "4.0.7", "4.0.8", "4.0.9", "4.0.10", "4.0.11"}
+		supportedVersions := []string{"4.1.0", "4.1.1", "4.1.2", "4.1.3", "4.1.4", "4.1.5", "4.1.6", "4.1.7", "4.1.8", "4.1.10", "4.1.11"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
 			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864

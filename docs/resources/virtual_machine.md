@@ -33,7 +33,7 @@ data "netbox_cluster" "vmw_cluster_01" {
 resource "netbox_virtual_machine" "basic_vm" {
   cluster_id   = data.netbox_cluster.vmw_cluster_01.id
   name         = "myvm-2"
-  disk_size_gb = 40
+  disk_size_mb = 40000
   memory_mb    = 4092
   vcpus        = "2"
 }
@@ -50,7 +50,7 @@ data "netbox_tenant" "customer_a" {
 resource "netbox_virtual_machine" "full_vm" {
   cluster_id   = data.netbox_cluster.vmw_cluster_01.id
   name         = "myvm-3"
-  disk_size_gb = 40
+  disk_size_mb = 40000
   memory_mb    = 4092
   vcpus        = "2"
   role_id      = 31 // This corresponds to the Netbox ID for a given role
@@ -76,7 +76,7 @@ resource "netbox_virtual_machine" "full_vm" {
 - `custom_fields` (Map of String)
 - `description` (String)
 - `device_id` (Number)
-- `disk_size_gb` (Number)
+- `disk_size_mb` (Number)
 - `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 - `memory_mb` (Number)
 - `platform_id` (Number)

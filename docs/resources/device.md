@@ -71,7 +71,7 @@ resource "netbox_device" "test" {
 - `rack_id` (Number)
 - `rack_position` (Number)
 - `serial` (String)
-- `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `inventory`. Defaults to `active`.
+- `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed`, `inventory` and `decommissioning`. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `virtual_chassis_id` (Number) Required when `virtual_chassis_master` and `virtual_chassis_id` is set.

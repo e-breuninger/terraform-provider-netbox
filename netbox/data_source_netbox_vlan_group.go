@@ -19,32 +19,25 @@ func dataSourceNetboxVlanGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				AtLeastOneOf: []string{"name", "slug"},
+				AtLeastOneOf: []string{"name", "slug", "scope_type"},
 			},
 			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"name", "slug"},
+				AtLeastOneOf: []string{"name", "slug", "scope_type"},
 			},
 			"scope_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice(resourceNetboxVlanGroupScopeTypeOptions, false),
 				Description:  buildValidValueDescription(resourceNetboxVlanGroupScopeTypeOptions),
+				AtLeastOneOf: []string{"name", "slug", "scope_type"},
 			},
 			"scope_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"scope_type"},
-			},
-			"min_vid": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"max_vid": {
-				Type:     schema.TypeInt,
-				Computed: true,
 			},
 			"vlan_count": {
 				Type:     schema.TypeInt,
@@ -92,8 +85,6 @@ func dataSourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error 
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
-	d.Set("min_vid", result.MinVid)
-	d.Set("max_vid", result.MaxVid)
 	d.Set("vlan_count", result.VlanCount)
 	d.Set("description", result.Description)
 	return nil
