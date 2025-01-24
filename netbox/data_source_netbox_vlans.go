@@ -43,6 +43,10 @@ func dataSourceNetboxVlans() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"vid": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -172,6 +176,7 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 	for _, v := range filteredVlans {
 		var mapping = make(map[string]interface{})
 
+		mapping["id"] = v.ID
 		mapping["vid"] = v.Vid
 		mapping["name"] = v.Name
 		mapping["description"] = v.Description
