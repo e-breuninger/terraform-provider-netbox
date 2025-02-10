@@ -15,6 +15,85 @@ import (
 
 var resourceNetboxDeviceInterfaceModeOptions = []string{"access", "tagged", "tagged-all"}
 
+// factored out for reuse in `resource_netbox_available_interface.go`
+var resourceNetboxDeviceInterfaceSchema = map[string]*schema.Schema{
+	"name": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"device_id": {
+		Type:     schema.TypeInt,
+		Required: true,
+	},
+	"description": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"label": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"enabled": {
+		Type:     schema.TypeBool,
+		Optional: true,
+		Default:  true,
+	},
+	"lag_device_interface_id": {
+		Type:        schema.TypeInt,
+		Optional:    true,
+		Description: "If this device is a member of a LAG group, you can reference the LAG interface here.",
+	},
+	"mac_address": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ValidateFunc: validation.IsMACAddress,
+		// Netbox converts MAC addresses always to uppercase
+		DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+			return strings.EqualFold(old, new)
+		},
+	},
+	"mgmtonly": {
+		Type:     schema.TypeBool,
+		Optional: true,
+	},
+	"mode": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ValidateFunc: validation.StringInSlice(resourceNetboxDeviceInterfaceModeOptions, false),
+		Description:  buildValidValueDescription(resourceNetboxDeviceInterfaceModeOptions),
+	},
+	"mtu": {
+		Type:         schema.TypeInt,
+		Optional:     true,
+		ValidateFunc: validation.IntBetween(1, 65536),
+	},
+	"parent_device_interface_id": {
+		Type:        schema.TypeInt,
+		Optional:    true,
+		Description: "The netbox_device_interface id of the parent interface. Useful if this interface is a logical interface.",
+	},
+	"speed": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+	"type": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	tagsKey: tagsSchema,
+	"tagged_vlans": {
+		Type:     schema.TypeSet,
+		Optional: true,
+		Elem: &schema.Schema{
+			Type: schema.TypeInt,
+		},
+	},
+	"untagged_vlan": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+}
+
 func resourceNetboxDeviceInterface() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetboxDeviceInterfaceCreate,
@@ -25,83 +104,7 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/features/device/#interface):
 
 > Interfaces in NetBox represent network interfaces used to exchange data with connected devices. On modern networks, these are most commonly Ethernet, but other types are supported as well. IP addresses and VLANs can be assigned to interfaces.`,
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"device_id": {
-				Type:     schema.TypeInt,
-				Required: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"label": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-			"lag_device_interface_id": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "If this device is a member of a LAG group, you can reference the LAG interface here.",
-			},
-			"mac_address": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.IsMACAddress,
-				// Netbox converts MAC addresses always to uppercase
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return strings.EqualFold(old, new)
-				},
-			},
-			"mgmtonly": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"mode": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceInterfaceModeOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxDeviceInterfaceModeOptions),
-			},
-			"mtu": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(1, 65536),
-			},
-			"parent_device_interface_id": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "The netbox_device_interface id of the parent interface. Useful if this interface is a logical interface.",
-			},
-			"speed": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			tagsKey: tagsSchema,
-			"tagged_vlans": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeInt,
-				},
-			},
-			"untagged_vlan": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-		},
+		Schema: resourceNetboxDeviceInterfaceSchema,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
