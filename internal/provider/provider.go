@@ -123,7 +123,11 @@ func (p *netboxProvider) Metadata(ctx context.Context, req provider.MetadataRequ
 }
 
 func (p *netboxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		func() datasource.DataSource {
+			return &webhookDataSource{}
+		},
+	}
 }
 
 func (p *netboxProvider) Resources(ctx context.Context) []func() resource.Resource {
