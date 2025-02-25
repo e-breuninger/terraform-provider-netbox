@@ -1,7 +1,9 @@
 package netbox
 
 import (
+	"context"
 	"fmt"
+	"github.com/netbox-community/go-netbox/v4"
 	"log"
 	"strconv"
 	"strings"
@@ -9,8 +11,8 @@ import (
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccNetboxWebhook_basic(t *testing.T) {
@@ -19,8 +21,7 @@ func TestAccNetboxWebhook_basic(t *testing.T) {
 	testBodyTemplate := "Sample Body"
 	testAdditionalHeaders := "Authentication: Bearer abcdef123456"
 	resource.ParallelTest(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetBoxWebhookDestroy,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -100,8 +101,8 @@ func TestAccNetboxWebhook_import(t *testing.T) {
 	testPayloadURL := "https://test2.com/webhook"
 
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -124,7 +125,7 @@ resource "netbox_webhook" "test" {
 }
 
 func testAccCheckNetBoxWebhookDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*client.NetBoxAPI)
+	client := testAccProvider.Meta().(*netbox.APIClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "netbox_webhook" {
@@ -133,8 +134,9 @@ func testAccCheckNetBoxWebhookDestroy(s *terraform.State) error {
 
 		// Fetch the webhook by ID
 		// Retrieve our interface by referencing it's state ID for API lookup
-		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		webhook, err := client.Extras.ExtrasWebhooksRead(extras.NewExtrasWebhooksReadParams().WithID(stateID), nil)
+		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 32)
+		id := int32(stateID)
+		webhook, _, err := client.ExtrasAPI.ExtrasWebhooksRetrieve(context.Background(), id).Execute()
 		if err == nil && webhook != nil {
 			return fmt.Errorf("Webhook %s still exists", rs.Primary.ID)
 		}

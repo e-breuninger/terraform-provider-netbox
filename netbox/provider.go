@@ -139,7 +139,6 @@ func Provider() *schema.Provider {
 			"netbox_power_panel":                resourceNetboxPowerPanel(),
 			"netbox_inventory_item_role":        resourceNetboxInventoryItemRole(),
 			"netbox_inventory_item":             resourceNetboxInventoryItem(),
-			"netbox_webhook":                    resourceNetboxWebhook(),
 			"netbox_custom_field_choice_set":    resourceNetboxCustomFieldChoiceSet(),
 			"netbox_virtual_chassis":            resourceNetboxVirtualChassis(),
 			"netbox_virtual_disk":               resourceNetboxVirtualDisks(),
