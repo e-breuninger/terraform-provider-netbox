@@ -98,7 +98,6 @@ func Provider() *schema.Provider {
 			"netbox_primary_ip":                 resourceNetboxPrimaryIP(),
 			"netbox_device_primary_ip":          resourceNetboxDevicePrimaryIP(),
 			"netbox_device_role":                resourceNetboxDeviceRole(),
-			"netbox_tag":                        resourceNetboxTag(),
 			"netbox_cluster_group":              resourceNetboxClusterGroup(),
 			"netbox_site":                       resourceNetboxSite(),
 			"netbox_vlan":                       resourceNetboxVlan(),

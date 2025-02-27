@@ -366,17 +366,9 @@ func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	resp.Diagnostics.Append(testClient(r.provider.client)...)
 
 	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	//Validate that the APIClient exist.
-	if r.provider.client == nil {
-		resp.Diagnostics.AddError(
-			"Create: Unconfigured API Client",
-			"Expected configured API Client. Please report this issue to the provider developers.",
-		)
 		return
 	}
 	// Delete API call logic

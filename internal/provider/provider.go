@@ -127,6 +127,9 @@ func (p *netboxProvider) DataSources(ctx context.Context) []func() datasource.Da
 		func() datasource.DataSource {
 			return &webhookDataSource{}
 		},
+		func() datasource.DataSource {
+			return &tagDataSource{}
+		},
 	}
 }
 
@@ -134,6 +137,9 @@ func (p *netboxProvider) Resources(ctx context.Context) []func() resource.Resour
 	return []func() resource.Resource{
 		func() resource.Resource {
 			return &webhookResource{}
+		},
+		func() resource.Resource {
+			return &tagResource{}
 		},
 	}
 }
