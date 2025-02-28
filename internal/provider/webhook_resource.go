@@ -276,7 +276,7 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 
 	// Read API call logic
 	errors := r.readAPI(ctx, &data, api_res)
-	if errors != nil {
+	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
 	}
@@ -312,7 +312,7 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	// Read API call logic
 	errors := r.readAPI(ctx, &data, webhook)
-	if errors != nil {
+	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
 	}
@@ -353,7 +353,7 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	// Read API call logic
 	errors := r.readAPI(ctx, &data, webhook)
-	if errors != nil {
+	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
 	}

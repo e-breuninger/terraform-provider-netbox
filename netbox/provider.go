@@ -172,7 +172,6 @@ func Provider() *schema.Provider {
 			"netbox_site":              dataSourceNetboxSite(),
 			"netbox_location":          dataSourceNetboxLocation(),
 			"netbox_locations":         dataSourceNetboxLocations(),
-			"netbox_tag":               dataSourceNetboxTag(),
 			"netbox_tags":              dataSourceNetboxTags(),
 			"netbox_virtual_machines":  dataSourceNetboxVirtualMachine(),
 			"netbox_interfaces":        dataSourceNetboxInterfaces(),

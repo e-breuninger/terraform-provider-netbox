@@ -203,8 +203,8 @@ github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RR
 github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
 github.com/mitchellh/reflectwalk v1.0.2 h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=
 github.com/mitchellh/reflectwalk v1.0.2/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
-github.com/netbox-community/go-netbox/v4 v4.2.2-2 h1:Zs0omFWLFiAUqb+SYGG9fI7MrL5WUgewBOZgk58ewYw=
-github.com/netbox-community/go-netbox/v4 v4.2.2-2/go.mod h1:X7jbSuzejM0U5uy/ajXidRFEAshl6eKqrcinhMy4aAI=
+github.com/netbox-community/go-netbox/v4 v4.2.2-3 h1:NrAkuI41ExiYa6p1o7F0NvxcS2qxsVJfymR5hAZglDs=
+github.com/netbox-community/go-netbox/v4 v4.2.2-3/go.mod h1:X7jbSuzejM0U5uy/ajXidRFEAshl6eKqrcinhMy4aAI=
 github.com/oklog/run v1.1.0 h1:GEenZ1cK0+q0+wsJew9qUg/DyD8k3JzYsZAi5gYi2mA=
 github.com/oklog/run v1.1.0/go.mod h1:sVPdnTZT1zYwAJeCMu2Th4T21pA3FPOQRfWjQlk7DVU=
 github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=

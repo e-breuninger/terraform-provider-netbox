@@ -182,7 +182,7 @@ func (d *webhookDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		}
 	}
 	errors := d.readAPI(ctx, &data, webhook)
-	if errors != nil {
+	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
 	}

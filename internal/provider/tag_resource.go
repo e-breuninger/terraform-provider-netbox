@@ -6,6 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int32planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/netbox-community/go-netbox/v4"
 	"regexp"
@@ -72,6 +74,9 @@ func (r *tagResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:            true,
 				Description:         "A unique integer value identifying this tag.",
 				MarkdownDescription: "A unique integer value identifying this tag.",
+				PlanModifiers: []planmodifier.Int32{
+					int32planmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -82,6 +87,7 @@ func (r *tagResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 			"object_types": schema.ListAttribute{
 				ElementType: types.StringType,
 				Optional:    true,
+				Computed:    true,
 			},
 			"slug": schema.StringAttribute{
 				Computed: true,
@@ -135,13 +141,13 @@ func (r *tagResource) writeAPI(ctx context.Context, data *tagResourceModel) (*ne
 	tagRequest.Color = data.Color.ValueStringPointer()
 	tagRequest.Slug = data.Slug.ValueString()
 	tagRequest.Description = data.Description.ValueStringPointer()
-	elements := make([]string, 0, len(data.ObjectTypes.Elements()))
-	diagObjectType := data.ObjectTypes.ElementsAs(ctx, &elements, false)
-	diags.Append(diagObjectType...)
-	tagRequest.ObjectTypes = elements
-	if tagRequest.ObjectTypes == nil {
-		tagRequest.ObjectTypes = []string{}
+	if len(data.ObjectTypes.Elements()) > 0 {
+		elements := make([]string, 0, len(data.ObjectTypes.Elements()))
+		diagObjectTypeErrors := data.ObjectTypes.ElementsAs(ctx, &elements, false)
+		diags.Append(diagObjectTypeErrors...)
+		tagRequest.ObjectTypes = elements
 	}
+
 	return tagRequest, diags
 }
 
@@ -149,7 +155,7 @@ func (r *tagResource) ImportState(ctx context.Context, req resource.ImportStateR
 	id, err := strconv.Atoi(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to import Webhook. This method requires a integer.",
+			"Unable to import Tag. This method requires a integer.",
 			err.Error())
 		return
 	}
@@ -186,7 +192,7 @@ func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, re
 	// Example data value setting
 	errors := r.readAPI(ctx, &data, api_res)
 
-	if errors != nil {
+	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
 	}
@@ -214,7 +220,7 @@ func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 			return
 		} else {
 			resp.Diagnostics.AddError(
-				"Unable to retrieve Webhook value.",
+				"Unable to retrieve Tag value.",
 				err.Error(),
 			)
 			return
@@ -223,7 +229,7 @@ func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	errors := r.readAPI(ctx, &data, tag)
 
-	if errors != nil {
+	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
 	}
@@ -270,7 +276,7 @@ func (r *tagResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	errors := r.readAPI(ctx, &data, tag)
-	if errors != nil {
+	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
 	}
@@ -294,7 +300,7 @@ func (r *tagResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	if err != nil {
 		if httpCode != nil && httpCode.StatusCode != 404 {
 			resp.Diagnostics.AddError(
-				"Unable to update Tag.",
+				"Unable to delete Tag.",
 				err.Error(),
 			)
 			return

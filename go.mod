@@ -16,7 +16,7 @@ require (
 	github.com/hashicorp/terraform-plugin-mux v0.18.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.36.1
 	github.com/hashicorp/terraform-plugin-testing v1.11.0
-	github.com/netbox-community/go-netbox/v4 v4.2.2-2
+	github.com/netbox-community/go-netbox/v4 v4.2.2-3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8

@@ -3,11 +3,16 @@ package provider
 import (
 	"context"
 	"fmt"
+	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/goware/urlx"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/netbox-community/go-netbox/v4"
+	"net/http"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -78,6 +83,42 @@ func (p *netboxProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	apiToken := os.Getenv("NETBOX_API_TOKEN")
 	serverUrl := os.Getenv("NETBOX_SERVER_URL")
 
+	insecureHttps := false
+	if os.Getenv("NETBOX_ALLOW_INSECURE_HTTPS") != "" {
+		var err error
+		insecureHttps, err = strconv.ParseBool(os.Getenv("NETBOX_ALLOW_INSECURE_HTTPS"))
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to decode NETBOX_ALLOW_INSECURE_HTTPS", err.Error())
+			return
+		}
+	} else if !data.AllowInsecureHttps.IsNull() {
+		insecureHttps = data.AllowInsecureHttps.ValueBool()
+	}
+
+	requestTimeout := 10
+	if os.Getenv("NETBOX_REQUEST_TIMEOUT") != "" {
+		var err error
+		requestTimeout, err = strconv.Atoi(os.Getenv("NETBOX_REQUEST_TIMEOUT"))
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to decode NETBOX_REQUEST_TIMEOUT", err.Error())
+			return
+		}
+	} else if !data.RequestTimeout.IsNull() {
+		requestTimeout = int(data.RequestTimeout.ValueInt32())
+	}
+
+	stripTrailingSlashesFromURL := true
+	if os.Getenv("NETBOX_STRIP_TRAILING_SLASHES_FROM_URL") != "" {
+		var err error
+		stripTrailingSlashesFromURL, err = strconv.ParseBool(os.Getenv("NETBOX_STRIP_TRAILING_SLASHES_FROM_URL"))
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to decode NETBOX_STRIP_TRAILING_SLASHES_FROM_URL", err.Error())
+			return
+		}
+	} else if !data.StripTrailingSlashesFromUrl.IsNull() {
+		stripTrailingSlashesFromURL = data.StripTrailingSlashesFromUrl.ValueBool()
+	}
+
 	if !data.ApiToken.IsNull() {
 		apiToken = data.ApiToken.ValueString()
 	}
@@ -90,14 +131,68 @@ func (p *netboxProvider) Configure(ctx context.Context, req provider.ConfigureRe
 		resp.Diagnostics.AddError(
 			"Missing API Token Configuration",
 			"TODO DETAIL")
+		return
 	}
 
 	if serverUrl == "" {
 		resp.Diagnostics.AddError(
 			"Missing server URL configuration.",
 			"TODO details")
+		return
 	}
-	c := netbox.NewAPIClientFor(serverUrl, apiToken)
+
+	if stripTrailingSlashesFromURL {
+		trimmed := false
+
+		// This is Go's poor man's while loop
+		for strings.HasSuffix(serverUrl, "/") {
+			serverUrl = strings.TrimRight(serverUrl, "/")
+			trimmed = true
+		}
+		if trimmed {
+			resp.Diagnostics.AddWarning("Stripped trailing slashes from the `server_url` parameter",
+				"Trailing slashes in the `server_url` parameter lead to problems in most setups, so all trailing slashes were stripped. Use the `strip_trailing_slashes_from_url` parameter to disable this feature or remove all trailing slashes in the `server_url` to disable this warning.")
+		}
+	}
+
+	config := netbox.NewConfiguration()
+
+	//Testing URL
+	parsedURL, urlParseError := urlx.Parse(serverUrl)
+	if urlParseError != nil {
+		resp.Diagnostics.AddError("Unable to parse server URL",
+			urlParseError.Error())
+		return
+	}
+	config.Servers[0].URL = parsedURL.String()
+
+	//Set Authorization token
+	config.AddDefaultHeader("Authorization", fmt.Sprintf("Token %v", apiToken))
+	config.AddDefaultHeader("Accept-Language", "en-US")
+
+	//Import all the headers
+	for index, entry := range data.Headers.Elements() {
+		config.AddDefaultHeader(index, entry.String())
+	}
+
+	//Build http client
+	clientOpts := httptransport.TLSClientOptions{
+		InsecureSkipVerify: insecureHttps,
+	}
+
+	trans, err := httptransport.TLSTransport(clientOpts)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to set TLS transport mode", err.Error())
+		return
+	}
+
+	trans.(*http.Transport).Proxy = http.ProxyFromEnvironment
+	httpClient := &http.Client{
+		Transport: trans,
+		Timeout:   time.Second * time.Duration(requestTimeout),
+	}
+	config.HTTPClient = httpClient
+	c := netbox.NewAPIClient(config)
 
 	if !data.SkipVersionCheck.ValueBool() {
 		response, _, err := c.StatusAPI.StatusRetrieve(ctx).Execute()
@@ -106,7 +201,7 @@ func (p *netboxProvider) Configure(ctx context.Context, req provider.ConfigureRe
 			return
 		}
 		netboxVersion := response["netbox-version"].(string)
-		supportedVersions := []string{"4.2.2"}
+		supportedVersions := []string{"4.2.4"}
 		if !slices.Contains(supportedVersions, netboxVersion) {
 			resp.Diagnostics.AddWarning("Possibly unsupported Netbox version", fmt.Sprintf("Your Netbox version is v%v. The provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", netboxVersion, strings.Join(supportedVersions, ", ")))
 		}
@@ -125,10 +220,10 @@ func (p *netboxProvider) Metadata(ctx context.Context, req provider.MetadataRequ
 func (p *netboxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		func() datasource.DataSource {
-			return &webhookDataSource{}
+			return &tagDataSource{}
 		},
 		func() datasource.DataSource {
-			return &tagDataSource{}
+			return &webhookDataSource{}
 		},
 	}
 }
