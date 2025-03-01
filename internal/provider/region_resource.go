@@ -54,7 +54,7 @@ func (r *regionResource) readAPI(ctx context.Context, data *regionResourceModel,
 	data.CustomFields = types.DynamicValue(customFieldResults)
 
 	tags := readTags(region.Tags)
-	tagsdata, diagdata := types.ListValueFrom(ctx, types.StringType, tags)
+	tagsdata, diagdata := types.ListValueFrom(ctx, types.Int32Type, tags)
 	if diagdata.HasError() {
 		diags.Append(diagdata...)
 		return diags
@@ -63,17 +63,17 @@ func (r *regionResource) readAPI(ctx context.Context, data *regionResourceModel,
 	return nil
 }
 
-func (r *regionResource) writeAPI(ctx context.Context, data *regionResourceModel) *netbox.WritableRegionRequest {
+func (r *regionResource) writeAPI(ctx context.Context, data *regionResourceModel) (*netbox.WritableRegionRequest, diag.Diagnostics) {
 	regionRequest := netbox.NewWritableRegionRequestWithDefaults()
 	regionRequest.Name = data.Name.ValueString()
 	regionRequest.Slug = data.Slug.ValueString()
 	regionRequest.Description = data.Description.ValueStringPointer()
 
 	var tagList []netbox.NestedTagRequest
-	for _, element := range data.Tags.Elements() {
-		tag := netbox.NewNestedTagRequestWithDefaults()
-		tag.Name = element.String()
-		tagList = append(tagList, *tag)
+	tagList, diags := writeTagsToApi(ctx, *r.provider.client, data.Tags)
+
+	if diags.HasError() {
+		return nil, diags
 	}
 	regionRequest.Tags = tagList
 
@@ -83,7 +83,7 @@ func (r *regionResource) writeAPI(ctx context.Context, data *regionResourceModel
 		regionRequest.Parent = *netbox.NewNullableInt32(data.Parent.ValueInt32Pointer())
 	}
 
-	return regionRequest
+	return regionRequest, nil
 }
 
 func (r *regionResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -130,7 +130,7 @@ func (r *regionResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"tags": schema.ListAttribute{
-				ElementType: types.StringType,
+				ElementType: types.Int32Type,
 				Optional:    true,
 				Computed:    true,
 			},
@@ -150,7 +150,11 @@ func (r *regionResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Create API call logic
-	regionRequest := r.writeAPI(ctx, &data)
+	regionRequest, diags := r.writeAPI(ctx, &data)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
 
 	api_res, _, err := r.provider.client.DcimAPI.DcimRegionsCreate(ctx).
 		WritableRegionRequest(*regionRequest).
@@ -225,7 +229,11 @@ func (r *regionResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Update API call logic
-	regionRequest := r.writeAPI(ctx, &data)
+	regionRequest, diags := r.writeAPI(ctx, &data)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
 
 	region, httpCode, err := r.provider.client.DcimAPI.DcimRegionsUpdate(ctx, data.Id.ValueInt32()).WritableRegionRequest(*regionRequest).Execute()
 

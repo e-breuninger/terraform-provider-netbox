@@ -10,7 +10,6 @@ import (
 	"testing"
 )
 
-// TODO: Test Tags
 // TODO: Test Custom fields
 func TestAccNetboxRegion_basic(t *testing.T) {
 	testSlug := "region_basic"
@@ -86,6 +85,42 @@ resource "netbox_region" "child" {
 `, testNameParent, testSlugParent, testNameChild, testSlugChild),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.CompareValuePairs("netbox_region.parent", tfjsonpath.New("id"), "netbox_region.child", tfjsonpath.New("parent"), compare.ValuesSame()),
+				},
+			},
+		},
+	})
+}
+
+func TestAccNetboxRegionTag(t *testing.T) {
+	testPrefix := "region_tag"
+	testNameRegion := testAccGetTestName(testPrefix)
+	testSlugRegion := testAccGetTestName(testPrefix)
+	testNameTag := testAccGetTestName(testPrefix)
+	testSlugTag := testAccGetTestName(testPrefix)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_tag" "test" {
+  name = "%s"
+  slug = "%s"
+  color = "112233"
+  description = "This is a test"
+}
+resource "netbox_region" "test" {
+	name = "%s"
+	slug = "%s"
+	tags = [netbox_tag.test.id]
+}
+`, testNameTag, testSlugTag, testNameRegion, testSlugRegion),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.CompareValueCollection("netbox_region.test", []tfjsonpath.Path{
+						tfjsonpath.New("tags"),
+					}, "netbox_tag.test", tfjsonpath.New("id"), compare.ValuesSame()),
 				},
 			},
 		},
