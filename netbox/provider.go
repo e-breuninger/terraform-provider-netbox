@@ -192,13 +192,13 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"server_url": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_SERVER_URL", nil),
 				Description: "Location of Netbox server including scheme (http or https) and optional port. Can be set via the `NETBOX_SERVER_URL` environment variable.",
 			},
 			"api_token": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_API_TOKEN", nil),
 				Description: "Netbox API authentication token. Can be set via the `NETBOX_API_TOKEN` environment variable.",
 			},
