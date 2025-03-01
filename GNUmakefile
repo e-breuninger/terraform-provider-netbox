@@ -24,7 +24,7 @@ testacc-specific-test: # docker-up
 
 .PHONY: test
 test:
-	go test $(TEST) internal/provider/... $(TESTARGS) -timeout=120s -parallel=4 -cover
+	go test $(TEST) internal/provider/*.go $(TESTARGS) -timeout=120s -parallel=4 -cover
 
 # Run dockerized Netbox for acceptance testing
 .PHONY: docker-up
