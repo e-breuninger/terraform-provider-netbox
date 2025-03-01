@@ -17,7 +17,7 @@ func NewTagDataSource() datasource.DataSource {
 }
 
 type tagDataSource struct {
-	provider *netboxProvider
+	NetboxDataSource
 }
 
 type tagDataSourceModel struct {
@@ -66,6 +66,7 @@ func (d *tagDataSource) Configure(ctx context.Context, req datasource.ConfigureR
 
 func (d *tagDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "Tags are user-defined labels which can be applied to a variety of objects within NetBox. They can be used to establish dimensions of organization beyond the relationships built into NetBox. For example, you might create a tag to identify a particular ownership or condition across several types of objects.",
 		Attributes: map[string]schema.Attribute{
 			"color": schema.StringAttribute{
 				Computed: true,

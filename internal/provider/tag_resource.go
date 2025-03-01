@@ -2,20 +2,17 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int32planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/netbox-community/go-netbox/v4"
 	"regexp"
-	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var _ resource.Resource = (*tagResource)(nil)
@@ -25,7 +22,7 @@ func NewTagResource() resource.Resource {
 }
 
 type tagResource struct {
-	provider *netboxProvider
+	NetboxResource
 }
 
 type tagResourceModel struct {
@@ -44,6 +41,7 @@ func (r *tagResource) Metadata(ctx context.Context, req resource.MetadataRequest
 
 func (r *tagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "Tags are user-defined labels which can be applied to a variety of objects within NetBox. They can be used to establish dimensions of organization beyond the relationships built into NetBox. For example, you might create a tag to identify a particular ownership or condition across several types of objects.",
 		Attributes: map[string]schema.Attribute{
 			"color": schema.StringAttribute{
 				Optional: true,
@@ -101,23 +99,6 @@ func (r *tagResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 	}
 }
 
-func (r *tagResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	provider, ok := req.ProviderData.(*netboxProvider)
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *netbox.apiCLient, got: %T, Please report this issue to the provider developers.", req.ProviderData),
-		)
-		return
-	}
-
-	r.provider = provider
-}
-
 func (r *tagResource) readAPI(ctx context.Context, data *tagResourceModel, tag *netbox.Tag) diag.Diagnostics {
 	var diags = diag.Diagnostics{}
 	data.Id = types.Int32Value(tag.Id)
@@ -149,17 +130,6 @@ func (r *tagResource) writeAPI(ctx context.Context, data *tagResourceModel) (*ne
 	}
 
 	return tagRequest, diags
-}
-
-func (r *tagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	id, err := strconv.Atoi(req.ID)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to import Tag. This method requires a integer.",
-			err.Error())
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
 }
 
 func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

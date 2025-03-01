@@ -104,7 +104,6 @@ func Provider() *schema.Provider {
 			"netbox_vlan_group":                 resourceNetboxVlanGroup(),
 			"netbox_ipam_role":                  resourceNetboxIpamRole(),
 			"netbox_ip_range":                   resourceNetboxIPRange(),
-			"netbox_region":                     resourceNetboxRegion(),
 			"netbox_aggregate":                  resourceNetboxAggregate(),
 			"netbox_rir":                        resourceNetboxRir(),
 			"netbox_route_target":               resourceNetboxRouteTarget(),

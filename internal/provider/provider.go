@@ -43,7 +43,7 @@ type netboxProviderModel struct {
 
 func (p *netboxProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
+		Attributes: map[string]schema.Attribute{ //TODO: you can do validators for URL straight here instead
 			"api_token": schema.StringAttribute{
 				MarkdownDescription: "Netbox API authentication token. Can be set via the `NETBOX_API_TOKEN` environment variable.",
 				Optional:            true,
@@ -235,6 +235,9 @@ func (p *netboxProvider) Resources(ctx context.Context) []func() resource.Resour
 		},
 		func() resource.Resource {
 			return &tagResource{}
+		},
+		func() resource.Resource {
+			return &regionResource{}
 		},
 	}
 }

@@ -35,7 +35,7 @@ type WebhookDataSourceModel struct {
 }
 
 type webhookDataSource struct {
-	provider *netboxProvider
+	NetboxDataSource
 }
 
 func (d *webhookDataSource) readAPI(ctx context.Context, data *WebhookDataSourceModel, webhook *netbox.Webhook) diag.Diagnostics {
@@ -95,6 +95,7 @@ func (d *webhookDataSource) Metadata(ctx context.Context, req datasource.Metadat
 
 func (d *webhookDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "A webhook is a mechanism for conveying to some external system a change that took place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver.",
 		Attributes: map[string]schema.Attribute{
 			"additional_headers": schema.StringAttribute{
 				Computed:            true,

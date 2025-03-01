@@ -2,10 +2,8 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -15,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/netbox-community/go-netbox/v4"
-	"strconv"
 )
 
 type WebhookModel struct {
@@ -41,11 +38,10 @@ func NewWebhookResource() resource.Resource {
 }
 
 type webhookResource struct {
-	provider *netboxProvider
+	NetboxResource
 }
 
 func (r *webhookResource) readAPI(ctx context.Context, data *WebhookModel, webhook *netbox.Webhook) diag.Diagnostics {
-	var diags = diag.Diagnostics{}
 	data.Id = types.Int32Value(webhook.Id)
 	data.Name = types.StringValue(webhook.Name)
 	data.PayloadUrl = types.StringValue(webhook.PayloadUrl)
@@ -64,11 +60,8 @@ func (r *webhookResource) readAPI(ctx context.Context, data *WebhookModel, webho
 	}
 
 	tags := readTags(webhook.Tags)
-	tagsdata, diagdata := types.ListValueFrom(ctx, types.StringType, tags)
-	if diagdata.HasError() {
-		diags.AddError(
-			"Error while reading Tags",
-			"") //TODO Better handling
+	tagsdata, diags := types.ListValueFrom(ctx, types.StringType, tags)
+	if diags.HasError() {
 		return diags
 	}
 	data.Tags = tagsdata
@@ -106,24 +99,10 @@ func (r *webhookResource) writeAPI(ctx context.Context, data *WebhookModel) *net
 		tag_list = append(tag_list, *tag)
 	}
 	webhookRequest.Tags = tag_list
+
+	webhookRequest.CustomFields = readCustomFieldsFromTerraform(data.CustomFields)
+
 	return webhookRequest
-}
-
-func (r *webhookResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	provider, ok := req.ProviderData.(*netboxProvider)
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *netbox.apiCLient, got: %T, Please report this issue to the provider developers.", req.ProviderData),
-		)
-		return
-	}
-
-	r.provider = provider
 }
 
 func (r *webhookResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -132,6 +111,7 @@ func (r *webhookResource) Metadata(ctx context.Context, req resource.MetadataReq
 
 func (r *webhookResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "A webhook is a mechanism for conveying to some external system a change that took place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver.",
 		Attributes: map[string]schema.Attribute{
 			"additional_headers": schema.StringAttribute{
 				Optional:            true,
@@ -235,16 +215,6 @@ func (r *webhookResource) Schema(ctx context.Context, req resource.SchemaRequest
 			},
 		},
 	}
-}
-func (r *webhookResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	id, err := strconv.Atoi(req.ID)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to import Webhook. This method requires a integer.",
-			err.Error())
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
 }
 
 func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -376,7 +346,7 @@ func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest
 	if err != nil {
 		if httpCode != nil && httpCode.StatusCode != 404 {
 			resp.Diagnostics.AddError(
-				"Unable to update Webhook.",
+				"Unable to delete Webhook.",
 				err.Error(),
 			)
 			return
