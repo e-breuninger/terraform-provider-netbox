@@ -1,7 +1,7 @@
 ---
 services:
   postgres:
-    image: postgres:12-alpine
+    image: postgres:13-alpine
     environment:
       - POSTGRES_USER=netbox
       - POSTGRES_PASSWORD=netbox
