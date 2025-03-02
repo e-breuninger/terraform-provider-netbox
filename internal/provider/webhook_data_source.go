@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -54,7 +55,7 @@ func (d *webhookDataSource) readAPI(ctx context.Context, data *WebhookDataSource
 		data.CaFilePath = types.StringPointerValue(webhook.CaFilePath.Get())
 	}
 
-	tags := readTags(webhook.Tags)
+	tags := helpers.ReadTagsFromAPI(webhook.Tags)
 	tagsdata, diagdata := types.ListValueFrom(ctx, types.StringType, tags)
 	if diagdata.HasError() {
 		diags.AddError(
@@ -64,7 +65,7 @@ func (d *webhookDataSource) readAPI(ctx context.Context, data *WebhookDataSource
 	}
 	data.Tags = tagsdata
 
-	customFields, diagData := types.MapValueFrom(ctx, types.StringType, readCustomFieldsFromAPI(webhook.CustomFields))
+	customFields, diagData := types.MapValueFrom(ctx, types.StringType, helpers.ReadCustomFieldsFromAPI(webhook.CustomFields))
 	if diagData.HasError() {
 		diags.Append()
 	}

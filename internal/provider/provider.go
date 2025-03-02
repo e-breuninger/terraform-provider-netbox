@@ -225,6 +225,9 @@ func (p *netboxProvider) DataSources(ctx context.Context) []func() datasource.Da
 		func() datasource.DataSource {
 			return &webhookDataSource{}
 		},
+		func() datasource.DataSource {
+			return &regionDataSource{}
+		},
 	}
 }
 

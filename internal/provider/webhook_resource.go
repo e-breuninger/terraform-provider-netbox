@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -59,14 +60,14 @@ func (r *webhookResource) readAPI(ctx context.Context, data *WebhookModel, webho
 		data.CaFilePath = types.StringPointerValue(webhook.CaFilePath.Get())
 	}
 
-	tags := readTags(webhook.Tags)
+	tags := helpers.ReadTagsFromAPI(webhook.Tags)
 	tagsdata, diags := types.ListValueFrom(ctx, types.StringType, tags)
 	if diags.HasError() {
 		return diags
 	}
 	data.Tags = tagsdata
 
-	customFieldsFromAPI, diagData := types.MapValueFrom(ctx, types.StringType, readCustomFieldsFromAPI(webhook.CustomFields))
+	customFieldsFromAPI, diagData := types.MapValueFrom(ctx, types.StringType, helpers.ReadCustomFieldsFromAPI(webhook.CustomFields))
 	if diagData.HasError() {
 		diags.Append()
 	}
@@ -110,7 +111,7 @@ func (r *webhookResource) writeAPI(ctx context.Context, data *WebhookModel) (*ne
 	}
 	webhookRequest.Tags = tag_list
 
-	webhookRequest.CustomFields = readCustomFieldsFromTerraform(data.CustomFields)
+	webhookRequest.CustomFields = helpers.ReadCustomFieldsFromTerraform(data.CustomFields)
 
 	return webhookRequest, diag.Diagnostics{}
 }

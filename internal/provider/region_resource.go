@@ -2,6 +2,8 @@ package provider
 
 import (
 	"context"
+	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/helpers"
+	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/models"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -24,70 +26,21 @@ type regionResource struct {
 	NetboxResource
 }
 
-type regionResourceModel struct {
-	CustomFields types.Map    `tfsdk:"custom_fields"`
-	Description  types.String `tfsdk:"description"`
-	Id           types.Int32  `tfsdk:"id"`
-	Name         types.String `tfsdk:"name"`
-	Parent       types.Int32  `tfsdk:"parent"`
-	Slug         types.String `tfsdk:"slug"`
-	Tags         types.List   `tfsdk:"tags"`
-}
-
-func (r *regionResource) readAPI(ctx context.Context, data *regionResourceModel, region *netbox.Region) diag.Diagnostics {
-	var diags = diag.Diagnostics{}
-	data.Id = types.Int32Value(region.Id)
-	data.Name = types.StringValue(region.Name)
-	data.Slug = types.StringValue(region.Slug)
-	data.Description = types.StringPointerValue(region.Description)
-
-	if region.Parent.Get() != nil {
-		data.Parent = types.Int32Value(region.Parent.Get().Id)
-	} else {
-		data.Parent = types.Int32Null()
-	}
-
-	customFieldsFromAPI, diagData := types.MapValueFrom(ctx, types.StringType, readCustomFieldsFromAPI(region.CustomFields))
-	if diagData.HasError() {
-		diags.Append()
-	}
-
-	//Let's only add custom fields that we know
-	if data.CustomFields.IsUnknown() {
-		data.CustomFields = customFieldsFromAPI
-	} else {
-		for k, _ := range data.CustomFields.Elements() {
-			if val, ok := customFieldsFromAPI.Elements()[k]; ok {
-				data.CustomFields.Elements()[k] = val
-			}
-		}
-	}
-
-	tags := readTags(region.Tags)
-	tagsdata, diagdata := types.ListValueFrom(ctx, types.Int32Type, tags)
-	if diagdata.HasError() {
-		diags.Append(diagdata...)
-		return diags
-	}
-	data.Tags = tagsdata
-	return nil
-}
-
-func (r *regionResource) writeAPI(ctx context.Context, data *regionResourceModel) (*netbox.WritableRegionRequest, diag.Diagnostics) {
+func (r *regionResource) writeAPI(ctx context.Context, data *models.RegionTerraformModel) (*netbox.WritableRegionRequest, diag.Diagnostics) {
 	regionRequest := netbox.NewWritableRegionRequestWithDefaults()
 	regionRequest.Name = data.Name.ValueString()
 	regionRequest.Slug = data.Slug.ValueString()
 	regionRequest.Description = data.Description.ValueStringPointer()
 
 	var tagList []netbox.NestedTagRequest
-	tagList, diags := writeTagsToApi(ctx, *r.provider.client, data.Tags)
+	tagList, diags := helpers.WriteTagsToApi(ctx, *r.provider.client, data.Tags)
 
 	if diags.HasError() {
 		return nil, diags
 	}
 	regionRequest.Tags = tagList
 
-	regionRequest.CustomFields = readCustomFieldsFromTerraform(data.CustomFields)
+	regionRequest.CustomFields = helpers.ReadCustomFieldsFromTerraform(data.CustomFields)
 
 	if !data.Parent.IsUnknown() {
 		regionRequest.Parent = *netbox.NewNullableInt32(data.Parent.ValueInt32Pointer())
@@ -102,6 +55,7 @@ func (r *regionResource) Metadata(ctx context.Context, req resource.MetadataRequ
 
 func (r *regionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):`,
 		Attributes: map[string]schema.Attribute{
 			"custom_fields": schema.MapAttribute{
 				ElementType: types.StringType,
@@ -150,7 +104,7 @@ func (r *regionResource) Schema(ctx context.Context, req resource.SchemaRequest,
 }
 
 func (r *regionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data regionResourceModel
+	var data models.RegionTerraformModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -180,7 +134,7 @@ func (r *regionResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Read API call logic
-	errors := r.readAPI(ctx, &data, api_res)
+	errors := data.ReadAPI(ctx, api_res)
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
@@ -191,7 +145,7 @@ func (r *regionResource) Create(ctx context.Context, req resource.CreateRequest,
 }
 
 func (r *regionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data regionResourceModel
+	var data models.RegionTerraformModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -218,7 +172,7 @@ func (r *regionResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Read API call logic
-	errors := r.readAPI(ctx, &data, region)
+	errors := data.ReadAPI(ctx, region)
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
@@ -229,7 +183,7 @@ func (r *regionResource) Read(ctx context.Context, req resource.ReadRequest, res
 }
 
 func (r *regionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data regionResourceModel
+	var data models.RegionTerraformModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -263,7 +217,7 @@ func (r *regionResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 	}
 
-	errors := r.readAPI(ctx, &data, region)
+	errors := data.ReadAPI(ctx, region)
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
@@ -274,7 +228,7 @@ func (r *regionResource) Update(ctx context.Context, req resource.UpdateRequest,
 }
 
 func (r *regionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data regionResourceModel
+	var data models.RegionTerraformModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
