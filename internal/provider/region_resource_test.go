@@ -148,11 +148,10 @@ resource "netbox_region" "test" {
 	name = "%s"
 	slug = "%s"
 	custom_fields = {
-	"%s" : "testcustomfield"
+	"${netbox_custom_field.test.name}" : "testcustomfield"
 	}
-	depends_on = [netbox_custom_field.test]
 }
-`, customFieldName, regionName, regionSlug, customFieldName),
+`, customFieldName, regionName, regionSlug),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(
 						"netbox_region.test",
