@@ -25,13 +25,13 @@ type regionResource struct {
 }
 
 type regionResourceModel struct {
-	CustomFields types.Dynamic `tfsdk:"custom_fields"`
-	Description  types.String  `tfsdk:"description"`
-	Id           types.Int32   `tfsdk:"id"`
-	Name         types.String  `tfsdk:"name"`
-	Parent       types.Int32   `tfsdk:"parent"`
-	Slug         types.String  `tfsdk:"slug"`
-	Tags         types.List    `tfsdk:"tags"`
+	CustomFields types.Map    `tfsdk:"custom_fields"`
+	Description  types.String `tfsdk:"description"`
+	Id           types.Int32  `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
+	Parent       types.Int32  `tfsdk:"parent"`
+	Slug         types.String `tfsdk:"slug"`
+	Tags         types.List   `tfsdk:"tags"`
 }
 
 func (r *regionResource) readAPI(ctx context.Context, data *regionResourceModel, region *netbox.Region) diag.Diagnostics {
@@ -47,11 +47,21 @@ func (r *regionResource) readAPI(ctx context.Context, data *regionResourceModel,
 		data.Parent = types.Int32Null()
 	}
 
-	customFieldResults, diags := readCustomFieldsFromAPI(region.CustomFields)
-	if diags.HasError() {
-		return diags
+	customFieldsFromAPI, diagData := types.MapValueFrom(ctx, types.StringType, readCustomFieldsFromAPI(region.CustomFields))
+	if diagData.HasError() {
+		diags.Append()
 	}
-	data.CustomFields = types.DynamicValue(customFieldResults)
+
+	//Let's only add custom fields that we know
+	if data.CustomFields.IsUnknown() {
+		data.CustomFields = customFieldsFromAPI
+	} else {
+		for k, _ := range data.CustomFields.Elements() {
+			if val, ok := customFieldsFromAPI.Elements()[k]; ok {
+				data.CustomFields.Elements()[k] = val
+			}
+		}
+	}
 
 	tags := readTags(region.Tags)
 	tagsdata, diagdata := types.ListValueFrom(ctx, types.Int32Type, tags)
@@ -93,9 +103,10 @@ func (r *regionResource) Metadata(ctx context.Context, req resource.MetadataRequ
 func (r *regionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"custom_fields": schema.DynamicAttribute{
-				Optional: true,
-				Computed: true,
+			"custom_fields": schema.MapAttribute{
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Optional: true,

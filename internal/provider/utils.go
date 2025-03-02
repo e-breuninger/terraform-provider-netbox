@@ -2,11 +2,9 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/netbox-community/go-netbox/v4"
 )
 
@@ -18,57 +16,27 @@ func readTags(tags []netbox.NestedTag) []int32 {
 	return tag_names
 }
 
-func readCustomFieldsFromAPI(customFields map[string]interface{}) (basetypes.ObjectValue, diag.Diagnostics) {
-
-	elementTypes := map[string]attr.Type{}
+func readCustomFieldsFromAPI(customFields map[string]interface{}) map[string]attr.Value {
 	elements := map[string]attr.Value{}
 	for k, v := range customFields {
-		switch value := v.(type) {
-		case int64:
-			elementTypes[k] = types.Int64Type
-			elements[k] = types.Int64Value(value)
-		case string:
-			elementTypes[k] = types.StringType
-			elements[k] = types.StringValue(value)
-		case bool:
-			elementTypes[k] = types.BoolType
-			elements[k] = types.BoolValue(value)
-		case float64:
-			elementTypes[k] = types.Float64Type
-			elements[k] = types.Float64Value(value)
-		case nil:
-			elementTypes[k] = types.StringType
+		if v == nil {
 			elements[k] = types.StringNull()
-		default:
-			var diags diag.Diagnostics
-			diags.AddError(fmt.Sprintf("Unknown type %T", v), "")
-			return basetypes.NewObjectUnknown(elementTypes), diags
+		} else {
+			elements[k] = types.StringValue(v.(string))
 		}
 
 	}
-	return types.ObjectValue(elementTypes, elements)
+	return elements
 }
 
-func readCustomFieldsFromTerraform(customFields types.Dynamic) map[string]interface{} {
-	//TODO: API Call to see if the type is OK
+func readCustomFieldsFromTerraform(customFields types.Map) map[string]interface{} {
+	result := make(map[string]interface{})
 	if !customFields.IsUnknown() {
-		var result map[string]interface{}
-		obj := customFields.UnderlyingValue().(types.Object)
-		for k, v := range obj.Attributes() {
-			switch value := v.(type) {
-			case types.Int64:
-				result[k] = value.ValueInt64()
-			case types.String:
-				result[k] = value.ValueString()
-			case types.Bool:
-				result[k] = value.ValueBool()
-			case types.Number:
-				result[k] = value.ValueBigFloat()
-			}
+		for k, v := range customFields.Elements() {
+			result[k] = v.(types.String).ValueString()
 		}
-		return result
 	}
-	return nil
+	return result
 }
 
 func testClient(client *netbox.APIClient) diag.Diagnostics {
@@ -87,21 +55,22 @@ func testClient(client *netbox.APIClient) diag.Diagnostics {
 func writeTagsToApi(ctx context.Context, client netbox.APIClient, terraformTags types.List) ([]netbox.NestedTagRequest, diag.Diagnostics) {
 	var diags = diag.Diagnostics{}
 	var tagList []netbox.NestedTagRequest
-
-	elements := make([]int32, 0, len(terraformTags.Elements()))
-	diagsConvert := terraformTags.ElementsAs(ctx, &elements, false)
-	if diagsConvert.HasError() {
-		diags.Append(diagsConvert...)
-		return nil, diags
+	if len(terraformTags.Elements()) > 0 {
+		elements := make([]int32, 0, len(terraformTags.Elements()))
+		diagsConvert := terraformTags.ElementsAs(ctx, &elements, false)
+		if diagsConvert.HasError() {
+			return nil, diagsConvert
+		}
+		paginatedTags, _, err := client.ExtrasAPI.ExtrasTagsList(ctx).Id(elements).Execute()
+		if err != nil {
+			diags.AddError("Unable to retrieve tags.",
+				err.Error())
+			return nil, diags
+		}
+		for _, element := range paginatedTags.Results {
+			tagList = append(tagList, *netbox.NewNestedTagRequest(element.Name, element.Slug))
+		}
+		return tagList, diags
 	}
-	paginatedTags, _, err := client.ExtrasAPI.ExtrasTagsList(ctx).Id(elements).Execute()
-	if err != nil {
-		diags.AddError("Unable to retrieve tags.",
-			err.Error())
-		return nil, diags
-	}
-	for _, element := range paginatedTags.Results {
-		tagList = append(tagList, *netbox.NewNestedTagRequest(element.Name, element.Slug))
-	}
-	return tagList, diags
+	return nil, nil
 }

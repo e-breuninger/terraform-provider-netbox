@@ -20,18 +20,18 @@ func NewWebhookDataSource() datasource.DataSource {
 }
 
 type WebhookDataSourceModel struct {
-	AdditionalHeaders types.String  `tfsdk:"additional_headers"`
-	BodyTemplate      types.String  `tfsdk:"body_template"`
-	CaFilePath        types.String  `tfsdk:"ca_file_path"`
-	CustomFields      types.Dynamic `tfsdk:"custom_fields"`
-	Description       types.String  `tfsdk:"description"`
-	HttpContentType   types.String  `tfsdk:"http_content_type"`
-	HttpMethod        types.String  `tfsdk:"http_method"`
-	Id                types.Int32   `tfsdk:"id"`
-	Name              types.String  `tfsdk:"name"`
-	PayloadUrl        types.String  `tfsdk:"payload_url"`
-	SslVerification   types.Bool    `tfsdk:"ssl_verification"`
-	Tags              types.List    `tfsdk:"tags"`
+	AdditionalHeaders types.String `tfsdk:"additional_headers"`
+	BodyTemplate      types.String `tfsdk:"body_template"`
+	CaFilePath        types.String `tfsdk:"ca_file_path"`
+	CustomFields      types.Map    `tfsdk:"custom_fields"`
+	Description       types.String `tfsdk:"description"`
+	HttpContentType   types.String `tfsdk:"http_content_type"`
+	HttpMethod        types.String `tfsdk:"http_method"`
+	Id                types.Int32  `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
+	PayloadUrl        types.String `tfsdk:"payload_url"`
+	SslVerification   types.Bool   `tfsdk:"ssl_verification"`
+	Tags              types.List   `tfsdk:"tags"`
 }
 
 type webhookDataSource struct {
@@ -64,11 +64,12 @@ func (d *webhookDataSource) readAPI(ctx context.Context, data *WebhookDataSource
 	}
 	data.Tags = tagsdata
 
-	customFieldResults, diags := readCustomFieldsFromAPI(webhook.CustomFields)
-	if diags.HasError() {
-		return diags
+	customFields, diagData := types.MapValueFrom(ctx, types.StringType, readCustomFieldsFromAPI(webhook.CustomFields))
+	if diagData.HasError() {
+		diags.Append()
 	}
-	data.CustomFields = types.DynamicValue(customFieldResults)
+
+	data.CustomFields = customFields
 	return nil
 }
 
@@ -112,8 +113,9 @@ func (d *webhookDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				Description:         "The specific CA certificate file to use for SSL verification. Leave blank to use the system defaults.",
 				MarkdownDescription: "The specific CA certificate file to use for SSL verification. Leave blank to use the system defaults.",
 			},
-			"custom_fields": schema.DynamicAttribute{
-				Computed: true,
+			"custom_fields": schema.MapAttribute{
+				ElementType: types.StringType,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Computed: true,

@@ -16,19 +16,19 @@ import (
 )
 
 type WebhookModel struct {
-	AdditionalHeaders types.String  `tfsdk:"additional_headers"`
-	BodyTemplate      types.String  `tfsdk:"body_template"`
-	CaFilePath        types.String  `tfsdk:"ca_file_path"`
-	CustomFields      types.Dynamic `tfsdk:"custom_fields"`
-	Description       types.String  `tfsdk:"description"`
-	HttpContentType   types.String  `tfsdk:"http_content_type"`
-	HttpMethod        types.String  `tfsdk:"http_method"`
-	Id                types.Int32   `tfsdk:"id"`
-	Name              types.String  `tfsdk:"name"`
-	PayloadUrl        types.String  `tfsdk:"payload_url"`
-	Secret            types.String  `tfsdk:"secret"`
-	SslVerification   types.Bool    `tfsdk:"ssl_verification"`
-	Tags              types.List    `tfsdk:"tags"`
+	AdditionalHeaders types.String `tfsdk:"additional_headers"`
+	BodyTemplate      types.String `tfsdk:"body_template"`
+	CaFilePath        types.String `tfsdk:"ca_file_path"`
+	CustomFields      types.Map    `tfsdk:"custom_fields"`
+	Description       types.String `tfsdk:"description"`
+	HttpContentType   types.String `tfsdk:"http_content_type"`
+	HttpMethod        types.String `tfsdk:"http_method"`
+	Id                types.Int32  `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
+	PayloadUrl        types.String `tfsdk:"payload_url"`
+	Secret            types.String `tfsdk:"secret"`
+	SslVerification   types.Bool   `tfsdk:"ssl_verification"`
+	Tags              types.List   `tfsdk:"tags"`
 }
 
 var _ resource.Resource = (*webhookResource)(nil)
@@ -66,15 +66,25 @@ func (r *webhookResource) readAPI(ctx context.Context, data *WebhookModel, webho
 	}
 	data.Tags = tagsdata
 
-	customFieldResults, diags := readCustomFieldsFromAPI(webhook.CustomFields)
-	if diags.HasError() {
-		return diags
+	customFieldsFromAPI, diagData := types.MapValueFrom(ctx, types.StringType, readCustomFieldsFromAPI(webhook.CustomFields))
+	if diagData.HasError() {
+		diags.Append()
 	}
-	data.CustomFields = types.DynamicValue(customFieldResults)
+
+	//Let's only add custom fields that we know
+	if data.CustomFields.IsUnknown() {
+		data.CustomFields = customFieldsFromAPI
+	} else {
+		for k, _ := range data.CustomFields.Elements() {
+			if val, ok := customFieldsFromAPI.Elements()[k]; ok {
+				data.CustomFields.Elements()[k] = val
+			}
+		}
+	}
 	return nil
 }
 
-func (r *webhookResource) writeAPI(ctx context.Context, data *WebhookModel) *netbox.WebhookRequest {
+func (r *webhookResource) writeAPI(ctx context.Context, data *WebhookModel) (*netbox.WebhookRequest, diag.Diagnostics) {
 	webhookRequest := netbox.NewWebhookRequestWithDefaults()
 	webhookRequest.Name = data.Name.ValueString()
 	webhookRequest.PayloadUrl = data.PayloadUrl.ValueString()
@@ -102,7 +112,7 @@ func (r *webhookResource) writeAPI(ctx context.Context, data *WebhookModel) *net
 
 	webhookRequest.CustomFields = readCustomFieldsFromTerraform(data.CustomFields)
 
-	return webhookRequest
+	return webhookRequest, diag.Diagnostics{}
 }
 
 func (r *webhookResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -134,9 +144,10 @@ func (r *webhookResource) Schema(ctx context.Context, req resource.SchemaRequest
 					stringvalidator.LengthAtMost(4096),
 				},
 			},
-			"custom_fields": schema.DynamicAttribute{
-				Optional: true,
-				Computed: true,
+			"custom_fields": schema.MapAttribute{
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Optional: true,
@@ -229,7 +240,7 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	// Create API call logic
-	webhookRequest := r.writeAPI(ctx, &data)
+	webhookRequest, _ := r.writeAPI(ctx, &data)
 
 	api_res, _, err := r.provider.client.ExtrasAPI.
 		ExtrasWebhooksCreate(ctx).
@@ -302,7 +313,7 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// Update API call logic
-	webhookRequest := r.writeAPI(ctx, &data)
+	webhookRequest, _ := r.writeAPI(ctx, &data)
 
 	webhook, httpCode, err := r.provider.client.ExtrasAPI.ExtrasWebhooksUpdate(ctx, data.Id.ValueInt32()).WebhookRequest(*webhookRequest).Execute()
 

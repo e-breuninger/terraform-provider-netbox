@@ -56,3 +56,8 @@ func testAccGetTestName(testSlug string) string {
 	randomString := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	return strings.Join([]string{testPrefix, testSlug, randomString}, "-")
 }
+
+func testAccGetTestCustomFieldName(testSlug string) string {
+	randomString := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	return strings.Join([]string{testPrefix, testSlug, randomString}, "_")
+}

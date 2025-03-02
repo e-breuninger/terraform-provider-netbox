@@ -10,7 +10,6 @@ import (
 	"testing"
 )
 
-// TODO: Test Custom fields
 func TestAccNetboxRegion_basic(t *testing.T) {
 	testSlug := "region_basic"
 	testName := testAccGetTestName(testSlug)
@@ -121,6 +120,43 @@ resource "netbox_region" "test" {
 					statecheck.CompareValueCollection("netbox_region.test", []tfjsonpath.Path{
 						tfjsonpath.New("tags"),
 					}, "netbox_tag.test", tfjsonpath.New("id"), compare.ValuesSame()),
+				},
+			},
+		},
+	})
+}
+
+func TestAccNetboxRegionCustomField(t *testing.T) {
+	testPrefix := "region_customfield"
+	customFieldName := testAccGetTestCustomFieldName(testPrefix)
+	regionName := testAccGetTestName(testPrefix)
+	regionSlug := testAccGetTestName(testPrefix)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name = "%s"
+  type = "text"
+  content_types = ["dcim.region"]
+}
+resource "netbox_region" "test" {
+	name = "%s"
+	slug = "%s"
+	custom_fields = {
+	"%s" : "testcustomfield"
+	}
+	depends_on = [netbox_custom_field.test]
+}
+`, customFieldName, regionName, regionSlug, customFieldName),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(
+						"netbox_region.test",
+						tfjsonpath.New("custom_fields").AtMapKey(customFieldName), knownvalue.StringExact("testcustomfield")),
 				},
 			},
 		},
