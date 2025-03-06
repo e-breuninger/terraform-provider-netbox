@@ -51,7 +51,6 @@ resource "netbox_user" "test_basic" {
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "active", "true"),
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "staff", "true"),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:      "netbox_user.test_basic",
