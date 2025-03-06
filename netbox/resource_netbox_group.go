@@ -23,6 +23,11 @@ func resourceNetboxGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
