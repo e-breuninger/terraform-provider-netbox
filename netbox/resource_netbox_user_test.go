@@ -33,6 +33,27 @@ resource "netbox_user" "test_basic" {
 				),
 			},
 			{
+				Config: fmt.Sprintf(`
+resource "netbox_user" "test_basic" {
+  username = "%s"
+  password = "Abcdefghijkl1"
+	email = "foo@bar.com"
+	first_name = "Hannah"
+	last_name = "Acker"
+  active = true
+  staff = true
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "username", testName),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "email", "foo@bar.com"),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "first_name", "Hannah"),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "last_name", "Acker"),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "active", "true"),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "staff", "true"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
 				ResourceName:      "netbox_user.test_basic",
 				ImportState:       true,
 				ImportStateVerify: false,
