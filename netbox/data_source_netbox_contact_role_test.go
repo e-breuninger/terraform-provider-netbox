@@ -11,7 +11,7 @@ func TestAccNetboxContactRoleDataSource_basic(t *testing.T) {
 	testSlug := "cntctrl_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

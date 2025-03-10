@@ -11,7 +11,7 @@ func TestAccNetboxLocationsDataSource_basic(t *testing.T) {
 	testSlug := "location_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -113,7 +113,7 @@ func TestAccNetboxLocationsDataSource_multiple(t *testing.T) {
 	testSlug := "location_ds_multiple"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -172,7 +172,7 @@ func TestAccNetboxLocationsDataSource_sublocations(t *testing.T) {
 	testSlug := "sublocations_ds_multiple"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

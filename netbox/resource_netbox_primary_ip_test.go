@@ -87,8 +87,8 @@ func TestAccNetboxPrimaryIP4_basic(t *testing.T) {
 	testSlug := "pr_ip_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxPrimaryIPFullDependencies(testName) + `
@@ -130,8 +130,8 @@ func TestAccNetboxPrimaryIP6_basic(t *testing.T) {
 	testSlug := "pr_ipv6_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxPrimaryIPFullDependencies(testName) + `

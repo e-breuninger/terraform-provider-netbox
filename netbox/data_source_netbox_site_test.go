@@ -75,7 +75,7 @@ func TestAccNetboxSiteDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("site_ds_basic")
 	setUp := testAccNetboxSiteSetUp(testName)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp,

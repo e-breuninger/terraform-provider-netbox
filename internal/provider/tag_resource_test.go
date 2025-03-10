@@ -18,7 +18,7 @@ func TestAccNetboxTagResource_basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			//Test creating basic object.
 			{
@@ -26,13 +26,13 @@ func TestAccNetboxTagResource_basic(t *testing.T) {
 resource "netbox_tag" "test" {
   name = "%s"
   slug = "%s"
-  color = "112233"
+  color_hex = "112233"
   description = "This is a test"
 }`, testName, randomSlug),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("name"), knownvalue.StringExact(testName)),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("slug"), knownvalue.StringExact(randomSlug)),
-					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("color"), knownvalue.StringExact("112233")),
+					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("color_hex"), knownvalue.StringExact("112233")),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("description"), knownvalue.StringExact("This is a test")),
 				},
 			},
@@ -48,13 +48,13 @@ resource "netbox_tag" "test" {
 resource "netbox_tag" "test" {
   name = "%s_updated"
   slug = "%s_updated"
-  color = "112234"
+  color_hex = "112234"
   description = "This is a test_updated"
 }`, testName, randomSlug),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("name"), knownvalue.StringExact(testName+"_updated")),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("slug"), knownvalue.StringExact(randomSlug+"_updated")),
-					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("color"), knownvalue.StringExact("112234")),
+					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("color_hex"), knownvalue.StringExact("112234")),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("description"), knownvalue.StringExact("This is a test_updated")),
 				},
 			},

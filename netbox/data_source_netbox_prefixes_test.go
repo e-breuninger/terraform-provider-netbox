@@ -13,7 +13,7 @@ func TestAccNetboxPrefixesDataSource_basic(t *testing.T) {
 	testVlanVids := []int{4093, 4094}
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

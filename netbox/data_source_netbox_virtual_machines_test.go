@@ -12,7 +12,7 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependencies(testName)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: dependencies,
@@ -77,7 +77,7 @@ func TestAccNetboxVirtualMachinesDataSource_tags(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependenciesWithTags(testName)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: dependencies,
@@ -99,7 +99,7 @@ func TestAccNetboxVirtualMachinesDataSource_status(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependenciesWithStatus(testName)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: dependencies,

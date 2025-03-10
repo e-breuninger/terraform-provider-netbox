@@ -49,7 +49,7 @@ data "netbox_vrfs" "test" {
 func TestAccNetboxVrfsDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxVrfsSetUp()
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp,

@@ -11,7 +11,7 @@ func TestAccNetboxRackRoleDataSource_basic(t *testing.T) {
 	testSlug := "rack_role_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

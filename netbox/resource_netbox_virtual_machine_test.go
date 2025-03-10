@@ -357,8 +357,8 @@ func TestAccNetboxVirtualMachine_tags(t *testing.T) {
 	testSlug := "vm_tags"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
@@ -405,8 +405,8 @@ func TestAccNetboxVirtualMachine_customFields(t *testing.T) {
 	testSlug := "vm_cf"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
@@ -433,8 +433,8 @@ func TestAccNetboxVirtualMachine_localContext(t *testing.T) {
 	testSlug := "vm_lc"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`

@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/helpers"
+	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/models"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -16,22 +17,6 @@ import (
 	"github.com/netbox-community/go-netbox/v4"
 )
 
-type WebhookModel struct {
-	AdditionalHeaders types.String `tfsdk:"additional_headers"`
-	BodyTemplate      types.String `tfsdk:"body_template"`
-	CaFilePath        types.String `tfsdk:"ca_file_path"`
-	CustomFields      types.Map    `tfsdk:"custom_fields"`
-	Description       types.String `tfsdk:"description"`
-	HttpContentType   types.String `tfsdk:"http_content_type"`
-	HttpMethod        types.String `tfsdk:"http_method"`
-	Id                types.Int32  `tfsdk:"id"`
-	Name              types.String `tfsdk:"name"`
-	PayloadUrl        types.String `tfsdk:"payload_url"`
-	Secret            types.String `tfsdk:"secret"`
-	SslVerification   types.Bool   `tfsdk:"ssl_verification"`
-	Tags              types.List   `tfsdk:"tags"`
-}
-
 var _ resource.Resource = (*webhookResource)(nil)
 
 func NewWebhookResource() resource.Resource {
@@ -42,50 +27,7 @@ type webhookResource struct {
 	NetboxResource
 }
 
-func (r *webhookResource) readAPI(ctx context.Context, data *WebhookModel, webhook *netbox.Webhook) diag.Diagnostics {
-	data.Id = types.Int32Value(webhook.Id)
-	data.Name = types.StringValue(webhook.Name)
-	data.PayloadUrl = types.StringValue(webhook.PayloadUrl)
-	data.BodyTemplate = types.StringPointerValue(webhook.BodyTemplate)
-	data.HttpMethod = types.StringValue(string(*webhook.HttpMethod))
-	data.HttpContentType = types.StringPointerValue(webhook.HttpContentType)
-	data.AdditionalHeaders = types.StringPointerValue(webhook.AdditionalHeaders)
-	data.SslVerification = types.BoolPointerValue(webhook.SslVerification)
-	if *webhook.Secret != "" {
-		data.Secret = types.StringPointerValue(webhook.Secret)
-	}
-
-	data.Description = types.StringPointerValue(webhook.Description)
-	if webhook.CaFilePath.IsSet() {
-		data.CaFilePath = types.StringPointerValue(webhook.CaFilePath.Get())
-	}
-
-	tags := helpers.ReadTagsFromAPI(webhook.Tags)
-	tagsdata, diags := types.ListValueFrom(ctx, types.StringType, tags)
-	if diags.HasError() {
-		return diags
-	}
-	data.Tags = tagsdata
-
-	customFieldsFromAPI, diagData := types.MapValueFrom(ctx, types.StringType, helpers.ReadCustomFieldsFromAPI(webhook.CustomFields))
-	if diagData.HasError() {
-		diags.Append()
-	}
-
-	//Let's only add custom fields that we know
-	if data.CustomFields.IsUnknown() {
-		data.CustomFields = customFieldsFromAPI
-	} else {
-		for k, _ := range data.CustomFields.Elements() {
-			if val, ok := customFieldsFromAPI.Elements()[k]; ok {
-				data.CustomFields.Elements()[k] = val
-			}
-		}
-	}
-	return nil
-}
-
-func (r *webhookResource) writeAPI(ctx context.Context, data *WebhookModel) (*netbox.WebhookRequest, diag.Diagnostics) {
+func (r *webhookResource) writeAPI(data *models.WebhookTerraformModel) (*netbox.WebhookRequest, diag.Diagnostics) {
 	webhookRequest := netbox.NewWebhookRequestWithDefaults()
 	webhookRequest.Name = data.Name.ValueString()
 	webhookRequest.PayloadUrl = data.PayloadUrl.ValueString()
@@ -102,14 +44,14 @@ func (r *webhookResource) writeAPI(ctx context.Context, data *WebhookModel) (*ne
 	caFilePath := netbox.NullableString{}
 	caFilePath.Set(data.CaFilePath.ValueStringPointer())
 	webhookRequest.CaFilePath = caFilePath
-	tag_list := []netbox.NestedTagRequest{}
+	var tagList []netbox.NestedTagRequest
 
 	for _, element := range data.Tags.Elements() {
 		tag := netbox.NewNestedTagRequestWithDefaults()
 		tag.Name = element.String()
-		tag_list = append(tag_list, *tag)
+		tagList = append(tagList, *tag)
 	}
-	webhookRequest.Tags = tag_list
+	webhookRequest.Tags = tagList
 
 	webhookRequest.CustomFields = helpers.ReadCustomFieldsFromTerraform(data.CustomFields)
 
@@ -230,7 +172,7 @@ func (r *webhookResource) Schema(ctx context.Context, req resource.SchemaRequest
 }
 
 func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data WebhookModel
+	var data models.WebhookTerraformModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -241,9 +183,9 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	// Create API call logic
-	webhookRequest, _ := r.writeAPI(ctx, &data)
+	webhookRequest, _ := r.writeAPI(&data)
 
-	api_res, _, err := r.provider.client.ExtrasAPI.
+	apiRes, _, err := r.provider.client.ExtrasAPI.
 		ExtrasWebhooksCreate(ctx).
 		WebhookRequest(*webhookRequest).
 		Execute()
@@ -257,7 +199,7 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	// Read API call logic
-	errors := r.readAPI(ctx, &data, api_res)
+	errors := data.ReadAPI(ctx, apiRes)
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
@@ -268,7 +210,7 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 }
 
 func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data WebhookModel
+	var data models.WebhookTerraformModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -293,7 +235,7 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	// Read API call logic
-	errors := r.readAPI(ctx, &data, webhook)
+	errors := data.ReadAPI(ctx, webhook)
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
@@ -304,7 +246,7 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data WebhookModel
+	var data models.WebhookTerraformModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -314,7 +256,7 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// Update API call logic
-	webhookRequest, _ := r.writeAPI(ctx, &data)
+	webhookRequest, _ := r.writeAPI(&data)
 
 	webhook, httpCode, err := r.provider.client.ExtrasAPI.ExtrasWebhooksUpdate(ctx, data.Id.ValueInt32()).WebhookRequest(*webhookRequest).Execute()
 
@@ -334,7 +276,7 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// Read API call logic
-	errors := r.readAPI(ctx, &data, webhook)
+	errors := data.ReadAPI(ctx, webhook)
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
@@ -344,7 +286,7 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 }
 
 func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data WebhookModel
+	var data models.WebhookTerraformModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)

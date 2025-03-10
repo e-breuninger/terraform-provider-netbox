@@ -24,7 +24,7 @@ func TestAccNetboxRegionDataSource_basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				//Test every field at once since it's a data source.
@@ -36,7 +36,7 @@ resource "netbox_region" "parent" {
 resource "netbox_tag" "test" {
   name = "%s"
   slug = "%s"
-  color = "112233"
+  color_hex = "112233"
   description = "This is a test"
 }
 resource "netbox_custom_field" "test" {

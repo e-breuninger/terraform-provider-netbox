@@ -10,7 +10,7 @@ import (
 func TestAccNetboxSiteGroupDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("sitegrp_ds_basic")
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

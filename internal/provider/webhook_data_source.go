@@ -2,13 +2,7 @@ package provider
 
 import (
 	"context"
-	"fmt"
-	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/netbox-community/go-netbox/v4"
-
+	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -20,75 +14,8 @@ func NewWebhookDataSource() datasource.DataSource {
 	return &webhookDataSource{}
 }
 
-type WebhookDataSourceModel struct {
-	AdditionalHeaders types.String `tfsdk:"additional_headers"`
-	BodyTemplate      types.String `tfsdk:"body_template"`
-	CaFilePath        types.String `tfsdk:"ca_file_path"`
-	CustomFields      types.Map    `tfsdk:"custom_fields"`
-	Description       types.String `tfsdk:"description"`
-	HttpContentType   types.String `tfsdk:"http_content_type"`
-	HttpMethod        types.String `tfsdk:"http_method"`
-	Id                types.Int32  `tfsdk:"id"`
-	Name              types.String `tfsdk:"name"`
-	PayloadUrl        types.String `tfsdk:"payload_url"`
-	SslVerification   types.Bool   `tfsdk:"ssl_verification"`
-	Tags              types.List   `tfsdk:"tags"`
-}
-
 type webhookDataSource struct {
 	NetboxDataSource
-}
-
-func (d *webhookDataSource) readAPI(ctx context.Context, data *WebhookDataSourceModel, webhook *netbox.Webhook) diag.Diagnostics {
-	var diags = diag.Diagnostics{}
-	data.Id = types.Int32Value(webhook.Id)
-	data.Name = types.StringValue(webhook.Name)
-	data.PayloadUrl = types.StringValue(webhook.PayloadUrl)
-	data.BodyTemplate = types.StringPointerValue(webhook.BodyTemplate)
-	data.HttpMethod = types.StringValue(string(*webhook.HttpMethod))
-	data.HttpContentType = types.StringPointerValue(webhook.HttpContentType)
-	data.AdditionalHeaders = types.StringPointerValue(webhook.AdditionalHeaders)
-	data.SslVerification = types.BoolPointerValue(webhook.SslVerification)
-
-	data.Description = types.StringPointerValue(webhook.Description)
-	if webhook.CaFilePath.IsSet() {
-		data.CaFilePath = types.StringPointerValue(webhook.CaFilePath.Get())
-	}
-
-	tags := helpers.ReadTagsFromAPI(webhook.Tags)
-	tagsdata, diagdata := types.ListValueFrom(ctx, types.StringType, tags)
-	if diagdata.HasError() {
-		diags.AddError(
-			"Error while reading Tags",
-			"") //TODO Better handling
-		return diags
-	}
-	data.Tags = tagsdata
-
-	customFields, diagData := types.MapValueFrom(ctx, types.StringType, helpers.ReadCustomFieldsFromAPI(webhook.CustomFields))
-	if diagData.HasError() {
-		diags.Append()
-	}
-
-	data.CustomFields = customFields
-	return nil
-}
-
-func (d *webhookDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	provider, ok := req.ProviderData.(*netboxProvider)
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *netbox.apiCLient, got: %T, Please report this issue to the provider developers.", req.ProviderData),
-		)
-		return
-	}
-
-	d.provider = provider
 }
 
 func (d *webhookDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -138,9 +65,9 @@ func (d *webhookDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 			"name": schema.StringAttribute{
 				Computed: true,
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(1, 150),
-				},
+			},
+			"secret": schema.StringAttribute{
+				Computed: true,
 			},
 			"payload_url": schema.StringAttribute{
 				Computed:            true,
@@ -154,14 +81,14 @@ func (d *webhookDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 			"tags": schema.ListAttribute{
 				ElementType: types.StringType,
-				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}
 }
 
 func (d *webhookDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data WebhookDataSourceModel
+	var data models.WebhookTerraformModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -185,7 +112,7 @@ func (d *webhookDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			return
 		}
 	}
-	errors := d.readAPI(ctx, &data, webhook)
+	errors := data.ReadAPI(ctx, webhook)
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return

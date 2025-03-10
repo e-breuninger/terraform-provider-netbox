@@ -15,7 +15,7 @@ func TestAccNetboxVlanGroupDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxVlanGroupSetUp(testSlug, testName)
 	extendedSetUp := testAccNetboxVlanGroupSetUpMore(testSlug, anotherSlug, testName)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp,

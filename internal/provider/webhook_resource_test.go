@@ -1,7 +1,9 @@
 package provider
 
 import (
+	"context"
 	"fmt"
+	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
@@ -9,7 +11,30 @@ import (
 	"testing"
 )
 
+func TestWebhookResource_Schema(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	schemaRequest := fwresource.SchemaRequest{}
+	schemaResponse := &fwresource.SchemaResponse{}
+
+	// Instantiate the resource.Resource and call its Schema method
+	NewWebhookResource().Schema(ctx, schemaRequest, schemaResponse)
+
+	if schemaResponse.Diagnostics.HasError() {
+		t.Fatalf("Schema method diagnostics: %+v", schemaResponse.Diagnostics)
+	}
+
+	// Validate the schema
+	diagnostics := schemaResponse.Schema.ValidateImplementation(ctx)
+
+	if diagnostics.HasError() {
+		t.Fatalf("Schema validation diagnostics: %+v", diagnostics)
+	}
+}
+
 // TODO: Destroy in the TestCase setup
+// TODO: Test All fields
 func TestAccNetboxWebhook_basic(t *testing.T) {
 	testName := testAccGetTestName("webhook_basic")
 	testPayloadURL := "https://example.com/webhook"
@@ -19,7 +44,7 @@ func TestAccNetboxWebhook_basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			//Test creating basic object.
 			{

@@ -64,7 +64,7 @@ func TestAccNetboxVlansDataSource_basic(t *testing.T) {
 	// This test cannot be run in parallel with other tests, because other tests create also Vlans
 	// These Vlans then interfere with the __n filter test
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp,

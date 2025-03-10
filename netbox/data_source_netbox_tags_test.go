@@ -53,7 +53,7 @@ data "netbox_tags" "test" {
 func TestAccNetboxTagsDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxTagsSetUp()
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp,

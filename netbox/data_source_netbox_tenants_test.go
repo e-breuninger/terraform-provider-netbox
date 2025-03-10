@@ -11,7 +11,7 @@ func TestAccNetboxTenantsDataSource_basic(t *testing.T) {
 	testSlug := "tnts_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -40,7 +40,7 @@ func TestAccNetboxTenantsDataSource_filter(t *testing.T) {
 	testSlug := "tnts_ds_filter"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -71,7 +71,7 @@ func TestAccNetboxTenantsDataSource_tenantgroups(t *testing.T) {
 	testSlug := "tnts_ds_tenant_group_filter"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

@@ -12,7 +12,7 @@ func TestAccNetboxLocationDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	testNameSub := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

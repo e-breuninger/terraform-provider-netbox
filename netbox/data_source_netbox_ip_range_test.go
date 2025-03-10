@@ -11,7 +11,7 @@ func TestAccNetboxIpRangeDataSource_basic(t *testing.T) {
 	testStartIP := "10.0.0.101/24"
 	testEndIP := "10.0.0.150/24"
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

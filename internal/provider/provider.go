@@ -220,13 +220,13 @@ func (p *netboxProvider) Metadata(ctx context.Context, req provider.MetadataRequ
 func (p *netboxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		func() datasource.DataSource {
-			return &tagDataSource{}
+			return NewTagDataSource()
 		},
 		func() datasource.DataSource {
-			return &webhookDataSource{}
+			return NewWebhookDataSource()
 		},
 		func() datasource.DataSource {
-			return &regionDataSource{}
+			return NewRegionDataSource()
 		},
 	}
 }
@@ -234,13 +234,13 @@ func (p *netboxProvider) DataSources(ctx context.Context) []func() datasource.Da
 func (p *netboxProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		func() resource.Resource {
-			return &webhookResource{}
+			return NewTagResource()
 		},
 		func() resource.Resource {
-			return &tagResource{}
+			return NewWebhookResource()
 		},
 		func() resource.Resource {
-			return &regionResource{}
+			return NewRegionResource()
 		},
 	}
 }

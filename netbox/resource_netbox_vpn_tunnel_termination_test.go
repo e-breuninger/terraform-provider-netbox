@@ -87,8 +87,8 @@ func TestAccNetboxVpnTunnelTermination_basic(t *testing.T) {
 	testSlug := "vpnterm_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxVpnTunnelTerminationFullDependencies(testName) + `

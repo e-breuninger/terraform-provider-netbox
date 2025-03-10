@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int32planmodifier"
@@ -26,7 +25,6 @@ type tagResource struct {
 }
 
 type tagResourceModel struct {
-	Color       types.String `tfsdk:"color"`
 	Description types.String `tfsdk:"description"`
 	Id          types.Int32  `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
@@ -43,23 +41,9 @@ func (r *tagResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schema.Schema{
 		Description: "Tags are user-defined labels which can be applied to a variety of objects within NetBox. They can be used to establish dimensions of organization beyond the relationships built into NetBox. For example, you might create a tag to identify a particular ownership or condition across several types of objects.",
 		Attributes: map[string]schema.Attribute{
-			"color": schema.StringAttribute{
+			"color_hex": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(1, 6),
-					stringvalidator.RegexMatches(regexp.MustCompile("^[0-9a-f]{6}$"), ""),
-				},
-			},
-			"color_hex": schema.StringAttribute{
-				Optional:           true,
-				Description:        "**Deprecated** Use color instead.",
-				DeprecationMessage: "Use the *color* attribute instead.",
-				Validators: []validator.String{
-					stringvalidator.ExactlyOneOf(path.Expressions{
-						path.MatchRoot("color"),
-					}...),
-				},
 			},
 			"description": schema.StringAttribute{
 				Optional: true,
@@ -104,7 +88,7 @@ func (r *tagResource) readAPI(ctx context.Context, data *tagResourceModel, tag *
 	data.Id = types.Int32Value(tag.Id)
 	data.Name = types.StringValue(tag.Name)
 	data.Slug = types.StringValue(tag.Slug)
-	data.Color = types.StringPointerValue(tag.Color)
+	data.ColorHex = types.StringPointerValue(tag.Color)
 	data.Description = types.StringPointerValue(tag.Description)
 	listObjectTypes, err := types.ListValueFrom(ctx, types.StringType, tag.ObjectTypes)
 	if err != nil {
@@ -119,8 +103,15 @@ func (r *tagResource) writeAPI(ctx context.Context, data *tagResourceModel) (*ne
 	var diags = diag.Diagnostics{}
 	tagRequest := netbox.NewTagRequestWithDefaults()
 	tagRequest.Name = data.Name.ValueString()
-	tagRequest.Color = data.Color.ValueStringPointer()
-	tagRequest.Slug = data.Slug.ValueString()
+	if !data.ColorHex.IsUnknown() {
+		tagRequest.Color = data.ColorHex.ValueStringPointer()
+	}
+
+	if data.Slug.IsUnknown() {
+		tagRequest.Slug = getSlug(tagRequest.Name)
+	} else {
+		tagRequest.Slug = data.Slug.ValueString()
+	}
 	tagRequest.Description = data.Description.ValueStringPointer()
 	if len(data.ObjectTypes.Elements()) > 0 {
 		elements := make([]string, 0, len(data.ObjectTypes.Elements()))
@@ -149,7 +140,7 @@ func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, re
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	api_res, _, err := r.provider.client.ExtrasAPI.
+	apiRes, _, err := r.provider.client.ExtrasAPI.
 		ExtrasTagsCreate(ctx).
 		TagRequest(*tagRequest).Execute()
 	if err != nil {
@@ -160,7 +151,7 @@ func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 	// Example data value setting
-	errors := r.readAPI(ctx, &data, api_res)
+	errors := r.readAPI(ctx, &data, apiRes)
 
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)

@@ -28,7 +28,7 @@ func TestAccNetboxRouteTarget_basic(t *testing.T) {
 	testSlug := "rtds"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: getNetboxDataSourceRouteTargetConfig(testName),

@@ -40,7 +40,7 @@ func TestAccNetboxAvailablePrefix_basic(t *testing.T) {
 	resourceName := "netbox_available_prefix.test"
 
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxAvailablePrefixFullDependencies(testName, testParentPrefix) + fmt.Sprintf(`
@@ -110,7 +110,7 @@ func TestAccNetboxAvailablePrefix_multiplePrefixesSerial(t *testing.T) {
 	testSlug := "prefix"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxAvailablePrefixFullDependencies(testName, testParentPrefix) + fmt.Sprintf(`
