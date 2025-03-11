@@ -94,6 +94,8 @@ func (r *tagResource) writeAPI(ctx context.Context, data *models.TagTerraformMod
 		diagObjectTypeErrors := data.ObjectTypes.ElementsAs(ctx, &elements, false)
 		diags.Append(diagObjectTypeErrors...)
 		tagRequest.ObjectTypes = elements
+	} else {
+		tagRequest.ObjectTypes = make([]string, 0)
 	}
 
 	return tagRequest, diags

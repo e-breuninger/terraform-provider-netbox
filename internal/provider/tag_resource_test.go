@@ -28,12 +28,16 @@ resource "netbox_tag" "test" {
   slug = "%s"
   color_hex = "112233"
   description = "This is a test"
+  object_types = ["dcim.region"]
 }`, testName, randomSlug),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("name"), knownvalue.StringExact(testName)),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("slug"), knownvalue.StringExact(randomSlug)),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("color_hex"), knownvalue.StringExact("112233")),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("description"), knownvalue.StringExact("This is a test")),
+					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("object_types"), knownvalue.ListExact([]knownvalue.Check{
+						knownvalue.StringExact("dcim.region"),
+					})),
 				},
 			},
 			//Test importing
@@ -56,6 +60,7 @@ resource "netbox_tag" "test" {
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("slug"), knownvalue.StringExact(randomSlug+"_updated")),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("color_hex"), knownvalue.StringExact("112234")),
 					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("description"), knownvalue.StringExact("This is a test_updated")),
+					statecheck.ExpectKnownValue("netbox_tag.test", tfjsonpath.New("object_types"), knownvalue.ListExact([]knownvalue.Check{})),
 				},
 			},
 		},
