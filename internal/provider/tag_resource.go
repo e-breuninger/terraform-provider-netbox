@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/models"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -22,15 +23,6 @@ func NewTagResource() resource.Resource {
 
 type tagResource struct {
 	NetboxResource
-}
-
-type tagResourceModel struct {
-	Description types.String `tfsdk:"description"`
-	Id          types.Int32  `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	ObjectTypes types.List   `tfsdk:"object_types"`
-	Slug        types.String `tfsdk:"slug"`
-	ColorHex    types.String `tfsdk:"color_hex"`
 }
 
 func (r *tagResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -83,23 +75,7 @@ func (r *tagResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 	}
 }
 
-func (r *tagResource) readAPI(ctx context.Context, data *tagResourceModel, tag *netbox.Tag) diag.Diagnostics {
-	var diags = diag.Diagnostics{}
-	data.Id = types.Int32Value(tag.Id)
-	data.Name = types.StringValue(tag.Name)
-	data.Slug = types.StringValue(tag.Slug)
-	data.ColorHex = types.StringPointerValue(tag.Color)
-	data.Description = types.StringPointerValue(tag.Description)
-	listObjectTypes, err := types.ListValueFrom(ctx, types.StringType, tag.ObjectTypes)
-	if err != nil {
-		return err
-	}
-	data.ObjectTypes = listObjectTypes
-
-	return diags
-}
-
-func (r *tagResource) writeAPI(ctx context.Context, data *tagResourceModel) (*netbox.TagRequest, diag.Diagnostics) {
+func (r *tagResource) writeAPI(ctx context.Context, data *models.TagTerraformModel) (*netbox.TagRequest, diag.Diagnostics) {
 	var diags = diag.Diagnostics{}
 	tagRequest := netbox.NewTagRequestWithDefaults()
 	tagRequest.Name = data.Name.ValueString()
@@ -124,7 +100,7 @@ func (r *tagResource) writeAPI(ctx context.Context, data *tagResourceModel) (*ne
 }
 
 func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data tagResourceModel
+	var data models.TagTerraformModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -151,7 +127,7 @@ func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 	// Example data value setting
-	errors := r.readAPI(ctx, &data, apiRes)
+	errors := data.ReadAPI(ctx, apiRes)
 
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
@@ -162,7 +138,7 @@ func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, re
 }
 
 func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data tagResourceModel
+	var data models.TagTerraformModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -188,7 +164,7 @@ func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		}
 	}
 
-	errors := r.readAPI(ctx, &data, tag)
+	errors := data.ReadAPI(ctx, tag)
 
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
@@ -200,7 +176,7 @@ func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 }
 
 func (r *tagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data tagResourceModel
+	var data models.TagTerraformModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -236,7 +212,7 @@ func (r *tagResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		}
 	}
 
-	errors := r.readAPI(ctx, &data, tag)
+	errors := data.ReadAPI(ctx, tag)
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
 		return
@@ -246,7 +222,7 @@ func (r *tagResource) Update(ctx context.Context, req resource.UpdateRequest, re
 }
 
 func (r *tagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data tagResourceModel
+	var data models.TagTerraformModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)

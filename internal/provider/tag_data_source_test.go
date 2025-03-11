@@ -35,7 +35,7 @@ data "netbox_tag" "test" {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("data.netbox_tag.test", tfjsonpath.New("name"), knownvalue.StringExact(testName)),
 					statecheck.ExpectKnownValue("data.netbox_tag.test", tfjsonpath.New("slug"), knownvalue.StringExact(randomSlug)),
-					statecheck.ExpectKnownValue("data.netbox_tag.test", tfjsonpath.New("color"), knownvalue.StringExact("112233")),
+					statecheck.ExpectKnownValue("data.netbox_tag.test", tfjsonpath.New("color_hex"), knownvalue.StringExact("112233")),
 					statecheck.ExpectKnownValue("data.netbox_tag.test", tfjsonpath.New("description"), knownvalue.StringExact("This is a test")),
 				},
 			},

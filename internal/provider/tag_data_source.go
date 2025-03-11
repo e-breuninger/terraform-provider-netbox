@@ -3,11 +3,10 @@ package provider
 import (
 	"context"
 	"fmt"
+	"github.com/e-breuninger/terraform-provider-netbox/internal/provider/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/netbox-community/go-netbox/v4"
 )
 
 var _ datasource.DataSource = (*tagDataSource)(nil)
@@ -18,29 +17,6 @@ func NewTagDataSource() datasource.DataSource {
 
 type tagDataSource struct {
 	NetboxDataSource
-}
-
-type tagDataSourceModel struct {
-	Color       types.String `tfsdk:"color"`
-	Description types.String `tfsdk:"description"`
-	Name        types.String `tfsdk:"name"`
-	ObjectTypes types.List   `tfsdk:"object_types"`
-	Slug        types.String `tfsdk:"slug"`
-}
-
-func (d *tagDataSource) readAPI(ctx context.Context, data *tagDataSourceModel, tag *netbox.Tag) diag.Diagnostics {
-	var diags = diag.Diagnostics{}
-	data.Name = types.StringValue(tag.Name)
-	data.Slug = types.StringValue(tag.Slug)
-	data.Color = types.StringPointerValue(tag.Color)
-	data.Description = types.StringPointerValue(tag.Description)
-	listObjectTypes, err := types.ListValueFrom(ctx, types.StringType, tag.ObjectTypes)
-	if err != nil {
-		return err
-	}
-	data.ObjectTypes = listObjectTypes
-
-	return diags
 }
 
 func (d *tagDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -68,7 +44,7 @@ func (d *tagDataSource) Schema(ctx context.Context, req datasource.SchemaRequest
 	resp.Schema = schema.Schema{
 		Description: "Tags are user-defined labels which can be applied to a variety of objects within NetBox. They can be used to establish dimensions of organization beyond the relationships built into NetBox. For example, you might create a tag to identify a particular ownership or condition across several types of objects.",
 		Attributes: map[string]schema.Attribute{
-			"color": schema.StringAttribute{
+			"color_hex": schema.StringAttribute{
 				Computed: true,
 			},
 			"description": schema.StringAttribute{
@@ -84,12 +60,17 @@ func (d *tagDataSource) Schema(ctx context.Context, req datasource.SchemaRequest
 			"slug": schema.StringAttribute{
 				Computed: true,
 			},
+			"id": schema.Int32Attribute{
+				Computed:            true,
+				Description:         "A unique integer value identifying this tag.",
+				MarkdownDescription: "A unique integer value identifying this tag.",
+			},
 		},
 	}
 }
 
 func (d *tagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data tagDataSourceModel
+	var data models.TagTerraformModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -125,7 +106,7 @@ func (d *tagDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
-	errors := d.readAPI(ctx, &data, &paginatedTagList.Results[0])
+	errors := data.ReadAPI(ctx, &paginatedTagList.Results[0])
 
 	if errors.HasError() {
 		resp.Diagnostics.Append(errors...)
