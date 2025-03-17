@@ -54,4 +54,3 @@ jobs:
         run: make -e testacc
         env:
           NETBOX_VERSION: ${{ matrix.netbox-version }}
-          TC_ACC: 1

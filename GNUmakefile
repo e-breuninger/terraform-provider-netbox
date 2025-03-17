@@ -13,7 +13,7 @@ default: testacc
 .PHONY: testacc
 testacc: docker-up
 	@echo "⌛ Startup acceptance tests on $(NETBOX_SERVER_URL) with version $(NETBOX_VERSION)"
-	TC_ACC=1 go test -timeout 20m -v -cover ./... -run TestAcc*
+	TF_ACC=1 go test -timeout 20m -v -cover ./... -run TestAcc*
 
 
 .PHONY: testacc-specific-test
