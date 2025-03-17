@@ -1,4 +1,3 @@
-TEST?=internal/provider/*.go
 TEST_FUNC?=TestAccNetboxVirtualMachine*
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
 DOCKER_COMPOSE=docker compose
@@ -14,7 +13,8 @@ default: testacc
 .PHONY: testacc
 testacc: docker-up
 	@echo "⌛ Startup acceptance tests on $(NETBOX_SERVER_URL) with version $(NETBOX_VERSION)"
-	TF_ACC=1 go test -timeout 20m -v -cover $(TEST)
+	TC_ACC=1 go test -timeout 20m -v -cover ./... -run TestAcc*
+
 
 .PHONY: testacc-specific-test
 testacc-specific-test: # docker-up
