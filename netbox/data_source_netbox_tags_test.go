@@ -3,7 +3,7 @@ package netbox
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func testAccNetboxTagsSetUp() string {
@@ -53,7 +53,7 @@ data "netbox_tags" "test" {
 func TestAccNetboxTagsDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxTagsSetUp()
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp,

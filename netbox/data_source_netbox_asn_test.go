@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func testAccNetboxAsnSetUp(testName string) string {
@@ -48,7 +48,7 @@ func TestAccNetboxAsnDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("asn_ds_basic")
 	setUp := testAccNetboxAsnSetUp(testName)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp,

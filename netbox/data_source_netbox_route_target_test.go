@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func getNetboxDataSourceRouteTargetConfig(testName string) string {
@@ -28,7 +28,7 @@ func TestAccNetboxRouteTarget_basic(t *testing.T) {
 	testSlug := "rtds"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: getNetboxDataSourceRouteTargetConfig(testName),
