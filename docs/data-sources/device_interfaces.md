@@ -39,6 +39,8 @@ Required:
 
 Read-Only:
 
+- `cable` (Number)
+- `cable_end` (String)
 - `description` (String)
 - `device_id` (Number)
 - `enabled` (Boolean)

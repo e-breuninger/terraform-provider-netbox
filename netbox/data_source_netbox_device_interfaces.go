@@ -83,6 +83,14 @@ func dataSourceNetboxDeviceInterfaces() *schema.Resource {
 								Type: schema.TypeInt,
 							},
 						},
+						"cable": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"cable_end": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"tagged_vlans": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -218,6 +226,13 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 		if v.UntaggedVlan != nil {
 			vlanSlice := []*models.NestedVLAN{v.UntaggedVlan}
 			mapping["untagged_vlan"] = flattenVlanAttributes(vlanSlice)
+		}
+		if v.Cable != nil {
+			mapping["cable"] = v.Cable.ID
+		}
+
+		if v.CableEnd != "" {
+			mapping["cable_end"] = v.CableEnd
 		}
 
 		mapping["device_id"] = v.Device.ID
