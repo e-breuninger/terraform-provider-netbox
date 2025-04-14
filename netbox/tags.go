@@ -9,13 +9,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const tagsKey = "tags"
+const (
+	tagsKey    = "tags"
+	tagsAllKey = "tags_all"
+)
 
 var tagsSchema = &schema.Schema{
 	Type: schema.TypeSet,
 	Elem: &schema.Schema{
 		Type: schema.TypeString,
 	},
+	Optional: true,
+	Set:      schema.HashString,
+}
+
+var tagsAllSchema = &schema.Schema{
+	Type: schema.TypeSet,
+	Elem: &schema.Schema{
+		Type: schema.TypeString,
+	},
+	Computed: true,
 	Optional: true,
 	Set:      schema.HashString,
 }

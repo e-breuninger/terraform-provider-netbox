@@ -9,12 +9,14 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"golang.org/x/exp/slices"
 )
 
 type providerState struct {
 	*client.NetBoxAPI
+	defaultTags []string
 }
 
 // This makes the description contain the default value, particularly useful for the docs
@@ -240,9 +242,28 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_REQUEST_TIMEOUT", 10),
 				Description: "Netbox API HTTP request timeout in seconds. Can be set via the `NETBOX_REQUEST_TIMEOUT` environment variable.",
 			},
+			"default_tags": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Default:     []string{},
+				Description: "Tags to add to any resource managed by this provider",
+			},
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
+
+	// all resources that have tags get a custom diff function
+	for _, def := range provider.ResourcesMap {
+		if _, ok := def.Schema[tagsKey]; ok {
+			def.Schema[tagsAllKey] = tagsAllSchema // add computed key for all tags
+			if existingDiff := def.CustomizeDiff; existingDiff != nil {
+				def.CustomizeDiff = customdiff.Sequence(existingDiff, tagsCustomDiff)
+			} else {
+				def.CustomizeDiff = tagsCustomDiff
+			}
+		}
+	}
+
 	return provider
 }
 
@@ -313,8 +334,37 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		}
 	}
 
+	var defaultTags []string
+	if tags, ok := data.Get("default_tags").([]any); ok {
+		defaultTags = make([]string, 0, len(tags))
+		for _, tag := range tags {
+			if tagName, ok := tag.(string); ok {
+				defaultTags = append(defaultTags, tagName)
+			} else {
+				diags = append(diags, diag.Errorf("invalid type for default tag: %T", tag)...)
+			}
+		}
+	}
+
 	state := &providerState{
 		NetBoxAPI:   netboxClient,
+		defaultTags: defaultTags,
 	}
 	return state, diags
+}
+
+func tagsCustomDiff(ctx context.Context, diff *schema.ResourceDiff, m interface{}) error {
+	state := m.(*providerState)
+
+	customTags, ok := diff.Get(tagsKey).([]any)
+	if !ok {
+		customTags = make([]any, 0)
+	}
+
+	allTags := customTags
+	for _, defaultTag := range state.defaultTags {
+		allTags = append(allTags, defaultTag)
+	}
+
+	return diff.SetNew(tagsAllKey, allTags)
 }
