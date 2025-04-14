@@ -246,6 +246,9 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Tags to add to any resource managed by this provider",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 		},
 		ConfigureContextFunc: providerConfigure,
