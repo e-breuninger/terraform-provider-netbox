@@ -115,8 +115,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		data.VirtualMachine = &dataVirtualMachineID
 	}
 
-	v := d.Get("tags")
-	tags, _ := getNestedTagListFromResourceDataSet(api, v)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	if v, ok := d.GetOk("description"); ok {
@@ -176,12 +175,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if tags := res.GetPayload().Tags; tags != nil {
-		var tagList []interface{}
-		for _, tag := range tags {
-			tagName := tag.Name
-			tagList = append(tagList, *tagName)
-		}
-		d.Set("tags", tagList)
+		api.readTags(d, getTagListFromNestedTagList(tags))
 	}
 
 	cf := getCustomFields(res.GetPayload().CustomFields)
@@ -219,8 +213,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Ipaddresses = []int64{}
 
-	v := d.Get("tags")
-	tags, _ := getNestedTagListFromResourceDataSet(api, v)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	if v, ok := d.GetOk("description"); ok {

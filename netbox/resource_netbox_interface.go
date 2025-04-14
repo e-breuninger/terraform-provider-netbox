@@ -95,7 +95,7 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if diagnostics != nil {
 		diags = append(diags, diagnostics...)
 	}
@@ -160,7 +160,7 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	d.Set("enabled", iface.Enabled)
 	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
-	d.Set(tagsKey, getTagListFromNestedTagList(iface.Tags))
+	api.readTags(d, getTagListFromNestedTagList(iface.Tags))
 	d.Set("tagged_vlans", getIDsFromNestedVLAN(iface.TaggedVlans))
 	d.Set("virtual_machine_id", iface.VirtualMachine.ID)
 
@@ -185,7 +185,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if diagnostics != nil {
 		diags = append(diags, diagnostics...)
 	}

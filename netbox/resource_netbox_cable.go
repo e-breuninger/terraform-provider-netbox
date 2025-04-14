@@ -109,7 +109,7 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 	bTerminations := d.Get("b_termination").(*schema.Set)
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -181,7 +181,7 @@ func resourceNetboxCableRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -209,7 +209,7 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 	bTerminations := d.Get("b_termination").(*schema.Set)
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {

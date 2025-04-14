@@ -55,7 +55,7 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 	email := d.Get("email").(string)
 	groupID := int64(d.Get("group_id").(int))
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data := &models.WritableContact{}
 
@@ -119,7 +119,7 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	email := d.Get("email").(string)
 	groupID := int64(d.Get("group_id").(int))
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data.Name = &name
 	data.Tags = tags

@@ -70,7 +70,7 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 	vmRole := d.Get("vm_role").(bool)
 	description := d.Get("description").(string)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimDeviceRolesCreateParams().WithData(
 		&models.DeviceRole{
@@ -117,7 +117,7 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("vm_role", res.GetPayload().VMRole)
 	d.Set("color_hex", res.GetPayload().Color)
 	d.Set("description", res.GetPayload().Description)
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -148,7 +148,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	data.Color = color
 	data.Description = description
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := dcim.NewDcimDeviceRolesPartialUpdateParams().WithID(id).WithData(&data)

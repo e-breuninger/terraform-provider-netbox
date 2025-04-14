@@ -78,7 +78,7 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := virtualization.NewVirtualizationVirtualDisksCreateParams().WithData(&data)
 
@@ -128,7 +128,7 @@ func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData,
 		d.Set(customFieldsKey, cf)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(VirtualDisks.Tags))
+	api.readTags(d, getTagListFromNestedTagList(VirtualDisks.Tags))
 	return nil
 }
 
@@ -151,7 +151,7 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	if d.HasChanges("description") {
 		// check if description is set

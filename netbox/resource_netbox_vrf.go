@@ -72,7 +72,7 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 		data.Rd = &rd
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
@@ -133,7 +133,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	enforceUnique := d.Get("enforce_unique").(bool)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data.Name = &name
 	data.Tags = tags

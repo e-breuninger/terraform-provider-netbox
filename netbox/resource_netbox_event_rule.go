@@ -102,7 +102,7 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 	data.Enabled = enabled
 	data.ActionObjectID = getOptionalInt(d, "action_object_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	ctypes := d.Get("content_types").(*schema.Set).List()
@@ -168,7 +168,7 @@ func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("conditions", string(conditions))
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(eventRule.Tags))
+	api.readTags(d, getTagListFromNestedTagList(eventRule.Tags))
 
 	return nil
 }
@@ -207,7 +207,7 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 		data.Conditions = conditions
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	ctypes := d.Get("content_types").(*schema.Set).List()

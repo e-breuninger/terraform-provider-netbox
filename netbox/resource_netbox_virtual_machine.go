@@ -196,7 +196,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	data.Status = d.Get("status").(string)
 
-	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -318,7 +318,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	} else {
 		d.Set("status", nil)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(vm.Tags))
+	api.readTags(d, getTagListFromNestedTagList(vm.Tags))
 
 	cf := getCustomFields(vm.CustomFields)
 	if cf != nil {
@@ -412,7 +412,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {

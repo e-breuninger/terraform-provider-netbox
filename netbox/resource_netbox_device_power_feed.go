@@ -111,7 +111,7 @@ func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error 
 		Comments:       getOptionalStr(d, "comments", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -199,7 +199,7 @@ func resourceNetboxPowerFeedRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -225,7 +225,7 @@ func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error 
 		Comments:       getOptionalStr(d, "comments", true),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {

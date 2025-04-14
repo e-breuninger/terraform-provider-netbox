@@ -61,7 +61,7 @@ func resourceNetboxConfigTemplateCreate(ctx context.Context, d *schema.ResourceD
 	description := d.Get("description").(string)
 	templateCode := d.Get("template_code").(string)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data := models.WritableConfigTemplate{
 		Name:         &name,
@@ -147,7 +147,7 @@ func resourceNetboxConfigTemplateUpdate(ctx context.Context, d *schema.ResourceD
 	description := d.Get("description").(string)
 	templateCode := d.Get("template_code").(string)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data := models.WritableConfigTemplate{
 		Name:         &name,

@@ -75,7 +75,7 @@ func resourceNetboxVpnTunnelCreate(d *schema.ResourceData, m interface{}) error 
 	data.Tenant = getOptionalInt(d, "tenant_id")
 	data.TunnelID = getOptionalInt(d, "tunnel_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := vpn.NewVpnTunnelsCreateParams().WithData(&data)
@@ -130,7 +130,7 @@ func resourceNetboxVpnTunnelRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("description", tunnel.Description)
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -149,7 +149,7 @@ func resourceNetboxVpnTunnelUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Tenant = getOptionalInt(d, "tenant_id")
 	data.TunnelID = getOptionalInt(d, "tunnel_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := vpn.NewVpnTunnelsUpdateParams().WithID(id).WithData(&data)

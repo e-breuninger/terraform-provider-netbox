@@ -87,7 +87,7 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = &tenantID
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := virtualization.NewVirtualizationClustersCreateParams().WithData(&data)
@@ -145,7 +145,7 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("tenant_id", nil)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -179,7 +179,7 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = &tenantID
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := virtualization.NewVirtualizationClustersPartialUpdateParams().WithID(id).WithData(&data)

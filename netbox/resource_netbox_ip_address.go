@@ -151,7 +151,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 		data.AssignedObjectID = nil
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -259,7 +259,7 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ip_address", ipAddress.Address)
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
-	d.Set(tagsKey, getTagListFromNestedTagList(ipAddress.Tags))
+	api.readTags(d, getTagListFromNestedTagList(ipAddress.Tags))
 	cf := getCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
@@ -304,7 +304,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		data.AssignedObjectID = nil
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
 		data.CustomFields = cf

@@ -77,7 +77,7 @@ func resourceNetboxVpnTunnelTerminationCreate(d *schema.ResourceData, m interfac
 
 	data.OutsideIP = getOptionalInt(d, "outside_ip_address_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := vpn.NewVpnTunnelTerminationsCreateParams().WithData(&data)
@@ -129,7 +129,7 @@ func resourceNetboxVpnTunnelTerminationRead(d *schema.ResourceData, m interface{
 		d.Set("outside_ip_address_id", tunnelTermination.OutsideIP.ID)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -157,7 +157,7 @@ func resourceNetboxVpnTunnelTerminationUpdate(d *schema.ResourceData, m interfac
 
 	data.OutsideIP = getOptionalInt(d, "outside_ip_address_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := vpn.NewVpnTunnelTerminationsUpdateParams().WithID(id).WithData(&data)

@@ -91,7 +91,7 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -157,7 +157,7 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -199,7 +199,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {

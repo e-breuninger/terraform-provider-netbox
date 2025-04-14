@@ -63,7 +63,7 @@ func resourceNetboxAggregateCreate(d *schema.ResourceData, m interface{}) error 
 		data.Rir = int64ToPtr(int64(rirID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := ipam.NewIpamAggregatesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamAggregatesCreate(params, nil)
@@ -110,7 +110,7 @@ func resourceNetboxAggregateRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("rir_id", nil)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -133,7 +133,7 @@ func resourceNetboxAggregateUpdate(d *schema.ResourceData, m interface{}) error 
 		data.Rir = int64ToPtr(int64(rirID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := ipam.NewIpamAggregatesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamAggregatesUpdate(params, nil)

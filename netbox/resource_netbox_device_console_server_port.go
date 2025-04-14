@@ -78,7 +78,7 @@ func resourceNetboxDeviceConsoleServerPortCreate(d *schema.ResourceData, m inter
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -150,7 +150,7 @@ func resourceNetboxDeviceConsoleServerPortRead(d *schema.ResourceData, m interfa
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -171,7 +171,7 @@ func resourceNetboxDeviceConsoleServerPortUpdate(d *schema.ResourceData, m inter
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {

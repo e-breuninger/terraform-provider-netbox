@@ -82,7 +82,7 @@ func resourceNetboxDeviceRearPortCreate(d *schema.ResourceData, m interface{}) e
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -151,7 +151,7 @@ func resourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) err
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -173,7 +173,7 @@ func resourceNetboxDeviceRearPortUpdate(d *schema.ResourceData, m interface{}) e
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {

@@ -92,7 +92,7 @@ func resourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if res.GetPayload().Tags != nil {
-		d.Set(tagsKey, res.GetPayload().Tags)
+		api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 	}
 
 	return nil

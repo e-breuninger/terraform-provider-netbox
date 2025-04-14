@@ -97,7 +97,7 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 		data.ScopeID = int64ToPtr(int64(scopeID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := ipam.NewIpamVlanGroupsCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlanGroupsCreate(params, nil)
@@ -133,7 +133,7 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", vlanGroup.Slug)
 	d.Set("description", vlanGroup.Description)
 	d.Set("vid_ranges", vlanGroup.VidRanges)
-	d.Set(tagsKey, getTagListFromNestedTagList(vlanGroup.Tags))
+	api.readTags(d, getTagListFromNestedTagList(vlanGroup.Tags))
 
 	if vlanGroup.ScopeType != nil {
 		d.Set("scope_type", vlanGroup.ScopeType)
@@ -179,7 +179,7 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 		data.ScopeID = int64ToPtr(int64(scopeID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := ipam.NewIpamVlanGroupsUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamVlanGroupsUpdate(params, nil)

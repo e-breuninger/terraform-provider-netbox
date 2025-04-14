@@ -117,7 +117,7 @@ func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) er
 		data.ComponentID = getOptionalInt(d, "component_id")
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -191,7 +191,7 @@ func resourceNetboxInventoryItemRead(d *schema.ResourceData, m interface{}) erro
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -223,7 +223,7 @@ func resourceNetboxInventoryItemUpdate(d *schema.ResourceData, m interface{}) er
 		data.ComponentID = getOptionalInt(d, "component_id")
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {

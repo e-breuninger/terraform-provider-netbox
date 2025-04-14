@@ -222,7 +222,7 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 		MountingDepth: getOptionalInt(d, "mounting_depth_mm"),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimRackTypesCreateParams().WithData(&data)
 
@@ -269,7 +269,7 @@ func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("u_height", rackType.UHeight)
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 	d.Set("description", rackType.Description)
 	d.Set("comments", rackType.Comments)
 

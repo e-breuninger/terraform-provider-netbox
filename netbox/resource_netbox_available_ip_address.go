@@ -190,7 +190,7 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	d.Set("ip_address", ipAddress.Address)
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
-	d.Set(tagsKey, getTagListFromNestedTagList(ipAddress.Tags))
+	api.readTags(d, getTagListFromNestedTagList(ipAddress.Tags))
 	return nil
 }
 
@@ -236,7 +236,7 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 		data.AssignedObjectID = nil
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 

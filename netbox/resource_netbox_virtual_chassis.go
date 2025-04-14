@@ -78,7 +78,7 @@ func resourceNetboxVirtualChassisCreate(ctx context.Context, d *schema.ResourceD
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimVirtualChassisCreateParams().WithData(&data)
 
@@ -123,7 +123,7 @@ func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceDat
 		d.Set(customFieldsKey, cf)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(virtualChassis.Tags))
+	api.readTags(d, getTagListFromNestedTagList(virtualChassis.Tags))
 	return nil
 }
 
@@ -147,7 +147,7 @@ func resourceNetboxVirtualChassisUpdate(ctx context.Context, d *schema.ResourceD
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	if d.HasChanges("comments") {
 		// check if comment is set

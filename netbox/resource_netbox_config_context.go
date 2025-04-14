@@ -177,7 +177,7 @@ func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) er
 	data.Sites = toInt64List(d.Get("sites"))
 	data.TenantGroups = toInt64List(d.Get("tenant_groups"))
 	data.Tenants = toInt64List(d.Get("tenants"))
-	data.Tags = toStringList(d.Get("tags"))
+	data.Tags = toStringList(d.Get(tagsAllKey))
 	data.Weight = int64ToPtr(int64(d.Get("weight").(int)))
 
 	params := extras.NewExtrasConfigContextsCreateParams().WithData(&data)
@@ -292,12 +292,7 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 	}
 	d.Set("sites", sitesSlice)
 
-	tags := res.GetPayload().Tags
-	tagsSlice := make([]string, len(tags))
-	for i, v := range tags {
-		tagsSlice[i] = string(v)
-	}
-	d.Set("tags", tagsSlice)
+	api.readTags(d, res.GetPayload().Tags)
 
 	tenantGroups := res.GetPayload().TenantGroups
 	tenantGroupsSlice := make([]int64, len(tenantGroups))
@@ -347,7 +342,7 @@ func resourceNetboxConfigContextUpdate(d *schema.ResourceData, m interface{}) er
 	data.Sites = toInt64List(d.Get("sites"))
 	data.TenantGroups = toInt64List(d.Get("tenant_groups"))
 	data.Tenants = toInt64List(d.Get("tenants"))
-	data.Tags = toStringList(d.Get("tags"))
+	data.Tags = toStringList(d.Get(tagsAllKey))
 	data.Weight = int64ToPtr(int64(d.Get("weight").(int)))
 
 	params := extras.NewExtrasConfigContextsPartialUpdateParams().WithID(id).WithData(&data)

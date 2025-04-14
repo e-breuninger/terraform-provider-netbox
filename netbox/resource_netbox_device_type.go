@@ -89,7 +89,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
 
@@ -129,7 +129,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("part_number", deviceType.PartNumber)
 	d.Set("u_height", deviceType.UHeight)
 	d.Set("is_full_depth", deviceType.IsFullDepth)
-	d.Set(tagsKey, getTagListFromNestedTagList(deviceType.Tags))
+	api.readTags(d, getTagListFromNestedTagList(deviceType.Tags))
 
 	return nil
 }
@@ -168,7 +168,7 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimDeviceTypesPartialUpdateParams().WithID(id).WithData(&data)
 

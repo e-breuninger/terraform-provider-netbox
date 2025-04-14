@@ -56,7 +56,7 @@ func resourceNetboxInventoryItemRoleCreate(d *schema.ResourceData, m interface{}
 		Color:       getOptionalStr(d, "color_hex", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -102,7 +102,7 @@ func resourceNetboxInventoryItemRoleRead(d *schema.ResourceData, m interface{}) 
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
@@ -119,7 +119,7 @@ func resourceNetboxInventoryItemRoleUpdate(d *schema.ResourceData, m interface{}
 		Color:       getOptionalStr(d, "color_hex", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {

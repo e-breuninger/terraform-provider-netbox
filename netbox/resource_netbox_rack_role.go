@@ -64,7 +64,7 @@ func resourceNetboxRackRoleCreate(d *schema.ResourceData, m interface{}) error {
 	color := d.Get("color_hex").(string)
 	description := getOptionalStr(d, "description", false)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimRackRolesCreateParams().WithData(
 		&models.RackRole{
@@ -110,7 +110,7 @@ func resourceNetboxRackRoleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", rackRole.Slug)
 	d.Set("description", rackRole.Description)
 	d.Set("color_hex", rackRole.Color)
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 	return nil
 }
 
@@ -138,7 +138,7 @@ func resourceNetboxRackRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Description = getOptionalStr(d, "description", true)
 	data.Color = color
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := dcim.NewDcimRackRolesPartialUpdateParams().WithID(id).WithData(&data)

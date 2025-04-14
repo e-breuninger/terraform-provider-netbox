@@ -84,7 +84,7 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 		data.UpstreamSpeed = int64ToPtr(int64(upstreamspeedValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -150,7 +150,7 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 		d.Set("upstream_speed", nil)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(term.Tags))
+	api.readTags(d, getTagListFromNestedTagList(term.Tags))
 
 	cf := getCustomFields(term.CustomFields)
 	if cf != nil {
@@ -189,7 +189,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 		data.UpstreamSpeed = int64ToPtr(int64(upstreamspeedValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
