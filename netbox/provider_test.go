@@ -64,7 +64,7 @@ func providerInvalidConfigure() schema.ConfigureContextFunc {
 			return nil, diag.FromErr(clientError)
 		}
 
-		return netboxClient, diags
+		return &providerState{NetBoxAPI: netboxClient}, diags
 	}
 }
 
