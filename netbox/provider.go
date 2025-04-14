@@ -6,11 +6,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"golang.org/x/exp/slices"
 )
+
+type providerState struct {
+	*client.NetBoxAPI
+}
 
 // This makes the description contain the default value, particularly useful for the docs
 // From https://github.com/hashicorp/terraform-plugin-docs/issues/65#issuecomment-1152842370
@@ -308,5 +313,8 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		}
 	}
 
-	return netboxClient, diags
+	state := &providerState{
+		NetBoxAPI:   netboxClient,
+	}
+	return state, diags
 }

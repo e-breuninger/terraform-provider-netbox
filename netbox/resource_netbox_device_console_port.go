@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -66,7 +65,7 @@ func resourceNetboxDeviceConsolePort() *schema.Resource {
 }
 
 func resourceNetboxDeviceConsolePortCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableConsolePort{
 		Device:        int64ToPtr(int64(d.Get("device_id").(int))),
@@ -99,7 +98,7 @@ func resourceNetboxDeviceConsolePortCreate(d *schema.ResourceData, m interface{}
 }
 
 func resourceNetboxDeviceConsolePortRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimConsolePortsReadParams().WithID(id)
 
@@ -157,7 +156,7 @@ func resourceNetboxDeviceConsolePortRead(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDeviceConsolePortUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -190,7 +189,7 @@ func resourceNetboxDeviceConsolePortUpdate(d *schema.ResourceData, m interface{}
 }
 
 func resourceNetboxDeviceConsolePortDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimConsolePortsDeleteParams().WithID(id)

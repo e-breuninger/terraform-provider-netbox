@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -39,7 +38,7 @@ func dataSourceNetboxContact() *schema.Resource {
 }
 
 func dataSourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	params := tenancy.NewTenancyContactsListParams()
 
 	if name, ok := d.Get("name").(string); ok && name != "" {

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -54,7 +53,7 @@ func resourceNetboxConfigTemplate() *schema.Resource {
 }
 
 func resourceNetboxConfigTemplateCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
@@ -97,7 +96,7 @@ func resourceNetboxConfigTemplateCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxConfigTemplateRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	var diags diag.Diagnostics
@@ -138,7 +137,7 @@ func resourceNetboxConfigTemplateRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxConfigTemplateUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
@@ -180,7 +179,7 @@ func resourceNetboxConfigTemplateUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxConfigTemplateDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasConfigTemplatesDeleteParams().WithID(id)

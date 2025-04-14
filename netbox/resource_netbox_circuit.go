@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -56,7 +55,7 @@ func resourceNetboxCircuit() *schema.Resource {
 }
 
 func resourceNetboxCircuitCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableCircuit{}
 
@@ -95,7 +94,7 @@ func resourceNetboxCircuitCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCircuitRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitsReadParams().WithID(id)
 
@@ -138,7 +137,7 @@ func resourceNetboxCircuitRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCircuitUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableCircuit{}
@@ -176,7 +175,7 @@ func resourceNetboxCircuitUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCircuitDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitsDeleteParams().WithID(id)

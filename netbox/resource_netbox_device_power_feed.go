@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -94,7 +93,7 @@ func resourceNetboxPowerFeed() *schema.Resource {
 }
 
 func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritablePowerFeed{
 		PowerPanel:     int64ToPtr(int64(d.Get("power_panel_id").(int))),
@@ -132,7 +131,7 @@ func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxPowerFeedRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerFeedsReadParams().WithID(id)
 
@@ -206,7 +205,7 @@ func resourceNetboxPowerFeedRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -244,7 +243,7 @@ func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxPowerFeedDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerFeedsDeleteParams().WithID(id)

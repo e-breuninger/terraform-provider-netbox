@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -64,7 +63,7 @@ func resourceNetboxIPRange() *schema.Resource {
 }
 
 func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableIPRange{}
 
 	startAddress := d.Get("start_address").(string)
@@ -90,7 +89,7 @@ func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPRangesReadParams().WithID(id)
 
@@ -141,7 +140,7 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPRange{}
 	startAddress := d.Get("start_address").(string)
@@ -178,7 +177,7 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPRangeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPRangesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamIPRangesDelete(params, nil)

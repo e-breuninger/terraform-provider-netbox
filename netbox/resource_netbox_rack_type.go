@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -188,7 +187,7 @@ func resourceNetboxRackType() *schema.Resource {
 }
 
 func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	model := d.Get("model").(string)
 	formFactor := d.Get("form_factor").(string)
@@ -238,7 +237,7 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackTypesReadParams().WithID(id)
 
@@ -298,7 +297,7 @@ func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -344,7 +343,7 @@ func resourceNetboxRackTypeUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackTypesDeleteParams().WithID(id)

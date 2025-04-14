@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -73,7 +72,7 @@ func resourceNetboxDeviceFrontPort() *schema.Resource {
 }
 
 func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableFrontPort{
 		Device:           int64ToPtr(int64(d.Get("device_id").(int))),
@@ -108,7 +107,7 @@ func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimFrontPortsReadParams().WithID(id)
 
@@ -169,7 +168,7 @@ func resourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -204,7 +203,7 @@ func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDeviceFrontPortDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimFrontPortsDeleteParams().WithID(id)

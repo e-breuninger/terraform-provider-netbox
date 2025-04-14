@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -66,7 +65,7 @@ func resourceNetboxWebhook() *schema.Resource {
 }
 
 func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := &models.Webhook{}
 	name := d.Get("name").(string)
@@ -92,7 +91,7 @@ func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasWebhooksReadParams().WithID(id)
 
@@ -120,7 +119,7 @@ func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.Webhook{}
@@ -147,7 +146,7 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxWebhookDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasWebhooksDeleteParams().WithID(id)

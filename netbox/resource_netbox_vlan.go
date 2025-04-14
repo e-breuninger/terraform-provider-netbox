@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -71,7 +70,7 @@ func resourceNetboxVlan() *schema.Resource {
 }
 
 func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableVLAN{}
 
 	name := d.Get("name").(string)
@@ -113,7 +112,7 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansReadParams().WithID(id)
 
@@ -157,7 +156,7 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVLAN{}
 	name := d.Get("name").(string)
@@ -197,7 +196,7 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamVlansDelete(params, nil)

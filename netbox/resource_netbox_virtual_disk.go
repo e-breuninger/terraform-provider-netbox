@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -56,7 +55,7 @@ func resourceNetboxVirtualDisks() *schema.Resource {
 }
 
 func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	size := d.Get("size_mb").(int)
@@ -94,7 +93,7 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -134,7 +133,7 @@ func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualDisk{}
@@ -174,7 +173,7 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualDisksDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationVirtualDisksDeleteParams().WithID(id)

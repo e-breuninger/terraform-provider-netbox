@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -154,7 +153,7 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 }
 
 func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	siteID := int64(d.Get("site_id").(int))
@@ -216,7 +215,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRacksReadParams().WithID(id)
 
@@ -320,7 +319,7 @@ func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -384,7 +383,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRacksDeleteParams().WithID(id)

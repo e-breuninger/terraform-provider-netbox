@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -88,7 +87,7 @@ func resourceNetboxInterface() *schema.Resource {
 }
 
 func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
@@ -134,7 +133,7 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	var diags diag.Diagnostics
@@ -176,7 +175,7 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 }
 
 func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
@@ -226,7 +225,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationInterfacesDeleteParams().WithID(id)

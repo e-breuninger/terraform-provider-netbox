@@ -7,15 +7,15 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
+	"net"
+	"regexp"
+	"strings"
+
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"net"
-	"regexp"
-	"strings"
 )
 
 func dataSourceNetboxDevices() *schema.Resource {
@@ -158,7 +158,7 @@ func dataSourceNetboxDevices() *schema.Resource {
 }
 
 func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := dcim.NewDcimDevicesListParams()
 

@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/vpn"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -55,7 +54,7 @@ func resourceNetboxVpnTunnelTermination() *schema.Resource {
 }
 
 func resourceNetboxVpnTunnelTerminationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableTunnelTermination{}
 
@@ -95,7 +94,7 @@ func resourceNetboxVpnTunnelTerminationCreate(d *schema.ResourceData, m interfac
 }
 
 func resourceNetboxVpnTunnelTerminationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := vpn.NewVpnTunnelTerminationsReadParams().WithID(id)
 
@@ -135,7 +134,7 @@ func resourceNetboxVpnTunnelTerminationRead(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxVpnTunnelTerminationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableTunnelTermination{}
@@ -172,7 +171,7 @@ func resourceNetboxVpnTunnelTerminationUpdate(d *schema.ResourceData, m interfac
 }
 
 func resourceNetboxVpnTunnelTerminationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := vpn.NewVpnTunnelTerminationsDeleteParams().WithID(id)

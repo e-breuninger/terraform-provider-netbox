@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -80,7 +79,7 @@ func resourceNetboxEventRule() *schema.Resource {
 }
 
 func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := &models.WritableEventRule{}
 
@@ -135,7 +134,7 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasEventRulesReadParams().WithID(id)
 
@@ -175,7 +174,7 @@ func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableEventRule{}
@@ -229,7 +228,7 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxEventRuleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasEventRulesDeleteParams().WithID(id)

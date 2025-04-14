@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -101,7 +100,7 @@ func resourceCustomField() *schema.Resource {
 }
 
 func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -153,7 +152,7 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := &models.WritableCustomField{
 		Name:            strToPtr(d.Get("name").(string)),
@@ -205,7 +204,7 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldsReadParams().WithID(id)
 	res, err := api.Extras.ExtrasCustomFieldsRead(params, nil)
@@ -251,7 +250,7 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxCustomFieldDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldsDeleteParams().WithID(id)
 	_, err := api.Extras.ExtrasCustomFieldsDelete(params, nil)

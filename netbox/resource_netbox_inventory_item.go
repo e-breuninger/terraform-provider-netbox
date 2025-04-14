@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -95,7 +94,7 @@ func resourceNetboxInventoryItem() *schema.Resource {
 }
 
 func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableInventoryItem{
 		Device:       int64ToPtr(int64(d.Get("device_id").(int))),
 		Name:         strToPtr(d.Get("name").(string)),
@@ -138,7 +137,7 @@ func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxInventoryItemRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimInventoryItemsReadParams().WithID(id)
 
@@ -198,7 +197,7 @@ func resourceNetboxInventoryItemRead(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxInventoryItemUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -242,7 +241,7 @@ func resourceNetboxInventoryItemUpdate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxInventoryItemDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimInventoryItemsDeleteParams().WithID(id)

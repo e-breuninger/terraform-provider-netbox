@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -78,7 +77,7 @@ func resourceNetboxPrefix() *schema.Resource {
 	}
 }
 func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritablePrefix{}
 
 	prefix := d.Get("prefix").(string)
@@ -133,7 +132,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamPrefixesReadParams().WithID(id)
 
@@ -202,7 +201,7 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritablePrefix{}
 	prefix := d.Get("prefix").(string)
@@ -257,7 +256,7 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPrefixDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamPrefixesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamPrefixesDelete(params, nil)

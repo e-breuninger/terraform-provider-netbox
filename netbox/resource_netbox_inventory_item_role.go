@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -49,7 +48,7 @@ func resourceNetboxInventoryItemRole() *schema.Resource {
 }
 
 func resourceNetboxInventoryItemRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.InventoryItemRole{
 		Name:        strToPtr(d.Get("name").(string)),
 		Slug:        strToPtr(d.Get("slug").(string)),
@@ -77,7 +76,7 @@ func resourceNetboxInventoryItemRoleCreate(d *schema.ResourceData, m interface{}
 }
 
 func resourceNetboxInventoryItemRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimInventoryItemRolesReadParams().WithID(id)
 
@@ -109,7 +108,7 @@ func resourceNetboxInventoryItemRoleRead(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxInventoryItemRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -138,7 +137,7 @@ func resourceNetboxInventoryItemRoleUpdate(d *schema.ResourceData, m interface{}
 }
 
 func resourceNetboxInventoryItemRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimInventoryItemRolesDeleteParams().WithID(id)

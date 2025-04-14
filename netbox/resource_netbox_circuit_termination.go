@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -58,7 +57,7 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 }
 
 func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableCircuitTermination{}
 
@@ -105,7 +104,7 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitTerminationsReadParams().WithID(id)
 
@@ -162,7 +161,7 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 }
 
 func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableCircuitTermination{}
@@ -208,7 +207,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxCircuitTerminationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitTerminationsDeleteParams().WithID(id)

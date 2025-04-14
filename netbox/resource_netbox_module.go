@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -68,7 +67,7 @@ Similar to devices, modules are instantiated from module types, and any componen
 }
 
 func resourceNetboxModuleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableModule{
 		Device:      int64ToPtr(int64(d.Get("device_id").(int))),
@@ -104,7 +103,7 @@ func resourceNetboxModuleCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxModuleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimModulesReadParams().WithID(id)
 
@@ -161,7 +160,7 @@ func resourceNetboxModuleRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxModuleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -197,7 +196,7 @@ func resourceNetboxModuleUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxModuleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimModulesDeleteParams().WithID(id)

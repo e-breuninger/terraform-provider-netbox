@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -106,7 +105,7 @@ This resource will retrieve the next available IP address from a given prefix or
 }
 
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	prefixID := int64(d.Get("prefix_id").(int))
 	vrfID := int64(int64(d.Get("vrf_id").(int)))
 	rangeID := int64(d.Get("ip_range_id").(int))
@@ -134,7 +133,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
 
@@ -196,7 +195,7 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 }
 
 func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPAddress{}
@@ -249,7 +248,7 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxAvailableIPAddressDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesDeleteParams().WithID(id)

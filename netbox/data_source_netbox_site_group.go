@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -35,7 +34,7 @@ func dataSourceNetboxSiteGroup() *schema.Resource {
 }
 
 func dataSourceNetboxSiteGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	params := dcim.NewDcimSiteGroupsListParams()
 
 	if name, ok := d.Get("name").(string); ok && name != "" {

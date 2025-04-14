@@ -3,7 +3,6 @@ package netbox
 import (
 	"fmt"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -30,7 +29,7 @@ var tagsSchemaRead = &schema.Schema{
 	Set:      schema.HashString,
 }
 
-func getNestedTagListFromResourceDataSet(client *client.NetBoxAPI, d interface{}) ([]*models.NestedTag, diag.Diagnostics) {
+func getNestedTagListFromResourceDataSet(client *providerState, d interface{}) ([]*models.NestedTag, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	tagList := d.(*schema.Set).List()

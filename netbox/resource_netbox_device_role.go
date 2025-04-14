@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -54,7 +53,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 }
 
 func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -96,7 +95,7 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceRolesReadParams().WithID(id)
 
@@ -123,7 +122,7 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.DeviceRole{}
@@ -163,7 +162,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceRolesDeleteParams().WithID(id)

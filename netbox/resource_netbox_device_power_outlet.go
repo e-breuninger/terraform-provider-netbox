@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -74,7 +73,7 @@ For example, imagine a PDU with one power port which draws from a three-phase fe
 }
 
 func resourceNetboxDevicePowerOutletCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritablePowerOutlet{
 		Device:        int64ToPtr(int64(d.Get("device_id").(int))),
@@ -108,7 +107,7 @@ func resourceNetboxDevicePowerOutletCreate(d *schema.ResourceData, m interface{}
 }
 
 func resourceNetboxDevicePowerOutletRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerOutletsReadParams().WithID(id)
 
@@ -173,7 +172,7 @@ func resourceNetboxDevicePowerOutletRead(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDevicePowerOutletUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -207,7 +206,7 @@ func resourceNetboxDevicePowerOutletUpdate(d *schema.ResourceData, m interface{}
 }
 
 func resourceNetboxDevicePowerOutletDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerOutletsDeleteParams().WithID(id)

@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -47,7 +46,7 @@ func resourceNetboxAggregate() *schema.Resource {
 	}
 }
 func resourceNetboxAggregateCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableAggregate{}
 
 	prefix := d.Get("prefix").(string)
@@ -77,7 +76,7 @@ func resourceNetboxAggregateCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxAggregateRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamAggregatesReadParams().WithID(id)
 
@@ -117,7 +116,7 @@ func resourceNetboxAggregateRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxAggregateUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableAggregate{}
 	prefix := d.Get("prefix").(string)
@@ -145,7 +144,7 @@ func resourceNetboxAggregateUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxAggregateDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamAggregatesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamAggregatesDelete(params, nil)

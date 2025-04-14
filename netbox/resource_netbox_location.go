@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -60,7 +59,7 @@ Each location must have a name that is unique within its parent site and locatio
 }
 
 func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableLocation{}
 
@@ -112,7 +111,7 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimLocationsReadParams().WithID(id)
 
@@ -164,7 +163,7 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableLocation{}
@@ -218,7 +217,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxLocationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimLocationsDeleteParams().WithID(id)

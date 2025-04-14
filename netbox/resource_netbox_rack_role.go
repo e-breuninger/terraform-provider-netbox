@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -49,7 +48,7 @@ func resourceNetboxRackRole() *schema.Resource {
 }
 
 func resourceNetboxRackRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -88,7 +87,7 @@ func resourceNetboxRackRoleCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackRolesReadParams().WithID(id)
 
@@ -116,7 +115,7 @@ func resourceNetboxRackRoleRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.RackRole{}
@@ -153,7 +152,7 @@ func resourceNetboxRackRoleUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackRolesDeleteParams().WithID(id)

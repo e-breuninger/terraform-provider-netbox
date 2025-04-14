@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -53,7 +52,7 @@ func resourceNetboxDeviceModuleBay() *schema.Resource {
 }
 
 func resourceNetboxDeviceModuleBayCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableModuleBay{
 		Device:      int64ToPtr(int64(d.Get("device_id").(int))),
@@ -83,7 +82,7 @@ func resourceNetboxDeviceModuleBayCreate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDeviceModuleBayRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimModuleBaysReadParams().WithID(id)
 
@@ -122,7 +121,7 @@ func resourceNetboxDeviceModuleBayRead(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxDeviceModuleBayUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -152,7 +151,7 @@ func resourceNetboxDeviceModuleBayUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDeviceModuleBayDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimModuleBaysDeleteParams().WithID(id)
