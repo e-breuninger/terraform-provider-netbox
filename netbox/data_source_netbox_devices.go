@@ -6,7 +6,6 @@ package netbox
 import (
 	"encoding/json"
 	"fmt"
-
 	"net"
 	"regexp"
 	"strings"

@@ -245,7 +245,7 @@ func Provider() *schema.Provider {
 			"default_tags": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Tags to add to any resource managed by this provider",
+				Description: "Tags to add to every resource managed by this provider",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
