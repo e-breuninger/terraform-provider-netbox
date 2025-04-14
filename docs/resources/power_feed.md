@@ -72,5 +72,6 @@ resource "netbox_power_feed" "test" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

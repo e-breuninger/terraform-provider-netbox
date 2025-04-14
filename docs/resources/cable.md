@@ -70,6 +70,7 @@ resource "netbox_cable" "test" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 <a id="nestedblock--a_termination"></a>
 ### Nested Schema for `a_termination`

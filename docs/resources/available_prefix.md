@@ -49,5 +49,6 @@ resource "netbox_available_prefix" "test" {
 
 - `id` (String) The ID of this resource.
 - `prefix` (String)
+- `tags_all` (Set of String)
 
 

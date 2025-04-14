@@ -30,7 +30,6 @@ var tagsAllSchema = &schema.Schema{
 		Type: schema.TypeString,
 	},
 	Computed: true,
-	Optional: true,
 	Set:      schema.HashString,
 }
 
