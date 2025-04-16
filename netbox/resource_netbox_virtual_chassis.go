@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -48,7 +47,7 @@ func resourceNetboxVirtualChassis() *schema.Resource {
 }
 
 func resourceNetboxVirtualChassisCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 
@@ -79,7 +78,7 @@ func resourceNetboxVirtualChassisCreate(ctx context.Context, d *schema.ResourceD
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimVirtualChassisCreateParams().WithData(&data)
 
@@ -94,7 +93,7 @@ func resourceNetboxVirtualChassisCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -124,12 +123,12 @@ func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceDat
 		d.Set(customFieldsKey, cf)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(virtualChassis.Tags))
+	api.readTags(d, getTagListFromNestedTagList(virtualChassis.Tags))
 	return nil
 }
 
 func resourceNetboxVirtualChassisUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualChassis{}
@@ -148,7 +147,7 @@ func resourceNetboxVirtualChassisUpdate(ctx context.Context, d *schema.ResourceD
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	if d.HasChanges("comments") {
 		// check if comment is set
@@ -178,7 +177,7 @@ func resourceNetboxVirtualChassisUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualChassisDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimVirtualChassisDeleteParams().WithID(id)
@@ -197,7 +196,7 @@ func resourceNetboxVirtualChassisDelete(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func virtualChassisUpdateMaster(api *client.NetBoxAPI, id int64, master *int64) error {
+func virtualChassisUpdateMaster(api *providerState, id int64, master *int64) error {
 	// Need to read the virtual chassis because we cannot do a partial update
 	// because setting `master` to nil would omit it entirely, so we need to
 	// do a PUT request instead of PATCH

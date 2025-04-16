@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/vpn"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -44,7 +43,7 @@ func resourceNetboxVpnTunnelGroup() *schema.Resource {
 }
 
 func resourceNetboxVpnTunnelGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.TunnelGroup{}
 
@@ -80,7 +79,7 @@ func resourceNetboxVpnTunnelGroupCreate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceNetboxVpnTunnelGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := vpn.NewVpnTunnelGroupsReadParams().WithID(id)
 
@@ -104,7 +103,7 @@ func resourceNetboxVpnTunnelGroupRead(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxVpnTunnelGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.TunnelGroup{}
@@ -144,7 +143,7 @@ func resourceNetboxVpnTunnelGroupUpdate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceNetboxVpnTunnelGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := vpn.NewVpnTunnelGroupsDeleteParams().WithID(id)

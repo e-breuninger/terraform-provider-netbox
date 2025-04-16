@@ -4,7 +4,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -53,7 +52,7 @@ func resourceNetboxTag() *schema.Resource {
 }
 
 func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 
@@ -89,7 +88,7 @@ func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasTagsReadParams().WithID(id)
 
@@ -114,7 +113,7 @@ func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.Tag{}
@@ -148,7 +147,7 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTagDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasTagsDeleteParams().WithID(id)

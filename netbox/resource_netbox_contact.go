@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/go-openapi/strfmt"
@@ -49,14 +48,14 @@ func resourceNetboxContact() *schema.Resource {
 }
 
 func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	phone := d.Get("phone").(string)
 	email := d.Get("email").(string)
 	groupID := int64(d.Get("group_id").(int))
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data := &models.WritableContact{}
 
@@ -82,7 +81,7 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactsReadParams().WithID(id)
 
@@ -110,7 +109,7 @@ func resourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableContact{}
@@ -120,7 +119,7 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	email := d.Get("email").(string)
 	groupID := int64(d.Get("group_id").(int))
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data.Name = &name
 	data.Tags = tags
@@ -141,7 +140,7 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxContactDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactsDeleteParams().WithID(id)

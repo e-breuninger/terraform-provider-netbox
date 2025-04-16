@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -44,7 +43,7 @@ func resourceNetboxClusterGroup() *schema.Resource {
 }
 
 func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.ClusterGroup{}
 
@@ -80,7 +79,7 @@ func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxClusterGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClusterGroupsReadParams().WithID(id)
 
@@ -104,7 +103,7 @@ func resourceNetboxClusterGroupRead(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.ClusterGroup{}
@@ -144,7 +143,7 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxClusterGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClusterGroupsDeleteParams().WithID(id)

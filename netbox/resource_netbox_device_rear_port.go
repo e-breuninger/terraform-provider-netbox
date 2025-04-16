@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -69,7 +68,7 @@ func resourceNetboxDeviceRearPort() *schema.Resource {
 }
 
 func resourceNetboxDeviceRearPortCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableRearPort{
 		Device:        int64ToPtr(int64(d.Get("device_id").(int))),
@@ -83,7 +82,7 @@ func resourceNetboxDeviceRearPortCreate(d *schema.ResourceData, m interface{}) e
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -103,7 +102,7 @@ func resourceNetboxDeviceRearPortCreate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRearPortsReadParams().WithID(id)
 
@@ -152,13 +151,13 @@ func resourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) err
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
 
 func resourceNetboxDeviceRearPortUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -174,7 +173,7 @@ func resourceNetboxDeviceRearPortUpdate(d *schema.ResourceData, m interface{}) e
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -192,7 +191,7 @@ func resourceNetboxDeviceRearPortUpdate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceNetboxDeviceRearPortDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRearPortsDeleteParams().WithID(id)

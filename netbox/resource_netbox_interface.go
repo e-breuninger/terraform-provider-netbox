@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -88,7 +87,7 @@ func resourceNetboxInterface() *schema.Resource {
 }
 
 func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
@@ -96,7 +95,7 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if diagnostics != nil {
 		diags = append(diags, diagnostics...)
 	}
@@ -134,7 +133,7 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	var diags diag.Diagnostics
@@ -161,7 +160,7 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	d.Set("enabled", iface.Enabled)
 	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
-	d.Set(tagsKey, getTagListFromNestedTagList(iface.Tags))
+	api.readTags(d, getTagListFromNestedTagList(iface.Tags))
 	d.Set("tagged_vlans", getIDsFromNestedVLAN(iface.TaggedVlans))
 	d.Set("virtual_machine_id", iface.VirtualMachine.ID)
 
@@ -176,7 +175,7 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 }
 
 func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
@@ -186,7 +185,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if diagnostics != nil {
 		diags = append(diags, diagnostics...)
 	}
@@ -226,7 +225,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationInterfacesDeleteParams().WithID(id)

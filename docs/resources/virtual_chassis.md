@@ -41,5 +41,6 @@ resource "netbox_virtual_chassis" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

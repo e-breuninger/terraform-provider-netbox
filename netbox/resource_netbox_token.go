@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -64,7 +63,7 @@ func resourceNetboxToken() *schema.Resource {
 }
 
 func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableToken{}
 
 	userid := int64(d.Get("user_id").(int))
@@ -94,7 +93,7 @@ func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersTokensReadParams().WithID(id)
 
@@ -127,7 +126,7 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableToken{}
 
@@ -155,7 +154,7 @@ func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTokenDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersTokensDeleteParams().WithID(id)
 	_, err := api.Users.UsersTokensDelete(params, nil)

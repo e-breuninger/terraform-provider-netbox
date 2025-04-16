@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -32,7 +31,7 @@ func dataSourceNetboxDeviceRole() *schema.Resource {
 }
 
 func dataSourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	params := dcim.NewDcimDeviceRolesListParams()

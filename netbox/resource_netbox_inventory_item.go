@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -95,7 +94,7 @@ func resourceNetboxInventoryItem() *schema.Resource {
 }
 
 func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableInventoryItem{
 		Device:       int64ToPtr(int64(d.Get("device_id").(int))),
 		Name:         strToPtr(d.Get("name").(string)),
@@ -118,7 +117,7 @@ func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) er
 		data.ComponentID = getOptionalInt(d, "component_id")
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -138,7 +137,7 @@ func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxInventoryItemRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimInventoryItemsReadParams().WithID(id)
 
@@ -192,13 +191,13 @@ func resourceNetboxInventoryItemRead(d *schema.ResourceData, m interface{}) erro
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
 
 func resourceNetboxInventoryItemUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -224,7 +223,7 @@ func resourceNetboxInventoryItemUpdate(d *schema.ResourceData, m interface{}) er
 		data.ComponentID = getOptionalInt(d, "component_id")
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -242,7 +241,7 @@ func resourceNetboxInventoryItemUpdate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxInventoryItemDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimInventoryItemsDeleteParams().WithID(id)

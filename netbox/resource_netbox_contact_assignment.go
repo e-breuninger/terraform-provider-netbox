@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -54,7 +53,7 @@ func resourceNetboxContactAssignment() *schema.Resource {
 }
 
 func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	contentType := d.Get("content_type").(string)
 	objectID := int64(d.Get("object_id").(int))
@@ -83,7 +82,7 @@ func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}
 }
 
 func resourceNetboxContactAssignmentRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactAssignmentsReadParams().WithID(id)
 
@@ -119,7 +118,7 @@ func resourceNetboxContactAssignmentRead(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableContactAssignment{}
@@ -153,7 +152,7 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 }
 
 func resourceNetboxContactAssignmentDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactAssignmentsDeleteParams().WithID(id)

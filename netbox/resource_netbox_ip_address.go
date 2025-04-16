@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -117,7 +116,7 @@ func resourceNetboxIPAddress() *schema.Resource {
 }
 
 func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableIPAddress{}
 
@@ -152,7 +151,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 		data.AssignedObjectID = nil
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -172,7 +171,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
@@ -260,7 +259,7 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ip_address", ipAddress.Address)
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
-	d.Set(tagsKey, getTagListFromNestedTagList(ipAddress.Tags))
+	api.readTags(d, getTagListFromNestedTagList(ipAddress.Tags))
 	cf := getCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
@@ -269,7 +268,7 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPAddress{}
@@ -305,7 +304,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		data.AssignedObjectID = nil
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
 		data.CustomFields = cf
@@ -322,7 +321,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxIPAddressDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesDeleteParams().WithID(id)

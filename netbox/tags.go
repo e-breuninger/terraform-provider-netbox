@@ -2,15 +2,18 @@ package netbox
 
 import (
 	"fmt"
+	"slices"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const tagsKey = "tags"
+const (
+	tagsKey    = "tags"
+	tagsAllKey = "tags_all"
+)
 
 var tagsSchema = &schema.Schema{
 	Type: schema.TypeSet,
@@ -18,6 +21,15 @@ var tagsSchema = &schema.Schema{
 		Type: schema.TypeString,
 	},
 	Optional: true,
+	Set:      schema.HashString,
+}
+
+var tagsAllSchema = &schema.Schema{
+	Type: schema.TypeSet,
+	Elem: &schema.Schema{
+		Type: schema.TypeString,
+	},
+	Computed: true,
 	Set:      schema.HashString,
 }
 
@@ -30,7 +42,7 @@ var tagsSchemaRead = &schema.Schema{
 	Set:      schema.HashString,
 }
 
-func getNestedTagListFromResourceDataSet(client *client.NetBoxAPI, d interface{}) ([]*models.NestedTag, diag.Diagnostics) {
+func getNestedTagListFromResourceDataSet(client *providerState, d interface{}) ([]*models.NestedTag, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	tagList := d.(*schema.Set).List()
@@ -82,4 +94,32 @@ func getTagListFromNestedTagList(nestedTags []*models.NestedTag) []string {
 		tags = append(tags, *nestedTag.Name)
 	}
 	return tags
+}
+
+func (s *providerState) readTags(d *schema.ResourceData, apiTags []string) {
+	d.Set(tagsAllKey, apiTags)
+
+	configTags := make([]string, len(apiTags))
+	cf := d.GetRawConfig()
+	if cf.IsNull() || !cf.IsKnown() {
+		cf = d.GetRawState() // config is missing during refresh
+	}
+	if !cf.IsNull() && cf.IsKnown() { // there is some config
+		c := cf.GetAttr(tagsKey)
+		if !c.IsNull() && c.IsKnown() { // tags are configured
+			for _, t := range c.AsValueSet().Values() {
+				configTags = append(configTags, t.AsString())
+			}
+		}
+	}
+
+	resourceTags := make([]string, 0, len(apiTags))
+	// remove default tags (except when configured on the resource)
+	for _, tag := range apiTags {
+		if !slices.Contains(s.defaultTags, tag) || slices.Contains(configTags, tag) {
+			resourceTags = append(resourceTags, tag)
+		}
+	}
+
+	d.Set(tagsKey, resourceTags)
 }

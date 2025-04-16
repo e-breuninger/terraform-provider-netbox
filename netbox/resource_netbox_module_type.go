@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -63,7 +62,7 @@ func resourceNetboxModuleType() *schema.Resource {
 }
 
 func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableModuleType{
 		Manufacturer: int64ToPtr(int64(d.Get("manufacturer_id").(int))),
@@ -75,7 +74,7 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 		Comments:     getOptionalStr(d, "comments", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -95,7 +94,7 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxModuleTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimModuleTypesReadParams().WithID(id)
 
@@ -136,13 +135,13 @@ func resourceNetboxModuleTypeRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
 
 func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -156,7 +155,7 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 		Comments:     getOptionalStr(d, "comments", true),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -174,7 +173,7 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxModuleTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimModuleTypesDeleteParams().WithID(id)

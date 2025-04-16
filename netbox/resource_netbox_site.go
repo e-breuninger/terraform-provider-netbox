@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -108,7 +107,7 @@ func resourceNetboxSite() *schema.Resource {
 }
 
 func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableSite{}
 
@@ -181,7 +180,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -201,7 +200,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimSitesReadParams().WithID(id)
 
@@ -256,13 +255,13 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
 
 func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableSite{}
@@ -348,7 +347,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -366,7 +365,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimSitesDeleteParams().WithID(id)

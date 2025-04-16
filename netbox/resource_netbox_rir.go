@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -49,7 +48,7 @@ func resourceNetboxRir() *schema.Resource {
 }
 
 func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.RIR{}
 
 	name := d.Get("name").(string)
@@ -79,7 +78,7 @@ func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRirsReadParams().WithID(id)
 
@@ -107,7 +106,7 @@ func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.RIR{}
 
@@ -136,7 +135,7 @@ func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRirDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRirsDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamRirsDelete(params, nil)

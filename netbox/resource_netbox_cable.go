@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -90,7 +89,7 @@ func resourceNetboxCable() *schema.Resource {
 }
 
 func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableCable{
 		Status:      d.Get("status").(string),
@@ -110,7 +109,7 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 	bTerminations := d.Get("b_termination").(*schema.Set)
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -130,7 +129,7 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCableRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimCablesReadParams().WithID(id)
 
@@ -182,13 +181,13 @@ func resourceNetboxCableRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
 
 func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -210,7 +209,7 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 	bTerminations := d.Get("b_termination").(*schema.Set)
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -228,7 +227,7 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCableDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimCablesDeleteParams().WithID(id)

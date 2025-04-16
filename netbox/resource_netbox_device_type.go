@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -58,7 +57,7 @@ func resourceNetboxDeviceType() *schema.Resource {
 }
 
 func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableDeviceType{}
 
@@ -90,7 +89,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
 
@@ -105,7 +104,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceTypesReadParams().WithID(id)
 
@@ -130,13 +129,13 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("part_number", deviceType.PartNumber)
 	d.Set("u_height", deviceType.UHeight)
 	d.Set("is_full_depth", deviceType.IsFullDepth)
-	d.Set(tagsKey, getTagListFromNestedTagList(deviceType.Tags))
+	api.readTags(d, getTagListFromNestedTagList(deviceType.Tags))
 
 	return nil
 }
 
 func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableDeviceType{}
@@ -169,7 +168,7 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimDeviceTypesPartialUpdateParams().WithID(id).WithData(&data)
 
@@ -182,7 +181,7 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceTypesDeleteParams().WithID(id)
