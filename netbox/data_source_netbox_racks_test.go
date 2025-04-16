@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccNetboxRacksDataSource_basic(t *testing.T) {
@@ -12,7 +12,7 @@ func TestAccNetboxRacksDataSource_basic(t *testing.T) {
 	testSlug := "racks_ds_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

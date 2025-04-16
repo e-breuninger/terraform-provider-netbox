@@ -6,7 +6,7 @@ import (
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 // sweeperNetboxClients is a shared cache of netbox clients
