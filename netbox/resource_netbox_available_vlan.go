@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -80,6 +79,14 @@ This resource will retrieve the next available VLAN ID from a given VLAN group (
 			"tenant_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
+			},
+			"vid": {
+				Type:     schema.TypeInt,
+				Computed: true, // it's auto-assigned by NetBox, not user-supplied
+			},
+			"comments": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			tagsKey: tagsSchema,
 		},
@@ -169,7 +176,6 @@ func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) erro
 		d.Set("role_id", nil)
 	}
 
-	// Convert tag list
 	d.Set(tagsKey, getTagListFromNestedTagList(vlan.Tags))
 
 	return nil
@@ -179,19 +185,6 @@ func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) er
 	api := m.(*client.NetBoxAPI)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	// First fetch the existing VLAN (mainly to retrieve VID)
-	readParams := ipam.NewIpamVlansReadParams().WithID(id)
-	readResp, err := api.Ipam.IpamVlansRead(readParams, nil)
-	if err != nil {
-		return fmt.Errorf("failed to fetch existing VLAN: %w", err)
-	}
-
-	existing := readResp.GetPayload()
-	if existing == nil {
-		return fmt.Errorf("existing VLAN not found for ID %d", id)
-	}
-
-	// Build update payload with the existing VID
 	data := &models.WritableVLAN{
 		Name:        strToPtr(d.Get("name").(string)),
 		Description: getOptionalStr(d, "description", false),
@@ -200,14 +193,14 @@ func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) er
 		Role:        getOptionalInt(d, "role_id"),
 		Status:      d.Get("status").(string),
 		Tags:        getOptionalTagList(d),
-		Vid:         existing.Vid,
+		Vid:         int64ToPtr(int64(d.Get("vid").(int))),
 	}
 
 	params := ipam.NewIpamVlansUpdateParams().
 		WithID(id).
 		WithData(data)
 
-	_, err = api.Ipam.IpamVlansUpdate(params, nil)
+	_, err := api.Ipam.IpamVlansUpdate(params, nil)
 	if err != nil {
 		return err
 	}
