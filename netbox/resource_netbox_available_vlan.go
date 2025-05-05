@@ -81,6 +81,14 @@ This resource will retrieve the next available VLAN ID from a given VLAN group (
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"vid": {
+				Type:     schema.TypeInt,
+				Computed: true, // it's auto-assigned by NetBox, not user-supplied
+			},
+			"comments": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			tagsKey: tagsSchema,
 		},
 	}
