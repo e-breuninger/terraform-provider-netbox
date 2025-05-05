@@ -83,7 +83,7 @@ This resource will retrieve the next available VLAN ID from a given VLAN group (
 			},
 			"vid": {
 				Type:     schema.TypeInt,
-				Computed: true, // it's auto-assigned by NetBox, not user-supplied
+				Computed: true,
 			},
 			"comments": {
 				Type:     schema.TypeString,
@@ -177,7 +177,6 @@ func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) erro
 		d.Set("role_id", nil)
 	}
 
-	// Convert tag list
 	d.Set(tagsKey, getTagListFromNestedTagList(vlan.Tags))
 
 	return nil
