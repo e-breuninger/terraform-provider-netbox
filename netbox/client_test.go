@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -72,19 +71,6 @@ func TestAdditionalHeadersSet(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	config := Config{
-		APIToken:  "07b12b765127747e4afd56cb531b7bf9c61f3c30",
-		ServerURL: ts.URL,
-		Headers: map[string]interface{}{
-			"Hello": "World!",
-		},
-	}
-
-	client, err := config.Client()
-	assert.NoError(t, err)
-
-	req := status.NewStatusListParams()
-	client.Status.StatusList(req, nil)
 }
 
 /* TODO

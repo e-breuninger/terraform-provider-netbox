@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
@@ -18,7 +18,7 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 	testLocalContextData, _ := json.Marshal(map[string]string{"testkey0": "testvalue0"})
 	dependencies := testAccNetboxDeviceDataSourceDependencies(testName)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: dependencies,
@@ -313,8 +313,8 @@ func TestAccNetboxDevicesDataSource_CustomFields(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`

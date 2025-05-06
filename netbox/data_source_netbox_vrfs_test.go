@@ -3,7 +3,7 @@ package netbox
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func testAccNetboxVrfsSetUp() string {
@@ -49,7 +49,7 @@ data "netbox_vrfs" "test" {
 func TestAccNetboxVrfsDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxVrfsSetUp()
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp,

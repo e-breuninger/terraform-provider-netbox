@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
@@ -12,7 +12,7 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependencies(testName)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: dependencies,
@@ -77,7 +77,7 @@ func TestAccNetboxVirtualMachinesDataSource_tags(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependenciesWithTags(testName)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: dependencies,
@@ -99,7 +99,7 @@ func TestAccNetboxVirtualMachinesDataSource_status(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	dependencies := testAccNetboxVirtualMachineDataSourceDependenciesWithStatus(testName)
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: dependencies,
