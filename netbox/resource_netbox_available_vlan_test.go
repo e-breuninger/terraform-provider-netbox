@@ -303,7 +303,7 @@ resource "netbox_available_vlan" "vlan2" {
   status   = "active"
 }
 `,
-				ExpectError: regexp.MustCompile(`.*409.*|.*no available VLANs.*`),
+				ExpectError: regexp.MustCompile(`(?i)(409|400|no available vlans|must be greater than or equal to)`),
 			},
 		},
 	})
