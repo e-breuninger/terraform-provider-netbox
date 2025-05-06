@@ -1,6 +1,8 @@
 package netbox
 
-import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+import (
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+)
 
 const (
 	maxUint16 = ^uint16(0)
