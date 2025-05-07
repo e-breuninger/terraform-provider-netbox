@@ -30,6 +30,7 @@ resource "netbox_tag" "test" {
 resource "netbox_location" "test" {
   name        = "%[1]s"
   description = "my-description"
+  facility    = "Building B"
   site_id     = netbox_site.test.id
   tenant_id   = netbox_tenant.test.id
   tags        = [netbox_tag.test.slug]
@@ -92,6 +93,7 @@ data "netbox_locations" "by_tags" {
 					resource.TestCheckResourceAttrPair("data.netbox_locations.by_name", "locations.0.tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_locations.by_name", "locations.0.parent_id", "0"),
 					resource.TestCheckResourceAttr("data.netbox_locations.by_name", "locations.0.description", "my-description"),
+					resource.TestCheckResourceAttr("data.netbox_locations.by_name", "locations.0.facility", "Building B"),
 					resource.TestCheckResourceAttr("data.netbox_locations.no_match", "locations.#", "0"),
 					resource.TestCheckResourceAttr("data.netbox_locations.by_site_slug", "locations.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_locations.by_site_slug", "locations.0.name", "netbox_location.test", "name"),
