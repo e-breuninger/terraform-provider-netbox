@@ -239,7 +239,11 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	params := dcim.NewDcimDevicesCreateParams().WithData(&data)
 
@@ -485,7 +489,11 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		data.CustomFields = cf
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	if d.HasChanges("asset_tag") {
 		if assetTagValue, ok := d.GetOk("asset_tag"); ok {
@@ -529,7 +537,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 
 	params := dcim.NewDcimDevicesUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimDevicesUpdate(params, nil)
+	_, err = api.Dcim.DcimDevicesUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}

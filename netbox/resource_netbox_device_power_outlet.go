@@ -87,7 +87,11 @@ func resourceNetboxDevicePowerOutletCreate(d *schema.ResourceData, m interface{}
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -188,7 +192,11 @@ func resourceNetboxDevicePowerOutletUpdate(d *schema.ResourceData, m interface{}
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -197,7 +205,7 @@ func resourceNetboxDevicePowerOutletUpdate(d *schema.ResourceData, m interface{}
 
 	params := dcim.NewDcimPowerOutletsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimPowerOutletsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimPowerOutletsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

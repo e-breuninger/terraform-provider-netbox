@@ -151,7 +151,11 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 		data.AssignedObjectID = nil
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -304,7 +308,11 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		data.AssignedObjectID = nil
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
 		data.CustomFields = cf
@@ -312,7 +320,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Ipam.IpamIPAddressesUpdate(params, nil)
+	_, err = api.Ipam.IpamIPAddressesUpdate(params, nil)
 	if err != nil {
 		return err
 	}

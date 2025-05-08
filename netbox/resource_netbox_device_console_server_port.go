@@ -78,7 +78,11 @@ func resourceNetboxDeviceConsoleServerPortCreate(d *schema.ResourceData, m inter
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -171,7 +175,11 @@ func resourceNetboxDeviceConsoleServerPortUpdate(d *schema.ResourceData, m inter
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -180,7 +188,7 @@ func resourceNetboxDeviceConsoleServerPortUpdate(d *schema.ResourceData, m inter
 
 	params := dcim.NewDcimConsoleServerPortsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimConsoleServerPortsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimConsoleServerPortsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

@@ -95,9 +95,9 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
-	if diagnostics != nil {
-		diags = append(diags, diagnostics...)
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	taggedVlans := toInt64List(d.Get("tagged_vlans"))
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
@@ -185,9 +185,9 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
-	if diagnostics != nil {
-		diags = append(diags, diagnostics...)
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	taggedVlans := toInt64List(d.Get("tagged_vlans"))
 	virtualMachineID := int64(d.Get("virtual_machine_id").(int))
@@ -216,7 +216,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil)
+	_, err = api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}

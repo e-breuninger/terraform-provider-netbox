@@ -72,7 +72,11 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 		data.Rd = &rd
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}

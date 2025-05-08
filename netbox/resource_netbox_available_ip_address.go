@@ -236,11 +236,15 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 		data.AssignedObjectID = nil
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Ipam.IpamIPAddressesUpdate(params, nil)
+	_, err = api.Ipam.IpamIPAddressesUpdate(params, nil)
 	if err != nil {
 		return err
 	}

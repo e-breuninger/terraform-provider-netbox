@@ -196,7 +196,11 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	data.Status = d.Get("status").(string)
 
-	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	data.Tags = tags
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -212,7 +216,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return append(resourceNetboxVirtualMachineRead(ctx, d, m), diags...)
+	return resourceNetboxVirtualMachineRead(ctx, d, m)
 }
 
 func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -412,7 +416,11 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	data.Tags = tags
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -444,12 +452,12 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 
 	params := virtualization.NewVirtualizationVirtualMachinesUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Virtualization.VirtualizationVirtualMachinesUpdate(params, nil)
+	_, err = api.Virtualization.VirtualizationVirtualMachinesUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	return append(resourceNetboxVirtualMachineRead(ctx, d, m), diags...)
+	return resourceNetboxVirtualMachineRead(ctx, d, m)
 }
 
 func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

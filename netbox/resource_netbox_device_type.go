@@ -89,7 +89,11 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
 
@@ -168,11 +172,15 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := dcim.NewDcimDeviceTypesPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimDeviceTypesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimDeviceTypesPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

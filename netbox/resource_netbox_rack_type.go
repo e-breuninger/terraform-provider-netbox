@@ -222,7 +222,11 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 		MountingDepth: getOptionalInt(d, "mounting_depth_mm"),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := dcim.NewDcimRackTypesCreateParams().WithData(&data)
 

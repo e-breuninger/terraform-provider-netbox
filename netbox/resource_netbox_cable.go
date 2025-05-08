@@ -109,7 +109,11 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 	bTerminations := d.Get("b_termination").(*schema.Set)
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -209,7 +213,11 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 	bTerminations := d.Get("b_termination").(*schema.Set)
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -218,7 +226,7 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimCablesPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimCablesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimCablesPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

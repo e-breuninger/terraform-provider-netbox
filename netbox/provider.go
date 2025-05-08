@@ -358,10 +358,15 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 func tagsCustomDiff(ctx context.Context, diff *schema.ResourceDiff, m interface{}) error {
 	state := m.(*providerState)
 
-	allTags := diff.Get(tagsKey).(*schema.Set).List()
+	tagSet := diff.Get(tagsKey).(*schema.Set)
 	for _, defaultTag := range state.defaultTags {
-		allTags = append(allTags, defaultTag)
+		tagSet.Add(defaultTag)
 	}
 
-	return diff.SetNew(tagsAllKey, allTags)
+	// check if tags are already up-to-date
+	if diff.Get(tagsAllKey).(*schema.Set).Equal(tagSet) {
+		return nil // nothing to do, same set
+	}
+
+	return diff.SetNew(tagsAllKey, tagSet)
 }

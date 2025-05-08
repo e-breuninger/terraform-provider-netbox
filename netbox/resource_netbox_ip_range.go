@@ -76,7 +76,11 @@ func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 	data.Status = status
 	data.Description = description
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamIPRangesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamIPRangesCreate(params, nil)
@@ -166,10 +170,14 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamIPRangesUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Ipam.IpamIPRangesUpdate(params, nil)
+	_, err = api.Ipam.IpamIPRangesUpdate(params, nil)
 	if err != nil {
 		return err
 	}

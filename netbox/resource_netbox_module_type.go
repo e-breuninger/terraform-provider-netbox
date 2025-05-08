@@ -74,7 +74,11 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 		Comments:     getOptionalStr(d, "comments", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -155,7 +159,11 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 		Comments:     getOptionalStr(d, "comments", true),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -164,7 +172,7 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 
 	params := dcim.NewDcimModuleTypesPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimModuleTypesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimModuleTypesPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

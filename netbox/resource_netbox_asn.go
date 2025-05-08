@@ -62,7 +62,11 @@ func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Description = d.Get("description").(string)
 	data.Comments = d.Get("comments").(string)
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamAsnsCreateParams().WithData(&data)
 
@@ -119,11 +123,15 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Description = d.Get("description").(string)
 	data.Comments = d.Get("comments").(string)
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamAsnsUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Ipam.IpamAsnsUpdate(params, nil)
+	_, err = api.Ipam.IpamAsnsUpdate(params, nil)
 	if err != nil {
 		return err
 	}

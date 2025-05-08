@@ -84,7 +84,11 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 		data.UpstreamSpeed = int64ToPtr(int64(upstreamspeedValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -189,7 +193,11 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 		data.UpstreamSpeed = int64ToPtr(int64(upstreamspeedValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -198,7 +206,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 
 	params := circuits.NewCircuitsCircuitTerminationsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Circuits.CircuitsCircuitTerminationsPartialUpdate(params, nil)
+	_, err = api.Circuits.CircuitsCircuitTerminationsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

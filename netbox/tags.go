@@ -6,7 +6,6 @@ import (
 
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -42,9 +41,7 @@ var tagsSchemaRead = &schema.Schema{
 	Set:      schema.HashString,
 }
 
-func getNestedTagListFromResourceDataSet(client *providerState, d interface{}) ([]*models.NestedTag, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
+func getNestedTagListFromResourceDataSet(client *providerState, d interface{}) ([]*models.NestedTag, error) {
 	tagList := d.(*schema.Set).List()
 	tags := []*models.NestedTag{}
 	for _, tag := range tagList {
@@ -55,37 +52,23 @@ func getNestedTagListFromResourceDataSet(client *providerState, d interface{}) (
 		params.Limit = &limit
 		res, err := client.Extras.ExtrasTagsList(params, nil)
 		if err != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
-				Detail:   fmt.Sprintf("API Error trying to retrieve tag %s from netbox", tag.(string)),
-			})
-			return tags, diags
+			return tags, fmt.Errorf("API Error trying to retrieve tag %q from netbox: %w", tag, err)
 		}
 		payload := res.GetPayload()
 		switch *payload.Count {
 		case int64(0):
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
-				Detail:   fmt.Sprintf("Could not locate referenced tag %s in netbox", tag.(string)),
-			})
-			return tags, diags
+			return tags, fmt.Errorf("Could not locate referenced tag %q in netbox, no results", tag)
 		case int64(1):
 			tags = append(tags, &models.NestedTag{
 				Name: payload.Results[0].Name,
 				Slug: payload.Results[0].Slug,
 			})
 		default:
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  fmt.Sprintf("Error retrieving tag %s from netbox", tag.(string)),
-				Detail:   fmt.Sprintf("Could not map tag %s to unique tag in netbox", tag.(string)),
-			})
+			return tags, fmt.Errorf("Could not map tag %q to unique tag in netbox, %d results", tag, *payload.Count)
 		}
 	}
 
-	return tags, diags
+	return tags, nil
 }
 
 func getTagListFromNestedTagList(nestedTags []*models.NestedTag) []string {
@@ -97,7 +80,11 @@ func getTagListFromNestedTagList(nestedTags []*models.NestedTag) []string {
 }
 
 func (s *providerState) readTags(d *schema.ResourceData, apiTags []string) {
-	d.Set(tagsAllKey, apiTags)
+	allTags := schema.NewSet(nil, nil)
+	for _, t := range apiTags {
+		allTags.Add(t)
+	}
+	d.Set(tagsAllKey, allTags)
 
 	configTags := make([]string, len(apiTags))
 	cf := d.GetRawConfig()
@@ -113,11 +100,11 @@ func (s *providerState) readTags(d *schema.ResourceData, apiTags []string) {
 		}
 	}
 
-	resourceTags := make([]string, 0, len(apiTags))
+	resourceTags := schema.NewSet(nil, nil)
 	// remove default tags (except when configured on the resource)
 	for _, tag := range apiTags {
 		if !slices.Contains(s.defaultTags, tag) || slices.Contains(configTags, tag) {
-			resourceTags = append(resourceTags, tag)
+			resourceTags.Add(tag)
 		}
 	}
 

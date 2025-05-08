@@ -78,7 +78,11 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	params := virtualization.NewVirtualizationVirtualDisksCreateParams().WithData(&data)
 
@@ -151,7 +155,11 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	if d.HasChanges("description") {
 		// check if description is set
@@ -164,7 +172,7 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 
 	params := virtualization.NewVirtualizationVirtualDisksUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Virtualization.VirtualizationVirtualDisksUpdate(params, nil)
+	_, err = api.Virtualization.VirtualizationVirtualDisksUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}

@@ -99,7 +99,11 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamVlansCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlansCreate(params, nil)
@@ -185,10 +189,14 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamVlansUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Ipam.IpamVlansUpdate(params, nil)
+	_, err = api.Ipam.IpamVlansUpdate(params, nil)
 	if err != nil {
 		return err
 	}

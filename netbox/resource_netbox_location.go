@@ -91,7 +91,11 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -199,7 +203,11 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -208,7 +216,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimLocationsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimLocationsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimLocationsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

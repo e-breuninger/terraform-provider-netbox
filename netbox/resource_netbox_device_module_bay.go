@@ -62,7 +62,11 @@ func resourceNetboxDeviceModuleBayCreate(d *schema.ResourceData, m interface{}) 
 		Description: getOptionalStr(d, "description", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -133,7 +137,11 @@ func resourceNetboxDeviceModuleBayUpdate(d *schema.ResourceData, m interface{}) 
 		Description: getOptionalStr(d, "description", true),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -142,7 +150,7 @@ func resourceNetboxDeviceModuleBayUpdate(d *schema.ResourceData, m interface{}) 
 
 	params := dcim.NewDcimModuleBaysPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimModuleBaysPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimModuleBaysPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

@@ -97,7 +97,11 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 		data.ScopeID = int64ToPtr(int64(scopeID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamVlanGroupsCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlanGroupsCreate(params, nil)
@@ -179,10 +183,14 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 		data.ScopeID = int64ToPtr(int64(scopeID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamVlanGroupsUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Ipam.IpamVlanGroupsUpdate(params, nil)
+	_, err = api.Ipam.IpamVlanGroupsUpdate(params, nil)
 	if err != nil {
 		return err
 	}

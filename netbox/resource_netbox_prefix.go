@@ -119,7 +119,11 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 		data.CustomFields = cf
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamPrefixesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamPrefixesCreate(params, nil)
@@ -245,10 +249,14 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 		data.CustomFields = cf
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamPrefixesUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Ipam.IpamPrefixesUpdate(params, nil)
+	_, err = api.Ipam.IpamPrefixesUpdate(params, nil)
 	if err != nil {
 		return err
 	}

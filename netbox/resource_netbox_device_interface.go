@@ -119,9 +119,9 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
-	if diagnostics != nil {
-		diags = append(diags, diagnostics...)
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	taggedVlans := toInt64List(d.Get("tagged_vlans"))
 	deviceID := int64(d.Get("device_id").(int))
@@ -237,9 +237,9 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
 	mode := d.Get("mode").(string)
-	tags, diagnostics := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
-	if diagnostics != nil {
-		diags = append(diags, diagnostics...)
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	taggedVlans := toInt64List(d.Get("tagged_vlans"))
 	deviceID := int64(d.Get("device_id").(int))
@@ -285,7 +285,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	}
 
 	params := dcim.NewDcimInterfacesPartialUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Dcim.DcimInterfacesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimInterfacesPartialUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}

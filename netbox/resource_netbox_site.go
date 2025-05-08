@@ -180,7 +180,11 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -347,7 +351,11 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -356,7 +364,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimSitesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimSitesPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

@@ -83,7 +83,11 @@ func resourceNetboxModuleCreate(d *schema.ResourceData, m interface{}) error {
 		data.AssetTag = &assetTag
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -178,7 +182,11 @@ func resourceNetboxModuleUpdate(d *schema.ResourceData, m interface{}) error {
 		data.AssetTag = &assetTag
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -187,7 +195,7 @@ func resourceNetboxModuleUpdate(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimModulesPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimModulesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimModulesPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

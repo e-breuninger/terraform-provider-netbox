@@ -60,7 +60,11 @@ func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error
 		Comments:    getOptionalStr(d, "comments", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -137,7 +141,11 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 		Comments:    getOptionalStr(d, "comments", true),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -146,7 +154,7 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 
 	params := dcim.NewDcimPowerPanelsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimPowerPanelsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimPowerPanelsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
