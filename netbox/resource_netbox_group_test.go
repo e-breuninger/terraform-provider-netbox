@@ -21,9 +21,11 @@ func TestAccNetboxGroup_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_group" "test_basic" {
   name = "%s"
+	description = "This is my example resource"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_group.test_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_group.test_basic", "description", "This is my example resource"),
 				),
 			},
 			{

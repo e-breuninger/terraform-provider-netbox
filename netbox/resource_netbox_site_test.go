@@ -37,6 +37,7 @@ resource "netbox_site" "test" {
   slug = "%[2]s"
   status = "planned"
   description = "%[1]s"
+  comments = "%[1]s"
   facility = "%[1]s"
   physical_address = "%[1]s"
   shipping_address = "%[1]s"
@@ -48,6 +49,7 @@ resource "netbox_site" "test" {
 					resource.TestCheckResourceAttr("netbox_site.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_site.test", "status", "planned"),
 					resource.TestCheckResourceAttr("netbox_site.test", "description", testName),
+					resource.TestCheckResourceAttr("netbox_site.test", "comments", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "facility", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", testName),
@@ -113,6 +115,7 @@ func TestAccNetboxSite_fieldUpdate(t *testing.T) {
 resource "netbox_site" "test" {
 	name        = "%[2]s"
 	description = "Test site description"
+	comments = "Test comment"
 	physical_address = "Physical address"
 	shipping_address = "Shipping address"
 	latitude      = "12.123456"
@@ -121,6 +124,7 @@ resource "netbox_site" "test" {
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "description", "Test site description"),
+					resource.TestCheckResourceAttr("netbox_site.test", "comments", "Test comment"),
 					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", "Physical address"),
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", "Shipping address"),
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
@@ -133,6 +137,7 @@ resource "netbox_site" "test" {
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "description", ""),
+					resource.TestCheckResourceAttr("netbox_site.test", "comments", ""),
 					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", ""),
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", ""),
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "0"),

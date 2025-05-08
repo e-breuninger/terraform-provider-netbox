@@ -47,6 +47,10 @@ func resourceNetboxSite() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 200),
 			},
+			"comments": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"facility": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -122,6 +126,10 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 
 	if description, ok := d.GetOk("description"); ok {
 		data.Description = description.(string)
+	}
+
+	if comments, ok := d.GetOk("comments"); ok {
+		data.Comments = comments.(string)
 	}
 
 	if facility, ok := d.GetOk("facility"); ok {
@@ -216,6 +224,7 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", site.Slug)
 	d.Set("status", site.Status.Value)
 	d.Set("description", site.Description)
+	d.Set("comments", site.Comments)
 	d.Set("facility", site.Facility)
 	d.Set("longitude", site.Longitude)
 	d.Set("latitude", site.Latitude)
@@ -275,6 +284,13 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	} else if d.HasChange("description") {
 		// If GetOK returned unset description and its value changed, set it as a space string to delete it ...
 		data.Description = " "
+	}
+
+	if comments, ok := d.GetOk("comments"); ok {
+		data.Comments = comments.(string)
+	} else if d.HasChange("comments") {
+		// If GetOK returned unset description and its value changed, set it as a space string to delete it ...
+		data.Comments = " "
 	}
 
 	if facility, ok := d.GetOk("facility"); ok {

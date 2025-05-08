@@ -22,6 +22,11 @@ func resourceNetboxGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -33,8 +38,10 @@ func resourceNetboxGroupCreate(d *schema.ResourceData, m interface{}) error {
 	data := models.Group{}
 
 	name := d.Get("name").(string)
+	description := d.Get("description").(string)
 
 	data.Name = &name
+	data.Description = description
 
 	params := users.NewUsersGroupsCreateParams().WithData(&data)
 	res, err := api.Users.UsersGroupsCreate(params, nil)
@@ -67,6 +74,7 @@ func resourceNetboxGroupRead(d *schema.ResourceData, m interface{}) error {
 	if res.GetPayload().Name != nil {
 		d.Set("name", res.GetPayload().Name)
 	}
+	d.Set("description", res.GetPayload().Description)
 
 	return nil
 }
@@ -77,8 +85,10 @@ func resourceNetboxGroupUpdate(d *schema.ResourceData, m interface{}) error {
 	data := models.Group{}
 
 	name := d.Get("name").(string)
+	description := d.Get("description").(string)
 
 	data.Name = &name
+	data.Description = description
 
 	params := users.NewUsersGroupsUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Users.UsersGroupsUpdate(params, nil)

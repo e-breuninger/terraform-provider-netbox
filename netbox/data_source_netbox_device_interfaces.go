@@ -38,6 +38,10 @@ func dataSourceNetboxDeviceInterfaces() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
+			"limit": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"interfaces": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -138,6 +142,12 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 	api := m.(*providerState)
 
 	params := dcim.NewDcimInterfacesListParams()
+
+	if limit, ok := d.GetOk("limit"); ok {
+		limitInt := int64(limit.(int))
+		params.Limit = &limitInt
+	}
+
 
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
