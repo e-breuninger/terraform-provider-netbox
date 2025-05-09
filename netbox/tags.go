@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -41,34 +42,49 @@ var tagsSchemaRead = &schema.Schema{
 	Set:      schema.HashString,
 }
 
-func getNestedTagListFromResourceDataSet(client *providerState, d interface{}) ([]*models.NestedTag, error) {
+func getNestedTagListFromResourceDataSet(state *providerState, d interface{}) ([]*models.NestedTag, error) {
 	tagList := d.(*schema.Set).List()
 	tags := []*models.NestedTag{}
 	for _, tag := range tagList {
-		tagString := tag.(string)
-		params := extras.NewExtrasTagsListParams()
-		params.Name = &tagString
-		limit := int64(2) // We search for a unique tag. Having two hits suffices to know its not unique.
-		params.Limit = &limit
-		res, err := client.Extras.ExtrasTagsList(params, nil)
-		if err != nil {
-			return tags, fmt.Errorf("API Error trying to retrieve tag %q from netbox: %w", tag, err)
+		nbTag, ok := state.tagCache[tag.(string)]
+		if !ok {
+			var err error
+			nbTag, err = findTag(state.NetBoxAPI, tag.(string))
+			if err != nil {
+				return tags, err
+			}
 		}
-		payload := res.GetPayload()
-		switch *payload.Count {
-		case int64(0):
-			return tags, fmt.Errorf("Could not locate referenced tag %q in netbox, no results", tag)
-		case int64(1):
-			tags = append(tags, &models.NestedTag{
-				Name: payload.Results[0].Name,
-				Slug: payload.Results[0].Slug,
-			})
-		default:
-			return tags, fmt.Errorf("Could not map tag %q to unique tag in netbox, %d results", tag, *payload.Count)
-		}
+
+		tags = append(tags, nbTag)
 	}
 
 	return tags, nil
+}
+
+func findTag(client *client.NetBoxAPI, name string) (*models.NestedTag, error) {
+	params := extras.NewExtrasTagsListParams()
+	params.Name = &name
+
+	limit := int64(2) // We search for a unique tag. Having two hits suffices to know its not unique.
+	params.Limit = &limit
+
+	res, err := client.Extras.ExtrasTagsList(params, nil)
+	if err != nil {
+		return nil, fmt.Errorf("API Error trying to retrieve tag %q from netbox: %w", name, err)
+	}
+
+	payload := res.GetPayload()
+	switch *payload.Count {
+	case int64(0):
+		return nil, fmt.Errorf("Could not locate referenced tag %q in netbox, no results", name)
+	case int64(1):
+		return &models.NestedTag{
+			Name: payload.Results[0].Name,
+			Slug: payload.Results[0].Slug,
+		}, nil
+	default:
+		return nil, fmt.Errorf("Could not map tag %q to unique tag in netbox, %d results", name, *payload.Count)
+	}
 }
 
 func getTagListFromNestedTagList(nestedTags []*models.NestedTag) []string {

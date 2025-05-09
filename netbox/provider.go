@@ -8,6 +8,7 @@ import (
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,7 +17,10 @@ import (
 
 type providerState struct {
 	*client.NetBoxAPI
-	defaultTags []string
+	defaultTags *schema.Set
+
+	// concurrent access ok, only populated on provider start
+	tagCache map[string]*models.NestedTag
 }
 
 // This makes the description contain the default value, particularly useful for the docs
@@ -243,12 +247,12 @@ func Provider() *schema.Provider {
 				Description: "Netbox API HTTP request timeout in seconds. Can be set via the `NETBOX_REQUEST_TIMEOUT` environment variable.",
 			},
 			"default_tags": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "Tags to add to every resource managed by this provider",
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Optional:    true,
+				Description: "Tags to add to every resource managed by this provider",
 			},
 		},
 		ConfigureContextFunc: providerConfigure,
@@ -336,12 +340,19 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		}
 	}
 
-	var defaultTags []string
-	if tags, ok := data.Get("default_tags").([]any); ok {
-		defaultTags = make([]string, 0, len(tags))
-		for _, tag := range tags {
+	tags, ok := data.Get("default_tags").(*schema.Set)
+	tagCache := make(map[string]*models.NestedTag, tags.Len())
+	if ok {
+		for _, tag := range tags.List() {
 			if tagName, ok := tag.(string); ok {
-				defaultTags = append(defaultTags, tagName)
+				nbTag, err := findTag(netboxClient, tagName)
+				if err != nil {
+					d := diag.FromErr(fmt.Errorf("default tag not found: %w", err))
+					d[0].Severity = diag.Warning
+					diags = append(diags, d...)
+				} else {
+					tagCache[tagName] = nbTag
+				}
 			} else {
 				diags = append(diags, diag.Errorf("invalid type for default tag: %T", tag)...)
 			}
@@ -350,7 +361,8 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	state := &providerState{
 		NetBoxAPI:   netboxClient,
-		defaultTags: defaultTags,
+		defaultTags: schema.CopySet(tags),
+		tagCache:    tagCache,
 	}
 	return state, diags
 }
@@ -359,14 +371,12 @@ func tagsCustomDiff(ctx context.Context, diff *schema.ResourceDiff, m interface{
 	state := m.(*providerState)
 
 	tagSet := diff.Get(tagsKey).(*schema.Set)
-	for _, defaultTag := range state.defaultTags {
-		tagSet.Add(defaultTag)
-	}
+	allTags := tagSet.Union(state.defaultTags)
 
 	// check if tags are already up-to-date
-	if diff.Get(tagsAllKey).(*schema.Set).Equal(tagSet) {
+	if diff.Get(tagsAllKey).(*schema.Set).Equal(allTags) {
 		return nil // nothing to do, same set
 	}
 
-	return diff.SetNew(tagsAllKey, tagSet)
+	return diff.SetNew(tagsAllKey, allTags.List())
 }
