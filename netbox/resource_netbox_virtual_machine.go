@@ -322,7 +322,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	} else {
 		d.Set("status", nil)
 	}
-	api.readTags(d, getTagListFromNestedTagList(vm.Tags))
+	api.readTags(d, vm.Tags)
 
 	cf := getCustomFields(vm.CustomFields)
 	if cf != nil {

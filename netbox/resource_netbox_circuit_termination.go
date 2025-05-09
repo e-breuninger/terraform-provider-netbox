@@ -154,7 +154,7 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 		d.Set("upstream_speed", nil)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(term.Tags))
+	api.readTags(d, term.Tags)
 
 	cf := getCustomFields(term.CustomFields)
 	if cf != nil {

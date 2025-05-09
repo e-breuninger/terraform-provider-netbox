@@ -125,7 +125,7 @@ func resourceNetboxRackReservationRead(d *schema.ResourceData, m interface{}) er
 
 	d.Set("comments", rackRes.Comments)
 
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 

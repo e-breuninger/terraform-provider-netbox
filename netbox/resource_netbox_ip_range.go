@@ -138,7 +138,7 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("role_id", res.GetPayload().Role.ID)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }

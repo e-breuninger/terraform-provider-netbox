@@ -403,7 +403,7 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("local_context_data", nil)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(device.Tags))
+	api.readTags(d, device.Tags)
 	return diags
 }
 

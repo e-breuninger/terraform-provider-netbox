@@ -129,7 +129,7 @@ func resourceNetboxVpnTunnelTerminationRead(d *schema.ResourceData, m interface{
 		d.Set("outside_ip_address_id", tunnelTermination.OutsideIP.ID)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 

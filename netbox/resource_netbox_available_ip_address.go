@@ -190,7 +190,7 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	d.Set("ip_address", ipAddress.Address)
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
-	api.readTags(d, getTagListFromNestedTagList(ipAddress.Tags))
+	api.readTags(d, ipAddress.Tags)
 	return nil
 }
 

@@ -127,7 +127,7 @@ func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceDat
 		d.Set(customFieldsKey, cf)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(virtualChassis.Tags))
+	api.readTags(d, virtualChassis.Tags)
 	return nil
 }
 

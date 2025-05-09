@@ -130,7 +130,7 @@ func resourceNetboxVpnTunnelRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("description", tunnel.Description)
 
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 

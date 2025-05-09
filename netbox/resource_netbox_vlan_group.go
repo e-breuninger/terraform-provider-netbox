@@ -137,7 +137,7 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", vlanGroup.Slug)
 	d.Set("description", vlanGroup.Description)
 	d.Set("vid_ranges", vlanGroup.VidRanges)
-	api.readTags(d, getTagListFromNestedTagList(vlanGroup.Tags))
+	api.readTags(d, vlanGroup.Tags)
 
 	if vlanGroup.ScopeType != nil {
 		d.Set("scope_type", vlanGroup.ScopeType)

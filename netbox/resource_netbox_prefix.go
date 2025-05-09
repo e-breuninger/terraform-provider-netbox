@@ -198,7 +198,7 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		d.Set(customFieldsKey, cf)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
 	return nil

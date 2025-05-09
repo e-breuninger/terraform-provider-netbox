@@ -175,7 +175,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if tags := res.GetPayload().Tags; tags != nil {
-		api.readTags(d, getTagListFromNestedTagList(tags))
+		api.readTags(d, tags)
 	}
 
 	cf := getCustomFields(res.GetPayload().CustomFields)

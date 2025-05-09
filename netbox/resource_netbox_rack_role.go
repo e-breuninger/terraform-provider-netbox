@@ -110,7 +110,7 @@ func resourceNetboxRackRoleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", rackRole.Slug)
 	d.Set("description", rackRole.Description)
 	d.Set("color_hex", rackRole.Color)
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 

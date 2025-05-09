@@ -114,7 +114,7 @@ func resourceNetboxAggregateRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("rir_id", nil)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }

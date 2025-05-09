@@ -160,7 +160,7 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	d.Set("enabled", iface.Enabled)
 	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
-	api.readTags(d, getTagListFromNestedTagList(iface.Tags))
+	api.readTags(d, iface.Tags)
 	d.Set("tagged_vlans", getIDsFromNestedVLAN(iface.TaggedVlans))
 	d.Set("virtual_machine_id", iface.VirtualMachine.ID)
 

@@ -132,7 +132,7 @@ func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData,
 		d.Set(customFieldsKey, cf)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(VirtualDisks.Tags))
+	api.readTags(d, VirtualDisks.Tags)
 	return nil
 }
 

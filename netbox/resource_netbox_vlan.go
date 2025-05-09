@@ -138,7 +138,7 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", vlan.Name)
 	d.Set("vid", vlan.Vid)
 	d.Set("description", vlan.Description)
-	api.readTags(d, getTagListFromNestedTagList(vlan.Tags))
+	api.readTags(d, vlan.Tags)
 
 	if vlan.Status != nil {
 		d.Set("status", vlan.Status.Value)

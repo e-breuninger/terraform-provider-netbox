@@ -292,7 +292,14 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 	}
 	d.Set("sites", sitesSlice)
 
-	api.readTags(d, res.GetPayload().Tags)
+	// hack since `readTags` mostly deals with nested tags
+	tags := make([]*models.NestedTag, 0, len(res.GetPayload().Tags))
+	for _, tagName := range res.GetPayload().Tags {
+		tags = append(tags, &models.NestedTag{
+			Name: &tagName,
+		})
+	}
+	api.readTags(d, tags)
 
 	tenantGroups := res.GetPayload().TenantGroups
 	tenantGroupsSlice := make([]int64, len(tenantGroups))

@@ -117,7 +117,7 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("vm_role", res.GetPayload().VMRole)
 	d.Set("color_hex", res.GetPayload().Color)
 	d.Set("description", res.GetPayload().Description)
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 

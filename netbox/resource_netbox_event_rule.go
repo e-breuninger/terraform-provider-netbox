@@ -168,7 +168,7 @@ func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("conditions", string(conditions))
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(eventRule.Tags))
+	api.readTags(d, eventRule.Tags)
 
 	return nil
 }

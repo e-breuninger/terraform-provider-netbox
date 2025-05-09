@@ -104,7 +104,7 @@ func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("rir_id", asn.Rir.ID)
 	d.Set("description", asn.Description)
 	d.Set("comments", asn.Comments)
-	api.readTags(d, getTagListFromNestedTagList(asn.Tags))
+	api.readTags(d, asn.Tags)
 
 	return nil
 }

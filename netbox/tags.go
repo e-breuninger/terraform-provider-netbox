@@ -79,12 +79,12 @@ func getTagListFromNestedTagList(nestedTags []*models.NestedTag) []string {
 	return tags
 }
 
-func (s *providerState) readTags(d *schema.ResourceData, apiTags []string) {
-	allTags := schema.NewSet(nil, nil)
+func (s *providerState) readTags(d *schema.ResourceData, apiTags []*models.NestedTag) {
+	allTags := schema.NewSet(schema.HashString, nil)
 	for _, t := range apiTags {
-		allTags.Add(t)
+		allTags.Add(*t.Name)
 	}
-	d.Set(tagsAllKey, allTags)
+	d.Set(tagsAllKey, allTags.List())
 
 	configTags := make([]string, len(apiTags))
 	cf := d.GetRawConfig()
@@ -100,13 +100,13 @@ func (s *providerState) readTags(d *schema.ResourceData, apiTags []string) {
 		}
 	}
 
-	resourceTags := schema.NewSet(nil, nil)
+	resourceTags := schema.NewSet(schema.HashString, nil)
 	// remove default tags (except when configured on the resource)
 	for _, tag := range apiTags {
-		if !slices.Contains(s.defaultTags, tag) || slices.Contains(configTags, tag) {
-			resourceTags.Add(tag)
+		if !s.defaultTags.Contains(*tag.Name) || slices.Contains(configTags, *tag.Name) {
+			resourceTags.Add(*tag.Name)
 		}
 	}
 
-	d.Set(tagsKey, resourceTags)
+	d.Set(tagsKey, resourceTags.List())
 }

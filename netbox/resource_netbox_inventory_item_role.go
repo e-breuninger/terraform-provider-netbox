@@ -106,7 +106,7 @@ func resourceNetboxInventoryItemRoleRead(d *schema.ResourceData, m interface{}) 
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }

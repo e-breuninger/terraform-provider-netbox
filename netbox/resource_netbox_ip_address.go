@@ -263,7 +263,7 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ip_address", ipAddress.Address)
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
-	api.readTags(d, getTagListFromNestedTagList(ipAddress.Tags))
+	api.readTags(d, ipAddress.Tags)
 	cf := getCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)

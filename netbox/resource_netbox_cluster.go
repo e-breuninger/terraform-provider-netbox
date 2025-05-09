@@ -145,7 +145,7 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("tenant_id", nil)
 	}
 
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 

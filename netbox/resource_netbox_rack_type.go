@@ -273,7 +273,7 @@ func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("u_height", rackType.UHeight)
-	api.readTags(d, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	d.Set("description", rackType.Description)
 	d.Set("comments", rackType.Comments)
 
