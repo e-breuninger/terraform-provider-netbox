@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,7 +39,7 @@ func resourceNetboxContactRole() *schema.Resource {
 }
 
 func resourceNetboxContactRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 
@@ -70,7 +69,7 @@ func resourceNetboxContactRoleCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxContactRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactRolesReadParams().WithID(id)
 
@@ -96,7 +95,7 @@ func resourceNetboxContactRoleRead(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxContactRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.ContactRole{}
@@ -124,7 +123,7 @@ func resourceNetboxContactRoleUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxContactRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactRolesDeleteParams().WithID(id)

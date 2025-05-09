@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -48,7 +47,7 @@ func resourceNetboxContactGroup() *schema.Resource {
 }
 
 func resourceNetboxContactGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	parentID := int64(d.Get("parent_id").(int))
@@ -86,7 +85,7 @@ func resourceNetboxContactGroupCreate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxContactGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := tenancy.NewTenancyContactGroupsReadParams().WithID(id)
@@ -114,7 +113,7 @@ func resourceNetboxContactGroupRead(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxContactGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableContactGroup{}
@@ -151,7 +150,7 @@ func resourceNetboxContactGroupUpdate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxContactGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactGroupsDeleteParams().WithID(id)

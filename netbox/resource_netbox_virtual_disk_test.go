@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -76,7 +75,7 @@ resource "netbox_virtual_disk" "test" {
 }
 
 func testAccCheckVirtualDiskDestroy(s *terraform.State) error {
-	conn := testAccProvider.Meta().(*client.NetBoxAPI)
+	conn := testAccProvider.Meta().(*providerState)
 
 	// loop through the resources in state, verifying each virtual machine
 	// is destroyed

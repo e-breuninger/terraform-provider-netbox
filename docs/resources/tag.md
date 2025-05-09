@@ -42,5 +42,6 @@ resource "netbox_tag" "dmz" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

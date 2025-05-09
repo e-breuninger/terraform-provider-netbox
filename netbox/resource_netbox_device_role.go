@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -54,7 +53,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 }
 
 func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -71,7 +70,7 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 	vmRole := d.Get("vm_role").(bool)
 	description := d.Get("description").(string)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimDeviceRolesCreateParams().WithData(
 		&models.DeviceRole{
@@ -96,7 +95,7 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceRolesReadParams().WithID(id)
 
@@ -118,12 +117,12 @@ func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("vm_role", res.GetPayload().VMRole)
 	d.Set("color_hex", res.GetPayload().Color)
 	d.Set("description", res.GetPayload().Description)
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 
 func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.DeviceRole{}
@@ -149,7 +148,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	data.Color = color
 	data.Description = description
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := dcim.NewDcimDeviceRolesPartialUpdateParams().WithID(id).WithData(&data)
@@ -163,7 +162,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceRolesDeleteParams().WithID(id)

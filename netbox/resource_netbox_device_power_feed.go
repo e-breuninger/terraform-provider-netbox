@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -94,7 +93,7 @@ func resourceNetboxPowerFeed() *schema.Resource {
 }
 
 func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritablePowerFeed{
 		PowerPanel:     int64ToPtr(int64(d.Get("power_panel_id").(int))),
@@ -112,7 +111,11 @@ func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error 
 		Comments:       getOptionalStr(d, "comments", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -132,7 +135,7 @@ func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxPowerFeedRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerFeedsReadParams().WithID(id)
 
@@ -200,13 +203,13 @@ func resourceNetboxPowerFeedRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -226,7 +229,11 @@ func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error 
 		Comments:       getOptionalStr(d, "comments", true),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -235,7 +242,7 @@ func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error 
 
 	params := dcim.NewDcimPowerFeedsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimPowerFeedsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimPowerFeedsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -244,7 +251,7 @@ func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxPowerFeedDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerFeedsDeleteParams().WithID(id)

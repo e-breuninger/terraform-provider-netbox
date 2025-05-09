@@ -56,5 +56,6 @@ resource "netbox_device_console_port" "test" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 
