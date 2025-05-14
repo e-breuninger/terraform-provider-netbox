@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -54,7 +53,7 @@ func resourceNetboxVrf() *schema.Resource {
 }
 
 func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableVRF{}
 
 	name := d.Get("name").(string)
@@ -73,7 +72,11 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 		data.Rd = &rd
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	data.ExportTargets = []int64{}
 	data.ImportTargets = []int64{}
@@ -91,7 +94,7 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVrfsReadParams().WithID(id)
 
@@ -126,7 +129,7 @@ func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVRF{}
@@ -134,7 +137,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	enforceUnique := d.Get("enforce_unique").(bool)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data.Name = &name
 	data.Tags = tags
@@ -161,7 +164,7 @@ func resourceNetboxVrfUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVrfDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVrfsDeleteParams().WithID(id)

@@ -52,5 +52,6 @@ resource "netbox_virtual_disk" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

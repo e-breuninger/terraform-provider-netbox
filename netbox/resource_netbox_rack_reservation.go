@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -58,9 +57,9 @@ func resourceNetboxRackReservation() *schema.Resource {
 }
 
 func resourceNetboxRackReservationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimRackReservationsCreateParams().WithData(
 		&models.WritableRackReservation{
@@ -85,7 +84,7 @@ func resourceNetboxRackReservationCreate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxRackReservationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackReservationsReadParams().WithID(id)
 
@@ -126,16 +125,16 @@ func resourceNetboxRackReservationRead(d *schema.ResourceData, m interface{}) er
 
 	d.Set("comments", rackRes.Comments)
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 
 func resourceNetboxRackReservationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data := models.WritableRackReservation{
 		Rack:        getOptionalInt(d, "rack_id"),
@@ -158,7 +157,7 @@ func resourceNetboxRackReservationUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxRackReservationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackReservationsDeleteParams().WithID(id)

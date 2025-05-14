@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -188,7 +187,7 @@ func resourceNetboxRackType() *schema.Resource {
 }
 
 func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	model := d.Get("model").(string)
 	formFactor := d.Get("form_factor").(string)
@@ -223,7 +222,11 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 		MountingDepth: getOptionalInt(d, "mounting_depth_mm"),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := dcim.NewDcimRackTypesCreateParams().WithData(&data)
 
@@ -238,7 +241,7 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackTypesReadParams().WithID(id)
 
@@ -270,7 +273,7 @@ func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("u_height", rackType.UHeight)
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	d.Set("description", rackType.Description)
 	d.Set("comments", rackType.Comments)
 
@@ -298,7 +301,7 @@ func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -344,7 +347,7 @@ func resourceNetboxRackTypeUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackTypesDeleteParams().WithID(id)

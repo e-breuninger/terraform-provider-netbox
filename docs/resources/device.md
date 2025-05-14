@@ -84,5 +84,6 @@ resource "netbox_device" "test" {
 - `id` (String) The ID of this resource.
 - `primary_ipv4` (Number)
 - `primary_ipv6` (Number)
+- `tags_all` (Set of String)
 
 
