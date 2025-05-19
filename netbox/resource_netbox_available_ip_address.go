@@ -91,7 +91,8 @@ This resource will retrieve the next available IP address from a given prefix or
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
+			customFieldsKey: customFieldsSchema,
 			"role": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -192,6 +193,10 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
 	d.Set(tagsKey, getTagListFromNestedTagList(ipAddress.Tags))
+	cf := getCustomFields(ipAddress.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
 	return nil
 }
 
@@ -209,13 +214,14 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	data.DNSName = getOptionalStr(d, "dns_name", false)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")
-
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
 		// The other possible type is dcim.interface for devices
 		data.AssignedObjectType = strToPtr("virtualization.vminterface")
 		data.AssignedObjectID = int64ToPtr(int64(interfaceID.(int)))
 	}
-
+	if customFields, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = getCustomFields(customFields)
+	}
 	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
 	deviceInterfaceID := getOptionalInt(d, "device_interface_id")
 	interfaceID := getOptionalInt(d, "interface_id")
