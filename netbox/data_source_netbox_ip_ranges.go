@@ -136,7 +136,7 @@ func dataSourceNetboxIPRanges() *schema.Resource {
 }
 
 func dataSourceNetboxIPRangesRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := ipam.NewIpamIPRangesListParams()
 
