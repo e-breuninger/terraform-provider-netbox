@@ -76,14 +76,14 @@ func findTag(client *client.NetBoxAPI, name string) (*models.NestedTag, error) {
 	payload := res.GetPayload()
 	switch *payload.Count {
 	case int64(0):
-		return nil, fmt.Errorf("Could not locate referenced tag %q in netbox, no results", name)
+		return nil, fmt.Errorf("could not locate referenced tag %q in netbox, no results", name)
 	case int64(1):
 		return &models.NestedTag{
 			Name: payload.Results[0].Name,
 			Slug: payload.Results[0].Slug,
 		}, nil
 	default:
-		return nil, fmt.Errorf("Could not map tag %q to unique tag in netbox, %d results", name, *payload.Count)
+		return nil, fmt.Errorf("could not map tag %q to unique tag in netbox, %d results", name, *payload.Count)
 	}
 }
 
