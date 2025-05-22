@@ -40,6 +40,7 @@ resource "netbox_site" "example1" {
 ### Optional
 
 - `asn_ids` (Set of Number)
+- `comments` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
 - `facility` (String)
