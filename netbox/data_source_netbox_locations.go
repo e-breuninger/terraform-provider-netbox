@@ -70,6 +70,10 @@ func dataSourceNetboxLocations() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"facility": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"tenant_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -153,6 +157,7 @@ func dataSourceNetboxLocationsRead(d *schema.ResourceData, m interface{}) error 
 		mapping["slug"] = v.Slug
 		mapping["site_id"] = v.Site.ID
 		mapping["description"] = v.Description
+		mapping["facility"] = v.Facility
 
 		if v.Parent != nil {
 			mapping["parent_id"] = v.Parent.ID

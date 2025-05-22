@@ -37,6 +37,11 @@ Each location must have a name that is unique within its parent site and locatio
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"facility": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(1, 50),
+			},
 			"site_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -75,6 +80,7 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Description = getOptionalStr(d, "description", true)
+	data.Facility = getOptionalStr(d, "facility", true)
 
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
@@ -138,6 +144,7 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", location.Name)
 	d.Set("slug", location.Slug)
 	d.Set("description", location.Description)
+	d.Set("facility", location.Facility)
 
 	if res.GetPayload().Site != nil {
 		d.Set("site_id", res.GetPayload().Site.ID)
@@ -184,6 +191,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Description = getOptionalStr(d, "description", true)
+	data.Facility = getOptionalStr(d, "facility", true)
 
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
