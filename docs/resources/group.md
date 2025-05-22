@@ -25,6 +25,10 @@ resource "netbox_group" "test" {
 
 - `name` (String)
 
+### Optional
+
+- `description` (String) Defaults to `""`.
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.

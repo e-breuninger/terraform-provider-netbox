@@ -18,6 +18,7 @@ description: |-
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
+- `limit` (Number)
 - `name_regex` (String)
 
 ### Read-Only

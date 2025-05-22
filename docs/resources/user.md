@@ -32,7 +32,10 @@ resource "netbox_user" "test" {
 ### Optional
 
 - `active` (Boolean) Defaults to `true`.
+- `email` (String) Defaults to `""`.
+- `first_name` (String) Defaults to `""`.
 - `group_ids` (Set of Number)
+- `last_name` (String) Defaults to `""`.
 - `staff` (Boolean) Defaults to `false`.
 
 ### Read-Only
