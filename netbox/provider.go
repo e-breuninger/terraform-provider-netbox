@@ -184,6 +184,7 @@ func Provider() *schema.Provider {
 			"netbox_route_target":       dataSourceNetboxRouteTarget(),
 			"netbox_ip_addresses":       dataSourceNetboxIPAddresses(),
 			"netbox_ip_range":           dataSourceNetboxIPRange(),
+			"netbox_ip_ranges":          dataSourceNetboxIPRanges(),
 			"netbox_region":             dataSourceNetboxRegion(),
 			"netbox_vlan":               dataSourceNetboxVlan(),
 			"netbox_vlans":              dataSourceNetboxVlans(),
