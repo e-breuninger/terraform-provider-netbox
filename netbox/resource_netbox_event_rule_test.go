@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -76,7 +75,7 @@ resource "netbox_event_rule" "test" {
 }
 
 func testAccCheckNetBoxEventRuleDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*client.NetBoxAPI)
+	client := testAccProvider.Meta().(*providerState)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "netbox_event_rule" {
@@ -104,7 +103,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := extras.NewExtrasEventRulesListParams()
 			res, err := api.Extras.ExtrasEventRulesList(params, nil)
 			if err != nil {

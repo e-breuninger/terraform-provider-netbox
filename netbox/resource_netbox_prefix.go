@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -78,7 +77,7 @@ func resourceNetboxPrefix() *schema.Resource {
 	}
 }
 func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritablePrefix{}
 
 	prefix := d.Get("prefix").(string)
@@ -120,7 +119,11 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 		data.CustomFields = cf
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamPrefixesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamPrefixesCreate(params, nil)
@@ -133,7 +136,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamPrefixesReadParams().WithID(id)
 
@@ -195,14 +198,14 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		d.Set(customFieldsKey, cf)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
 	return nil
 }
 
 func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritablePrefix{}
 	prefix := d.Get("prefix").(string)
@@ -246,10 +249,14 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 		data.CustomFields = cf
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamPrefixesUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Ipam.IpamPrefixesUpdate(params, nil)
+	_, err = api.Ipam.IpamPrefixesUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -257,7 +264,7 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPrefixDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamPrefixesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamPrefixesDelete(params, nil)

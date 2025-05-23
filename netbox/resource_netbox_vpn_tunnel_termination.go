@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/vpn"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -55,7 +54,7 @@ func resourceNetboxVpnTunnelTermination() *schema.Resource {
 }
 
 func resourceNetboxVpnTunnelTerminationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableTunnelTermination{}
 
@@ -78,7 +77,7 @@ func resourceNetboxVpnTunnelTerminationCreate(d *schema.ResourceData, m interfac
 
 	data.OutsideIP = getOptionalInt(d, "outside_ip_address_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := vpn.NewVpnTunnelTerminationsCreateParams().WithData(&data)
@@ -95,7 +94,7 @@ func resourceNetboxVpnTunnelTerminationCreate(d *schema.ResourceData, m interfac
 }
 
 func resourceNetboxVpnTunnelTerminationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := vpn.NewVpnTunnelTerminationsReadParams().WithID(id)
 
@@ -130,12 +129,12 @@ func resourceNetboxVpnTunnelTerminationRead(d *schema.ResourceData, m interface{
 		d.Set("outside_ip_address_id", tunnelTermination.OutsideIP.ID)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 
 func resourceNetboxVpnTunnelTerminationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableTunnelTermination{}
@@ -158,7 +157,7 @@ func resourceNetboxVpnTunnelTerminationUpdate(d *schema.ResourceData, m interfac
 
 	data.OutsideIP = getOptionalInt(d, "outside_ip_address_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := vpn.NewVpnTunnelTerminationsUpdateParams().WithID(id).WithData(&data)
@@ -172,7 +171,7 @@ func resourceNetboxVpnTunnelTerminationUpdate(d *schema.ResourceData, m interfac
 }
 
 func resourceNetboxVpnTunnelTerminationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := vpn.NewVpnTunnelTerminationsDeleteParams().WithID(id)

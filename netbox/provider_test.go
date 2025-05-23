@@ -64,7 +64,7 @@ func providerInvalidConfigure() schema.ConfigureContextFunc {
 			return nil, diag.FromErr(clientError)
 		}
 
-		return netboxClient, diags
+		return &providerState{NetBoxAPI: netboxClient}, diags
 	}
 }
 
@@ -83,6 +83,45 @@ func TestAccNetboxProviderConfigure_failure(t *testing.T) {
 			{
 				Config:      testProviderConfig(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 				ExpectError: regexp.MustCompile("Post \"https://fake.netbox.server/api/dcim/platforms/\": dial tcp: lookup fake.netbox.server.*: no such host"),
+			},
+		},
+	})
+}
+
+func TestAccNetboxProviderDefaultTags(t *testing.T) {
+	defaultTag := fmt.Sprintf("managed-%s", acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
+
+	resource.Test(t, resource.TestCase{
+		ProviderFactories: map[string]func() (*schema.Provider, error){
+			"netbox": func() (*schema.Provider, error) {
+				p := Provider()
+				p.ConfigureContextFunc = func(ctx context.Context, rd *schema.ResourceData) (interface{}, diag.Diagnostics) {
+					rd.Set("default_tags", []string{defaultTag})
+					return providerConfigure(ctx, rd)
+				}
+				return p, nil
+			},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "netbox_tag" "managed" {
+						name = "%s"
+					}
+
+					resource "netbox_site" "testsite" {
+						name = "%s"
+
+						depends_on = [
+							netbox_tag.managed
+						]
+					}
+					`, defaultTag, acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum),
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_site.testsite", "tags_all.#", "1"),
+					resource.TestCheckResourceAttr("netbox_site.testsite", "tags_all.0", defaultTag),
+				),
 			},
 		},
 	})

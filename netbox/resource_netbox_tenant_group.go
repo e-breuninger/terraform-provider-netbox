@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -50,7 +49,7 @@ func resourceNetboxTenantGroup() *schema.Resource {
 }
 
 func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	parentID := int64(d.Get("parent_id").(int))
@@ -88,7 +87,7 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := tenancy.NewTenancyTenantGroupsReadParams().WithID(id)
@@ -116,7 +115,7 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableTenantGroup{}
@@ -153,7 +152,7 @@ func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxTenantGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyTenantGroupsDeleteParams().WithID(id)

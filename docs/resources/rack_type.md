@@ -68,5 +68,6 @@ resource "netbox_rack_type" "test" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

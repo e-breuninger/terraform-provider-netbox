@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -78,7 +77,7 @@ func dataSourceNetboxSite() *schema.Resource {
 }
 
 func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	params := dcim.NewDcimSitesListParams()
 
 	params.Limit = int64ToPtr(2)

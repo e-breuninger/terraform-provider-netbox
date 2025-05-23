@@ -55,5 +55,6 @@ resource "netbox_cluster" "vmw_cluster_01" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

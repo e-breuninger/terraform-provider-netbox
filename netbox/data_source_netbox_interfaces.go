@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
@@ -143,7 +142,7 @@ func dataSourceNetboxInterfaces() *schema.Resource {
 }
 
 func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := virtualization.NewVirtualizationInterfacesListParams()
 

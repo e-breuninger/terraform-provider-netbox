@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -68,7 +67,7 @@ func resourceNetboxVlanGroup() *schema.Resource {
 }
 
 func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.VLANGroup{}
 
 	name := d.Get("name").(string)
@@ -98,7 +97,11 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 		data.ScopeID = int64ToPtr(int64(scopeID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamVlanGroupsCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlanGroupsCreate(params, nil)
@@ -111,7 +114,7 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlanGroupsReadParams().WithID(id)
 
@@ -134,7 +137,7 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", vlanGroup.Slug)
 	d.Set("description", vlanGroup.Description)
 	d.Set("vid_ranges", vlanGroup.VidRanges)
-	d.Set(tagsKey, getTagListFromNestedTagList(vlanGroup.Tags))
+	api.readTags(d, vlanGroup.Tags)
 
 	if vlanGroup.ScopeType != nil {
 		d.Set("scope_type", vlanGroup.ScopeType)
@@ -148,7 +151,7 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.VLANGroup{}
 
@@ -180,10 +183,14 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 		data.ScopeID = int64ToPtr(int64(scopeID.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamVlanGroupsUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Ipam.IpamVlanGroupsUpdate(params, nil)
+	_, err = api.Ipam.IpamVlanGroupsUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -191,7 +198,7 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxVlanGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlanGroupsDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamVlanGroupsDelete(params, nil)

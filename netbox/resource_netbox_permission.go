@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -86,7 +85,7 @@ func resourceNetboxPermission() *schema.Resource {
 	}
 }
 func resourceNetboxPermissionCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableObjectPermission{}
 
 	name := d.Get("name").(string)
@@ -127,7 +126,7 @@ func resourceNetboxPermissionCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxPermissionRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersPermissionsReadParams().WithID(id)
 
@@ -178,7 +177,7 @@ func resourceNetboxPermissionRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPermissionUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableObjectPermission{}
 
@@ -217,7 +216,7 @@ func resourceNetboxPermissionUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxPermissionDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersPermissionsDeleteParams().WithID(id)
 	_, err := api.Users.UsersPermissionsDelete(params, nil)

@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -73,6 +72,8 @@ func TestAccNetboxVrf_tags(t *testing.T) {
 resource "netbox_vrf" "test_tags" {
   name = "%[1]s"
   tags = ["%[1]sa"]
+
+  depends_on = [netbox_tag.test_a]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vrf.test_tags", "name", testName),
@@ -85,6 +86,8 @@ resource "netbox_vrf" "test_tags" {
 resource "netbox_vrf" "test_tags" {
   name = "%[1]s"
   tags = ["%[1]sa", "%[1]sb"]
+
+  depends_on = [netbox_tag.test_a, netbox_tag.test_b]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vrf.test_tags", "tags.#", "2"),
@@ -207,7 +210,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := ipam.NewIpamVrfsListParams()
 			res, err := api.Ipam.IpamVrfsList(params, nil)
 			if err != nil {
