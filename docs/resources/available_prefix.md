@@ -35,6 +35,7 @@ resource "netbox_available_prefix" "test" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `is_pool` (Boolean)
 - `mark_utilized` (Boolean)
