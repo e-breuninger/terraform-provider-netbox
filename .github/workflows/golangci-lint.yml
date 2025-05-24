@@ -38,4 +38,5 @@ jobs:
           go-version-file: go.mod
       - run: |
           make docs
+          git add -N -A
           git diff --exit-code || echo "::error title=Doc generation changes detected::Please update the docs and commit them to the PR!" && exit 1
