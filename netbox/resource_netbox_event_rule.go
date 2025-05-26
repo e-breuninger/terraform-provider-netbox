@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -80,7 +79,7 @@ func resourceNetboxEventRule() *schema.Resource {
 }
 
 func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := &models.WritableEventRule{}
 
@@ -103,7 +102,7 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 	data.Enabled = enabled
 	data.ActionObjectID = getOptionalInt(d, "action_object_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	ctypes := d.Get("content_types").(*schema.Set).List()
@@ -135,7 +134,7 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasEventRulesReadParams().WithID(id)
 
@@ -169,13 +168,13 @@ func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("conditions", string(conditions))
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(eventRule.Tags))
+	api.readTags(d, eventRule.Tags)
 
 	return nil
 }
 
 func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableEventRule{}
@@ -208,7 +207,7 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 		data.Conditions = conditions
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	ctypes := d.Get("content_types").(*schema.Set).List()
@@ -229,7 +228,7 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxEventRuleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasEventRulesDeleteParams().WithID(id)

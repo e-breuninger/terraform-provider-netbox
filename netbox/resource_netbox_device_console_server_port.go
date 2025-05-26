@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -66,7 +65,7 @@ func resourceNetboxDeviceConsoleServerPort() *schema.Resource {
 }
 
 func resourceNetboxDeviceConsoleServerPortCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableConsoleServerPort{
 		Device:        int64ToPtr(int64(d.Get("device_id").(int))),
@@ -79,7 +78,11 @@ func resourceNetboxDeviceConsoleServerPortCreate(d *schema.ResourceData, m inter
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -99,7 +102,7 @@ func resourceNetboxDeviceConsoleServerPortCreate(d *schema.ResourceData, m inter
 }
 
 func resourceNetboxDeviceConsoleServerPortRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimConsoleServerPortsReadParams().WithID(id)
 
@@ -151,13 +154,13 @@ func resourceNetboxDeviceConsoleServerPortRead(d *schema.ResourceData, m interfa
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxDeviceConsoleServerPortUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -172,7 +175,11 @@ func resourceNetboxDeviceConsoleServerPortUpdate(d *schema.ResourceData, m inter
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -181,7 +188,7 @@ func resourceNetboxDeviceConsoleServerPortUpdate(d *schema.ResourceData, m inter
 
 	params := dcim.NewDcimConsoleServerPortsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimConsoleServerPortsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimConsoleServerPortsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -190,7 +197,7 @@ func resourceNetboxDeviceConsoleServerPortUpdate(d *schema.ResourceData, m inter
 }
 
 func resourceNetboxDeviceConsoleServerPortDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimConsoleServerPortsDeleteParams().WithID(id)

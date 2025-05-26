@@ -59,5 +59,6 @@ resource "netbox_vpn_tunnel_termination" "vm" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

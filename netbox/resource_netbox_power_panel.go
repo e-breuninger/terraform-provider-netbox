@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -51,7 +50,7 @@ func resourceNetboxPowerPanel() *schema.Resource {
 }
 
 func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritablePowerPanel{
 		Site:        int64ToPtr(int64(d.Get("site_id").(int))),
@@ -61,7 +60,11 @@ func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error
 		Comments:    getOptionalStr(d, "comments", false),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -81,7 +84,7 @@ func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxPowerPanelRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerPanelsReadParams().WithID(id)
 
@@ -120,13 +123,13 @@ func resourceNetboxPowerPanelRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -138,7 +141,11 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 		Comments:    getOptionalStr(d, "comments", true),
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -147,7 +154,7 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 
 	params := dcim.NewDcimPowerPanelsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimPowerPanelsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimPowerPanelsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -156,7 +163,7 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxPowerPanelDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerPanelsDeleteParams().WithID(id)

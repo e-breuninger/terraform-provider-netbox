@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -115,7 +114,7 @@ func resourceNetboxAvailablePrefixParseImport(importStr string) (int, string, in
 }
 
 func resourceNetboxAvailablePrefixCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	parentPrefixID := int64(d.Get("parent_prefix_id").(int))
 	prefixLength := int64(d.Get("prefix_length").(int))

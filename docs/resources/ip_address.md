@@ -129,6 +129,7 @@ resource "netbox_ip_address" "this" {
 
 - `id` (String) The ID of this resource.
 - `nat_outside_addresses` (List of Object) (see [below for nested schema](#nestedatt--nat_outside_addresses))
+- `tags_all` (Set of String)
 
 <a id="nestedatt--nat_outside_addresses"></a>
 ### Nested Schema for `nat_outside_addresses`

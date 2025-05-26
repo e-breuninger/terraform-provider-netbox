@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -55,7 +54,7 @@ func resourceNetboxRegion() *schema.Resource {
 }
 
 func resourceNetboxRegionCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableRegion{}
 
@@ -93,7 +92,7 @@ func resourceNetboxRegionCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRegionsReadParams().WithID(id)
 
@@ -123,7 +122,7 @@ func resourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRegionUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableRegion{}
@@ -161,7 +160,7 @@ func resourceNetboxRegionUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRegionDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRegionsDeleteParams().WithID(id)
