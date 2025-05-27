@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
@@ -137,7 +136,7 @@ func dataSourceNetboxIPAddresses() *schema.Resource {
 }
 
 func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := ipam.NewIpamIPAddressesListParams()
 

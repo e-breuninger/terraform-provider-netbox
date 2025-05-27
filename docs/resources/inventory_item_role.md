@@ -57,5 +57,6 @@ resource "netbox_inventory_item" "parent" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

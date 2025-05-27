@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,7 +39,7 @@ func resourceNetboxManufacturer() *schema.Resource {
 }
 
 func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.Manufacturer{}
 
@@ -70,7 +69,7 @@ func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimManufacturersReadParams().WithID(id)
 
@@ -95,7 +94,7 @@ func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.Manufacturer{}
@@ -124,7 +123,7 @@ func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxManufacturerDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimManufacturersDeleteParams().WithID(id)

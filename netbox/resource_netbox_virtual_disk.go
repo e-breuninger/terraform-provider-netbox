@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -56,7 +55,7 @@ func resourceNetboxVirtualDisks() *schema.Resource {
 }
 
 func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	size := d.Get("size_mb").(int)
@@ -79,7 +78,11 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	params := virtualization.NewVirtualizationVirtualDisksCreateParams().WithData(&data)
 
@@ -94,7 +97,7 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -129,12 +132,12 @@ func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData,
 		d.Set(customFieldsKey, cf)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(VirtualDisks.Tags))
+	api.readTags(d, VirtualDisks.Tags)
 	return nil
 }
 
 func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualDisk{}
@@ -152,7 +155,11 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	if d.HasChanges("description") {
 		// check if description is set
@@ -165,7 +172,7 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 
 	params := virtualization.NewVirtualizationVirtualDisksUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Virtualization.VirtualizationVirtualDisksUpdate(params, nil)
+	_, err = api.Virtualization.VirtualizationVirtualDisksUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -174,7 +181,7 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualDisksDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationVirtualDisksDeleteParams().WithID(id)

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -85,7 +84,7 @@ A choice set must define a base choice set and/or a set of arbitrary extra choic
 }
 
 func resourceNetboxCustomFieldChoiceSetCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 
@@ -122,7 +121,7 @@ func resourceNetboxCustomFieldChoiceSetCreate(d *schema.ResourceData, m interfac
 }
 
 func resourceNetboxCustomFieldChoiceSetRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldChoiceSetsReadParams().WithID(id)
 
@@ -154,7 +153,7 @@ func resourceNetboxCustomFieldChoiceSetRead(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxCustomFieldChoiceSetUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -191,7 +190,7 @@ func resourceNetboxCustomFieldChoiceSetUpdate(d *schema.ResourceData, m interfac
 }
 
 func resourceNetboxCustomFieldChoiceSetDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldChoiceSetsDeleteParams().WithID(id)

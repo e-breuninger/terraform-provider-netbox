@@ -92,5 +92,6 @@ resource "netbox_virtual_machine" "full_vm" {
 - `id` (String) The ID of this resource.
 - `primary_ipv4` (Number)
 - `primary_ipv6` (Number)
+- `tags_all` (Set of String)
 
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
@@ -140,7 +139,7 @@ func dataSourceNetboxDeviceInterfaces() *schema.Resource {
 }
 
 func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := dcim.NewDcimInterfacesListParams()
 

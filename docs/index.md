@@ -66,6 +66,7 @@ provider "netbox" {
 ### Optional
 
 - `allow_insecure_https` (Boolean) Flag to set whether to allow https with invalid certificates. Can be set via the `NETBOX_ALLOW_INSECURE_HTTPS` environment variable. Defaults to `false`.
+- `default_tags` (Set of String) Tags to add to every resource managed by this provider.
 - `headers` (Map of String) Set these header on all requests to Netbox. Can be set via the `NETBOX_HEADERS` environment variable.
 - `request_timeout` (Number) Netbox API HTTP request timeout in seconds. Can be set via the `NETBOX_REQUEST_TIMEOUT` environment variable.
 - `skip_version_check` (Boolean) If true, do not try to determine the running Netbox version at provider startup. Disables warnings about possibly unsupported Netbox version. Also useful for local testing on terraform plans. Can be set via the `NETBOX_SKIP_VERSION_CHECK` environment variable. Defaults to `false`.
