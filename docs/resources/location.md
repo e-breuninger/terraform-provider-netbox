@@ -46,6 +46,7 @@ resource "netbox_location" "test" {
 
 - `custom_fields` (Map of String)
 - `description` (String)
+- `facility` (String)
 - `parent_id` (Number)
 - `site_id` (Number)
 - `slug` (String)
@@ -55,5 +56,6 @@ resource "netbox_location" "test" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

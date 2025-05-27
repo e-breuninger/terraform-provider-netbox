@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -153,7 +152,7 @@ func resourceNetboxConfigContext() *schema.Resource {
 }
 
 func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableConfigContext{}
 	data.Name = strToPtr(d.Get("name").(string))
 
@@ -178,7 +177,7 @@ func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) er
 	data.Sites = toInt64List(d.Get("sites"))
 	data.TenantGroups = toInt64List(d.Get("tenant_groups"))
 	data.Tenants = toInt64List(d.Get("tenants"))
-	data.Tags = toStringList(d.Get("tags"))
+	data.Tags = toStringList(d.Get(tagsAllKey))
 	data.Weight = int64ToPtr(int64(d.Get("weight").(int)))
 
 	params := extras.NewExtrasConfigContextsCreateParams().WithData(&data)
@@ -195,7 +194,7 @@ func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasConfigContextsReadParams().WithID(id)
 
@@ -293,12 +292,14 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 	}
 	d.Set("sites", sitesSlice)
 
-	tags := res.GetPayload().Tags
-	tagsSlice := make([]string, len(tags))
-	for i, v := range tags {
-		tagsSlice[i] = string(v)
+	// hack since `readTags` mostly deals with nested tags
+	tags := make([]*models.NestedTag, 0, len(res.GetPayload().Tags))
+	for _, tagName := range res.GetPayload().Tags {
+		tags = append(tags, &models.NestedTag{
+			Name: &tagName,
+		})
 	}
-	d.Set("tags", tagsSlice)
+	api.readTags(d, tags)
 
 	tenantGroups := res.GetPayload().TenantGroups
 	tenantGroupsSlice := make([]int64, len(tenantGroups))
@@ -318,7 +319,7 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxConfigContextUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -348,7 +349,7 @@ func resourceNetboxConfigContextUpdate(d *schema.ResourceData, m interface{}) er
 	data.Sites = toInt64List(d.Get("sites"))
 	data.TenantGroups = toInt64List(d.Get("tenant_groups"))
 	data.Tenants = toInt64List(d.Get("tenants"))
-	data.Tags = toStringList(d.Get("tags"))
+	data.Tags = toStringList(d.Get(tagsAllKey))
 	data.Weight = int64ToPtr(int64(d.Get("weight").(int)))
 
 	params := extras.NewExtrasConfigContextsPartialUpdateParams().WithID(id).WithData(&data)
@@ -362,7 +363,7 @@ func resourceNetboxConfigContextUpdate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxConfigContextDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasConfigContextsDeleteParams().WithID(id)

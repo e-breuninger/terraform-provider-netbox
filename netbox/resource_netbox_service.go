@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -80,7 +79,7 @@ func resourceNetboxService() *schema.Resource {
 	}
 }
 func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableService{}
 
 	dataName := d.Get("name").(string)
@@ -116,8 +115,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		data.VirtualMachine = &dataVirtualMachineID
 	}
 
-	v := d.Get("tags")
-	tags, _ := getNestedTagListFromResourceDataSet(api, v)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	if v, ok := d.GetOk("description"); ok {
@@ -142,7 +140,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesReadParams().WithID(id)
 
@@ -177,12 +175,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if tags := res.GetPayload().Tags; tags != nil {
-		var tagList []interface{}
-		for _, tag := range tags {
-			tagName := tag.Name
-			tagList = append(tagList, *tagName)
-		}
-		d.Set("tags", tagList)
+		api.readTags(d, tags)
 	}
 
 	cf := getCustomFields(res.GetPayload().CustomFields)
@@ -194,7 +187,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableService{}
 
@@ -220,8 +213,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Ipaddresses = []int64{}
 
-	v := d.Get("tags")
-	tags, _ := getNestedTagListFromResourceDataSet(api, v)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	if v, ok := d.GetOk("description"); ok {
@@ -252,7 +244,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamServicesDelete(params, nil)

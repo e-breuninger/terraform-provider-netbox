@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,7 +34,7 @@ func resourceNetboxGroup() *schema.Resource {
 	}
 }
 func resourceNetboxGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.Group{}
 
 	name := d.Get("name").(string)
@@ -55,7 +54,7 @@ func resourceNetboxGroupCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersGroupsReadParams().WithID(id)
 
@@ -81,7 +80,7 @@ func resourceNetboxGroupRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.Group{}
 
@@ -100,7 +99,7 @@ func resourceNetboxGroupUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersGroupsDeleteParams().WithID(id)
 	_, err := api.Users.UsersGroupsDelete(params, nil)

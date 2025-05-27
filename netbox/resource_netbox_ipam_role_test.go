@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -83,7 +82,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := ipam.NewIpamRolesListParams()
 			res, err := api.Ipam.IpamRolesList(params, nil)
 			if err != nil {

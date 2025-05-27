@@ -41,6 +41,7 @@ Required:
 Read-Only:
 
 - `description` (String)
+- `facility` (String)
 - `id` (String)
 - `name` (String)
 - `parent_id` (Number)

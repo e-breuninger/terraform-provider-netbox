@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -48,7 +47,7 @@ func resourceNetboxDevicePrimaryIPCreate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDevicePrimaryIPRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDevicesReadParams().WithID(id)
 
@@ -82,7 +81,7 @@ func resourceNetboxDevicePrimaryIPRead(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxDevicePrimaryIPUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	deviceID := int64(d.Get("device_id").(int))
 	IPAddressID := int64(d.Get("ip_address_id").(int))

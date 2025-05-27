@@ -1,3 +1,18 @@
+## 3.11.0 (May 27th, 2025)
+
+* provider: Add `default_tags` attribute ([#711](https://github.com/e-breuninger/terraform-provider-netbox/pull/711) by [@mraerino](https://github.com/mraerino))
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_ip_ranges` ([#719](https://github.com/e-breuninger/terraform-provider-netbox/pull/719) by [@waza-ari](https://github.com/waza-ari))
+* resource/netbox_device: Allow `decommissioning` value in `status` attribute ([#767](https://github.com/e-breuninger/terraform-provider-netbox/pull/767) by [@sboschman](https://github.com/sboschman))
+* resource/netbox_site: Add `comments` attribute ([#710](https://github.com/e-breuninger/terraform-provider-netbox/pull/710) by [@mraerino](https://github.com/mraerino))
+* resource/netbox_user: Add `email`, `first_name` and `last_name` attributes ([#693](https://github.com/e-breuninger/terraform-provider-netbox/pull/693) by [@mraerino](https://github.com/mraerino))
+* data-source/netbox_device_interfaces: Add `limit` attribute ([#695](https://github.com/e-breuninger/terraform-provider-netbox/pull/695) by [@sempervictus](https://github.com/sempervictus))
+* resource/netbox_group: Add `description` attribute ([#694](https://github.com/e-breuninger/terraform-provider-netbox/pull/694) by [@mraerino](https://github.com/mraerino))
+* resource/netbox_location: Add `facility` attribute ([#718](https://github.com/e-breuninger/terraform-provider-netbox/pull/718) by [@mraerino](https://github.com/mraerino))
+* data-source/netbox_locations: Add `facility` attribute ([#718](https://github.com/e-breuninger/terraform-provider-netbox/pull/718) by [@mraerino](https://github.com/mraerino))
+
 ## 3.10.0 (January 9th, 2025)
 
 **BREAKING CHANGES**

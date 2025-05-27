@@ -100,5 +100,6 @@ resource "netbox_available_ip_address" "myvm-ip" {
 
 - `id` (String) The ID of this resource.
 - `ip_address` (String)
+- `tags_all` (Set of String)
 
 

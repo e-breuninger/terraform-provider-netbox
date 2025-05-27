@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -143,7 +142,7 @@ func resourceNetboxDevice() *schema.Resource {
 }
 
 func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 
@@ -240,7 +239,11 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 		data.CustomFields = ct
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	params := dcim.NewDcimDevicesCreateParams().WithData(&data)
 
@@ -267,7 +270,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 }
 
 func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
@@ -400,12 +403,12 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("local_context_data", nil)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(device.Tags))
+	api.readTags(d, device.Tags)
 	return diags
 }
 
 func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableDeviceWithConfigContext{}
@@ -486,7 +489,11 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		data.CustomFields = cf
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	if d.HasChanges("asset_tag") {
 		if assetTagValue, ok := d.GetOk("asset_tag"); ok {
@@ -530,7 +537,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 
 	params := dcim.NewDcimDevicesUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimDevicesUpdate(params, nil)
+	_, err = api.Dcim.DcimDevicesUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -556,7 +563,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 }
 
 func resourceNetboxDeviceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
