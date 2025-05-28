@@ -75,7 +75,8 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			tagsKey: tagsSchema,
+			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: func(c context.Context, rd *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -120,6 +121,9 @@ func resourceNetboxAvailablePrefixCreate(d *schema.ResourceData, m interface{}) 
 	prefixLength := int64(d.Get("prefix_length").(int))
 	data := models.PrefixLength{
 		PrefixLength: &prefixLength,
+	}
+	if cf, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = cf
 	}
 	params := ipam.NewIpamPrefixesAvailablePrefixesCreateParams().WithID(parentPrefixID).WithData(&data)
 
