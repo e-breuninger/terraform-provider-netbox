@@ -3,34 +3,10 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
-
-func getOptionalTagList(d *schema.ResourceData) []*models.NestedTag {
-	raw := d.Get("tags")
-	if raw == nil {
-		return nil
-	}
-
-	set, ok := raw.(*schema.Set)
-	if !ok {
-		return nil
-	}
-
-	tags := make([]*models.NestedTag, 0, set.Len())
-	for _, v := range set.List() {
-		tagName, ok := v.(string)
-		if !ok {
-			continue
-		}
-		tags = append(tags, &models.NestedTag{Name: &tagName})
-	}
-
-	return tags
-}
 
 func resourceNetboxAvailableVLAN() *schema.Resource {
 	return &schema.Resource{
@@ -94,9 +70,13 @@ This resource will retrieve the next available VLAN ID from a given VLAN group (
 }
 
 func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	groupID := int64(d.Get("group_id").(int))
 
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	if err != nil {
+		return err
+	}
 	data := &models.WritableCreateAvailableVLAN{
 		Name:        strToPtr(d.Get("name").(string)),
 		Description: getOptionalStr(d, "description", false),
@@ -104,7 +84,7 @@ func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) er
 		Site:        getOptionalInt(d, "site_id"),
 		Role:        getOptionalInt(d, "role_id"),
 		Status:      d.Get("status").(string),
-		Tags:        getOptionalTagList(d),
+		Tags:        tags,
 	}
 
 	params := ipam.NewIpamVlanGroupsAvailableVlansCreateParams().WithID(groupID).WithData(data)
@@ -112,15 +92,17 @@ func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) er
 	if err != nil {
 		return err
 	}
+
 	vlan := resp.Payload
 	d.SetId(strconv.FormatInt(vlan.ID, 10))
 	d.Set("vid", vlan.Vid)
 	d.Set("name", vlan.Name)
+	d.Set("group_id", vlan.Group.ID)
 	return resourceNetboxAvailableVLANRead(d, m)
 }
 
 func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansReadParams().WithID(id)
 
@@ -176,13 +158,13 @@ func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) erro
 		d.Set("role_id", nil)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(vlan.Tags))
+	api.readTags(d, vlan.Tags)
 
 	return nil
 }
 
 func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	data := &models.WritableVLAN{
@@ -192,8 +174,13 @@ func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) er
 		Site:        getOptionalInt(d, "site_id"),
 		Role:        getOptionalInt(d, "role_id"),
 		Status:      d.Get("status").(string),
-		Tags:        getOptionalTagList(d),
 		Vid:         int64ToPtr(int64(d.Get("vid").(int))),
+	}
+
+	var err_tags error
+	data.Tags, err_tags = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	if err_tags != nil {
+		return err_tags
 	}
 
 	params := ipam.NewIpamVlansUpdateParams().
@@ -208,7 +195,7 @@ func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxAvailableVLANDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := ipam.NewIpamVlansDeleteParams().WithID(id)
