@@ -36,7 +36,7 @@ data "netbox_device_interfaces" "by_device_id" {
 data "netbox_device_interfaces" "by_mac_address" {
   filter {
     name = "mac_address"
-    value  = netbox_device_interface.test.mac_address
+    value  = netbox_mac_address.test.mac_address
   }
 }
 
@@ -54,6 +54,9 @@ data "netbox_device_interfaces" "by_tag" {
 					resource.TestCheckResourceAttrPair("data.netbox_device_interfaces.by_name", "interfaces.0.device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_device_id", "interfaces.#", "2"),
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_mac_address", "interfaces.#", "1"),
+					resource.TestCheckResourceAttrSet("data.netbox_device_interfaces.by_mac_address", "interfaces.0.mac_addresses.0.id"),
+					resource.TestCheckResourceAttrSet("data.netbox_device_interfaces.by_mac_address", "interfaces.0.mac_addresses.0.mac_address"),
+					resource.TestCheckResourceAttrSet("data.netbox_device_interfaces.by_mac_address", "interfaces.0.mac_addresses.0.description"),
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_tag", "interfaces.#", "2"),
 				),
 			},
@@ -98,7 +101,6 @@ resource "netbox_device_interface" "test" {
   device_id = netbox_device.test.id
   tags = ["%[1]s"]
   type = "1000base-t"
-  mac_address = "0c:a1:02:03:04:05"
 }
 
 resource "netbox_device_interface" "test2" {
@@ -106,6 +108,12 @@ resource "netbox_device_interface" "test2" {
   device_id = netbox_device.test.id
   tags = ["%[1]s"]
   type = "1000base-t"
+}
+
+resource "netbox_mac_address" "test" {
+  mac_address = "F4:02:BA:7F:FD:F8"
+  device_interface_id = netbox_device_interface.test.id
+  description = "%[1]s"
 }
 `, testName)
 }
