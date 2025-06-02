@@ -52,3 +52,5 @@ This resource will retrieve the next available VLAN ID from a given VLAN group (
 - `id` (String) The ID of this resource.
 - `tags_all` (Set of String)
 - `vid` (Number)
+
+
