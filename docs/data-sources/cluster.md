@@ -35,6 +35,8 @@ data "netbox_cluster" "vmw_cluster_01" {
 - `comments` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
+- `scope_id` (Number)
+- `scope_type` (String)
 - `tags` (Set of String)
 
 

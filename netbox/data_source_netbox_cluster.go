@@ -52,6 +52,14 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"scope_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"scope_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"custom_fields": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -110,11 +118,21 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 	}
 	d.Set("comments", result.Comments)
 	d.Set("description", result.Description)
-	if result.Site != nil {
-		d.Set("site_id", result.Site.ID)
-	} else {
-		d.Set("site_id", nil)
+
+	if result.ScopeType != nil && result.ScopeID != nil {
+		scopeID := result.ScopeID
+		switch scopeType := result.ScopeType; *scopeType {
+		case "dcim.site":
+			d.Set("site_id", scopeID)
+		case "dcim.sitegroup":
+			d.Set("site_group_id", scopeID)
+		case "dcim.location":
+			d.Set("location_id", scopeID)
+		case "dcim.region":
+			d.Set("region_id", scopeID)
+		}
 	}
+
 	if result.CustomFields != nil {
 		d.Set("custom_fields", result.CustomFields)
 	}

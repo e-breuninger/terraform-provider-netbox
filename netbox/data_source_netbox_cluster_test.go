@@ -55,8 +55,8 @@ data "netbox_cluster" "by_id" {
 }
 
 data "netbox_cluster" "by_site_id_and_group_id" {
-	site_id          = netbox_cluster.test.site_id
-	cluster_group_id = netbox_cluster.test.cluster_group_id
+  site_id          = netbox_cluster.test.site_id
+  cluster_group_id = netbox_cluster.test.cluster_group_id
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
