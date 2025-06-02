@@ -1,0 +1,12 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/deepmap/oapi-codegen/HEAD/configuration-schema.json
+package: client
+generate:
+  client: true
+  models: true
+output-options:
+  include-operation-ids:
+    - dcim_sites_create
+  overlay:
+    path: overlay.yaml
+output: client.gen.go
