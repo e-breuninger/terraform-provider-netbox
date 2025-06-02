@@ -3,7 +3,6 @@ package netbox
 import (
 	"context"
 	"strconv"
-	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -52,12 +51,28 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Description: "If this device is a member of a LAG group, you can reference the LAG interface here.",
 			},
 			"mac_address": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.IsMACAddress,
-				// Netbox converts MAC addresses always to uppercase
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return strings.EqualFold(old, new)
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The MAC address as string from the first MAC address assigned to this interface, if any.",
+			},
+			"mac_addresses": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"mac_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
 				},
 			},
 			"mgmtonly": {
@@ -140,9 +155,6 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		WirelessLans: []int64{},
 		Vdcs:         []int64{},
 	}
-	if macAddress := d.Get("mac_address").(string); macAddress != "" {
-		data.MacAddress = &macAddress
-	}
 	if lag, ok := d.Get("lag_device_interface_id").(int); ok && lag != 0 {
 		data.Lag = int64ToPtr(int64(lag))
 	}
@@ -200,7 +212,6 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("type", iface.Type.Value)
 	d.Set("enabled", iface.Enabled)
 	d.Set("mgmtonly", iface.MgmtOnly)
-	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
 	d.Set("speed", iface.Speed)
 	api.readTags(d, iface.Tags)
@@ -218,6 +229,21 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	}
 	if iface.UntaggedVlan != nil {
 		d.Set("untagged_vlan", iface.UntaggedVlan.ID)
+	}
+	if iface.MacAddresses != nil {
+		var mac_addresses []map[string]interface{}
+		for i, mac := range iface.MacAddresses {
+			var mac_address = make(map[string]interface{})
+			// We just set the first mac address in the `mac_address` attribute
+			if i == 0 {
+				d.Set("mac_address", iface.MacAddresses[i].MacAddress)
+			}
+			mac_address["id"] = mac.ID
+			mac_address["description"] = mac.Description
+			mac_address["mac_address"] = mac.MacAddress
+			mac_addresses = append(mac_addresses, mac_address)
+		}
+		d.Set("mac_addresses", mac_addresses)
 	}
 
 	return diags
@@ -259,10 +285,6 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		Vdcs:         []int64{},
 	}
 
-	if d.HasChange("mac_address") {
-		macAddress := d.Get("mac_address").(string)
-		data.MacAddress = &macAddress
-	}
 	if d.HasChange("lag_device_interface_id") {
 		lag := int64(d.Get("lag_device_interface_id").(int))
 		data.Lag = &lag
