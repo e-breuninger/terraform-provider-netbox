@@ -68,19 +68,18 @@ resource "netbox_device_interface" "test" {
 }`, testName)
 }
 
-func testAccNetboxDeviceInterfaceOpts(testName string, testMac string) string {
+func testAccNetboxDeviceInterfaceOpts(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_device_interface" "test" {
   name = "%[1]s"
   description = "%[1]s"
-	label = "%[1]s"
+  label = "%[1]s"
   enabled = true
   mgmtonly = true
-  mac_address = "%[2]s"
   mtu = 1440
   device_id = netbox_device.test.id
   type = "1000base-t"
-}`, testName, testMac)
+}`, testName)
 }
 
 func testAccNetboxDeviceInterfaceParentAndLAG(testName string) string {
@@ -226,8 +225,6 @@ func TestAccNetboxDeviceInterface_parentAndLAG(t *testing.T) {
 
 func TestAccNetboxDeviceInterface_opts(t *testing.T) {
 	testSlug := "iface_mac"
-	testMacUppercase := "0A:01:02:03:04:05"
-	testMacLowercase := "0a:01:02:03:04:05"
 	testName := testAccGetTestName(testSlug)
 	setUp := testAccNetboxDeviceInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
@@ -236,7 +233,7 @@ func TestAccNetboxDeviceInterface_opts(t *testing.T) {
 		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName, testMacLowercase),
+				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
@@ -244,15 +241,8 @@ func TestAccNetboxDeviceInterface_opts(t *testing.T) {
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "label", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "enabled", "true"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "mgmtonly", "true"),
-					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "0a:01:02:03:04:05"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "mtu", "1440"),
 					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "device_id", "netbox_device.test", "id"),
-				),
-			},
-			{
-				Config: setUp + testAccNetboxDeviceInterfaceOpts(testName, testMacUppercase),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_device_interface.test", "mac_address", "0A:01:02:03:04:05"),
 				),
 			},
 			{

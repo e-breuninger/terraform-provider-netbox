@@ -1,0 +1,44 @@
+---
+page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
+subcategory: "Data Center Inventory Management (DCIM)"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+## Example Usage
+
+### Creating a MAC address that is assigned to a virtual machine interface
+
+With `virtual_machine_interface_id`:
+{{ tffile "examples/resources/netbox_mac_address/virtual_machine_interface_id.tf" }}
+
+With `object_type` and `interface_id`:
+{{ tffile "examples/resources/netbox_mac_address/object_type_virtual_machine.tf" }}
+
+### Creating a MAC address that is assigned to a device interface
+
+With `device_interface_id`:
+{{ tffile "examples/resources/netbox_mac_address/device_interface_id.tf" }}
+
+With `object_type` and `interface_id`:
+{{ tffile "examples/resources/netbox_mac_address/object_type_device.tf" }}
+
+### Creating a MAC address that is not assigned to anything
+
+You can create a MAC address that is not assigned to anything by omitting the attributes mentioned above.
+
+{{ tffile "examples/resources/netbox_mac_address/standalone.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
+
+{{ if .HasImport -}}
+## Import
+
+Import is supported using the following syntax:
+
+{{ printf "{{codefile \"shell\" %q}}" .ImportFile }}
+{{- end }}

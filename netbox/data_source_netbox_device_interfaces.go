@@ -148,7 +148,6 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 		params.Limit = &limitInt
 	}
 
-
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
 		for _, f := range filterParams.List() {
