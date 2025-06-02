@@ -1,7 +1,7 @@
 ---
 services:
   postgres:
-    image: postgres:12-alpine
+    image: postgres:14-alpine
     environment:
       - POSTGRES_USER=netbox
       - POSTGRES_PASSWORD=netbox
@@ -34,6 +34,7 @@ services:
       - SUPERUSER_EMAIL=admin@example.com
       - SUPERUSER_PASSWORD=admin
       - SUPERUSER_API_TOKEN=${NETBOX_API_TOKEN}
+      - METRICS_ENABLED=true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/metrics"]
       interval: 10s
