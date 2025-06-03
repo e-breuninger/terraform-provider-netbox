@@ -93,7 +93,7 @@ resource "netbox_ip_address" "this" {
 
 ### Creating an IP address that is not assigned to anything
 
-You can create an IP address that is not assigend to anything by omitting the attributes mentioned above.
+You can create an IP address that is not assigned to anything by omitting the attributes mentioned above.
 
 ```terraform
 resource "netbox_ip_address" "this" {
