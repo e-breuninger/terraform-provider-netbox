@@ -63,9 +63,25 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"location_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"site_id", "site_group_id", "region_id"},
+			},
 			"site_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_group_id", "region_id"},
+			},
+			"site_group_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_id", "region_id"},
+			},
+			"region_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_id", "site_group_id"},
 			},
 			"vlan_id": {
 				Type:     schema.TypeInt,
