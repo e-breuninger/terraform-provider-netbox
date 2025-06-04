@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var resourceNetboxDeviceInterfaceModeOptions = []string{"access", "tagged", "tagged-all"}
+var resourceNetboxDeviceInterfaceModeOptions = []string{"access", "tagged", "tagged-all", "q-in-q"}
 
 func resourceNetboxDeviceInterface() *schema.Resource {
 	return &schema.Resource{
