@@ -66,6 +66,18 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"site_group_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"location_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"region_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"vlan_vid": {
 							Type:     schema.TypeFloat,
 							Computed: true,
@@ -158,8 +170,18 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		if v.Tenant != nil {
 			mapping["tenant_id"] = v.Tenant.ID
 		}
-		if v.Site != nil {
-			mapping["site_id"] = v.Site.ID
+		if v.ScopeType != nil && v.ScopeID != nil {
+			scopeID := v.ScopeID
+			switch scopeType := v.ScopeType; *scopeType {
+			case "dcim.site":
+				mapping["site_id"] = scopeID
+			case "dcim.sitegroup":
+				mapping["site_group_id"] = scopeID
+			case "dcim.location":
+				mapping["location_id"] = scopeID
+			case "dcim.region":
+				mapping["region_id"] = scopeID
+			}
 		}
 		mapping["status"] = v.Status.Value
 		mapping["tags"] = getTagListFromNestedTagList(v.Tags)

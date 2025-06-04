@@ -37,6 +37,9 @@ for more information on available lookup expressions.
 ### Read-Only
 
 - `id` (Number) The ID of this resource.
+- `location_id` (Number)
+- `region_id` (Number)
+- `site_group_id` (Number)
 - `tags` (Set of String)
 
 

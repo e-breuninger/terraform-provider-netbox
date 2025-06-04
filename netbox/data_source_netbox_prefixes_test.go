@@ -56,7 +56,7 @@ resource "netbox_site" "test" {
 resource "netbox_prefix" "with_site_id" {
   prefix  = "%[6]s"
   status  = "container"
-  site_id = netbox_site.test.id
+  site_id    = netbox_site.test.id
 }
 
 resource "netbox_site" "test2" {
@@ -67,7 +67,7 @@ resource "netbox_site" "test2" {
 resource "netbox_prefix" "with_container" {
   prefix  = "%[9]s"
   status  = "container"
-  site_id = netbox_site.test2.id
+  site_id    = netbox_site.test2.id
 }
 
 resource "netbox_vrf" "test_vrf" {

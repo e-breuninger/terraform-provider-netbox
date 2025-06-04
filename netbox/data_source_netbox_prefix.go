@@ -81,6 +81,18 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Optional:     true,
 				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
+			"site_group_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"location_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"region_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"tag": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -207,9 +219,26 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	if result.Tenant != nil {
 		d.Set("tenant_id", result.Tenant.ID)
 	}
-	if result.Site != nil {
-		d.Set("site_id", result.Site.ID)
+
+	d.Set("site_id", nil)
+	d.Set("site_group_id", nil)
+	d.Set("location_id", nil)
+	d.Set("region_id", nil)
+
+	if result.ScopeType != nil && result.ScopeID != nil {
+		scopeID := result.ScopeID
+		switch scopeType := result.ScopeType; *scopeType {
+		case "dcim.site":
+			d.Set("site_id", scopeID)
+		case "dcim.sitegroup":
+			d.Set("site_group_id", scopeID)
+		case "dcim.location":
+			d.Set("location_id", scopeID)
+		case "dcim.region":
+			d.Set("region_id", scopeID)
+		}
 	}
+
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	return nil
 }
