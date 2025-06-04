@@ -41,6 +41,7 @@ resource "netbox_location" "test" {
 ### Required
 
 - `name` (String)
+- `site_id` (Number)
 
 ### Optional
 
@@ -48,7 +49,6 @@ resource "netbox_location" "test" {
 - `description` (String)
 - `facility` (String)
 - `parent_id` (Number)
-- `site_id` (Number)
 - `slug` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)

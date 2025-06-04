@@ -44,7 +44,7 @@ Each location must have a name that is unique within its parent site and locatio
 			},
 			"site_id": {
 				Type:     schema.TypeInt,
-				Optional: true,
+				Required: true,
 			},
 			"parent_id": {
 				Type:     schema.TypeInt,
