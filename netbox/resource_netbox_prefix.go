@@ -56,9 +56,25 @@ func resourceNetboxPrefix() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"location_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"site_id", "site_group_id", "region_id"},
+			},
 			"site_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_group_id", "region_id"},
+			},
+			"site_group_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_id", "region_id"},
+			},
+			"region_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_id", "site_group_id"},
 			},
 			"vlan_id": {
 				Type:     schema.TypeInt,
@@ -102,16 +118,35 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
 
-	if siteID, ok := d.GetOk("site_id"); ok {
-		data.Site = int64ToPtr(int64(siteID.(int)))
-	}
-
 	if vlanID, ok := d.GetOk("vlan_id"); ok {
 		data.Vlan = int64ToPtr(int64(vlanID.(int)))
 	}
 
 	if roleID, ok := d.GetOk("role_id"); ok {
 		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	siteID := getOptionalInt(d, "site_id")
+	siteGroupID := getOptionalInt(d, "site_group_id")
+	locationID := getOptionalInt(d, "location_id")
+	regionID := getOptionalInt(d, "region_id")
+
+	switch {
+	case siteID != nil:
+		data.ScopeType = strToPtr("dcim.site")
+		data.ScopeID = siteID
+	case siteGroupID != nil:
+		data.ScopeType = strToPtr("dcim.sitegroup")
+		data.ScopeID = siteGroupID
+	case locationID != nil:
+		data.ScopeType = strToPtr("dcim.location")
+		data.ScopeID = locationID
+	case regionID != nil:
+		data.ScopeType = strToPtr("dcim.region")
+		data.ScopeID = regionID
+	default:
+		data.ScopeType = nil
+		data.ScopeID = nil
 	}
 
 	cf, ok := d.GetOk(customFieldsKey)
@@ -153,52 +188,65 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("description", res.GetPayload().Description)
-	d.Set("is_pool", res.GetPayload().IsPool)
-	d.Set("mark_utilized", res.GetPayload().MarkUtilized)
-	if res.GetPayload().Status != nil {
-		d.Set("status", res.GetPayload().Status.Value)
+	prefix := res.GetPayload()
+	d.Set("description", prefix.Description)
+	d.Set("is_pool", prefix.IsPool)
+	d.Set("mark_utilized", prefix.MarkUtilized)
+	if prefix.Status != nil {
+		d.Set("status", prefix.Status.Value)
 	}
-	if res.GetPayload().Prefix != nil {
-		d.Set("prefix", res.GetPayload().Prefix)
+	if prefix.Prefix != nil {
+		d.Set("prefix", prefix.Prefix)
 	}
 
-	if res.GetPayload().Vrf != nil {
-		d.Set("vrf_id", res.GetPayload().Vrf.ID)
+	if prefix.Vrf != nil {
+		d.Set("vrf_id", prefix.Vrf.ID)
 	} else {
 		d.Set("vrf_id", nil)
 	}
 
-	if res.GetPayload().Tenant != nil {
-		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	if prefix.Tenant != nil {
+		d.Set("tenant_id", prefix.Tenant.ID)
 	} else {
 		d.Set("tenant_id", nil)
 	}
 
-	if res.GetPayload().Site != nil {
-		d.Set("site_id", res.GetPayload().Site.ID)
-	} else {
-		d.Set("site_id", nil)
-	}
-
-	if res.GetPayload().Vlan != nil {
-		d.Set("vlan_id", res.GetPayload().Vlan.ID)
+	if prefix.Vlan != nil {
+		d.Set("vlan_id", prefix.Vlan.ID)
 	} else {
 		d.Set("vlan_id", nil)
 	}
 
-	if res.GetPayload().Role != nil {
-		d.Set("role_id", res.GetPayload().Role.ID)
+	if prefix.Role != nil {
+		d.Set("role_id", prefix.Role.ID)
 	} else {
 		d.Set("role_id", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	d.Set("site_id", nil)
+	d.Set("site_group_id", nil)
+	d.Set("location_id", nil)
+	d.Set("region_id", nil)
+
+	if prefix.ScopeType != nil && prefix.ScopeID != nil {
+		scopeID := prefix.ScopeID
+		switch scopeType := prefix.ScopeType; *scopeType {
+		case "dcim.site":
+			d.Set("site_id", scopeID)
+		case "dcim.sitegroup":
+			d.Set("site_group_id", scopeID)
+		case "dcim.location":
+			d.Set("location_id", scopeID)
+		case "dcim.region":
+			d.Set("region_id", scopeID)
+		}
+	}
+	cf := getCustomFields(prefix.CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
 
-	api.readTags(d, res.GetPayload().Tags)
+	api.readTags(d, prefix.Tags)
 	// FIGURE OUT NESTED VRF AND NESTED VLAN (from maybe interfaces?)
 
 	return nil
@@ -233,10 +281,6 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantID.(int)))
 	}
 
-	if siteID, ok := d.GetOk("site_id"); ok {
-		data.Site = int64ToPtr(int64(siteID.(int)))
-	}
-
 	if vlanID, ok := d.GetOk("vlan_id"); ok {
 		data.Vlan = int64ToPtr(int64(vlanID.(int)))
 	}
@@ -247,6 +291,29 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
 		data.CustomFields = cf
+	}
+
+	siteID := getOptionalInt(d, "site_id")
+	siteGroupID := getOptionalInt(d, "site_group_id")
+	locationID := getOptionalInt(d, "location_id")
+	regionID := getOptionalInt(d, "region_id")
+
+	switch {
+	case siteID != nil:
+		data.ScopeType = strToPtr("dcim.site")
+		data.ScopeID = siteID
+	case siteGroupID != nil:
+		data.ScopeType = strToPtr("dcim.sitegroup")
+		data.ScopeID = siteGroupID
+	case locationID != nil:
+		data.ScopeType = strToPtr("dcim.location")
+		data.ScopeID = locationID
+	case regionID != nil:
+		data.ScopeType = strToPtr("dcim.region")
+		data.ScopeID = regionID
+	default:
+		data.ScopeType = nil
+		data.ScopeID = nil
 	}
 
 	var err error

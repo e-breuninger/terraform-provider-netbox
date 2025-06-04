@@ -46,7 +46,7 @@ resource "netbox_prefix" "testv4" {
   vrf_id      = netbox_vrf.test.id
   vlan_id     = netbox_vlan.test.id
   tenant_id   = netbox_tenant.test.id
-  site_id     = netbox_site.test.id
+  site_id    = netbox_site.test.id
   role_id     = netbox_ipam_role.test.id
   description = "%[1]s_description_test_idv4"
 }
@@ -57,7 +57,7 @@ resource "netbox_prefix" "testv6" {
   vrf_id      = netbox_vrf.test.id
   vlan_id     = netbox_vlan.test.id
   tenant_id   = netbox_tenant.test.id
-  site_id     = netbox_site.test.id
+  site_id    = netbox_site.test.id
   description = "%[1]s_description_test_idv6"
 }
 
