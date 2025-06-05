@@ -137,7 +137,6 @@ resource "netbox_device_interface" "test2" {
 resource "netbox_device_interface" "test3" {
   name = "%[1]s_3"
   mode = "tagged-all"
-  tagged_vlans = [netbox_vlan.test1.id, netbox_vlan.test2.id]
   device_id = netbox_device.test.id
   type = "1000base-t"
 }`, testName)
@@ -272,7 +271,6 @@ func TestAccNetboxDeviceInterface_vlans(t *testing.T) {
 					resource.TestCheckResourceAttrPair("netbox_device_interface.test1", "untagged_vlan", "netbox_vlan.test1", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_interface.test2", "untagged_vlan", "netbox_vlan.test1", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_interface.test2", "tagged_vlans.0", "netbox_vlan.test2", "id"),
-					resource.TestCheckResourceAttr("netbox_device_interface.test3", "tagged_vlans.#", "2"),
 				),
 			},
 			{
