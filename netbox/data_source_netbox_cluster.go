@@ -120,6 +120,8 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", result.Description)
 
 	if result.ScopeType != nil && result.ScopeID != nil {
+		d.Set("scope_type", result.ScopeType)
+		d.Set("scope_id", result.ScopeID)
 		scopeID := result.ScopeID
 		switch scopeType := result.ScopeType; *scopeType {
 		case "dcim.site":

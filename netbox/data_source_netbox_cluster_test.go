@@ -68,6 +68,8 @@ data "netbox_cluster" "by_site_id_and_group_id" {
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "cluster_group_id", "netbox_cluster_group.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "comments", testName+"comments"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "description", testName+"description"),
+					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "scope_type", "dcim.site"),
+					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "scope_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_cluster.by_name", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "tags.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_cluster.by_name", "tags.0", testName),
