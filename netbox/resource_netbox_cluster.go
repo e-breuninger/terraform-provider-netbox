@@ -15,11 +15,8 @@ func resourceNetboxCluster() *schema.Resource {
 		Update: resourceNetboxClusterUpdate,
 		Delete: resourceNetboxClusterDelete,
 
-		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#clusters):
-
-> A cluster is a logical grouping of physical resources within which virtual machines run. A cluster must be assigned a type (technological classification), and may optionally be assigned to a cluster group, site, and/or tenant. Each cluster must have a unique name within its assigned group and/or site, if any.
->
-> Physical devices may be associated with clusters as hosts. This allows users to track on which host(s) a particular virtual machine may reside. However, NetBox does not support pinning a specific VM within a cluster to a particular host device.`,
+		Description: `:meta:subcategory:Virtualization:From the [official documentation](https://netboxlabs.com/docs/netbox/models/virtualization/cluster/):
+> A cluster is a logical grouping of physical resources within which virtual machines run. Physical devices may be associated with clusters as hosts. This allows users to track on which host(s) a particular virtual machine may reside.`,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -42,9 +39,25 @@ func resourceNetboxCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"location_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"site_id", "site_group_id", "region_id"},
+			},
 			"site_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_group_id", "region_id"},
+			},
+			"site_group_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_id", "region_id"},
+			},
+			"region_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"location_id", "site_id", "site_group_id"},
 			},
 			"tenant_id": {
 				Type:     schema.TypeInt,
@@ -69,6 +82,29 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 	clusterTypeID := int64(d.Get("cluster_type_id").(int))
 	data.Type = &clusterTypeID
 
+	siteID := getOptionalInt(d, "site_id")
+	siteGroupID := getOptionalInt(d, "site_group_id")
+	locationID := getOptionalInt(d, "location_id")
+	regionID := getOptionalInt(d, "region_id")
+
+	switch {
+	case siteID != nil:
+		data.ScopeType = strToPtr("dcim.site")
+		data.ScopeID = siteID
+	case siteGroupID != nil:
+		data.ScopeType = strToPtr("dcim.sitegroup")
+		data.ScopeID = siteGroupID
+	case locationID != nil:
+		data.ScopeType = strToPtr("dcim.location")
+		data.ScopeID = locationID
+	case regionID != nil:
+		data.ScopeType = strToPtr("dcim.region")
+		data.ScopeID = regionID
+	default:
+		data.ScopeType = nil
+		data.ScopeID = nil
+	}
+
 	if clusterGroupIDValue, ok := d.GetOk("cluster_group_id"); ok {
 		clusterGroupID := int64(clusterGroupIDValue.(int))
 		data.Group = &clusterGroupID
@@ -76,11 +112,6 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Comments = getOptionalStr(d, "comments", false)
 	data.Description = getOptionalStr(d, "description", false)
-
-	if siteIDValue, ok := d.GetOk("site_id"); ok {
-		siteID := int64(siteIDValue.(int))
-		data.Site = &siteID
-	}
 
 	if tenantIDValue, ok := d.GetOk("tenant_id"); ok {
 		tenantID := int64(tenantIDValue.(int))
@@ -121,28 +152,43 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("cluster_type_id", res.GetPayload().Type.ID)
+	cluster := res.GetPayload()
 
-	if res.GetPayload().Group != nil {
-		d.Set("cluster_group_id", res.GetPayload().Group.ID)
+	d.Set("name", cluster.Name)
+	d.Set("cluster_type_id", cluster.Type.ID)
+
+	if cluster.Group != nil {
+		d.Set("cluster_group_id", cluster.Group.ID)
 	} else {
 		d.Set("cluster_group_id", nil)
 	}
 
-	d.Set("comments", res.GetPayload().Comments)
-	d.Set("description", res.GetPayload().Description)
+	d.Set("comments", cluster.Comments)
+	d.Set("description", cluster.Description)
 
-	if res.GetPayload().Site != nil {
-		d.Set("site_id", res.GetPayload().Site.ID)
-	} else {
-		d.Set("site_id", nil)
-	}
-
-	if res.GetPayload().Tenant != nil {
-		d.Set("tenant_id", res.GetPayload().Tenant.ID)
+	if cluster.Tenant != nil {
+		d.Set("tenant_id", cluster.Tenant.ID)
 	} else {
 		d.Set("tenant_id", nil)
+	}
+
+	d.Set("site_id", nil)
+	d.Set("site_group_id", nil)
+	d.Set("location_id", nil)
+	d.Set("region_id", nil)
+
+	if cluster.ScopeType != nil && cluster.ScopeID != nil {
+		scopeID := cluster.ScopeID
+		switch scopeType := cluster.ScopeType; *scopeType {
+		case "dcim.site":
+			d.Set("site_id", scopeID)
+		case "dcim.sitegroup":
+			d.Set("site_group_id", scopeID)
+		case "dcim.location":
+			d.Set("location_id", scopeID)
+		case "dcim.region":
+			d.Set("region_id", scopeID)
+		}
 	}
 
 	api.readTags(d, res.GetPayload().Tags)
@@ -169,14 +215,32 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Comments = getOptionalStr(d, "comments", true)
 	data.Description = getOptionalStr(d, "description", true)
 
-	if siteIDValue, ok := d.GetOk("site_id"); ok {
-		siteID := int64(siteIDValue.(int))
-		data.Site = &siteID
-	}
-
 	if tenantIDValue, ok := d.GetOk("tenant_id"); ok {
 		tenantID := int64(tenantIDValue.(int))
 		data.Tenant = &tenantID
+	}
+
+	siteID := getOptionalInt(d, "site_id")
+	siteGroupID := getOptionalInt(d, "site_group_id")
+	locationID := getOptionalInt(d, "location_id")
+	regionID := getOptionalInt(d, "region_id")
+
+	switch {
+	case siteID != nil:
+		data.ScopeType = strToPtr("dcim.site")
+		data.ScopeID = siteID
+	case siteGroupID != nil:
+		data.ScopeType = strToPtr("dcim.sitegroup")
+		data.ScopeID = siteGroupID
+	case locationID != nil:
+		data.ScopeType = strToPtr("dcim.location")
+		data.ScopeID = locationID
+	case regionID != nil:
+		data.ScopeType = strToPtr("dcim.region")
+		data.ScopeID = regionID
+	default:
+		data.ScopeType = nil
+		data.ScopeID = nil
 	}
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))

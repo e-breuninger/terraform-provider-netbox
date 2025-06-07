@@ -3,7 +3,6 @@ package netbox
 import (
 	"context"
 	"strconv"
-	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -12,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var resourceNetboxDeviceInterfaceModeOptions = []string{"access", "tagged", "tagged-all"}
+var resourceNetboxDeviceInterfaceModeOptions = []string{"access", "tagged", "tagged-all", "q-in-q"}
 
 func resourceNetboxDeviceInterface() *schema.Resource {
 	return &schema.Resource{
@@ -50,15 +49,6 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "If this device is a member of a LAG group, you can reference the LAG interface here.",
-			},
-			"mac_address": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.IsMACAddress,
-				// Netbox converts MAC addresses always to uppercase
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return strings.EqualFold(old, new)
-				},
 			},
 			"mgmtonly": {
 				Type:     schema.TypeBool,
@@ -140,9 +130,6 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		WirelessLans: []int64{},
 		Vdcs:         []int64{},
 	}
-	if macAddress := d.Get("mac_address").(string); macAddress != "" {
-		data.MacAddress = &macAddress
-	}
 	if lag, ok := d.Get("lag_device_interface_id").(int); ok && lag != 0 {
 		data.Lag = int64ToPtr(int64(lag))
 	}
@@ -200,7 +187,6 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("type", iface.Type.Value)
 	d.Set("enabled", iface.Enabled)
 	d.Set("mgmtonly", iface.MgmtOnly)
-	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
 	d.Set("speed", iface.Speed)
 	api.readTags(d, iface.Tags)
@@ -259,10 +245,6 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		Vdcs:         []int64{},
 	}
 
-	if d.HasChange("mac_address") {
-		macAddress := d.Get("mac_address").(string)
-		data.MacAddress = &macAddress
-	}
 	if d.HasChange("lag_device_interface_id") {
 		lag := int64(d.Get("lag_device_interface_id").(int))
 		data.Lag = &lag
