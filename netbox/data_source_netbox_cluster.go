@@ -38,6 +38,18 @@ func dataSourceNetboxCluster() *schema.Resource {
 				Optional:     true,
 				AtLeastOneOf: []string{"name", "site_id", "id"},
 			},
+			"site_group_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"location_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"region_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
