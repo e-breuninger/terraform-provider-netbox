@@ -172,6 +172,7 @@ func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) er
 		Description: getOptionalStr(d, "description", false),
 		Tenant:      getOptionalInt(d, "tenant_id"),
 		Site:        getOptionalInt(d, "site_id"),
+		Group:       getOptionalInt(d, "group_id"),
 		Role:        getOptionalInt(d, "role_id"),
 		Status:      d.Get("status").(string),
 		Vid:         int64ToPtr(int64(d.Get("vid").(int))),
