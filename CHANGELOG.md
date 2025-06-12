@@ -1,3 +1,25 @@
+## 4.0.0 (June 12th, 2025)
+
+**BREAKING CHANGES**
+
+NetBox 4.2 came with some breaking changes and these are reflected in the provider.
+
+* resource/netbox_device_interface: Make `mac_address` attribute read-only
+* resource/netbox_device_interface: Add read-only `mac_addresses` attribute
+
+ENHANCEMENTS
+
+provider: Now supports NetBox 4.2.x
+* **New Resource:** `netbox_mac_address`
+* resource/netbox_cluster: Add `location_id`, `site_group_id`, `region_id`, `scope_id` and `scope_type` attributes
+* resource/netbox_prefix: Add `location_id`, `site_group_id` and `region_id` attributes
+* resource/netbox_device_interface: Allow `q-in-q` value in `mode` attribute
+* resource/netbox_circuit_termination: Add `location_id`, `site_group_id`, `region_id`, `site_id` and `provider_network_id` attributes
+
+BUG FIXES
+
+* resource/netbox_location: Mark `site_id` as required
+
 ## 3.11.1 (June 12th, 2025)
 
 ENHANCEMENTS
