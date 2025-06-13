@@ -41,6 +41,7 @@ Read-Only:
 
 - `description` (String)
 - `group_id` (Number)
+- `id` (Number)
 - `name` (String)
 - `role` (Number)
 - `site` (Number)
