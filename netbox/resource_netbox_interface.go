@@ -62,6 +62,10 @@ func resourceNetboxInterface() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(1, 65536),
 			},
+			"vrf_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+			},
 			"type": {
 				Type:       schema.TypeString,
 				Optional:   true,
@@ -170,6 +174,11 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	if iface.UntaggedVlan != nil {
 		d.Set("untagged_vlan", iface.UntaggedVlan.ID)
 	}
+	if res.GetPayload().Vrf != nil {
+		d.Set("vrf_id", res.GetPayload().Vrf.ID)
+	} else {
+		d.Set("vrf_id", nil)
+	}
 
 	return diags
 }
@@ -213,6 +222,9 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	if d.HasChange("untagged_vlan") {
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))
 		data.UntaggedVlan = &untaggedvlan
+	}
+	if vrfID, ok := d.GetOk("vrf_id"); ok {
+		data.Vrf = int64ToPtr(int64(vrfID.(int)))
 	}
 
 	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
