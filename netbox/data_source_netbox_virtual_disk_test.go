@@ -20,7 +20,7 @@ func TestAccNetboxVirtualDiskDataSource_basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_tag" "tag_a" {
-  name = "[%[1]s_a]"
+  name = "%[1]s_a"
   color_hex = "123456"
 }
 resource "netbox_site" "test" {
@@ -39,15 +39,19 @@ resource "netbox_virtual_disk" "test" {
   tags = [netbox_tag.tag_a.name]
 }
 data "netbox_virtual_disk" "test" {
-  id = netbox_virtual_disk.test.id
+  filter {
+    name = "name"
+    value = netbox_virtual_disk.test.name
+  }
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "id", resourceName, "id"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "size_mb", resourceName, "size_mb"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "virtual_machine_id", resourceName, "virtual_machine_id"),
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.#", "1"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "virtual_disks.0.id", resourceName, "id"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "virtual_disks.0.name", resourceName, "name"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "virtual_disks.0.description", resourceName, "description"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "virtual_disks.0.size_mb", resourceName, "size_mb"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "virtual_disks.0.virtual_machine_id", resourceName, "virtual_machine_id"),
 				),
 			},
 		},
@@ -66,11 +70,11 @@ func TestAccNetboxVirtualDiskDataSource_filter_and_list(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_tag" "tag_a" {
-  name = "[%[1]s_a]"
+  name = "%[1]s_a"
   color_hex = "123456"
 }
 resource "netbox_tag" "tag_b" {
-  name = "[%[1]s_b]"
+  name = "%[1]s_b"
   color_hex = "654321"
 }
 resource "netbox_site" "test" {
@@ -96,10 +100,15 @@ resource "netbox_virtual_disk" "disk_b" {
   tags = [netbox_tag.tag_b.name]
 }
 data "netbox_virtual_disk" "filtered" {
-  filter = [
-    { name = "name" value = "%[1]s_disk_a" },
-    { name = "tag" value = netbox_tag.tag_a.name },
-  ]
+  filter {
+    name = "name"
+    value = "%[1]s_disk_a"
+  }
+  filter {
+    name = "tag"
+    value = netbox_tag.tag_a.name
+  }
+  depends_on = [netbox_virtual_disk.disk_a, netbox_virtual_disk.disk_b]
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
@@ -112,11 +121,11 @@ data "netbox_virtual_disk" "filtered" {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_tag" "tag_a" {
-  name = "[%[1]s_a]"
+  name = "%[1]s_a"
   color_hex = "123456"
 }
 resource "netbox_tag" "tag_b" {
-  name = "[%[1]s_b]"
+  name = "%[1]s_b"
   color_hex = "654321"
 }
 resource "netbox_site" "test" {
@@ -142,9 +151,11 @@ resource "netbox_virtual_disk" "disk_b" {
   tags = [netbox_tag.tag_b.name]
 }
 data "netbox_virtual_disk" "filtered" {
-  filter = [
-    { name = "tag" value = netbox_tag.tag_b.name },
-  ]
+  filter {
+    name = "tag"
+    value = netbox_tag.tag_b.name
+  }
+  depends_on = [netbox_virtual_disk.disk_a, netbox_virtual_disk.disk_b]
 }
 `, testName),
 				Check: resource.ComposeTestCheckFunc(

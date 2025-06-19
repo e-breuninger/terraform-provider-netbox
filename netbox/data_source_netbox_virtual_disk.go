@@ -17,7 +17,7 @@ func dataSourceNetboxVirtualDisk() *schema.Resource {
 		Description: `:meta:subcategory:Virtualization:`,
 		Schema: map[string]*schema.Schema{
 			"filter": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -87,22 +87,23 @@ func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) erro
 	params := virtualization.NewVirtualizationVirtualDisksListParams()
 
 	if filter, ok := d.GetOk("filter"); ok {
-		var filterParams = filter.(*schema.Set)
+		var filterParams = filter.([]interface{})
 		var tags []string
-		for _, f := range filterParams.List() {
+		for _, f := range filterParams {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.Name = &vString
+				params.NameIc = &vString
 			case "tag":
 				tags = append(tags, vString)
-				params.Tag = tags
-			// The fbreckle fork may not support virtual_machine_id filter directly
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
+		}
+		if len(tags) > 0 {
+			params.Tag = tags
 		}
 	}
 	if limit, ok := d.GetOk("limit"); ok {
