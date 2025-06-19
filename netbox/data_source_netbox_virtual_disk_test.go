@@ -132,7 +132,7 @@ resource "netbox_site" "test" {
   name = "%[1]s"
   status = "active"
 }
-resource "netbox_virtual_machine" "test" {
+resource "netbox_virtual_machine" "test" 
   name = "%[1]s"
   site_id = netbox_site.test.id
 }
