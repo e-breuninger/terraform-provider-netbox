@@ -48,6 +48,10 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"subdevice_role": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -87,6 +91,10 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 
 	if isFullDepthValue, ok := d.GetOk("is_full_depth"); ok {
 		data.IsFullDepth = isFullDepthValue.(bool)
+	}
+
+	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
+		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
 
 	var err error
@@ -133,6 +141,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("part_number", deviceType.PartNumber)
 	d.Set("u_height", deviceType.UHeight)
 	d.Set("is_full_depth", deviceType.IsFullDepth)
+	d.Set("subdevice_role", deviceType.SubdeviceRole)
 	api.readTags(d, deviceType.Tags)
 
 	return nil
@@ -170,6 +179,10 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 
 	if isFullDepthValue, ok := d.GetOk("is_full_depth"); ok {
 		data.IsFullDepth = isFullDepthValue.(bool)
+	}
+
+	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
+		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
 
 	var err error
