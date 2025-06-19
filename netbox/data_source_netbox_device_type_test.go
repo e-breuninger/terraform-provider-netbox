@@ -42,6 +42,7 @@ func TestAccNetboxDeviceTypeDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_device_type.test", "model", testName),
 					resource.TestCheckResourceAttr("data.netbox_device_type.test", "part_number", testName),
 					resource.TestCheckResourceAttrPair("data.netbox_device_type.test", "manufacturer_id", "netbox_manufacturer.test", "id"),
+					resource.TestCheckResourceAttrSet("data.netbox_device_type.test", "subdevice_role"),
 					resource.TestCheckResourceAttrSet("data.netbox_device_type.test", "is_full_depth"),
 					resource.TestCheckResourceAttrSet("data.netbox_device_type.test", "u_height"),
 				),

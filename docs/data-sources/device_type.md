@@ -45,6 +45,7 @@ data "netbox_device_type" "ex3" {
 - `id` (String) The ID of this resource.
 - `is_full_depth` (Boolean)
 - `manufacturer_id` (Number)
+- `subdevice_role` (String)
 - `u_height` (Number)
 
 
