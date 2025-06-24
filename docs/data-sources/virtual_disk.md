@@ -3,12 +3,12 @@
 page_title: "netbox_virtual_disk Data Source - terraform-provider-netbox"
 subcategory: "Virtualization"
 description: |-
-  Use this data source to retrieve information about virtual disks in NetBox.
+  
 ---
 
 # netbox_virtual_disk (Data Source)
 
-Use this data source to retrieve information about virtual disks in NetBox. You can filter virtual disks by name, tag, or use a regular expression to match disk names.
+
 
 ## Example Usage
 
@@ -53,30 +53,35 @@ data "netbox_virtual_disk" "disk_regex" {
 
 ### Optional
 
-- `filter` (Block List) Filter blocks allow you to filter virtual disks by various attributes. (see [below for nested schema](#nestedblock--filter))
-- `limit` (Number) The maximum number of results to return (default: 0 which means unlimited).
-- `name_regex` (String) A regular expression to match against virtual disk names.
+- `filter` (Block List) (see [below for nested schema](#nestedblock--filter))
+- `limit` (Number)
+- `name_regex` (String)
 
 ### Read-Only
 
-- `virtual_disks` (List of Object) List of virtual disks that match the filter criteria. (see [below for nested schema](#nestedatt--virtual_disks))
+- `id` (String) The ID of this resource.
+- `virtual_disks` (List of Object) (see [below for nested schema](#nestedatt--virtual_disks))
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
 
 Required:
 
-- `name` (String) Name of the filter. Valid values are: `name`, `tag`.
-- `value` (String) Value to filter by.
+- `name` (String)
+- `value` (String)
+
 
 <a id="nestedatt--virtual_disks"></a>
 ### Nested Schema for `virtual_disks`
 
 Read-Only:
 
-- `description` (String) Description of the virtual disk.
-- `id` (Number) The ID of this virtual disk.
-- `name` (String) Name of the virtual disk.
-- `size_mb` (Number) Size of the virtual disk in megabytes.
-- `tags` (Set of String) Tags assigned to this virtual disk.
-- `virtual_machine_id` (Number) ID of the virtual machine this disk is attached to. 
+- `custom_fields` (Map of String)
+- `description` (String)
+- `id` (Number)
+- `name` (String)
+- `size_mb` (Number)
+- `tags` (List of String)
+- `virtual_machine_id` (Number)
+
+
