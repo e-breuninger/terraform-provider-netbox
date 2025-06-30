@@ -1,7 +1,7 @@
 # Filter by name
 data "netbox_virtual_disk" "disk_by_name" {
   filter {
-    name = "name"
+    name  = "name"
     value = "disk1"
   }
 }
@@ -9,7 +9,7 @@ data "netbox_virtual_disk" "disk_by_name" {
 # Filter by tag
 data "netbox_virtual_disk" "disk_by_tag" {
   filter {
-    name = "tag"
+    name  = "tag"
     value = "production"
   }
 }
@@ -17,11 +17,11 @@ data "netbox_virtual_disk" "disk_by_tag" {
 # Multiple filters
 data "netbox_virtual_disk" "disk_filtered" {
   filter {
-    name = "name"
+    name  = "name"
     value = "disk1"
   }
   filter {
-    name = "tag"
+    name  = "tag"
     value = "production"
   }
 }
@@ -29,5 +29,5 @@ data "netbox_virtual_disk" "disk_filtered" {
 # Filter with name regex
 data "netbox_virtual_disk" "disk_regex" {
   name_regex = "^disk[0-9]+"
-  limit = 10
-} 
+  limit      = 10
+}
