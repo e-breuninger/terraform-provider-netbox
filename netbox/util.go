@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -131,4 +132,19 @@ func jsonSemanticCompare(a, b string) (equal bool, err error) {
 	}
 
 	return reflect.DeepEqual(aDecoded, bDecoded), nil
+}
+
+// extractNetboxVersionFromString extracts the first semantic versioning string
+// from a given string. The string must be preceded with "v".
+// This is needed since netbox-docker recently started displaying its version string
+// as, for example, v4.2.8-Docker-3.2.1 and we want to ignore the Docker part
+// ref: https://github.com/e-breuninger/terraform-provider-netbox/issues/729
+func extractSemanticVersionFromString(s string) (version string, err error) {
+	re := regexp.MustCompile(`^v?(\d+\.\d+\.\d+)`)
+
+	matches := re.FindStringSubmatch(s)
+	if len(matches) < 2 {
+		return "", fmt.Errorf("no semantic version found in version string")
+	}
+	return matches[1], nil
 }

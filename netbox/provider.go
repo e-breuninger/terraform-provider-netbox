@@ -331,7 +331,12 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 			return nil, diag.FromErr(err)
 		}
 
-		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
+		netboxVersionStringFromAPI := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
+
+		netboxVersion, err := extractSemanticVersionFromString(netboxVersionStringFromAPI)
+		if err != nil {
+			return nil, diag.FromErr(fmt.Errorf("error extracting netbox version. try using the `skip_version_check` provider parameter to bypass this error. original error: %w", err))
+		}
 
 		supportedVersions := []string{"4.2.2", "4.2.3", "4.2.4", "4.2.5", "4.2.6", "4.2.7", "4.2.8", "4.2.9"}
 
@@ -340,7 +345,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
 				Summary:  "Possibly unsupported Netbox version",
-				Detail:   fmt.Sprintf("Your Netbox version is v%v. The provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", netboxVersion, strings.Join(supportedVersions, ", ")),
+				Detail:   fmt.Sprintf("Your Netbox reports version %v. From that, the provider extracted Netbox version %v.\nThe provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", netboxVersionStringFromAPI, netboxVersion, strings.Join(supportedVersions, ", ")),
 			})
 		}
 	}
