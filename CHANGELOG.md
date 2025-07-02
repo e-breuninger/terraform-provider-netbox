@@ -1,3 +1,15 @@
+## 4.1.0 (July 2nd, 2025)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_virtual_disk` ([#731](https://github.com/e-breuninger/terraform-provider-netbox/pull/731) by [@lgogolin](https://github.com/lgogolin))
+* resource/netbox_available_prefix: Add `custom_fields` attribute ([#679](https://github.com/e-breuninger/terraform-provider-netbox/pull/679) by [@rs-hock](https://github.com/rs-hock))
+* data-source/netbox_devices: Add `oob_ip` attribute to output([#705](https://github.com/e-breuninger/terraform-provider-netbox/pull/705) by [@sempervictus](https://github.com/sempervictus))
+
+BUG FIXES
+
+* provider: Now properly detects netbox-docker versions
+
 ## 4.0.0 (June 12th, 2025)
 
 **BREAKING CHANGES**
