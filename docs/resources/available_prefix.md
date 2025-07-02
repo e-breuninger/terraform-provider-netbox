@@ -35,6 +35,7 @@ resource "netbox_available_prefix" "test" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `is_pool` (Boolean)
 - `location_id` (Number) Conflicts with `site_id`, `site_group_id` and `region_id`.
