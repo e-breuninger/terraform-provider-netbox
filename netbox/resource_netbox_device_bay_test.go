@@ -34,6 +34,14 @@ resource "netbox_manufacturer" "test" {
 resource "netbox_device_type" "test" {
   model = "%[1]s"
   manufacturer_id = netbox_manufacturer.test.id
+  subdevice_role = "parent"
+}
+
+resource "netbox_device_type" "test_installed" {
+  model = "%[1]s_installed"
+  manufacturer_id = netbox_manufacturer.test.id
+  u_height = 0
+  subdevice_role = "child"
 }
 
 resource "netbox_device_role" "test" {
@@ -51,7 +59,7 @@ resource "netbox_device" "test" {
 
 resource "netbox_device" "test_installed" {
   name = "%[1]s_installed"
-  device_type_id = netbox_device_type.test.id
+  device_type_id = netbox_device_type.test_installed.id
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   site_id = netbox_site.test.id
@@ -83,7 +91,6 @@ resource "netbox_device_bay" "test" {
 					resource.TestCheckResourceAttr("netbox_device_bay.test", "description", testName+"_description"),
 					resource.TestCheckResourceAttr("netbox_device_bay.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device_bay.test", "tags.0", testName+"a"),
-
 					resource.TestCheckResourceAttrPair("netbox_device_bay.test", "installed_device_id", "netbox_device.test_installed", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_bay.test", "device_id", "netbox_device.test", "id"),
 				),
@@ -93,14 +100,14 @@ resource "netbox_device_bay" "test" {
 resource "netbox_device_bay" "test" {
   device_id = netbox_device.test.id
   name = "%[1]s"
+  installed_device_id = netbox_device.test_installed.id
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_bay.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_bay.test", "label", ""),
 					resource.TestCheckResourceAttr("netbox_device_bay.test", "description", ""),
-					resource.TestCheckResourceAttr("netbox_device_bay.test", "installed_device_id", ""),
 					resource.TestCheckResourceAttr("netbox_device_bay.test", "tags.#", "0"),
-
+					resource.TestCheckResourceAttrPair("netbox_device_bay.test", "installed_device_id", "netbox_device.test_installed", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_bay.test", "device_id", "netbox_device.test", "id"),
 				),
 			},
