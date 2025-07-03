@@ -39,7 +39,7 @@ func dataSourceNetboxDeviceType() *schema.Resource {
 			},
 			"subdevice_role": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 			"u_height": {
 				Type:     schema.TypeFloat,
@@ -84,7 +84,11 @@ func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error
 	d.Set("manufacturer_id", result.Manufacturer.ID)
 	d.Set("model", result.Model)
 	d.Set("part_number", result.PartNumber)
-	d.Set("subdevice_role", result.SubdeviceRole)
+	if result.SubdeviceRole != nil && result.SubdeviceRole.Value != nil {
+		d.Set("subdevice_role", *result.SubdeviceRole.Value)
+	} else {
+		d.Set("subdevice_role", "")
+	}
 	d.Set("slug", result.Slug)
 	d.Set("u_height", result.UHeight)
 	return nil

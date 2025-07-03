@@ -39,13 +39,13 @@ data "netbox_device_type" "ex3" {
 - `model` (String)
 - `part_number` (String)
 - `slug` (String)
+- `subdevice_role` (String)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `is_full_depth` (Boolean)
 - `manufacturer_id` (Number)
-- `subdevice_role` (String)
 - `u_height` (Number)
 
 

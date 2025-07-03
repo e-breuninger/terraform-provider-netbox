@@ -60,6 +60,7 @@ resource "netbox_device_type" "test" {
 	manufacturer_id = netbox_manufacturer.test.id
 	model = "%[1]s"
 	part_number = "%[1]s"
+	subdevice_role = "parent"
 }`, testName)
 }
 

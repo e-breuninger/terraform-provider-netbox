@@ -141,7 +141,11 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("part_number", deviceType.PartNumber)
 	d.Set("u_height", deviceType.UHeight)
 	d.Set("is_full_depth", deviceType.IsFullDepth)
-	d.Set("subdevice_role", deviceType.SubdeviceRole)
+	if deviceType.SubdeviceRole != nil && deviceType.SubdeviceRole.Value != nil {
+		d.Set("subdevice_role", *deviceType.SubdeviceRole.Value)
+	} else {
+		d.Set("subdevice_role", "")
+	}
 	api.readTags(d, deviceType.Tags)
 
 	return nil
