@@ -40,6 +40,7 @@ resource "netbox_device_type" "test" {
 - `is_full_depth` (Boolean)
 - `part_number` (String)
 - `slug` (String)
+- `subdevice_role` (String)
 - `tags` (Set of String)
 - `u_height` (Number) Defaults to `1.0`.
 
