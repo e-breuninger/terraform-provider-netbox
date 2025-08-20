@@ -118,14 +118,22 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	}
 	if prefixID != 0 {
 		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
-		res, _ := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+		res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+		if err != nil {
+			// The available IP create op returned an error, so we can't continue
+			return err
+		}
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
 	}
 	if rangeID != 0 {
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
-		res, _ := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+		res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+		if err != nil {
+			// The available IP create op returned an error, so we can't continue
+			return err
+		}
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
