@@ -1,3 +1,14 @@
+## 4.2.0 (August 20th, 2025)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_device_bay` ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* **New Resource:** `netbox_device_bay_template` ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* **New Data Source:** `netbox_ip_address` ([#743](https://github.com/e-breuninger/terraform-provider-netbox/pull/743) by [@c24holdingit](https://github.com/c24holdingit))
+* resource/netbox_device_type: Add `subdevice_role` field ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* data-source/netbox_device_type: Add `subdevice_role` field ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* resource/netbox_token: Add `expires` field ([#742](https://github.com/e-breuninger/terraform-provider-netbox/pull/742) by [@thomas-VIGINUM](https://github.com/thomas-VIGINUM))
+
 ## 4.1.0 (July 2nd, 2025)
 
 ENHANCEMENTS
