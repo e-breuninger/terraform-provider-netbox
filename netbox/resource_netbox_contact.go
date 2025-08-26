@@ -40,6 +40,14 @@ func resourceNetboxContact() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"link": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -53,6 +61,8 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	phone := d.Get("phone").(string)
 	email := d.Get("email").(string)
+	link := d.Get("link").(string)
+	description := d.Get("description").(string)
 	groupID := int64(d.Get("group_id").(int))
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
@@ -63,7 +73,8 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 	data.Tags = tags
 	data.Phone = phone
 	data.Email = strfmt.Email(email)
-
+	data.Link = strfmt.URI(link)
+	data.Description = description
 	if groupID != 0 {
 		data.Group = &groupID
 	}
@@ -101,6 +112,8 @@ func resourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", res.GetPayload().Name)
 	d.Set("phone", res.GetPayload().Phone)
 	d.Set("email", res.GetPayload().Email)
+	d.Set("link", res.GetPayload().Link)
+	d.Set("description", res.GetPayload().Description)
 	if res.GetPayload().Group != nil {
 		d.Set("group_id", res.GetPayload().Group.ID)
 	}
@@ -117,6 +130,8 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	phone := d.Get("phone").(string)
 	email := d.Get("email").(string)
+	link := d.Get("link").(string)
+	description := d.Get("description").(string)
 	groupID := int64(d.Get("group_id").(int))
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
@@ -125,6 +140,8 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Tags = tags
 	data.Phone = phone
 	data.Email = strfmt.Email(email)
+	data.Link = strfmt.URI(link)
+	data.Description = description
 	if groupID != 0 {
 		data.Group = &groupID
 	}
