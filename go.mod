@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.24.4
 
 require (
-	github.com/fbreckle/go-netbox v0.0.0-20250613135753-f000a89e4006
+	github.com/fbreckle/go-netbox v0.0.0-20250903192043-cc1d14ae5d7f
 	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3
 	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/strfmt v0.23.0
