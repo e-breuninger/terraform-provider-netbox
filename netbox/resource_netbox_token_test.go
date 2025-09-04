@@ -31,7 +31,7 @@ resource "netbox_token" "test_basic" {
   allowed_ips   = ["2.4.8.16/32"]
   write_enabled = false
   description   = "Netbox Test Basic Token"
-	expires       = "2036-01-02T15:04:05.000Z"
+  expires       = "2036-01-02T15:04:05.000Z"
 }`, testName, testToken),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "key", testToken),
@@ -46,6 +46,7 @@ resource "netbox_token" "test_basic" {
 				ResourceName:      "netbox_token.test_basic",
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"key"},
 			},
 		},
 	})

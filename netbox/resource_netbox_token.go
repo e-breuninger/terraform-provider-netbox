@@ -1,21 +1,23 @@
 package netbox
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxToken() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxTokenCreate,
-		Read:   resourceNetboxTokenRead,
-		Update: resourceNetboxTokenUpdate,
-		Delete: resourceNetboxTokenDelete,
+		CreateContext: resourceNetboxTokenCreate,
+		ReadContext:   resourceNetboxTokenRead,
+		UpdateContext: resourceNetboxTokenUpdate,
+		DeleteContext: resourceNetboxTokenDelete,
 
 		Description: `:meta:subcategory:Authentication:From the [official documentation](https://docs.netbox.dev/en/stable/rest-api/authentication/#tokens):
 
@@ -64,7 +66,7 @@ func resourceNetboxToken() *schema.Resource {
 	}
 }
 
-func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTokenCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	data := models.WritableToken{}
 
@@ -86,21 +88,21 @@ func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
 
 	expires, err := strfmt.ParseDateTime(d.Get("expires").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.Expires = &expires
 
 	params := users.NewUsersTokensCreateParams().WithData(&data)
 	res, err := api.Users.UsersTokensCreate(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxTokenUpdate(d, m)
+	return resourceNetboxTokenUpdate(ctx, d, m)
 }
 
-func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTokenRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersTokensReadParams().WithID(id)
@@ -115,7 +117,7 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 				return nil
 			}
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	token := res.GetPayload()
 
@@ -123,9 +125,15 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("user_id", token.User.ID)
 	}
 
-	d.Set("key", token.Key)
+	// Since NetBox 4.3.0, ALLOW_TOKEN_RETRIEVAL is disabled by default
+	// This means we will usually not get a Key value from the API
+	if token.Key != "" {
+		d.Set("key", token.Key)
+	}
 	d.Set("last_used", token.LastUsed)
-	d.Set("expires", token.Expires.String())
+	if token.Expires != nil {
+		d.Set("expires", token.Expires.String())
+	}
 	d.Set("allowed_ips", token.AllowedIps)
 	d.Set("write_enabled", token.WriteEnabled)
 	d.Set("description", token.Description)
@@ -133,7 +141,7 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTokenUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableToken{}
@@ -155,19 +163,19 @@ func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
 
 	expires, err := strfmt.ParseDateTime(d.Get("expires").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.Expires = &expires
 
 	params := users.NewUsersTokensUpdateParams().WithID(id).WithData(&data)
 	_, err = api.Users.UsersTokensUpdate(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return resourceNetboxTokenRead(d, m)
+	return resourceNetboxTokenRead(ctx, d, m)
 }
 
-func resourceNetboxTokenDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersTokensDeleteParams().WithID(id)
@@ -179,7 +187,7 @@ func resourceNetboxTokenDelete(d *schema.ResourceData, m interface{}) error {
 				return nil
 			}
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId("")
 	return nil
