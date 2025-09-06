@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -117,14 +118,26 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	}
 	if prefixID != 0 {
 		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
-		res, _ := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+		res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+		if err != nil {
+			return err
+		}
+		if len(res.Payload) == 0 {
+			return fmt.Errorf("no available IP addresses in prefix %d", prefixID)
+		}
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
 	}
 	if rangeID != 0 {
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
-		res, _ := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+		res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+		if err != nil {
+			return err
+		}
+		if len(res.Payload) == 0 {
+			return fmt.Errorf("no available IP addresses in IP range %d", rangeID)
+		}
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
