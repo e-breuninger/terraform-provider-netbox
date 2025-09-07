@@ -59,7 +59,8 @@ resource "netbox_virtual_chassis" "test" {
 }
 
 func testAccCheckVirtualChassisDestroy(s *terraform.State) error {
-	conn := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	// loop through the resources in state, verifying each virtual machine
 	// is destroyed
@@ -70,7 +71,7 @@ func testAccCheckVirtualChassisDestroy(s *terraform.State) error {
 
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		params := dcim.NewDcimVirtualChassisReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimVirtualChassisRead(params, nil)
+		_, err := api.Dcim.DcimVirtualChassisRead(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("virtual chassis (%s) still exists", rs.Primary.ID)

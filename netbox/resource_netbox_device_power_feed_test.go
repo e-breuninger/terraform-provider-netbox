@@ -138,7 +138,8 @@ resource "netbox_power_feed" "test" {
 
 func testAccCheckDevicePowerFeedDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	// loop through the resources in state, verifying each power feed
 	// is destroyed
@@ -150,7 +151,7 @@ func testAccCheckDevicePowerFeedDestroy(s *terraform.State) error {
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		params := dcim.NewDcimPowerFeedsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimPowerFeedsRead(params, nil)
+		_, err := api.Dcim.DcimPowerFeedsRead(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_power_feed (%s) still exists", rs.Primary.ID)
@@ -178,7 +179,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := dcim.NewDcimPowerFeedsListParams()
 			res, err := api.Dcim.DcimPowerFeedsList(params, nil)
 			if err != nil {

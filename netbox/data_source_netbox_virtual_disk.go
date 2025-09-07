@@ -83,7 +83,9 @@ func dataSourceNetboxVirtualDisk() *schema.Resource {
 }
 
 func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	params := virtualization.NewVirtualizationVirtualDisksListParams()
 
 	if filter, ok := d.GetOk("filter"); ok {

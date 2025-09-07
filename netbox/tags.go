@@ -49,7 +49,7 @@ func getNestedTagListFromResourceDataSet(state *providerState, d interface{}) ([
 		nbTag, ok := state.tagCache[tag.(string)]
 		if !ok {
 			var err error
-			nbTag, err = findTag(state.NetBoxAPI, tag.(string))
+			nbTag, err = findTag(state.legacyAPI, tag.(string))
 			if err != nil {
 				return tags, err
 			}

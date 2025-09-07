@@ -26,7 +26,8 @@ func dataSourceNetboxVrf() *schema.Resource {
 }
 
 func dataSourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 	params := ipam.NewIpamVrfsListParams()

@@ -50,7 +50,8 @@ func resourceNetboxAsn() *schema.Resource {
 }
 
 func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableASN{}
 
@@ -63,7 +64,7 @@ func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 	data.Description = d.Get("description").(string)
 	data.Comments = d.Get("comments").(string)
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -81,7 +82,9 @@ func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamAsnsReadParams().WithID(id)
 
@@ -104,13 +107,14 @@ func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("rir_id", asn.Rir.ID)
 	d.Set("description", asn.Description)
 	d.Set("comments", asn.Comments)
-	api.readTags(d, asn.Tags)
+	state.readTags(d, asn.Tags)
 
 	return nil
 }
 
 func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableASN{}
@@ -124,7 +128,7 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Description = d.Get("description").(string)
 	data.Comments = d.Get("comments").(string)
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -140,7 +144,8 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxAsnDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamAsnsDeleteParams().WithID(id)

@@ -72,7 +72,8 @@ func resourceNetboxCluster() *schema.Resource {
 }
 
 func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableCluster{}
 
@@ -118,7 +119,7 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = &tenantID
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := virtualization.NewVirtualizationClustersCreateParams().WithData(&data)
@@ -135,7 +136,9 @@ func resourceNetboxClusterCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClustersReadParams().WithID(id)
 
@@ -191,12 +194,13 @@ func resourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 
 func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableCluster{}
@@ -243,7 +247,7 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 		data.ScopeID = nil
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := virtualization.NewVirtualizationClustersPartialUpdateParams().WithID(id).WithData(&data)
@@ -257,7 +261,8 @@ func resourceNetboxClusterUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxClusterDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClustersDeleteParams().WithID(id)

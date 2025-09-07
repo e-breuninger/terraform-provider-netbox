@@ -64,7 +64,8 @@ Each location must have a name that is unique within its parent site and locatio
 }
 
 func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableLocation{}
 
@@ -98,7 +99,7 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -121,7 +122,9 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimLocationsReadParams().WithID(id)
 
@@ -168,13 +171,14 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableLocation{}
@@ -212,7 +216,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -233,7 +237,8 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxLocationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimLocationsDeleteParams().WithID(id)

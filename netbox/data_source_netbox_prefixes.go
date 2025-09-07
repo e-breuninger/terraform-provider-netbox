@@ -103,7 +103,8 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 }
 
 func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := ipam.NewIpamPrefixesListParams()
 

@@ -57,9 +57,10 @@ func resourceNetboxRackReservation() *schema.Resource {
 }
 
 func resourceNetboxRackReservationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimRackReservationsCreateParams().WithData(
 		&models.WritableRackReservation{
@@ -84,7 +85,9 @@ func resourceNetboxRackReservationCreate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxRackReservationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackReservationsReadParams().WithID(id)
 
@@ -125,16 +128,17 @@ func resourceNetboxRackReservationRead(d *schema.ResourceData, m interface{}) er
 
 	d.Set("comments", rackRes.Comments)
 
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 
 func resourceNetboxRackReservationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 
 	data := models.WritableRackReservation{
 		Rack:        getOptionalInt(d, "rack_id"),
@@ -157,7 +161,8 @@ func resourceNetboxRackReservationUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxRackReservationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackReservationsDeleteParams().WithID(id)

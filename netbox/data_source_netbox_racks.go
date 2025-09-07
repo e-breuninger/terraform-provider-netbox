@@ -147,7 +147,8 @@ func dataSourceNetboxRacks() *schema.Resource {
 }
 
 func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := dcim.NewDcimRacksListParams()
 

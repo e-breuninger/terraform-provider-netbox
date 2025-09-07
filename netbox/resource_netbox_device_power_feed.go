@@ -93,7 +93,8 @@ func resourceNetboxPowerFeed() *schema.Resource {
 }
 
 func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritablePowerFeed{
 		PowerPanel:     int64ToPtr(int64(d.Get("power_panel_id").(int))),
@@ -112,7 +113,7 @@ func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -135,7 +136,9 @@ func resourceNetboxPowerFeedCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxPowerFeedRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerFeedsReadParams().WithID(id)
 
@@ -203,13 +206,14 @@ func resourceNetboxPowerFeedRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -230,7 +234,7 @@ func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -251,7 +255,8 @@ func resourceNetboxPowerFeedUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxPowerFeedDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerFeedsDeleteParams().WithID(id)

@@ -67,7 +67,9 @@ func resourceNetboxVlanGroup() *schema.Resource {
 }
 
 func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.VLANGroup{}
 
 	name := d.Get("name").(string)
@@ -98,7 +100,7 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -114,7 +116,9 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlanGroupsReadParams().WithID(id)
 
@@ -137,7 +141,7 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", vlanGroup.Slug)
 	d.Set("description", vlanGroup.Description)
 	d.Set("vid_ranges", vlanGroup.VidRanges)
-	api.readTags(d, vlanGroup.Tags)
+	state.readTags(d, vlanGroup.Tags)
 
 	if vlanGroup.ScopeType != nil {
 		d.Set("scope_type", vlanGroup.ScopeType)
@@ -151,7 +155,9 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.VLANGroup{}
 
@@ -184,7 +190,7 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -198,7 +204,9 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxVlanGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlanGroupsDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamVlanGroupsDelete(params, nil)

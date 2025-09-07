@@ -51,7 +51,9 @@ func dataSourceNetboxVlanGroup() *schema.Resource {
 }
 
 func dataSourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	params := ipam.NewIpamVlanGroupsListParams()
 
 	params.Limit = int64ToPtr(2)

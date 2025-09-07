@@ -26,7 +26,8 @@ func dataSourceNetboxClusterType() *schema.Resource {
 }
 
 func dataSourceNetboxClusterTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 	params := virtualization.NewVirtualizationClusterTypesListParams()

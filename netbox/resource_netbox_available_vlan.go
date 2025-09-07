@@ -70,10 +70,12 @@ This resource will retrieve the next available VLAN ID from a given VLAN group (
 }
 
 func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	groupID := int64(d.Get("group_id").(int))
 
-	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, err := getNestedTagListFromResourceDataSet(state, d.Get(tagsKey))
 	if err != nil {
 		return err
 	}
@@ -102,7 +104,9 @@ func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansReadParams().WithID(id)
 
@@ -158,13 +162,15 @@ func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) erro
 		d.Set("role_id", nil)
 	}
 
-	api.readTags(d, vlan.Tags)
+	state.readTags(d, vlan.Tags)
 
 	return nil
 }
 
 func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	data := &models.WritableVLAN{
@@ -179,7 +185,7 @@ func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) er
 	}
 
 	var err_tags error
-	data.Tags, err_tags = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Tags, err_tags = getNestedTagListFromResourceDataSet(state, d.Get(tagsKey))
 	if err_tags != nil {
 		return err_tags
 	}
@@ -196,7 +202,9 @@ func resourceNetboxAvailableVLANUpdate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxAvailableVLANDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := ipam.NewIpamVlansDeleteParams().WithID(id)

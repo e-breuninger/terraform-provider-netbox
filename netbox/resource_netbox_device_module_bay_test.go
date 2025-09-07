@@ -107,7 +107,8 @@ resource "netbox_device_module_bay" "test" {
 
 func testAccCheckDeviceModuleBayDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	// loop through the resources in state, verifying each module bay
 	// is destroyed
@@ -119,7 +120,7 @@ func testAccCheckDeviceModuleBayDestroy(s *terraform.State) error {
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		params := dcim.NewDcimModuleBaysReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimModuleBaysRead(params, nil)
+		_, err := api.Dcim.DcimModuleBaysRead(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_module_bay (%s) still exists", rs.Primary.ID)
@@ -147,7 +148,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := dcim.NewDcimModuleBaysListParams()
 			res, err := api.Dcim.DcimModuleBaysList(params, nil)
 			if err != nil {

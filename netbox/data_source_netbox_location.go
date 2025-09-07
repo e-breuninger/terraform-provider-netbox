@@ -55,10 +55,12 @@ func dataSourceNetboxLocation() *schema.Resource {
 }
 
 func dataSourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
-	params := dcim.NewDcimLocationsListParams()
+	state := m.(*providerState)
+	api := state.legacyAPI
 
+	params := dcim.NewDcimLocationsListParams()
 	params.Limit = int64ToPtr(2)
+
 	if name, ok := d.Get("name").(string); ok && name != "" {
 		params.SetName(&name)
 	}

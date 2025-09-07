@@ -78,7 +78,8 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 }
 
 func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableCircuitTermination{}
 
@@ -128,7 +129,7 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -151,7 +152,9 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitTerminationsReadParams().WithID(id)
 
@@ -213,7 +216,7 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 		d.Set("upstream_speed", nil)
 	}
 
-	api.readTags(d, term.Tags)
+	state.readTags(d, term.Tags)
 
 	cf := getCustomFields(term.CustomFields)
 	if cf != nil {
@@ -224,7 +227,8 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 }
 
 func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableCircuitTermination{}
@@ -275,7 +279,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -296,7 +300,8 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxCircuitTerminationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitTerminationsDeleteParams().WithID(id)

@@ -33,7 +33,8 @@ func dataSourceNetboxRouteTarget() *schema.Resource {
 }
 
 func dataSourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 

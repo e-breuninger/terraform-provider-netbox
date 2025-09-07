@@ -116,7 +116,8 @@ func resourceNetboxIPAddress() *schema.Resource {
 }
 
 func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableIPAddress{}
 
@@ -152,7 +153,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -175,7 +176,8 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
@@ -263,7 +265,7 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ip_address", ipAddress.Address)
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
-	api.readTags(d, ipAddress.Tags)
+	state.readTags(d, ipAddress.Tags)
 	cf := getCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
@@ -272,7 +274,8 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPAddress{}
@@ -309,7 +312,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -329,7 +332,8 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxIPAddressDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesDeleteParams().WithID(id)

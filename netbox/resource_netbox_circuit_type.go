@@ -39,7 +39,8 @@ func resourceNetboxCircuitType() *schema.Resource {
 }
 
 func resourceNetboxCircuitTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.CircuitType{}
 
@@ -69,7 +70,9 @@ func resourceNetboxCircuitTypeCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxCircuitTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitTypesReadParams().WithID(id)
 
@@ -94,7 +97,8 @@ func resourceNetboxCircuitTypeRead(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxCircuitTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.CircuitType{}
@@ -123,7 +127,8 @@ func resourceNetboxCircuitTypeUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxCircuitTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitTypesDeleteParams().WithID(id)

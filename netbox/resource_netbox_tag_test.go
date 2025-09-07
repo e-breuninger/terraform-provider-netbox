@@ -72,7 +72,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := extras.NewExtrasTagsListParams()
 			res, err := api.Extras.ExtrasTagsList(params, nil)
 			if err != nil {

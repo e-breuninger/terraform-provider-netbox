@@ -39,7 +39,8 @@ func resourceNetboxManufacturer() *schema.Resource {
 }
 
 func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.Manufacturer{}
 
@@ -69,7 +70,9 @@ func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimManufacturersReadParams().WithID(id)
 
@@ -94,7 +97,8 @@ func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.Manufacturer{}
@@ -123,7 +127,8 @@ func resourceNetboxManufacturerUpdate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxManufacturerDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimManufacturersDeleteParams().WithID(id)

@@ -75,7 +75,8 @@ resource "netbox_virtual_disk" "test" {
 }
 
 func testAccCheckVirtualDiskDestroy(s *terraform.State) error {
-	conn := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	// loop through the resources in state, verifying each virtual machine
 	// is destroyed
@@ -86,7 +87,7 @@ func testAccCheckVirtualDiskDestroy(s *terraform.State) error {
 
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		params := virtualization.NewVirtualizationVirtualDisksReadParams().WithID(stateID)
-		_, err := conn.Virtualization.VirtualizationVirtualDisksRead(params, nil)
+		_, err := api.Virtualization.VirtualizationVirtualDisksRead(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("virtual disk (%s) still exists", rs.Primary.ID)

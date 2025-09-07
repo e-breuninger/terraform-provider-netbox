@@ -134,7 +134,8 @@ resource "netbox_device_power_port" "test" {
 
 func testAccCheckDevicePowerPortDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	// loop through the resources in state, verifying each power port
 	// is destroyed
@@ -146,7 +147,7 @@ func testAccCheckDevicePowerPortDestroy(s *terraform.State) error {
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		params := dcim.NewDcimPowerPortsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimPowerPortsRead(params, nil)
+		_, err := api.Dcim.DcimPowerPortsRead(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_power_port (%s) still exists", rs.Primary.ID)
@@ -174,7 +175,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := dcim.NewDcimPowerPortsListParams()
 			res, err := api.Dcim.DcimPowerPortsList(params, nil)
 			if err != nil {

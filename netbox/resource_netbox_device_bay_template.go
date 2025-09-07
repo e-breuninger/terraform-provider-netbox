@@ -47,7 +47,8 @@ func resourceNetboxDeviceBayTemplate() *schema.Resource {
 }
 
 func resourceNetboxDeviceBayTemplateCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -77,7 +78,9 @@ func resourceNetboxDeviceBayTemplateCreate(ctx context.Context, d *schema.Resour
 }
 
 func resourceNetboxDeviceBayTemplateRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	var diags diag.Diagnostics
@@ -108,7 +111,8 @@ func resourceNetboxDeviceBayTemplateRead(ctx context.Context, d *schema.Resource
 }
 
 func resourceNetboxDeviceBayTemplateUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -139,7 +143,8 @@ func resourceNetboxDeviceBayTemplateUpdate(ctx context.Context, d *schema.Resour
 }
 
 func resourceNetboxDeviceBayTemplateDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceBayTemplatesDeleteParams().WithID(id)

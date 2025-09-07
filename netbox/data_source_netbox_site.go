@@ -77,10 +77,12 @@ func dataSourceNetboxSite() *schema.Resource {
 }
 
 func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
-	params := dcim.NewDcimSitesListParams()
+	state := m.(*providerState)
+	api := state.legacyAPI
 
+	params := dcim.NewDcimSitesListParams()
 	params.Limit = int64ToPtr(2)
+
 	if name, ok := d.Get("name").(string); ok && name != "" {
 		params.SetName(&name)
 	}

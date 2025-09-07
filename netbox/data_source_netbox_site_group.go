@@ -34,7 +34,9 @@ func dataSourceNetboxSiteGroup() *schema.Resource {
 }
 
 func dataSourceNetboxSiteGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	params := dcim.NewDcimSiteGroupsListParams()
 
 	if name, ok := d.Get("name").(string); ok && name != "" {

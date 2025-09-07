@@ -61,7 +61,8 @@ func resourceNetboxDeviceType() *schema.Resource {
 }
 
 func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableDeviceType{}
 
@@ -98,7 +99,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -116,7 +117,9 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceTypesReadParams().WithID(id)
 
@@ -146,13 +149,14 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("subdevice_role", "")
 	}
-	api.readTags(d, deviceType.Tags)
+	state.readTags(d, deviceType.Tags)
 
 	return nil
 }
 
 func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableDeviceType{}
@@ -189,7 +193,7 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -205,7 +209,8 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceTypesDeleteParams().WithID(id)

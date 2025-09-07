@@ -79,7 +79,9 @@ func resourceNetboxService() *schema.Resource {
 	}
 }
 func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.WritableService{}
 
 	dataName := d.Get("name").(string)
@@ -115,7 +117,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		data.VirtualMachine = &dataVirtualMachineID
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	if v, ok := d.GetOk("description"); ok {
@@ -140,7 +142,9 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesReadParams().WithID(id)
 
@@ -175,7 +179,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if tags := res.GetPayload().Tags; tags != nil {
-		api.readTags(d, tags)
+		state.readTags(d, tags)
 	}
 
 	cf := getCustomFields(res.GetPayload().CustomFields)
@@ -187,7 +191,9 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableService{}
 
@@ -213,7 +219,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Ipaddresses = []int64{}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	if v, ok := d.GetOk("description"); ok {
@@ -244,7 +250,9 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamServicesDelete(params, nil)

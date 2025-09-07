@@ -131,7 +131,8 @@ func resourceNetboxAvailablePrefixParseImport(importStr string) (int, string, in
 }
 
 func resourceNetboxAvailablePrefixCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	parentPrefixID := int64(d.Get("parent_prefix_id").(int))
 	prefixLength := int64(d.Get("prefix_length").(int))

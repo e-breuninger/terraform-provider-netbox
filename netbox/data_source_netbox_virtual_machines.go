@@ -151,7 +151,8 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 }
 
 func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := virtualization.NewVirtualizationVirtualMachinesListParams()
 

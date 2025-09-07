@@ -148,7 +148,8 @@ func dataSourceNetboxTenants() *schema.Resource {
 }
 
 func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := tenancy.NewTenancyTenantsListParams()
 

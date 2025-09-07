@@ -64,7 +64,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := tenancy.NewTenancyContactGroupsListParams()
 			res, err := api.Tenancy.TenancyContactGroupsList(params, nil)
 			if err != nil {

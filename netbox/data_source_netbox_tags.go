@@ -70,7 +70,8 @@ func dataSourceNetboxTags() *schema.Resource {
 }
 
 func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := extras.NewExtrasTagsListParams()
 

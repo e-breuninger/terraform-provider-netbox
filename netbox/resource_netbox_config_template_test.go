@@ -110,7 +110,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := extras.NewExtrasConfigTemplatesListParams()
 			res, err := api.Extras.ExtrasConfigTemplatesList(params, nil)
 			if err != nil {

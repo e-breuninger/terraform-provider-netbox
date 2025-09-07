@@ -107,7 +107,8 @@ func resourceNetboxSite() *schema.Resource {
 }
 
 func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableSite{}
 
@@ -181,7 +182,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -204,7 +205,9 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimSitesReadParams().WithID(id)
 
@@ -259,13 +262,14 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableSite{}
@@ -352,7 +356,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -373,7 +377,8 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimSitesDeleteParams().WithID(id)

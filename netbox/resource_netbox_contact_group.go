@@ -47,7 +47,8 @@ func resourceNetboxContactGroup() *schema.Resource {
 }
 
 func resourceNetboxContactGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 	parentID := int64(d.Get("parent_id").(int))
@@ -85,7 +86,9 @@ func resourceNetboxContactGroupCreate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxContactGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := tenancy.NewTenancyContactGroupsReadParams().WithID(id)
@@ -113,7 +116,8 @@ func resourceNetboxContactGroupRead(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxContactGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableContactGroup{}
@@ -150,7 +154,8 @@ func resourceNetboxContactGroupUpdate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxContactGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactGroupsDeleteParams().WithID(id)

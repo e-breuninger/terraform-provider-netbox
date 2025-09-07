@@ -49,7 +49,8 @@ func resourceNetboxTenantGroup() *schema.Resource {
 }
 
 func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 	parentID := int64(d.Get("parent_id").(int))
@@ -87,7 +88,9 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := tenancy.NewTenancyTenantGroupsReadParams().WithID(id)
@@ -115,7 +118,8 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableTenantGroup{}
@@ -152,7 +156,8 @@ func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxTenantGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyTenantGroupsDeleteParams().WithID(id)

@@ -321,7 +321,8 @@ resource "netbox_virtual_machine" "test" {
 
 func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	// loop through the resources in state, verifying each virtual machine
 	// is destroyed
@@ -333,7 +334,7 @@ func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 		// Retrieve our virtual machine by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(stateID)
-		_, err := conn.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
+		_, err := api.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("virtual machine (%s) still exists", rs.Primary.ID)
@@ -544,7 +545,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := virtualization.NewVirtualizationVirtualMachinesListParams()
 			res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil)
 			if err != nil {
