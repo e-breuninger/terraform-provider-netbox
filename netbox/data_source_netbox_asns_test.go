@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -65,6 +66,26 @@ data "netbox_asns" "test" {
 }`
 }
 
+func testAccNetboxAsnsInvalidFilter() string {
+	return `
+data "netbox_asns" "test" {
+  filter {
+	name = "invalid_filter"
+	value = "test"
+  }
+}`
+}
+
+func testAccNetboxAsnsNoResults() string {
+	return `
+data "netbox_asns" "test" {
+  filter {
+	name = "asn"
+	value = "999999"
+  }
+}`
+}
+
 func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("asns_ds_basic")
 	setUp := testAccNetboxAsnsSetUp(testName)
@@ -100,6 +121,30 @@ func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.0.id", "netbox_asn.test_1", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.1.id", "netbox_asn.test_2", "id"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxAsnsDataSource_invalidFilter(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccNetboxAsnsInvalidFilter(),
+				ExpectError: regexp.MustCompile("'invalid_filter' is not a supported filter parameter"),
+			},
+		},
+	})
+}
+
+func TestAccNetboxAsnsDataSource_noResults(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccNetboxAsnsNoResults(),
+				ExpectError: regexp.MustCompile("no result"),
 			},
 		},
 	})

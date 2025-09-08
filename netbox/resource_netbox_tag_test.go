@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -58,6 +59,43 @@ resource "netbox_tag" "test" {
 					resource.TestCheckResourceAttr("netbox_tag.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_tag.test", "slug", getSlug(testName)),
 				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxTag_invalidColor(t *testing.T) {
+	testName := testAccGetTestName("tag_invalid_color")
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_tag" "test" {
+	 name = "%s"
+	 color_hex = "invalid"
+}`, testName),
+				ExpectError: regexp.MustCompile("Must be hex color string"),
+			},
+		},
+	})
+}
+
+func TestAccNetboxTag_slugTooLong(t *testing.T) {
+	testName := testAccGetTestName("tag_slug_too_long")
+	longSlug := strings.Repeat("a", 101) // 101 characters, exceeds limit
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_tag" "test" {
+	 name = "%s"
+	 slug = "%s"
+}`, testName, longSlug),
+				ExpectError: regexp.MustCompile("expected length"),
 			},
 		},
 	})
