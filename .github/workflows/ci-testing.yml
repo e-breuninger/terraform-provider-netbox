@@ -27,6 +27,23 @@ jobs:
             ${{ runner.os }}-go-
       - name: test
         run: make test
+      - name: Generate coverage report
+        run: go tool cover -func=coverage.out
+      - name: Generate HTML coverage report
+        run: go tool cover -html=coverage.out -o coverage.html
+      - name: Upload coverage reports as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage.out
+            coverage.html
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: unittests
+          name: codecov-umbrella
 
   testacc:
     runs-on: ubuntu-22.04
@@ -61,3 +78,12 @@ jobs:
         run: make -e testacc
         env:
           NETBOX_VERSION: ${{ matrix.netbox-version }}
+      - name: Check coverage threshold
+        if: matrix.netbox-version == 'v4.2.9'  # Only check on one version to avoid duplication
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+          echo "Current coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 75.0" | bc -l) )); then
+            echo "Coverage dropped below 75%: $COVERAGE%"
+            exit 1
+          fi
