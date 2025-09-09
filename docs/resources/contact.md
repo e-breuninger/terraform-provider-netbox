@@ -35,8 +35,10 @@ resource "netbox_contact" "test" {
 
 ### Optional
 
+- `description` (String)
 - `email` (String)
 - `group_id` (Number)
+- `link` (String)
 - `phone` (String)
 - `tags` (Set of String)
 
