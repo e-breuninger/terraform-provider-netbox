@@ -143,7 +143,7 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("role_id", res.GetPayload().Role.ID)
 	}
 
-	if res.GetPayload().Size != nil {
+	if res.GetPayload().Size != 0 {
 		d.Set("size", res.GetPayload().Size)
 	}
 
