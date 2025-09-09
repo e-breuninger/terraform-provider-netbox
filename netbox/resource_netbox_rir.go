@@ -48,7 +48,9 @@ func resourceNetboxRir() *schema.Resource {
 }
 
 func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.RIR{}
 
 	name := d.Get("name").(string)
@@ -78,7 +80,9 @@ func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRirsReadParams().WithID(id)
 
@@ -106,7 +110,9 @@ func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.RIR{}
 
@@ -135,7 +141,9 @@ func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRirDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRirsDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamRirsDelete(params, nil)

@@ -47,7 +47,9 @@ func resourceNetboxIpamRole() *schema.Resource {
 	}
 }
 func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.Role{}
 
 	name := d.Get("name").(string)
@@ -80,7 +82,9 @@ func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIpamRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRolesReadParams().WithID(id)
 
@@ -117,7 +121,9 @@ func resourceNetboxIpamRoleRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.Role{}
 
@@ -149,7 +155,9 @@ func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIpamRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRolesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamRolesDelete(params, nil)

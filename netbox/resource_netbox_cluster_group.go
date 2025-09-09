@@ -43,7 +43,8 @@ func resourceNetboxClusterGroup() *schema.Resource {
 }
 
 func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.ClusterGroup{}
 
@@ -79,7 +80,9 @@ func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxClusterGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClusterGroupsReadParams().WithID(id)
 
@@ -103,7 +106,8 @@ func resourceNetboxClusterGroupRead(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.ClusterGroup{}
@@ -143,7 +147,8 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceNetboxClusterGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationClusterGroupsDeleteParams().WithID(id)

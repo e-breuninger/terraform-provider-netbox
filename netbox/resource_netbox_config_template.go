@@ -53,7 +53,8 @@ func resourceNetboxConfigTemplate() *schema.Resource {
 }
 
 func resourceNetboxConfigTemplateCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -61,7 +62,7 @@ func resourceNetboxConfigTemplateCreate(ctx context.Context, d *schema.ResourceD
 	description := d.Get("description").(string)
 	templateCode := d.Get("template_code").(string)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 
 	data := models.WritableConfigTemplate{
 		Name:         &name,
@@ -96,7 +97,9 @@ func resourceNetboxConfigTemplateCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxConfigTemplateRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	var diags diag.Diagnostics
@@ -137,7 +140,8 @@ func resourceNetboxConfigTemplateRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxConfigTemplateUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -147,7 +151,7 @@ func resourceNetboxConfigTemplateUpdate(ctx context.Context, d *schema.ResourceD
 	description := d.Get("description").(string)
 	templateCode := d.Get("template_code").(string)
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 
 	data := models.WritableConfigTemplate{
 		Name:         &name,
@@ -179,7 +183,8 @@ func resourceNetboxConfigTemplateUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxConfigTemplateDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasConfigTemplatesDeleteParams().WithID(id)

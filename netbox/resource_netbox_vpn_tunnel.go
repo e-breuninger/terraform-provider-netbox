@@ -62,7 +62,8 @@ func resourceNetboxVpnTunnel() *schema.Resource {
 }
 
 func resourceNetboxVpnTunnelCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableTunnel{}
 
@@ -75,7 +76,7 @@ func resourceNetboxVpnTunnelCreate(d *schema.ResourceData, m interface{}) error 
 	data.Tenant = getOptionalInt(d, "tenant_id")
 	data.TunnelID = getOptionalInt(d, "tunnel_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := vpn.NewVpnTunnelsCreateParams().WithData(&data)
@@ -92,7 +93,9 @@ func resourceNetboxVpnTunnelCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxVpnTunnelRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := vpn.NewVpnTunnelsReadParams().WithID(id)
 
@@ -130,12 +133,13 @@ func resourceNetboxVpnTunnelRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("description", tunnel.Description)
 
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 	return nil
 }
 
 func resourceNetboxVpnTunnelUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableTunnel{}
@@ -149,7 +153,7 @@ func resourceNetboxVpnTunnelUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Tenant = getOptionalInt(d, "tenant_id")
 	data.TunnelID = getOptionalInt(d, "tunnel_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	params := vpn.NewVpnTunnelsUpdateParams().WithID(id).WithData(&data)
@@ -163,7 +167,8 @@ func resourceNetboxVpnTunnelUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxVpnTunnelDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := vpn.NewVpnTunnelsDeleteParams().WithID(id)

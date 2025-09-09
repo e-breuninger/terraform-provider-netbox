@@ -50,7 +50,9 @@ func dataSourceNetboxDeviceType() *schema.Resource {
 }
 
 func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	params := dcim.NewDcimDeviceTypesListParams()
 
 	params.Limit = int64ToPtr(2)

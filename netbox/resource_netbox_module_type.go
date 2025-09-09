@@ -62,7 +62,8 @@ func resourceNetboxModuleType() *schema.Resource {
 }
 
 func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableModuleType{
 		Manufacturer: int64ToPtr(int64(d.Get("manufacturer_id").(int))),
@@ -75,7 +76,7 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -98,7 +99,9 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxModuleTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimModuleTypesReadParams().WithID(id)
 
@@ -139,13 +142,14 @@ func resourceNetboxModuleTypeRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -160,7 +164,7 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -181,7 +185,8 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxModuleTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimModuleTypesDeleteParams().WithID(id)

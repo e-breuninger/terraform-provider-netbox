@@ -58,7 +58,8 @@ func dataSourceNetboxRegion() *schema.Resource {
 }
 
 func dataSourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := dcim.NewDcimRegionsListParams()
 

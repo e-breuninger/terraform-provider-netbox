@@ -84,7 +84,8 @@ A choice set must define a base choice set and/or a set of arbitrary extra choic
 }
 
 func resourceNetboxCustomFieldChoiceSetCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 
@@ -121,7 +122,9 @@ func resourceNetboxCustomFieldChoiceSetCreate(d *schema.ResourceData, m interfac
 }
 
 func resourceNetboxCustomFieldChoiceSetRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldChoiceSetsReadParams().WithID(id)
 
@@ -153,7 +156,8 @@ func resourceNetboxCustomFieldChoiceSetRead(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxCustomFieldChoiceSetUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -190,7 +194,8 @@ func resourceNetboxCustomFieldChoiceSetUpdate(d *schema.ResourceData, m interfac
 }
 
 func resourceNetboxCustomFieldChoiceSetDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldChoiceSetsDeleteParams().WithID(id)

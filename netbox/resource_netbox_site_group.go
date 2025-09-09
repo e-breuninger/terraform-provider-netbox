@@ -49,7 +49,8 @@ func resourceNetboxSiteGroup() *schema.Resource {
 }
 
 func resourceNetboxSiteGroupCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 	parentID := int64(d.Get("parent_id").(int))
@@ -87,7 +88,9 @@ func resourceNetboxSiteGroupCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxSiteGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	params := dcim.NewDcimSiteGroupsReadParams().WithID(id)
@@ -116,7 +119,8 @@ func resourceNetboxSiteGroupRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxSiteGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableSiteGroup{}
@@ -153,7 +157,8 @@ func resourceNetboxSiteGroupUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxSiteGroupDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimSiteGroupsDeleteParams().WithID(id)

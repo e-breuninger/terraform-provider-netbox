@@ -72,7 +72,8 @@ func resourceNetboxMACAddress() *schema.Resource {
 }
 
 func resourceNetboxMACAddressCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.MACAddress{}
 
@@ -103,7 +104,7 @@ func resourceNetboxMACAddressCreate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -126,7 +127,9 @@ func resourceNetboxMACAddressCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxMACAddressRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimMacAddressesReadParams().WithID(id)
 
@@ -169,7 +172,7 @@ func resourceNetboxMACAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("mac_address", macAddress.MacAddress)
 	d.Set("description", macAddress.Description)
 	d.Set("comments", macAddress.Comments)
-	api.readTags(d, macAddress.Tags)
+	state.readTags(d, macAddress.Tags)
 
 	cf := getCustomFields(macAddress.CustomFields)
 	if cf != nil {
@@ -180,7 +183,8 @@ func resourceNetboxMACAddressRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxMACAddressUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -213,7 +217,7 @@ func resourceNetboxMACAddressUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -234,7 +238,8 @@ func resourceNetboxMACAddressUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxMACAddressDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimMacAddressesDeleteParams().WithID(id)

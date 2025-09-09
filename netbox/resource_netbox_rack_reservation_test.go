@@ -72,7 +72,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := dcim.NewDcimRackReservationsListParams()
 			res, err := api.Dcim.DcimRackReservationsList(params, nil)
 			if err != nil {

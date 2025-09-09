@@ -182,7 +182,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := extras.NewExtrasConfigContextsListParams()
 			res, err := api.Extras.ExtrasConfigContextsList(params, nil)
 			if err != nil {

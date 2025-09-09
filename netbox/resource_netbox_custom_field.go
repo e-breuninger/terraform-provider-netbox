@@ -100,7 +100,8 @@ func resourceCustomField() *schema.Resource {
 }
 
 func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -152,7 +153,8 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := &models.WritableCustomField{
 		Name:            strToPtr(d.Get("name").(string)),
@@ -204,7 +206,9 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldsReadParams().WithID(id)
 	res, err := api.Extras.ExtrasCustomFieldsRead(params, nil)
@@ -250,7 +254,9 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxCustomFieldDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasCustomFieldsDeleteParams().WithID(id)
 	_, err := api.Extras.ExtrasCustomFieldsDelete(params, nil)

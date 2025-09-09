@@ -106,7 +106,9 @@ This resource will retrieve the next available IP address from a given prefix or
 }
 
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	prefixID := int64(d.Get("prefix_id").(int))
 	vrfID := int64(int64(d.Get("vrf_id").(int)))
 	rangeID := int64(d.Get("ip_range_id").(int))
@@ -146,7 +148,9 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
 
@@ -203,12 +207,13 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	d.Set("ip_address", ipAddress.Address)
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
-	api.readTags(d, ipAddress.Tags)
+	state.readTags(d, ipAddress.Tags)
 	return nil
 }
 
 func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPAddress{}
@@ -250,7 +255,7 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -265,7 +270,8 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxAvailableIPAddressDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPAddressesDeleteParams().WithID(id)

@@ -50,7 +50,8 @@ func resourceNetboxPowerPanel() *schema.Resource {
 }
 
 func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritablePowerPanel{
 		Site:        int64ToPtr(int64(d.Get("site_id").(int))),
@@ -61,7 +62,7 @@ func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -84,7 +85,9 @@ func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxPowerPanelRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerPanelsReadParams().WithID(id)
 
@@ -123,13 +126,14 @@ func resourceNetboxPowerPanelRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -142,7 +146,7 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -163,7 +167,8 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxPowerPanelDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPowerPanelsDeleteParams().WithID(id)

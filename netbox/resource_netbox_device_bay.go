@@ -50,7 +50,8 @@ func resourceNetboxDeviceBay() *schema.Resource {
 }
 
 func resourceNetboxDeviceBayCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableDeviceBay{
 		Device:          int64ToPtr(int64(d.Get("device_id").(int))),
@@ -61,7 +62,7 @@ func resourceNetboxDeviceBayCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -84,7 +85,9 @@ func resourceNetboxDeviceBayCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxDeviceBayRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceBaysReadParams().WithID(id)
 
@@ -119,13 +122,14 @@ func resourceNetboxDeviceBayRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxDeviceBayUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -138,7 +142,7 @@ func resourceNetboxDeviceBayUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -159,7 +163,8 @@ func resourceNetboxDeviceBayUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxDeviceBayDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceBaysDeleteParams().WithID(id)

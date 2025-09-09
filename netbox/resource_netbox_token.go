@@ -65,7 +65,9 @@ func resourceNetboxToken() *schema.Resource {
 }
 
 func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.WritableToken{}
 
 	userid := int64(d.Get("user_id").(int))
@@ -101,7 +103,9 @@ func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersTokensReadParams().WithID(id)
 
@@ -134,7 +138,9 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableToken{}
 
@@ -168,7 +174,9 @@ func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTokenDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersTokensDeleteParams().WithID(id)
 	_, err := api.Users.UsersTokensDelete(params, nil)

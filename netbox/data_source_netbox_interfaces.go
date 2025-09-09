@@ -142,10 +142,10 @@ func dataSourceNetboxInterfaces() *schema.Resource {
 }
 
 func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := virtualization.NewVirtualizationInterfacesListParams()
-
 	params.Limit = getOptionalInt(d, "limit")
 
 	if filter, ok := d.GetOk("filter"); ok {

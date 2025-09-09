@@ -176,7 +176,8 @@ resource "netbox_inventory_item" "test" {
 
 func testAccCheckInventoryItemDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	// loop through the resources in state, verifying each inventory item
 	// is destroyed
@@ -188,7 +189,7 @@ func testAccCheckInventoryItemDestroy(s *terraform.State) error {
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		params := dcim.NewDcimInventoryItemsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimInventoryItemsRead(params, nil)
+		_, err := api.Dcim.DcimInventoryItemsRead(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("inventory_item (%s) still exists", rs.Primary.ID)
@@ -216,7 +217,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := dcim.NewDcimInventoryItemsListParams()
 			res, err := api.Dcim.DcimInventoryItemsList(params, nil)
 			if err != nil {

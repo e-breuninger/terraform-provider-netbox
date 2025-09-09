@@ -89,7 +89,8 @@ func resourceNetboxCable() *schema.Resource {
 }
 
 func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableCable{
 		Status:      d.Get("status").(string),
@@ -110,7 +111,7 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -133,7 +134,9 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCableRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimCablesReadParams().WithID(id)
 
@@ -185,13 +188,14 @@ func resourceNetboxCableRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -214,7 +218,7 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 	data.BTerminations = getGenericObjectsFromSchemaSet(bTerminations)
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -235,7 +239,8 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCableDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimCablesDeleteParams().WithID(id)

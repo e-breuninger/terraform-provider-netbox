@@ -142,7 +142,8 @@ func resourceNetboxDevice() *schema.Resource {
 }
 
 func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 
@@ -240,7 +241,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -270,7 +271,8 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 }
 
 func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -403,12 +405,13 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("local_context_data", nil)
 	}
 
-	api.readTags(d, device.Tags)
+	state.readTags(d, device.Tags)
 	return diags
 }
 
 func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableDeviceWithConfigContext{}
@@ -490,7 +493,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -563,7 +566,8 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 }
 
 func resourceNetboxDeviceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 

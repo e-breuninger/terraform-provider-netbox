@@ -50,7 +50,8 @@ func resourceNetboxTenant() *schema.Resource {
 }
 
 func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 	groupID := int64(d.Get("group_id").(int))
@@ -65,7 +66,7 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 
 	data := &models.WritableTenant{}
 
@@ -91,7 +92,9 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyTenantsReadParams().WithID(id)
 
@@ -119,7 +122,8 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableTenant{}
@@ -136,7 +140,7 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 		slug = slugValue.(string)
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, _ := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 
 	data.Slug = &slug
 	data.Name = &name
@@ -157,7 +161,8 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxTenantDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyTenantsDeleteParams().WithID(id)

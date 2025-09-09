@@ -72,7 +72,8 @@ func resourceNetboxDeviceFrontPort() *schema.Resource {
 }
 
 func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	data := models.WritableFrontPort{
 		Device:           int64ToPtr(int64(d.Get("device_id").(int))),
@@ -88,7 +89,7 @@ func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -111,7 +112,9 @@ func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimFrontPortsReadParams().WithID(id)
 
@@ -166,13 +169,14 @@ func resourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) er
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -190,7 +194,7 @@ func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -211,7 +215,8 @@ func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDeviceFrontPortDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimFrontPortsDeleteParams().WithID(id)

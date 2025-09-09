@@ -46,7 +46,9 @@ func resourceNetboxAggregate() *schema.Resource {
 	}
 }
 func resourceNetboxAggregateCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.WritableAggregate{}
 
 	prefix := d.Get("prefix").(string)
@@ -64,7 +66,7 @@ func resourceNetboxAggregateCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -80,7 +82,9 @@ func resourceNetboxAggregateCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxAggregateRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamAggregatesReadParams().WithID(id)
 
@@ -114,13 +118,15 @@ func resourceNetboxAggregateRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("rir_id", nil)
 	}
 
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxAggregateUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableAggregate{}
 	prefix := d.Get("prefix").(string)
@@ -138,7 +144,7 @@ func resourceNetboxAggregateUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -152,7 +158,9 @@ func resourceNetboxAggregateUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxAggregateDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamAggregatesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamAggregatesDelete(params, nil)

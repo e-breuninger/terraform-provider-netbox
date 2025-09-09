@@ -34,7 +34,8 @@ func dataSourceNetboxIPAMRole() *schema.Resource {
 }
 
 func dataSourceNetboxIPAMRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 

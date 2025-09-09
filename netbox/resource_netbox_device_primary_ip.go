@@ -47,7 +47,9 @@ func resourceNetboxDevicePrimaryIPCreate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxDevicePrimaryIPRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDevicesReadParams().WithID(id)
 
@@ -81,7 +83,8 @@ func resourceNetboxDevicePrimaryIPRead(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxDevicePrimaryIPUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	deviceID := int64(d.Get("device_id").(int))
 	IPAddressID := int64(d.Get("ip_address_id").(int))

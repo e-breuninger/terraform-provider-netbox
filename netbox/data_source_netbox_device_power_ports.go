@@ -98,7 +98,8 @@ func dataSourceNetboxDevicePowerPorts() *schema.Resource {
 }
 
 func dataSourceNetboxDevicePowerPortRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := dcim.NewDcimPowerPortsListParams()
 

@@ -43,7 +43,8 @@ func resourceNetboxPlatform() *schema.Resource {
 }
 
 func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 
@@ -81,7 +82,9 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPlatformsReadParams().WithID(id)
 
@@ -110,7 +113,8 @@ func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritablePlatform{}
@@ -146,7 +150,8 @@ func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxPlatformDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimPlatformsDeleteParams().WithID(id)

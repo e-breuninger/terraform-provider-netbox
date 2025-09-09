@@ -55,7 +55,8 @@ func resourceNetboxVirtualDisks() *schema.Resource {
 }
 
 func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 	size := d.Get("size_mb").(int)
@@ -79,7 +80,7 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -97,7 +98,8 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -132,12 +134,13 @@ func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData,
 		d.Set(customFieldsKey, cf)
 	}
 
-	api.readTags(d, VirtualDisks.Tags)
+	state.readTags(d, VirtualDisks.Tags)
 	return nil
 }
 
 func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualDisk{}
@@ -156,7 +159,7 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -181,7 +184,8 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualDisksDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationVirtualDisksDeleteParams().WithID(id)

@@ -136,7 +136,8 @@ func dataSourceNetboxIPAddresses() *schema.Resource {
 }
 
 func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	params := ipam.NewIpamIPAddressesListParams()
 

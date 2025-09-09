@@ -120,7 +120,8 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 }
 
 func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 
@@ -196,7 +197,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	data.Status = d.Get("status").(string)
 
-	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, err := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -220,7 +221,8 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -322,7 +324,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	} else {
 		d.Set("status", nil)
 	}
-	api.readTags(d, vm.Tags)
+	state.readTags(d, vm.Tags)
 
 	cf := getCustomFields(vm.CustomFields)
 	if cf != nil {
@@ -333,7 +335,8 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualMachineWithConfigContext{}
@@ -416,7 +419,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, err := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -461,7 +464,8 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 

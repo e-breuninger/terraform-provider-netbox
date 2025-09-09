@@ -187,7 +187,8 @@ func resourceNetboxRackType() *schema.Resource {
 }
 
 func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	model := d.Get("model").(string)
 	formFactor := d.Get("form_factor").(string)
@@ -223,7 +224,7 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -241,7 +242,9 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackTypesReadParams().WithID(id)
 
@@ -273,7 +276,7 @@ func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Set("u_height", rackType.UHeight)
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 	d.Set("description", rackType.Description)
 	d.Set("comments", rackType.Comments)
 
@@ -301,7 +304,8 @@ func resourceNetboxRackTypeRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -347,7 +351,8 @@ func resourceNetboxRackTypeUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxRackTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimRackTypesDeleteParams().WithID(id)

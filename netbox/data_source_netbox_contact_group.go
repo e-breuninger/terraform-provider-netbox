@@ -34,7 +34,8 @@ func dataSourceNetboxContactGroup() *schema.Resource {
 }
 
 func dataSourceNetboxContactGroupRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 	params := tenancy.NewTenancyContactGroupsListParams()

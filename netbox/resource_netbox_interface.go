@@ -87,7 +87,8 @@ func resourceNetboxInterface() *schema.Resource {
 }
 
 func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -95,7 +96,7 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, err := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -133,7 +134,9 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	var diags diag.Diagnostics
@@ -160,7 +163,7 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	d.Set("enabled", iface.Enabled)
 	d.Set("mac_address", iface.MacAddress)
 	d.Set("mtu", iface.Mtu)
-	api.readTags(d, iface.Tags)
+	state.readTags(d, iface.Tags)
 	d.Set("tagged_vlans", getIDsFromNestedVLAN(iface.TaggedVlans))
 	d.Set("virtual_machine_id", iface.VirtualMachine.ID)
 
@@ -175,7 +178,8 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 }
 
 func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -185,7 +189,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
 	mode := d.Get("mode").(string)
-	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	tags, err := getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -225,7 +229,8 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := virtualization.NewVirtualizationInterfacesDeleteParams().WithID(id)

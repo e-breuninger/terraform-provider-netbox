@@ -28,7 +28,8 @@ func dataSourceNetboxIPRange() *schema.Resource {
 }
 
 func dataSourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	contains := d.Get("contains").(string)
 

@@ -203,7 +203,8 @@ resource "netbox_cable" "test" {
 
 func testAccCheckCableDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	// loop through the resources in state, verifying each cable
 	// is destroyed
@@ -215,7 +216,7 @@ func testAccCheckCableDestroy(s *terraform.State) error {
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		params := dcim.NewDcimCablesReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimCablesRead(params, nil)
+		_, err := api.Dcim.DcimCablesRead(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("cable (%s) still exists", rs.Primary.ID)
@@ -243,7 +244,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := dcim.NewDcimCablesListParams()
 			res, err := api.Dcim.DcimCablesList(params, nil)
 			if err != nil {

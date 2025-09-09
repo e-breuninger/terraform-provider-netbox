@@ -118,7 +118,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := virtualization.NewVirtualizationClustersListParams()
 			res, err := api.Virtualization.VirtualizationClustersList(params, nil)
 			if err != nil {

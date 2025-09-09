@@ -43,7 +43,9 @@ func resourceNetboxRouteTarget() *schema.Resource {
 	}
 }
 func resourceNetboxRouteTargetCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.WritableRouteTarget{}
 
 	name := d.Get("name").(string)
@@ -62,7 +64,9 @@ func resourceNetboxRouteTargetCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRouteTargetsReadParams().WithID(id)
 
@@ -92,14 +96,16 @@ func resourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if res.GetPayload().Tags != nil {
-		api.readTags(d, res.GetPayload().Tags)
+		state.readTags(d, res.GetPayload().Tags)
 	}
 
 	return nil
 }
 
 func resourceNetboxRouteTargetUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableRouteTarget{}
 
@@ -121,7 +127,9 @@ func resourceNetboxRouteTargetUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxRouteTargetDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamRouteTargetsDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamRouteTargetsDelete(params, nil)

@@ -152,7 +152,9 @@ func resourceNetboxConfigContext() *schema.Resource {
 }
 
 func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.WritableConfigContext{}
 	data.Name = strToPtr(d.Get("name").(string))
 
@@ -194,7 +196,9 @@ func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasConfigContextsReadParams().WithID(id)
 
@@ -299,7 +303,7 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 			Name: &tagName,
 		})
 	}
-	api.readTags(d, tags)
+	state.readTags(d, tags)
 
 	tenantGroups := res.GetPayload().TenantGroups
 	tenantGroupsSlice := make([]int64, len(tenantGroups))
@@ -319,7 +323,8 @@ func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxConfigContextUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -363,7 +368,8 @@ func resourceNetboxConfigContextUpdate(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceNetboxConfigContextDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasConfigContextsDeleteParams().WithID(id)

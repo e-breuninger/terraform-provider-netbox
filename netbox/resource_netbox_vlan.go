@@ -70,7 +70,9 @@ func resourceNetboxVlan() *schema.Resource {
 }
 
 func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.WritableVLAN{}
 
 	name := d.Get("name").(string)
@@ -100,7 +102,7 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -116,7 +118,9 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansReadParams().WithID(id)
 
@@ -138,7 +142,7 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", vlan.Name)
 	d.Set("vid", vlan.Vid)
 	d.Set("description", vlan.Description)
-	api.readTags(d, vlan.Tags)
+	state.readTags(d, vlan.Tags)
 
 	if vlan.Status != nil {
 		d.Set("status", vlan.Status.Value)
@@ -160,7 +164,9 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVLAN{}
 	name := d.Get("name").(string)
@@ -190,7 +196,7 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -204,7 +210,9 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamVlansDelete(params, nil)

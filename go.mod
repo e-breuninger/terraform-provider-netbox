@@ -11,6 +11,7 @@ require (
 	github.com/go-openapi/strfmt v0.23.0
 	github.com/goware/urlx v0.3.2
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
+	github.com/netbox-community/go-netbox/v4 v4.3.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/exp v0.0.0-20250606033433-dcc06ee1d476
@@ -103,5 +104,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/grpc v1.73.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
+	gopkg.in/validator.v2 v2.0.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

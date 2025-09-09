@@ -75,7 +75,8 @@ resource "netbox_event_rule" "test" {
 }
 
 func testAccCheckNetBoxEventRuleDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*providerState)
+	state := testAccProvider.Meta().(*providerState)
+	api := state.legacyAPI
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "netbox_event_rule" {
@@ -85,7 +86,7 @@ func testAccCheckNetBoxEventRuleDestroy(s *terraform.State) error {
 		// Fetch the eventRule by ID
 		// Retrieve our interface by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		eventRule, err := client.Extras.ExtrasEventRulesRead(extras.NewExtrasEventRulesReadParams().WithID(stateID), nil)
+		eventRule, err := api.Extras.ExtrasEventRulesRead(extras.NewExtrasEventRulesReadParams().WithID(stateID), nil)
 		if err == nil && eventRule != nil {
 			return fmt.Errorf("EventRule %s still exists", rs.Primary.ID)
 		}
@@ -103,7 +104,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := extras.NewExtrasEventRulesListParams()
 			res, err := api.Extras.ExtrasEventRulesList(params, nil)
 			if err != nil {

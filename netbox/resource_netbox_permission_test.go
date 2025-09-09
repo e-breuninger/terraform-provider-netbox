@@ -92,7 +92,8 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*providerState)
+			state := m.(*providerState)
+			api := state.legacyAPI
 			params := users.NewUsersPermissionsListParams()
 			res, err := api.Users.UsersPermissionsList(params, nil)
 			if err != nil {

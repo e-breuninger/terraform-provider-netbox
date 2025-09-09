@@ -63,7 +63,9 @@ func resourceNetboxIPRange() *schema.Resource {
 }
 
 func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	data := models.WritableIPRange{}
 
 	startAddress := d.Get("start_address").(string)
@@ -77,7 +79,7 @@ func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 	data.Description = description
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -93,7 +95,9 @@ func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPRangesReadParams().WithID(id)
 
@@ -138,13 +142,15 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("role_id", res.GetPayload().Role.ID)
 	}
 
-	api.readTags(d, res.GetPayload().Tags)
+	state.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableIPRange{}
 	startAddress := d.Get("start_address").(string)
@@ -171,7 +177,7 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var err error
-	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	data.Tags, err = getNestedTagListFromResourceDataSet(state, d.Get(tagsAllKey))
 	if err != nil {
 		return err
 	}
@@ -185,7 +191,9 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxIPRangeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamIPRangesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamIPRangesDelete(params, nil)

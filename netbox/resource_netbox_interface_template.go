@@ -63,7 +63,8 @@ func resourceNetboxInterfaceTemplate() *schema.Resource {
 }
 
 func resourceNetboxInterfaceTemplateCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -100,7 +101,9 @@ func resourceNetboxInterfaceTemplateCreate(ctx context.Context, d *schema.Resour
 }
 
 func resourceNetboxInterfaceTemplateRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	var diags diag.Diagnostics
@@ -139,7 +142,8 @@ func resourceNetboxInterfaceTemplateRead(ctx context.Context, d *schema.Resource
 }
 
 func resourceNetboxInterfaceTemplateUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	var diags diag.Diagnostics
 
@@ -179,7 +183,8 @@ func resourceNetboxInterfaceTemplateUpdate(ctx context.Context, d *schema.Resour
 }
 
 func resourceNetboxInterfaceTemplateDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimInterfaceTemplatesDeleteParams().WithID(id)

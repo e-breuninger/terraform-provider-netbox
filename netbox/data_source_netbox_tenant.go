@@ -38,7 +38,9 @@ func dataSourceNetboxTenant() *schema.Resource {
 }
 
 func dataSourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	params := tenancy.NewTenancyTenantsListParams()
 
 	if name, ok := d.Get("name").(string); ok && name != "" {

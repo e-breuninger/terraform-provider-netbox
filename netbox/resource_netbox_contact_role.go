@@ -39,7 +39,8 @@ func resourceNetboxContactRole() *schema.Resource {
 }
 
 func resourceNetboxContactRoleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	name := d.Get("name").(string)
 
@@ -69,7 +70,9 @@ func resourceNetboxContactRoleCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxContactRoleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
+
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactRolesReadParams().WithID(id)
 
@@ -95,7 +98,8 @@ func resourceNetboxContactRoleRead(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxContactRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.ContactRole{}
@@ -123,7 +127,8 @@ func resourceNetboxContactRoleUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceNetboxContactRoleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*providerState)
+	state := m.(*providerState)
+	api := state.legacyAPI
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactRolesDeleteParams().WithID(id)

@@ -6,17 +6,20 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
+	"github.com/e-breuninger/terraform-provider-netbox/netbox/client"
+	nbclient "github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/netbox-community/go-netbox/v4"
 	"golang.org/x/exp/slices"
 )
 
 type providerState struct {
-	*client.NetBoxAPI
+	legacyAPI   *nbclient.NetBoxAPI
+	api         *netbox.APIClient
 	defaultTags *schema.Set
 
 	// concurrent access ok, only populated on provider start
@@ -285,7 +288,8 @@ func Provider() *schema.Provider {
 func providerConfigure(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	config := Config{
+	config := &client.Config{
+		ServerURL:                   data.Get("server_url").(string),
 		APIToken:                    data.Get("api_token").(string),
 		AllowInsecureHTTPS:          data.Get("allow_insecure_https").(bool),
 		Headers:                     data.Get("headers").(map[string]interface{}),
@@ -293,35 +297,28 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		StripTrailingSlashesFromURL: data.Get("strip_trailing_slashes_from_url").(bool),
 	}
 
-	serverURL := data.Get("server_url").(string)
-
 	// Unless explicitly switched off, strip trailing slashes from the server url
 	// Trailing slashes cause errors as seen in https://github.com/e-breuninger/terraform-provider-netbox/issues/198
 	// and https://github.com/e-breuninger/terraform-provider-netbox/issues/300
 	stripTrailingSlashesFromURL := data.Get("strip_trailing_slashes_from_url").(bool)
 
-	if stripTrailingSlashesFromURL {
-		trimmed := false
-
-		// This is Go's poor man's while loop
-		for strings.HasSuffix(serverURL, "/") {
-			serverURL = strings.TrimRight(serverURL, "/")
-			trimmed = true
-		}
-		if trimmed {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  "Stripped trailing slashes from the `server_url` parameter",
-				Detail:   "Trailing slashes in the `server_url` parameter lead to problems in most setups, so all trailing slashes were stripped. Use the `strip_trailing_slashes_from_url` parameter to disable this feature or remove all trailing slashes in the `server_url` to disable this warning.",
-			})
-		}
+	if stripTrailingSlashesFromURL && strings.HasSuffix(config.ServerURL, "/") {
+		config.ServerURL = strings.TrimRight(config.ServerURL, "/")
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Stripped trailing slashes from the `server_url` parameter",
+			Detail:   "Trailing slashes in the `server_url` parameter lead to problems in most setups, so all trailing slashes were stripped. Use the `strip_trailing_slashes_from_url` parameter to disable this feature or remove all trailing slashes in the `server_url` to disable this warning.",
+		})
 	}
 
-	config.ServerURL = serverURL
+	legacyClient, err := client.NewLegacyClient(config)
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
 
-	netboxClient, clientError := config.Client()
-	if clientError != nil {
-		return nil, diag.FromErr(clientError)
+	apiClient, err := client.NewClient(config)
+	if err != nil {
+		return nil, diag.FromErr(err)
 	}
 
 	// Unless explicitly switched off, use the client to retrieve the Netbox version
@@ -330,7 +327,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	if !skipVersionCheck {
 		req := status.NewStatusListParams()
-		res, err := netboxClient.Status.StatusList(req, nil)
+		res, err := legacyClient.Status.StatusList(req, nil)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
@@ -359,7 +356,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	if ok {
 		for _, tag := range tags.List() {
 			if tagName, ok := tag.(string); ok {
-				nbTag, err := findTag(netboxClient, tagName)
+				nbTag, err := findTag(legacyClient, tagName)
 				if err != nil {
 					d := diag.FromErr(fmt.Errorf("default tag not found: %w", err))
 					d[0].Severity = diag.Warning
@@ -374,7 +371,8 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	}
 
 	state := &providerState{
-		NetBoxAPI:   netboxClient,
+		legacyAPI:   legacyClient,
+		api:         apiClient,
 		defaultTags: schema.CopySet(tags),
 		tagCache:    tagCache,
 	}
