@@ -14,6 +14,8 @@ func TestAccNetboxModule_basic(t *testing.T) {
 	testDevice := testAccGetTestName("device")
 	testModuleType := testAccGetTestName("module_type")
 	testModuleBay := testAccGetTestName("module_bay")
+	testSite := testAccGetTestName("site")
+	testDeviceRole := testAccGetTestName("device_role")
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -29,9 +31,20 @@ resource "netbox_device_type" "test" {
   manufacturer_id = netbox_manufacturer.test.id
 }
 
+resource "netbox_site" "test" {
+  name = "%s"
+}
+
+resource "netbox_device_role" "test" {
+  name = "%s"
+  color_hex = "ff0000"
+}
+
 resource "netbox_device" "test" {
   name          = "%s"
   device_type_id = netbox_device_type.test.id
+  site_id       = netbox_site.test.id
+  role_id       = netbox_device_role.test.id
 }
 
 resource "netbox_module_type" "test" {
@@ -52,7 +65,7 @@ resource "netbox_module" "test" {
   serial        = "%s"
   asset_tag     = "MT-001"
   description   = "Test module"
-}`, testManufacturer, testDeviceType, testDevice, testModuleType, testModuleBay, testSerial),
+}`, testManufacturer, testDeviceType, testSite, testDeviceRole, testDevice, testModuleType, testModuleBay, testSerial),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_module.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_module.test", "serial", testSerial),
@@ -75,6 +88,8 @@ func TestAccNetboxModule_minimal(t *testing.T) {
 	testDevice := testAccGetTestName("device")
 	testModuleType := testAccGetTestName("module_type")
 	testModuleBay := testAccGetTestName("module_bay")
+	testSite := testAccGetTestName("site")
+	testDeviceRole := testAccGetTestName("device_role")
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -90,9 +105,20 @@ resource "netbox_device_type" "test" {
   manufacturer_id = netbox_manufacturer.test.id
 }
 
+resource "netbox_site" "test" {
+  name = "%s"
+}
+
+resource "netbox_device_role" "test" {
+  name = "%s"
+  color_hex = "ff0000"
+}
+
 resource "netbox_device" "test" {
   name          = "%s"
   device_type_id = netbox_device_type.test.id
+  site_id       = netbox_site.test.id
+  role_id       = netbox_device_role.test.id
 }
 
 resource "netbox_module_type" "test" {
@@ -110,7 +136,7 @@ resource "netbox_module" "test" {
   module_bay_id  = netbox_device_module_bay.test.id
   module_type_id = netbox_module_type.test.id
   status        = "planned"
-}`, testManufacturer, testDeviceType, testDevice, testModuleType, testModuleBay),
+}`, testManufacturer, testDeviceType, testSite, testDeviceRole, testDevice, testModuleType, testModuleBay),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_module.test", "status", "planned"),
 				),
@@ -127,6 +153,8 @@ func TestAccNetboxModule_withTags(t *testing.T) {
 	testModuleType := testAccGetTestName("module_type")
 	testModuleBay := testAccGetTestName("module_bay")
 	testTag := testAccGetTestName("tag")
+	testSite := testAccGetTestName("site")
+	testDeviceRole := testAccGetTestName("device_role")
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -142,9 +170,20 @@ resource "netbox_device_type" "test" {
   manufacturer_id = netbox_manufacturer.test.id
 }
 
+resource "netbox_site" "test" {
+  name = "%s"
+}
+
+resource "netbox_device_role" "test" {
+  name = "%s"
+  color_hex = "ff0000"
+}
+
 resource "netbox_device" "test" {
   name          = "%s"
   device_type_id = netbox_device_type.test.id
+  site_id       = netbox_site.test.id
+  role_id       = netbox_device_role.test.id
 }
 
 resource "netbox_module_type" "test" {
@@ -168,7 +207,7 @@ resource "netbox_module" "test" {
   status        = "active"
   serial        = "%s"
   tags          = [netbox_tag.test.slug]
-}`, testManufacturer, testDeviceType, testDevice, testModuleType, testModuleBay, testTag, testSerial),
+}`, testManufacturer, testDeviceType, testSite, testDeviceRole, testDevice, testModuleType, testModuleBay, testTag, testSerial),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_module.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_module.test", "serial", testSerial),

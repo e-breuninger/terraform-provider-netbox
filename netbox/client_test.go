@@ -67,7 +67,7 @@ func TestClientWithCustomHeaders(t *testing.T) {
 		APIToken:  "07b12b765127747e4afd56cb531b7bf9c61f3c30",
 		ServerURL: "https://localhost:8080",
 		Headers: map[string]interface{}{
-			"X-Custom-Header": "test-value",
+			"X-Custom-Header":  "test-value",
 			"X-Another-Header": 123,
 		},
 	}
@@ -79,8 +79,8 @@ func TestClientWithCustomHeaders(t *testing.T) {
 
 func TestClientWithInsecureHTTPS(t *testing.T) {
 	config := Config{
-		APIToken:          "07b12b765127747e4afd56cb531b7bf9c61f3c30",
-		ServerURL:         "https://localhost:8080",
+		APIToken:           "07b12b765127747e4afd56cb531b7bf9c61f3c30",
+		ServerURL:          "https://localhost:8080",
 		AllowInsecureHTTPS: true,
 	}
 
@@ -91,8 +91,8 @@ func TestClientWithInsecureHTTPS(t *testing.T) {
 
 func TestClientWithRequestTimeout(t *testing.T) {
 	config := Config{
-		APIToken:      "07b12b765127747e4afd56cb531b7bf9c61f3c30",
-		ServerURL:     "https://localhost:8080",
+		APIToken:       "07b12b765127747e4afd56cb531b7bf9c61f3c30",
+		ServerURL:      "https://localhost:8080",
 		RequestTimeout: 30,
 	}
 
