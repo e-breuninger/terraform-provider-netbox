@@ -14,11 +14,18 @@ import (
 var sweeperNetboxClients map[string]interface{}
 
 func TestMain(m *testing.M) {
+	// Initialize the client cache
+	sweeperNetboxClients = make(map[string]interface{})
 	resource.TestMain(m)
 }
 
 // sharedClientForRegion returns a common provider client configured for the specified region
 func sharedClientForRegion(region string) (interface{}, error) {
+	// Initialize map if it's nil (defensive programming)
+	if sweeperNetboxClients == nil {
+		sweeperNetboxClients = make(map[string]interface{})
+	}
+
 	if client, ok := sweeperNetboxClients[region]; ok {
 		return client, nil
 	}
@@ -28,6 +35,9 @@ func sharedClientForRegion(region string) (interface{}, error) {
 	transport := httptransport.New(server, client.DefaultBasePath, []string{"http"})
 	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Token "+apiToken)
 	c := client.New(transport, nil)
+
+	// Store the client in the cache for future use
+	sweeperNetboxClients[region] = c
 
 	return c, nil
 }
