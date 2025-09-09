@@ -164,6 +164,15 @@ data "netbox_prefixes" "find_prefix_with_contains" {
   }
 }
 
+data "netbox_prefixes" "find_prefix_with_description" {
+  depends_on = [netbox_prefix.test_prefix1]
+  filter {
+    name  = "description"
+    value = netbox_prefix.test_prefix1.description
+  }
+}
+
+
 `, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testPrefixes[4], testVlanVids[0], testVlanVids[1], testPrefixes[5]),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_vrf", "prefixes.#", "2"),
@@ -181,6 +190,7 @@ data "netbox_prefixes" "find_prefix_with_contains" {
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_contains", "prefixes.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_contains", "prefixes.0.prefix", "10.0.9.0/24"),
 					resource.TestCheckResourceAttrSet("data.netbox_prefixes.find_prefix_with_contains", "prefixes.0.site_id"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_description", "prefixes.0.description", "my-description"),
 				),
 			},
 		},
