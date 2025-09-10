@@ -43,9 +43,9 @@ resource "netbox_token" "test_basic" {
 				),
 			},
 			{
-				ResourceName:      "netbox_token.test_basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "netbox_token.test_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"key"},
 			},
 		},
