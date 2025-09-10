@@ -51,6 +51,7 @@ Read-Only:
 - `name` (String)
 - `tag_ids` (List of Number)
 - `tagged_vlans` (List of Object) (see [below for nested schema](#nestedobjatt--interfaces--tagged_vlans))
+- `type` (String)
 - `untagged_vlan` (List of Object) (see [below for nested schema](#nestedobjatt--interfaces--untagged_vlan))
 
 <a id="nestedobjatt--interfaces--mac_addresses"></a>
