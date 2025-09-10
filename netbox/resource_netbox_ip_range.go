@@ -55,8 +55,8 @@ func resourceNetboxIPRange() *schema.Resource {
 				Optional: true,
 			},
 			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
 				Description: "The total member count of the IP range",
 			},
 			tagsKey: tagsSchema,
