@@ -20,6 +20,11 @@ func TestAccNetboxDevicePowerportsDataSource_basic(t *testing.T) {
 			{
 				Config: dependencies + fmt.Sprintf(`
 data "netbox_device_power_ports" "by_name" {
+  depends_on = [
+    netbox_device_power_port.test,
+    netbox_device_power_port.test2,
+  ]
+
   filter {
     name = "name"
     value  = "%[1]s"
@@ -27,6 +32,11 @@ data "netbox_device_power_ports" "by_name" {
 }
 
 data "netbox_device_power_ports" "by_device_id" {
+  depends_on = [
+    netbox_device_power_port.test,
+    netbox_device_power_port.test2,
+  ]
+
   filter {
     name = "device_id"
     value  = netbox_device.test.id
@@ -34,9 +44,14 @@ data "netbox_device_power_ports" "by_device_id" {
 }
 
 data "netbox_device_power_ports" "by_tag" {
+  depends_on = [
+    netbox_device_power_port.test,
+    netbox_device_power_port.test2,
+  ]
+
   filter {
     name = "tag"
-    value  = "%[1]s"
+    value  = netbox_tag.test.name
   }
 }
 `, testName),
@@ -89,13 +104,13 @@ resource "netbox_device_power_port" "test" {
   name = "%[1]s"
   device_id = netbox_device.test.id
   type = "iec-60309-3p-n-e-9h"
-  tags = ["%[1]s"]
+  tags = [netbox_tag.test.name]
 }
 
 resource "netbox_device_power_port" "test2" {
   name = "%[1]s_two"
   device_id = netbox_device.test.id
-  tags = ["%[1]s"]
+  tags = [netbox_tag.test.name]
 }
 
 `, testName)
