@@ -49,6 +49,7 @@ data "netbox_device_interfaces" "by_tag" {
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.0.type", "1000base-t"),
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.0.name", testName),
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.0.enabled", "true"),
 					resource.TestCheckResourceAttrPair("data.netbox_device_interfaces.by_name", "interfaces.0.device_id", "netbox_device.test", "id"),

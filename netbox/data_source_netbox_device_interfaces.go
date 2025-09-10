@@ -152,6 +152,10 @@ func dataSourceNetboxDeviceInterfaces() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -170,7 +174,7 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
-		var filterParams = filter.(*schema.Set)
+		filterParams := filter.(*schema.Set)
 		for _, f := range filterParams.List() {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
@@ -181,7 +185,7 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 			case "name":
 				params.Name = &vString
 			case "tag":
-				params.Tag = []string{vString} //TODO: switch schema to list?
+				params.Tag = []string{vString} // TODO: switch schema to list?
 			case "device_id":
 				params.DeviceID = &vString
 			default:
@@ -213,7 +217,7 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 
 	var s []map[string]interface{}
 	for _, v := range filteredInterfaces {
-		var mapping = make(map[string]interface{})
+		mapping := make(map[string]interface{})
 		mapping["id"] = v.ID
 		if v.Description != "" {
 			mapping["description"] = v.Description
@@ -222,7 +226,7 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 		if v.MacAddresses != nil {
 			var mac_addresses []map[string]interface{}
 			for i, mac := range v.MacAddresses {
-				var mac_address = make(map[string]interface{})
+				mac_address := make(map[string]interface{})
 				// We just set the first mac address in the `mac_address` attribute
 				if i == 0 {
 					mapping["mac_address"] = v.MacAddresses[i].MacAddress
@@ -259,6 +263,10 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 		if v.UntaggedVlan != nil {
 			vlanSlice := []*models.NestedVLAN{v.UntaggedVlan}
 			mapping["untagged_vlan"] = flattenVlanAttributes(vlanSlice)
+		}
+
+		if v.Type != nil && v.Type.Value != nil {
+			mapping["type"] = *v.Type.Value
 		}
 
 		mapping["device_id"] = v.Device.ID
