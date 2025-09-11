@@ -263,6 +263,12 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				Description: "Tags to add to every resource managed by this provider",
 			},
+			"ca_cert_file": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_CA_CERT_FILE", nil),
+				Description: "Path to a PEM-encoded CA certificate for verifying the Netbox server certificate. Can be set via the `NETBOX_CA_CERT_FILE` environment variable.",
+			},
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -291,6 +297,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		Headers:                     data.Get("headers").(map[string]interface{}),
 		RequestTimeout:              data.Get("request_timeout").(int),
 		StripTrailingSlashesFromURL: data.Get("strip_trailing_slashes_from_url").(bool),
+		CACertFile:                  data.Get("ca_cert_file").(string),
 	}
 
 	serverURL := data.Get("server_url").(string)
