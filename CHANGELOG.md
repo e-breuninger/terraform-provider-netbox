@@ -1,3 +1,9 @@
+## 4.3.1 (September 12th, 2025)
+
+ENHANCEMENTS
+
+* provider: Allow setting a CA file in the provider ([#765](https://github.com/e-breuninger/terraform-provider-netbox/pull/765) by [@bodgit](https://github.com/bodgit))
+
 ## 4.3.0 (September 11th, 2025)
 
 ENHANCEMENTS
