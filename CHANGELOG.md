@@ -1,3 +1,9 @@
+## 5.0.0 (September 12th, 2025)
+
+ENHANCEMENTS
+
+provider: Now supports NetBox 4.3.x and 4.4.0
+
 ## 4.3.1 (September 12th, 2025)
 
 ENHANCEMENTS
