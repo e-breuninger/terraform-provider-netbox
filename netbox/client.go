@@ -19,6 +19,7 @@ type Config struct {
 	Headers                     map[string]interface{}
 	RequestTimeout              int
 	StripTrailingSlashesFromURL bool
+	CACertFile                  string
 }
 
 // customHeaderTransport is a transport that adds the specified headers on
@@ -52,6 +53,7 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 
 	// build http client
 	clientOpts := httptransport.TLSClientOptions{
+		CA:                 cfg.CACertFile,
 		InsecureSkipVerify: cfg.AllowInsecureHTTPS,
 	}
 
