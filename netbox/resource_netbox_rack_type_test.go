@@ -40,7 +40,7 @@ resource "netbox_rack_type" "test" {
   u_height          = 48
   starting_unit     = 1
   form_factor       = "2-post-frame"
-  tags              = ["%[1]sa"]
+  tags              = [netbox_tag.test_a.name]
   description       = "%[1]s"
   outer_width       = 10
   outer_depth       = 15
