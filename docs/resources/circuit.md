@@ -51,6 +51,7 @@ resource "netbox_circuit" "test" {
 
 ### Optional
 
+- `description` (String)
 - `tenant_id` (Number)
 
 ### Read-Only

@@ -45,12 +45,14 @@ resource "netbox_circuit_termination" "test" {
   site_id = netbox_site.test.id
   port_speed = 100000
   upstream_speed = 50000
+  description = "This is my circuit termination!"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("netbox_circuit_termination.test", "circuit_id", "netbox_circuit.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_circuit_termination.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("netbox_circuit_termination.test", "port_speed", "100000"),
 					resource.TestCheckResourceAttr("netbox_circuit_termination.test", "upstream_speed", "50000"),
+					resource.TestCheckResourceAttr("netbox_circuit.test", "description", "This is my circuit termination!"),
 				),
 			},
 			{
