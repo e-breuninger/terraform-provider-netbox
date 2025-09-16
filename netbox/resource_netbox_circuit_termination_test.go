@@ -52,7 +52,7 @@ resource "netbox_circuit_termination" "test" {
 					resource.TestCheckResourceAttrPair("netbox_circuit_termination.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttr("netbox_circuit_termination.test", "port_speed", "100000"),
 					resource.TestCheckResourceAttr("netbox_circuit_termination.test", "upstream_speed", "50000"),
-					resource.TestCheckResourceAttr("netbox_circuit.test", "description", "This is my circuit termination!"),
+					resource.TestCheckResourceAttr("netbox_circuit_termination.test", "description", "This is my circuit termination!"),
 				),
 			},
 			{
