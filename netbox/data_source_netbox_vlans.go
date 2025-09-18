@@ -156,7 +156,7 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	res, err := api.Ipam.IpamVlansList(params, nil)
+	res, err := api.client.Ipam().IpamVlansList(params, nil)
 	if err != nil {
 		return err
 	}
