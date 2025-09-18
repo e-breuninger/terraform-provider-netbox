@@ -59,6 +59,7 @@ resource "netbox_circuit_termination" "test" {
 ### Optional
 
 - `custom_fields` (Map of String)
+- `description` (String)
 - `location_id` (Number) Exactly one of `site_id`, `site_group_id`, `region_id` or `provider_network_id` must be given.
 - `port_speed` (Number)
 - `provider_network_id` (Number) Exactly one of `location_id`, `site_id`, `site_group_id` or `region_id` must be given.

@@ -30,6 +30,7 @@ resource "netbox_circuit_type" "test" {
 
 ### Optional
 
+- `description` (String)
 - `slug` (String)
 
 ### Read-Only
