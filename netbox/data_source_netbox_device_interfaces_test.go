@@ -18,11 +18,11 @@ func TestAccNetboxDeviceInterfacesDataSource_basic(t *testing.T) {
 				Config: dependencies,
 			},
 			{
-				Config: dependencies + fmt.Sprintf(`
+				Config: dependencies + `
 data "netbox_device_interfaces" "by_name" {
   filter {
     name = "name"
-    value  = "%[1]s"
+    value  = netbox_device_interface.test.name
   }
 }
 
@@ -43,12 +43,13 @@ data "netbox_device_interfaces" "by_mac_address" {
 data "netbox_device_interfaces" "by_tag" {
   filter {
     name = "tag"
-    value  = "%[1]s"
+    value  = netbox_tag.test.name
   }
 }
-`, testName),
+`,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.0.type", "1000base-t"),
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.0.name", testName),
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.0.enabled", "true"),
 					resource.TestCheckResourceAttrPair("data.netbox_device_interfaces.by_name", "interfaces.0.device_id", "netbox_device.test", "id"),
@@ -99,14 +100,14 @@ resource "netbox_device" "test" {
 resource "netbox_device_interface" "test" {
   name = "%[1]s"
   device_id = netbox_device.test.id
-  tags = ["%[1]s"]
+  tags = [netbox_tag.test.name]
   type = "1000base-t"
 }
 
 resource "netbox_device_interface" "test2" {
   name = "%[1]s_two"
   device_id = netbox_device.test.id
-  tags = ["%[1]s"]
+  tags = [netbox_tag.test.name]
   type = "1000base-t"
 }
 

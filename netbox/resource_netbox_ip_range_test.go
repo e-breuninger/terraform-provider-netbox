@@ -61,6 +61,7 @@ resource "netbox_ip_range" "test_basic" {
 					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "description", testDescription),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "tags.#", "0"),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "size", "50"),
 				),
 			},
 			{
@@ -126,6 +127,7 @@ resource "netbox_ip_range" "test_with_dependencies" {
 					resource.TestCheckResourceAttrPair("netbox_ip_range.test_with_dependencies", "role_id", "netbox_ipam_role.test", "id"),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_with_dependencies", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_with_dependencies", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_with_dependencies", "size", "50"),
 				),
 			},
 			{

@@ -4,12 +4,12 @@ resource "netbox_site" "testSite" {
 }
 
 resource "netbox_vlan_group" "group1" {
-  name     = "Group One"
-  slug     = "group-one"
-  scope_id = netbox_site.testSite.id
-  scope_type = "dcim.site"
+  name        = "Group One"
+  slug        = "group-one"
+  scope_id    = netbox_site.testSite.id
+  scope_type  = "dcim.site"
   description = "First VLAN group"
-  vid_ranges  = [[1,2], [7,17]]
+  vid_ranges  = [[1, 2], [7, 17]]
 }
 
 resource "netbox_available_vlan" "vlan1" {

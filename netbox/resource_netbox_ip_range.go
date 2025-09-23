@@ -54,6 +54,11 @@ func resourceNetboxIPRange() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"size": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The total member count of the IP range",
+			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -136,6 +141,10 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 
 	if res.GetPayload().Role != nil {
 		d.Set("role_id", res.GetPayload().Role.ID)
+	}
+
+	if res.GetPayload().Size != 0 {
+		d.Set("size", res.GetPayload().Size)
 	}
 
 	api.readTags(d, res.GetPayload().Tags)

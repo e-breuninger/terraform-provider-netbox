@@ -12,9 +12,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - uses: actions/cache@v4
@@ -34,19 +34,19 @@ jobs:
       fail-fast: false
       matrix:
         netbox-version:
-          # - v4.2.1 has a bug where mac addresses cannot be assigned
-          - v4.2.2
-          - v4.2.3
-          - v4.2.4
-          - v4.2.5
-          - v4.2.6
-          - v4.2.7
-          - v4.2.8
-          - v4.2.9
+          - v4.3.0
+          # - v4.3.1 # with this version, we get {"scope":["Please select a site."]} for prefixes
+          - v4.3.2
+          - v4.3.3
+          - v4.3.4
+          - v4.3.5
+          - v4.3.6
+          - v4.3.7
+          - v4.4.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - uses: actions/cache@v4

@@ -33,6 +33,7 @@ resource "netbox_circuit_provider" "test" {
 
 ### Optional
 
+- `description` (String)
 - `slug` (String)
 
 ### Read-Only

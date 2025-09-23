@@ -145,6 +145,8 @@ func Provider() *schema.Provider {
 			"netbox_device_front_port":          resourceNetboxDeviceFrontPort(),
 			"netbox_device_rear_port":           resourceNetboxDeviceRearPort(),
 			"netbox_device_module_bay":          resourceNetboxDeviceModuleBay(),
+			"netbox_device_bay":                 resourceNetboxDeviceBay(),
+			"netbox_device_bay_template":        resourceNetboxDeviceBayTemplate(),
 			"netbox_module":                     resourceNetboxModule(),
 			"netbox_module_type":                resourceNetboxModuleType(),
 			"netbox_power_feed":                 resourceNetboxPowerFeed(),
@@ -195,10 +197,12 @@ func Provider() *schema.Provider {
 			"netbox_device_power_ports": dataSourceNetboxDevicePowerPorts(),
 			"netbox_ipam_role":          dataSourceNetboxIPAMRole(),
 			"netbox_route_target":       dataSourceNetboxRouteTarget(),
+			"netbox_ip_address":         dataSourceNetboxIPAddress(),
 			"netbox_ip_addresses":       dataSourceNetboxIPAddresses(),
 			"netbox_ip_range":           dataSourceNetboxIPRange(),
 			"netbox_ip_ranges":          dataSourceNetboxIPRanges(),
 			"netbox_region":             dataSourceNetboxRegion(),
+			"netbox_rir":                dataSourceNetboxRir(),
 			"netbox_vlan":               dataSourceNetboxVlan(),
 			"netbox_vlans":              dataSourceNetboxVlans(),
 			"netbox_vlan_group":         dataSourceNetboxVlanGroup(),
@@ -259,6 +263,12 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				Description: "Tags to add to every resource managed by this provider",
 			},
+			"ca_cert_file": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_CA_CERT_FILE", nil),
+				Description: "Path to a PEM-encoded CA certificate for verifying the Netbox server certificate. Can be set via the `NETBOX_CA_CERT_FILE` environment variable.",
+			},
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -287,6 +297,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		Headers:                     data.Get("headers").(map[string]interface{}),
 		RequestTimeout:              data.Get("request_timeout").(int),
 		StripTrailingSlashesFromURL: data.Get("strip_trailing_slashes_from_url").(bool),
+		CACertFile:                  data.Get("ca_cert_file").(string),
 	}
 
 	serverURL := data.Get("server_url").(string)
@@ -338,7 +349,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 			return nil, diag.FromErr(fmt.Errorf("error extracting netbox version. try using the `skip_version_check` provider parameter to bypass this error. original error: %w", err))
 		}
 
-		supportedVersions := []string{"4.2.2", "4.2.3", "4.2.4", "4.2.5", "4.2.6", "4.2.7", "4.2.8", "4.2.9"}
+		supportedVersions := []string{"4.3.0", "4.3.2", "4.3.3", "4.3.4", "4.3.5", "4.3.6", "4.3.7", "4.4.0"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
 			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864

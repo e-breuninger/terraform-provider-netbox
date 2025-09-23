@@ -1,3 +1,40 @@
+## 5.0.0 (September 12th, 2025)
+
+ENHANCEMENTS
+
+provider: Now supports NetBox 4.3.x and 4.4.0
+
+## 4.3.1 (September 12th, 2025)
+
+ENHANCEMENTS
+
+* provider: Allow setting a CA file in the provider ([#765](https://github.com/e-breuninger/terraform-provider-netbox/pull/765) by [@bodgit](https://github.com/bodgit))
+
+## 4.3.0 (September 11th, 2025)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_rir` ([#759](https://github.com/e-breuninger/terraform-provider-netbox/pull/759) by [@MrKeiKun](https://github.com/MrKeiKun))
+* data-source/netbox_prefixes: Allow filtering by `description` ([#756](https://github.com/e-breuninger/terraform-provider-netbox/pull/756) by [@jonas-sjodin-h2gs](https://github.com/jonas-sjodin-h2gs))
+* resource/netbox_contact: Add `link` and `description` attributes ([#753](https://github.com/e-breuninger/terraform-provider-netbox/pull/753) by [@hikhvar](https://github.com/hikhvar))
+* resource/netbox_ip_range: Add `size` attribute ([#761](https://github.com/e-breuninger/terraform-provider-netbox/pull/761) by [@MrKeiKun](https://github.com/MrKeiKun))
+* data-source/netbox_device_interfaces: Add `type` attribute to results ([#764](https://github.com/e-breuninger/terraform-provider-netbox/pull/764) by [@xvzf](https://github.com/xvzf))
+
+BUG FIXES
+
+* resource/netbox_available_ip_address: Prevent provider crash when no IP is available ([#760](https://github.com/e-breuninger/terraform-provider-netbox/pull/760) by [@MrKeiKun](https://github.com/MrKeiKun))
+
+## 4.2.0 (August 20th, 2025)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_device_bay` ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* **New Resource:** `netbox_device_bay_template` ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* **New Data Source:** `netbox_ip_address` ([#743](https://github.com/e-breuninger/terraform-provider-netbox/pull/743) by [@c24holdingit](https://github.com/c24holdingit))
+* resource/netbox_device_type: Add `subdevice_role` field ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* data-source/netbox_device_type: Add `subdevice_role` field ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* resource/netbox_token: Add `expires` field ([#742](https://github.com/e-breuninger/terraform-provider-netbox/pull/742) by [@thomas-VIGINUM](https://github.com/thomas-VIGINUM))
+
 ## 4.1.0 (July 2nd, 2025)
 
 ENHANCEMENTS
