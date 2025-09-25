@@ -14,7 +14,7 @@ default: testacc
 .PHONY: testacc
 testacc: docker-up
 	@echo "⌛ Startup acceptance tests on $(NETBOX_SERVER_URL) with version $(NETBOX_VERSION)"
-	TF_ACC=1 go test -timeout 20m -v -cover $(TEST)
+	TF_ACC=1 go test -timeout 20m -v -cover -coverprofile=coverage.out $(TEST)
 
 .PHONY: testacc-specific-test
 testacc-specific-test: # docker-up
@@ -24,7 +24,7 @@ testacc-specific-test: # docker-up
 
 .PHONY: test
 test:
-	go test $(TEST) $(TESTARGS) -timeout=120s -parallel=4 -cover
+	go test $(TEST) $(TESTARGS) -timeout=120s -parallel=4 -cover -coverprofile=coverage.out
 
 # Run dockerized Netbox for acceptance testing
 .PHONY: docker-up
@@ -52,3 +52,11 @@ docs:
 fmt:
 	go fmt
 	go fmt netbox/*.go
+
+.PHONY: coverage
+coverage:
+	./scripts/coverage.sh
+
+.PHONY: coverage-html
+coverage-html:
+	./scripts/coverage.sh html
