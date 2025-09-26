@@ -28,6 +28,10 @@ resource "netbox_virtual_machine" "test" {
   cluster_id = netbox_cluster.test.id
 }
 
+resource "netbox_ip_address" "test" {
+  ip_address                   = "10.0.0.60/24"
+  status                       = "active"
+}
 `, testName)
 }
 
@@ -46,6 +50,7 @@ resource "netbox_service" "test" {
   virtual_machine_id = netbox_virtual_machine.test.id
   ports = [666]
   protocol = "tcp"
+	ip_address_ids = [netbox_ip_address.test.id]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_service.test", "name", testName),
@@ -53,6 +58,7 @@ resource "netbox_service" "test" {
 					resource.TestCheckResourceAttr("netbox_service.test", "ports.#", "1"),
 					resource.TestCheckResourceAttr("netbox_service.test", "ports.0", "666"),
 					resource.TestCheckResourceAttr("netbox_service.test", "protocol", "tcp"),
+					resource.TestCheckResourceAttrPair("netbox_service.test", "ip_address_ids.0", "netbox_ip_address.test", "id"),
 				),
 			},
 			{

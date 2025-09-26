@@ -71,6 +71,13 @@ func resourceNetboxService() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"virtual_machine_id", "device_id"},
 			},
+			"ip_address_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+			},
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -124,7 +131,11 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		data.Description = v.(string)
 	}
 
-	data.Ipaddresses = []int64{}
+	dataIpAddressIDs := d.Get("ip_address_ids").(*schema.Set).List()
+	data.Ipaddresses = make([]int64, len(dataIpAddressIDs))
+	for i, id := range dataIpAddressIDs {
+		data.Ipaddresses[i] = int64(id.(int))
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -174,6 +185,12 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("device_id", service.ParentObjectID)
 	}
 
+	ipAddressIDs := make([]int, len(service.Ipaddresses))
+	for i, ip := range service.Ipaddresses {
+		ipAddressIDs[i] = int(ip.ID)
+	}
+	d.Set("ip_address_ids", ipAddressIDs)
+
 	if tags := service.Tags; tags != nil {
 		api.readTags(d, tags)
 	}
@@ -211,7 +228,11 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	data.Ipaddresses = []int64{}
+	dataIpAddressIDs := d.Get("ip_address_ids").(*schema.Set).List()
+	data.Ipaddresses = make([]int64, len(dataIpAddressIDs))
+	for i, id := range dataIpAddressIDs {
+		data.Ipaddresses[i] = int64(id.(int))
+	}
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
