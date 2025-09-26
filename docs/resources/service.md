@@ -49,10 +49,9 @@ resource "netbox_service" "ssh" {
 - `ports` (Set of Number) Exactly one of `port` or `ports` must be given.
 - `tags` (Set of String)
 - `virtual_machine_id` (Number) Exactly one of `virtual_machine_id` or `device_id` must be given.
+- `ip_address_ids` (Set of Number)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `tags_all` (Set of String)
-
-
