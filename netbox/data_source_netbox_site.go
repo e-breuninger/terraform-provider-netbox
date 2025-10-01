@@ -72,6 +72,10 @@ func dataSourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"physical_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -117,6 +121,7 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", site.Slug)
 	d.Set("time_zone", site.TimeZone)
 	d.Set("facility", site.Facility)
+	d.Set("physical_address", site.PhysicalAddress)
 
 	if site.Group != nil {
 		d.Set("group_id", site.Group.ID)
