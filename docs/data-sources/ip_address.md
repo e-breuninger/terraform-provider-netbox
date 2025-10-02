@@ -24,6 +24,7 @@ data "netbox_ip_address" "ip_address" {
 ### Read-Only
 
 - `address_family` (String)
+- `assigned_object` (List of Object) (see [below for nested schema](#nestedatt--assigned_object))
 - `created` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
@@ -35,6 +36,31 @@ data "netbox_ip_address" "ip_address" {
 - `status` (String)
 - `tags` (List of Object) (see [below for nested schema](#nestedatt--tags))
 - `tenant` (List of Object) (see [below for nested schema](#nestedatt--tenant))
+
+<a id="nestedatt--assigned_object"></a>
+### Nested Schema for `assigned_object`
+
+Read-Only:
+
+- `description` (String)
+- `device` (List of Object) (see [below for nested schema](#nestedobjatt--assigned_object--device))
+- `display` (String)
+- `id` (Number)
+- `name` (String)
+- `url` (String)
+
+<a id="nestedobjatt--assigned_object--device"></a>
+### Nested Schema for `assigned_object.device`
+
+Read-Only:
+
+- `description` (String)
+- `display` (String)
+- `id` (Number)
+- `name` (String)
+- `url` (String)
+
+
 
 <a id="nestedatt--tags"></a>
 ### Nested Schema for `tags`
