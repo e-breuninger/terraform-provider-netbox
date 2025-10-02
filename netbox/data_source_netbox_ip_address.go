@@ -98,6 +98,32 @@ func dataSourceNetboxIPAddress() *schema.Resource {
 					},
 				},
 			},
+			"assigned_object": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id":          {Type: schema.TypeInt, Computed: true},
+						"url":         {Type: schema.TypeString, Computed: true},
+						"display":     {Type: schema.TypeString, Computed: true},
+						"name":        {Type: schema.TypeString, Computed: true},
+						"description": {Type: schema.TypeString, Computed: true},
+						"device": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id":          {Type: schema.TypeInt, Computed: true},
+									"url":         {Type: schema.TypeString, Computed: true},
+									"display":     {Type: schema.TypeString, Computed: true},
+									"name":        {Type: schema.TypeString, Computed: true},
+									"description": {Type: schema.TypeString, Computed: true},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -153,6 +179,32 @@ func dataSourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error 
 		tags = append(tags, tagmapping)
 	}
 	d.Set("tags", tags)
+
+	if result.AssignedObject != nil {
+		if aoMap, ok := result.AssignedObject.(map[string]interface{}); ok {
+			var deviceList []interface{}
+			if device, ok := aoMap["device"].(map[string]interface{}); ok {
+				deviceList = append(deviceList, map[string]interface{}{
+					"id":          device["id"],
+					"url":         device["url"],
+					"display":     device["display"],
+					"name":        device["name"],
+					"description": device["description"],
+				})
+			}
+			assignedObject := []interface{}{
+				map[string]interface{}{
+					"id":          aoMap["id"],
+					"url":         aoMap["url"],
+					"display":     aoMap["display"],
+					"name":        aoMap["name"],
+					"description": aoMap["description"],
+					"device":      deviceList,
+				},
+			}
+			d.Set("assigned_object", assignedObject)
+		}
+	}
 
 	return nil
 }
