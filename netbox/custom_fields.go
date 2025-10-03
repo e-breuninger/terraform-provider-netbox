@@ -20,6 +20,19 @@ var customFieldsSchema = &schema.Schema{
 		Type:    schema.TypeString,
 		Default: nil,
 	},
+	DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+		if old == "" && new == "0" {
+			return true // treat empty and "0" as equal? Wait, for maps it's different
+		}
+		// For maps, old and new are JSON strings
+		if old == "{}" && new == "" {
+			return true
+		}
+		if old == "" && new == "{}" {
+			return true
+		}
+		return false
+	},
 }
 
 func getCustomFields(cf interface{}) map[string]interface{} {
@@ -31,7 +44,8 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 }
 
 // flattenCustomFields converts custom fields to a map where all values are strings.
-// Complex nested objects (like IP address references) are converted to JSON strings.
+// Object references (maps with "id" field) are converted to just their ID string.
+// Other complex types are converted to JSON strings.
 func flattenCustomFields(cf interface{}) map[string]interface{} {
 	cfm, ok := cf.(map[string]interface{})
 	if !ok || len(cfm) == 0 {
@@ -51,8 +65,21 @@ func flattenCustomFields(cf interface{}) map[string]interface{} {
 			result[key] = v
 		case float64, int, int64, bool:
 			result[key] = fmt.Sprintf("%v", v)
+		case map[string]interface{}:
+			// Check if this is an object reference with an ID
+			if id, hasID := v["id"]; hasID {
+				// Extract just the ID for object references
+				result[key] = fmt.Sprintf("%v", id)
+			} else {
+				// For other complex objects without ID, convert to JSON
+				if jsonBytes, err := json.Marshal(value); err == nil {
+					result[key] = string(jsonBytes)
+				} else {
+					result[key] = fmt.Sprintf("%v", value)
+				}
+			}
 		default:
-			// For complex types (maps, arrays, objects), convert to JSON string
+			// For other complex types (arrays, etc.), convert to JSON string
 			if jsonBytes, err := json.Marshal(value); err == nil {
 				result[key] = string(jsonBytes)
 			} else {

@@ -199,7 +199,7 @@ func resourceNetboxPowerFeedRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", powerFeed.Description)
 	d.Set("comments", powerFeed.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

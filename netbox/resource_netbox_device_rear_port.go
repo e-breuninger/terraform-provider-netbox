@@ -151,7 +151,7 @@ func resourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) err
 	d.Set("description", rearPort.Description)
 	d.Set("mark_connected", rearPort.MarkConnected)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

@@ -166,7 +166,7 @@ func resourceNetboxDevicePowerOutletRead(d *schema.ResourceData, m interface{}) 
 	d.Set("description", powerOutlet.Description)
 	d.Set("mark_connected", powerOutlet.MarkConnected)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

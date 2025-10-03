@@ -191,7 +191,7 @@ func resourceNetboxInventoryItemRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("component_type", item.ComponentType)
 	d.Set("component_id", item.ComponentID)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
