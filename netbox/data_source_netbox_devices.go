@@ -218,7 +218,7 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		params.Limit = &limitInt
 	}
 
-	res, err := api.Dcim.DcimDevicesList(params, nil)
+	res, err := api.client.Dcim().DcimDevicesList(params, nil)
 	if err != nil {
 		return err
 	}

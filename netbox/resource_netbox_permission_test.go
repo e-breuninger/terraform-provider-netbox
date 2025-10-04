@@ -2,113 +2,124 @@ package netbox
 
 import (
 	"fmt"
-	"log"
-	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccNetboxPermission_basic(t *testing.T) {
-	testSlug := "user_permissions"
-	testName := testAccGetTestName(testSlug)
+	testName := testAccGetTestName("permission_basic")
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_permission" "test_basic" {
-  name = "%s"
-  description = "This is a terraform test."
-  enabled = true
-  object_types = ["ipam.prefix"]
-  actions = ["add", "change"]
-  users = [1]
-  constraints = jsonencode([{
-    "status" = "active"
-  }])
+resource "netbox_permission" "test" {
+  name         = "%s"
+  description  = "Test permission"
+  enabled      = true
+  object_types = ["dcim.device"]
+  actions      = ["view", "change"]
+  constraints  = "{}"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "name", testName),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "description", "This is a terraform test."),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "enabled", "true"),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "object_types.#", "1"),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "object_types.0", "ipam.prefix"),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "actions.#", "2"),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "actions.0", "add"),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "actions.1", "change"),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "users.#", "1"),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "users.0", "1"),
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "constraints", "[{\"status\":\"active\"}]"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_permission.test", "description", "Test permission"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "enabled", "true"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "object_types.#", "1"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "actions.#", "2"),
 				),
 			},
 			{
-				ResourceName:      "netbox_permission.test_basic",
+				ResourceName:      "netbox_permission.test",
 				ImportState:       true,
-				ImportStateVerify: false,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
-func TestAccNetboxPermission_noConstraint(t *testing.T) {
-	testSlug := "user_perms_nocnstrnt"
-	testName := testAccGetTestName(testSlug)
+func TestAccNetboxPermission_minimal(t *testing.T) {
+	testName := testAccGetTestName("permission_minimal")
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-resource "netbox_permission" "test_basic" {
-  name = "%s"
-  description = "This is a terraform test."
-  enabled = true
-  object_types = ["ipam.prefix"]
-  actions = ["add", "change"]
-  users = [1]
+resource "netbox_permission" "test" {
+  name         = "%s"
+  object_types = ["dcim.device", "dcim.interface"]
+  actions      = ["view"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_permission.test_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_permission.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_permission.test", "enabled", "true"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "object_types.#", "2"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "actions.#", "1"),
 				),
-			},
-			{
-				ResourceName:      "netbox_permission.test_basic",
-				ImportState:       true,
-				ImportStateVerify: false,
 			},
 		},
 	})
 }
 
-func init() {
-	resource.AddTestSweepers("netbox_permission", &resource.Sweeper{
-		Name:         "netbox_permission",
-		Dependencies: []string{},
-		F: func(region string) error {
-			m, err := sharedClientForRegion(region)
-			if err != nil {
-				return fmt.Errorf("Error getting client: %s", err)
-			}
-			api := m.(*providerState)
-			params := users.NewUsersPermissionsListParams()
-			res, err := api.Users.UsersPermissionsList(params, nil)
-			if err != nil {
-				return err
-			}
-			for _, perm := range res.GetPayload().Results {
-				if strings.HasPrefix(*perm.Name, testPrefix) {
-					deleteParams := users.NewUsersPermissionsDeleteParams().WithID(perm.ID)
-					_, err := api.Users.UsersPermissionsDelete(deleteParams, nil)
-					if err != nil {
-						return err
-					}
-					log.Print("[DEBUG] Deleted a user")
-				}
-			}
-			return nil
+func TestAccNetboxPermission_withUsersAndGroups(t *testing.T) {
+	testName := testAccGetTestName("permission_users_groups")
+	testUser := testAccGetTestName("user")
+	testGroup := testAccGetTestName("group")
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_user" "test" {
+		username = "%s"
+		password = "Test-password-123"
+}
+
+resource "netbox_group" "test" {
+		name = "%s"
+}
+
+resource "netbox_permission" "test" {
+		name         = "%s"
+		object_types = ["dcim.device"]
+		actions      = ["view", "add"]
+		users        = [netbox_user.test.id]
+		groups       = [netbox_group.test.id]
+}`, testUser, testGroup, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_permission.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_permission.test", "users.#", "1"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "groups.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxPermission_disabled(t *testing.T) {
+	testName := testAccGetTestName("permission_disabled")
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_permission" "test" {
+  name         = "%s"
+  object_types = ["dcim.device"]
+  actions      = ["view"]
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_permission.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_permission.test", "enabled", "true"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "object_types.#", "1"),
+					resource.TestCheckResourceAttr("netbox_permission.test", "actions.#", "1"),
+				),
+			},
 		},
 	})
 }
