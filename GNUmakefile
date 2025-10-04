@@ -1,7 +1,7 @@
 TEST?=netbox/*.go
 TEST_FUNC?=TestAccNetboxMACAddr*
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
-DOCKER_COMPOSE=podman-compose
+DOCKER_COMPOSE=docker compose
 
 export NETBOX_VERSION=v4.4.0
 export NETBOX_SERVER_URL=http://localhost:8001
