@@ -58,6 +58,7 @@ Read-Only:
 - `display` (String)
 - `id` (Number)
 - `name` (String)
+- `type` (String)
 - `url` (String)
 
 

@@ -114,6 +114,7 @@ func dataSourceNetboxIPAddress() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id":          {Type: schema.TypeInt, Computed: true},
+									"type":        {Type: schema.TypeString, Computed: true},
 									"url":         {Type: schema.TypeString, Computed: true},
 									"display":     {Type: schema.TypeString, Computed: true},
 									"name":        {Type: schema.TypeString, Computed: true},
@@ -183,14 +184,17 @@ func dataSourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error 
 	if result.AssignedObject != nil {
 		if aoMap, ok := result.AssignedObject.(map[string]interface{}); ok {
 			var deviceList []interface{}
-			if device, ok := aoMap["device"].(map[string]interface{}); ok {
-				deviceList = append(deviceList, map[string]interface{}{
-					"id":          device["id"],
-					"url":         device["url"],
-					"display":     device["display"],
-					"name":        device["name"],
-					"description": device["description"],
-				})
+			for _, objType := range []string{"device", "virtual_machine"} {
+				if obj, ok := aoMap[objType].(map[string]interface{}); ok {
+					deviceList = append(deviceList, map[string]interface{}{
+						"id":          obj["id"],
+						"type":        objType,
+						"url":         obj["url"],
+						"display":     obj["display"],
+						"name":        obj["name"],
+						"description": obj["description"],
+					})
+				}
 			}
 			assignedObject := []interface{}{
 				map[string]interface{}{
