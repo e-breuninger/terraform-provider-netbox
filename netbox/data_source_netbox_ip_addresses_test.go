@@ -10,14 +10,14 @@ import (
 func TestAccNetboxIpAddressesDataSource_basic(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_basic"
 	testName := testAccGetTestName(testSlug)
-	testIP := "203.0.113.1/24"
+	testIP := "140.18.8.1/24"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_ip_address" "test" {
-	ip_address = "%s"
+	ip_address = "%[1]s"
 	virtual_machine_interface_id = netbox_interface.test.id
 	status = "active"
 	tags = [netbox_tag.test.name]
@@ -25,15 +25,17 @@ resource "netbox_ip_address" "test" {
 }
 data "netbox_ip_addresses" "test" {
 	depends_on = [netbox_ip_address.test]
+
+	filter {
+		name = "ip_address"
+		value = "%[1]s"
+	}
 }`, testIP),
-				//                              This snippet sometimes returns things from other tests, even if resource.Test is used instead of resource.ParallelTest
-				//                              This happens especially in CI testing (where test execution is presumably slow)
-				//                              The check functions are now removed so this does no longer happen
-				//				Check: resource.ComposeTestCheckFunc(
-				//					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.ip_address", "netbox_ip_address.test", "ip_address"),
-				//					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.0.role", "anycast"),
-				//					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.tags.0.name", "netbox_tag.test", "name"),
-				//				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.ip_address", "netbox_ip_address.test", "ip_address"),
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test", "ip_addresses.0.role", "anycast"),
+					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test", "ip_addresses.0.tags.0.name", "netbox_tag.test", "name"),
+				),
 			},
 		},
 	})
@@ -42,8 +44,8 @@ data "netbox_ip_addresses" "test" {
 func TestAccNetboxIpAddressesDataSource_filter(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_filter"
 	testName := testAccGetTestName(testSlug)
-	testIP0 := "203.0.113.1/24"
-	testIP1 := "203.0.113.2/24"
+	testIP0 := "140.18.8.2/24"
+	testIP1 := "140.18.8.3/24"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -81,8 +83,8 @@ data "netbox_ip_addresses" "test_list" {
 func TestAccNetboxIpAddressesDataSource_filter2(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_filter_role"
 	testName := testAccGetTestName(testSlug)
-	testIP0 := "203.0.113.1/24"
-	testIP1 := "203.0.113.2/24"
+	testIP0 := "140.18.8.4/24"
+	testIP1 := "140.18.8.5/24"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -122,9 +124,9 @@ data "netbox_ip_addresses" "test_list" {
 func TestAccNetboxIpAddressesDataSource_filter_parent_prefix(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_filter_prefix"
 	testName := testAccGetTestName(testSlug)
-	testPrefix1 := "203.0.113.0/24"
-	testIP0 := "203.0.113.1/24"
-	testIP1 := "203.0.200.1/24"
+	testPrefix1 := "140.18.8.0/24"
+	testIP0 := "140.18.8.6/24"
+	testIP1 := "192.168.21.7/24"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -165,8 +167,8 @@ data "netbox_ip_addresses" "test_list" {
 
 func TestAccNetboxIpAddressesDataSource_multiple(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_multiple"
-	testIP0 := "203.0.113.1/24"
-	testIP1 := "203.0.113.2/24"
+	testIP0 := "140.18.8.8/24"
+	testIP1 := "140.18.8.9/24"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -206,8 +208,8 @@ data "netbox_ip_addresses" "test_list" {
 
 func TestAccNetboxIpAddressesDataSource_flattenTenant(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_flattenTenant"
-	testIP0 := "203.0.113.10/24"
-	testIP1 := "203.0.113.20/24"
+	testIP0 := "140.18.8.10/24"
+	testIP1 := "140.18.8.11/24"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -308,9 +310,9 @@ func TestAccNetboxIpAddressesDataSource_filter_tags(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_filter_tags"
 	testTag := "default-gw"
 	testName := testAccGetTestName(testSlug)
-	testIP0 := "203.0.113.1/24"
-	testIP1 := "203.0.113.2/24"
-	testIP2 := "203.0.113.3/24"
+	testIP0 := "140.18.8.12/24"
+	testIP1 := "140.18.8.13/24"
+	testIP2 := "140.18.8.14/24"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -358,9 +360,9 @@ func TestAccNetboxIpAddressesDataSource_nestedVM(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_filter_tags"
 	testTag := "default-gw"
 	testName := testAccGetTestName(testSlug)
-	testIP0 := "203.0.113.1/24"
-	testIP1 := "203.0.113.2/24"
-	testIP2 := "203.0.113.3/24"
+	testIP0 := "140.18.8.15/24"
+	testIP1 := "140.18.8.16/24"
+	testIP2 := "140.18.8.17/24"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -433,9 +435,9 @@ func TestAccNetboxIpAddressesDataSource_nestedDevice(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_filter_tags"
 	testTag := "default-gw"
 	testName := testAccGetTestName(testSlug)
-	testIP0 := "203.0.113.1/24"
-	testIP1 := "203.0.113.2/24"
-	testIP2 := "203.0.113.3/24"
+	testIP0 := "140.18.8.18/24"
+	testIP1 := "140.18.8.19/24"
+	testIP2 := "140.18.8.20/24"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
