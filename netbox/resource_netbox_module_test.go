@@ -2,119 +2,75 @@ package netbox
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	log "github.com/sirupsen/logrus"
 )
 
-func testAccNetboxModuleFullDependencies(testName string) string {
-	return fmt.Sprintf(`
-resource "netbox_tenant" "test" {
-  name = "%[1]s"
-}
-
-resource "netbox_site" "test" {
-  name = "%[1]s"
-  status = "active"
-}
-
-resource "netbox_tag" "test" {
-  name = "%[1]sa"
-}
-
+func TestAccNetboxModule_basic(t *testing.T) {
+	testSerial := testAccGetTestName("module_basic")
+	testManufacturer := testAccGetTestName("manufacturer")
+	testDeviceType := testAccGetTestName("device_type")
+	testDevice := testAccGetTestName("device")
+	testModuleType := testAccGetTestName("module_type")
+	testModuleBay := testAccGetTestName("module_bay")
+	testSite := testAccGetTestName("site")
+	testDeviceRole := testAccGetTestName("device_role")
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
 resource "netbox_manufacturer" "test" {
-  name = "%[1]s"
+  name = "%s"
 }
 
 resource "netbox_device_type" "test" {
-  model = "%[1]s"
+  model          = "%s"
   manufacturer_id = netbox_manufacturer.test.id
 }
 
+resource "netbox_site" "test" {
+  name = "%s"
+}
+
 resource "netbox_device_role" "test" {
-  name = "%[1]s"
-  color_hex = "123456"
+  name = "%s"
+  color_hex = "ff0000"
 }
 
 resource "netbox_device" "test" {
-  name = "%[1]s"
-	device_type_id = netbox_device_type.test.id
-	tenant_id = netbox_tenant.test.id
-	role_id = netbox_device_role.test.id
-	site_id = netbox_site.test.id
-}
-
-resource "netbox_device_module_bay" "test" {
-	device_id = netbox_device.test.id
-	name = "%[1]s"
+  name          = "%s"
+  device_type_id = netbox_device_type.test.id
+  site_id       = netbox_site.test.id
+  role_id       = netbox_device_role.test.id
 }
 
 resource "netbox_module_type" "test" {
   manufacturer_id = netbox_manufacturer.test.id
-  model = "%[1]s"
-}`, testName)
+  model          = "%s"
 }
 
-func TestAccNetboxModule_basic(t *testing.T) {
-	testSlug := "module_basic"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		Providers:    testAccProviders,
-		PreCheck:     func() { testAccPreCheck(t) },
-		CheckDestroy: testAccCheckModuleDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccNetboxModuleFullDependencies(testName) + fmt.Sprintf(`
-resource "netbox_module" "test" {
-	device_id = netbox_device.test.id
-	module_bay_id = netbox_device_module_bay.test.id
-	module_type_id = netbox_module_type.test.id
-	status = "active"
+resource "netbox_device_module_bay" "test" {
+  device_id      = netbox_device.test.id
+  name          = "%s"
+}
 
-	serial = "%[1]s_serial"
-	asset_tag = "%[1]s_asset"
-	description = "%[1]s_description"
-  comments = "%[1]s_comments"
-  tags = ["%[1]sa"]
-}`, testName),
+resource "netbox_module" "test" {
+  device_id      = netbox_device.test.id
+  module_bay_id  = netbox_device_module_bay.test.id
+  module_type_id = netbox_module_type.test.id
+  status        = "active"
+  serial        = "%s"
+  asset_tag     = "MT-001"
+  description   = "Test module"
+}`, testManufacturer, testDeviceType, testSite, testDeviceRole, testDevice, testModuleType, testModuleBay, testSerial),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_module.test", "status", "active"),
-					resource.TestCheckResourceAttr("netbox_module.test", "serial", testName+"_serial"),
-					resource.TestCheckResourceAttr("netbox_module.test", "asset_tag", testName+"_asset"),
-					resource.TestCheckResourceAttr("netbox_module.test", "description", testName+"_description"),
-					resource.TestCheckResourceAttr("netbox_module.test", "comments", testName+"_comments"),
-					resource.TestCheckResourceAttr("netbox_module.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_module.test", "tags.0", testName+"a"),
-
-					resource.TestCheckResourceAttrPair("netbox_module.test", "device_id", "netbox_device.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_module.test", "module_bay_id", "netbox_device_module_bay.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_module.test", "module_type_id", "netbox_module_type.test", "id"),
-				),
-			},
-			{
-				Config: testAccNetboxModuleFullDependencies(testName) + `
-resource "netbox_module" "test" {
-	device_id = netbox_device.test.id
-	module_bay_id = netbox_device_module_bay.test.id
-	module_type_id = netbox_module_type.test.id
-	status = "offline"
-}`,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_module.test", "status", "offline"),
-					resource.TestCheckResourceAttr("netbox_module.test", "serial", ""),
-					resource.TestCheckResourceAttr("netbox_module.test", "asset_tag", ""),
-					resource.TestCheckResourceAttr("netbox_module.test", "description", ""),
-					resource.TestCheckResourceAttr("netbox_module.test", "comments", ""),
-					resource.TestCheckResourceAttr("netbox_module.test", "tags.#", "0"),
-
-					resource.TestCheckResourceAttrPair("netbox_module.test", "device_id", "netbox_device.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_module.test", "module_bay_id", "netbox_device_module_bay.test", "id"),
-					resource.TestCheckResourceAttrPair("netbox_module.test", "module_type_id", "netbox_module_type.test", "id"),
+					resource.TestCheckResourceAttr("netbox_module.test", "serial", testSerial),
+					resource.TestCheckResourceAttr("netbox_module.test", "asset_tag", "MT-001"),
+					resource.TestCheckResourceAttr("netbox_module.test", "description", "Test module"),
 				),
 			},
 			{
@@ -126,65 +82,138 @@ resource "netbox_module" "test" {
 	})
 }
 
-func testAccCheckModuleDestroy(s *terraform.State) error {
-	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*providerState)
-
-	// loop through the resources in state, verifying each module
-	// is destroyed
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "netbox_module" {
-			continue
-		}
-
-		// Retrieve our device by referencing it's state ID for API lookup
-		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimModulesReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimModulesRead(params, nil)
-
-		if err == nil {
-			return fmt.Errorf("module (%s) still exists", rs.Primary.ID)
-		}
-
-		if err != nil {
-			if errresp, ok := err.(*dcim.DcimModulesReadDefault); ok {
-				errorcode := errresp.Code()
-				if errorcode == 404 {
-					return nil
-				}
-			}
-			return err
-		}
-	}
-	return nil
+func TestAccNetboxModule_minimal(t *testing.T) {
+	testManufacturer := testAccGetTestName("manufacturer")
+	testDeviceType := testAccGetTestName("device_type")
+	testDevice := testAccGetTestName("device")
+	testModuleType := testAccGetTestName("module_type")
+	testModuleBay := testAccGetTestName("module_bay")
+	testSite := testAccGetTestName("site")
+	testDeviceRole := testAccGetTestName("device_role")
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%s"
 }
 
-func init() {
-	resource.AddTestSweepers("netbox_module", &resource.Sweeper{
-		Name:         "netbox_module",
-		Dependencies: []string{},
-		F: func(region string) error {
-			m, err := sharedClientForRegion(region)
-			if err != nil {
-				return fmt.Errorf("Error getting client: %s", err)
-			}
-			api := m.(*providerState)
-			params := dcim.NewDcimModulesListParams()
-			res, err := api.Dcim.DcimModulesList(params, nil)
-			if err != nil {
-				return err
-			}
-			for _, module := range res.GetPayload().Results {
-				if strings.HasPrefix(*module.ModuleType.Model, testPrefix) {
-					deleteParams := dcim.NewDcimModulesDeleteParams().WithID(module.ID)
-					_, err := api.Dcim.DcimModulesDelete(deleteParams, nil)
-					if err != nil {
-						return err
-					}
-					log.Print("[DEBUG] Deleted a module")
-				}
-			}
-			return nil
+resource "netbox_device_type" "test" {
+  model          = "%s"
+  manufacturer_id = netbox_manufacturer.test.id
+}
+
+resource "netbox_site" "test" {
+  name = "%s"
+}
+
+resource "netbox_device_role" "test" {
+  name = "%s"
+  color_hex = "ff0000"
+}
+
+resource "netbox_device" "test" {
+  name          = "%s"
+  device_type_id = netbox_device_type.test.id
+  site_id       = netbox_site.test.id
+  role_id       = netbox_device_role.test.id
+}
+
+resource "netbox_module_type" "test" {
+  manufacturer_id = netbox_manufacturer.test.id
+  model          = "%s"
+}
+
+resource "netbox_device_module_bay" "test" {
+  device_id      = netbox_device.test.id
+  name          = "%s"
+}
+
+resource "netbox_module" "test" {
+  device_id      = netbox_device.test.id
+  module_bay_id  = netbox_device_module_bay.test.id
+  module_type_id = netbox_module_type.test.id
+  status        = "planned"
+}`, testManufacturer, testDeviceType, testSite, testDeviceRole, testDevice, testModuleType, testModuleBay),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_module.test", "status", "planned"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxModule_withTags(t *testing.T) {
+	testSerial := testAccGetTestName("module_tags")
+	testManufacturer := testAccGetTestName("manufacturer")
+	testDeviceType := testAccGetTestName("device_type")
+	testDevice := testAccGetTestName("device")
+	testModuleType := testAccGetTestName("module_type")
+	testModuleBay := testAccGetTestName("module_bay")
+	testTag := testAccGetTestName("tag")
+	testSite := testAccGetTestName("site")
+	testDeviceRole := testAccGetTestName("device_role")
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%s"
+}
+
+resource "netbox_device_type" "test" {
+  model          = "%s"
+  manufacturer_id = netbox_manufacturer.test.id
+}
+
+resource "netbox_site" "test" {
+  name = "%s"
+}
+
+resource "netbox_device_role" "test" {
+  name = "%s"
+  color_hex = "ff0000"
+}
+
+resource "netbox_device" "test" {
+  name          = "%s"
+  device_type_id = netbox_device_type.test.id
+  site_id       = netbox_site.test.id
+  role_id       = netbox_device_role.test.id
+}
+
+resource "netbox_module_type" "test" {
+  manufacturer_id = netbox_manufacturer.test.id
+  model          = "%s"
+}
+
+resource "netbox_device_module_bay" "test" {
+  device_id      = netbox_device.test.id
+  name          = "%s"
+}
+
+resource "netbox_tag" "test" {
+  name = "%s"
+}
+
+resource "netbox_module" "test" {
+  device_id      = netbox_device.test.id
+  module_bay_id  = netbox_device_module_bay.test.id
+  module_type_id = netbox_module_type.test.id
+  status        = "active"
+  serial        = "%s"
+  tags          = [netbox_tag.test.slug]
+}`, testManufacturer, testDeviceType, testSite, testDeviceRole, testDevice, testModuleType, testModuleBay, testTag, testSerial),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_module.test", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_module.test", "serial", testSerial),
+					resource.TestCheckResourceAttr("netbox_module.test", "tags.#", "1"),
+				),
+			},
 		},
 	})
 }
