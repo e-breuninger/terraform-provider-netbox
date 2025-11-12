@@ -29,6 +29,7 @@ resource "netbox_webhook" "test" {
   payload_url        = "%s"
   body_template      = "%s"
   additional_headers = "%s"
+  ca_file_path = "%s"
 }`, testName, testPayloadURL, testBodyTemplate, testAdditionalHeaders),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName),
