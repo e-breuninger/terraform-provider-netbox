@@ -18,16 +18,21 @@ data "netbox_vlan_group" "example1" {
   name = "example1"
 }
 
-# Get VLAN group by stub
+# Get VLAN group by slug
 data "netbox_vlan_group" "example2" {
   slug = "example2"
+}
+
+# Get VLAN group by ID
+data "netbox_vlan_group" "example_id" {
+  id = "1"
 }
 
 # Get VLAN group by name and scope_type/id
 data "netbox_vlan_group" "example3" {
   name       = "example"
   scope_type = "dcim.site"
-  scope_id   = netbox_site.example.id
+  scope_id   = "1"
 }
 ```
 
@@ -36,15 +41,18 @@ data "netbox_vlan_group" "example3" {
 
 ### Optional
 
-- `name` (String) At least one of `name`, `slug` or `scope_type` must be given.
-- `scope_id` (Number) Required when `scope_type` is set.
-- `scope_type` (String) Valid values are `dcim.location`, `dcim.site`, `dcim.sitegroup`, `dcim.region`, `dcim.rack`, `virtualization.cluster` and `virtualization.clustergroup`. At least one of `name`, `slug` or `scope_type` must be given.
-- `slug` (String) At least one of `name`, `slug` or `scope_type` must be given.
+- `id` (String) The ID of the VLAN group.
+- `name` (String) At least one of `id`, `name`, `slug` or `scope_type` must be given.
+- `scope_id` (String) Required when `scope_type` is set.
+- `scope_type` (String) Valid values are `dcim.location`, `dcim.site`, `dcim.sitegroup`, `dcim.region`, `dcim.rack`, `virtualization.cluster` and `virtualization.clustergroup`. At least one of `id`, `name`, `slug` or `scope_type` must be given.
+- `slug` (String) At least one of `id`, `name`, `slug` or `scope_type` must be given.
 
 ### Read-Only
 
 - `description` (String)
 - `id` (String) The ID of this resource.
+- `scope_id` (String)
+- `scope_type` (String)
 - `vlan_count` (Number)
 
 
