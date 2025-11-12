@@ -57,6 +57,10 @@ func resourceNetboxWebhook() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"ca_file_path": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -77,6 +81,7 @@ func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
+	data.CaFilePath = strToPtr(getOptionalStr(d, "ca_file_path", false))
 
 	params := extras.NewExtrasWebhooksCreateParams().WithData(data)
 
@@ -114,6 +119,7 @@ func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("http_method", webhook.HTTPMethod)
 	d.Set("http_content_type", webhook.HTTPContentType)
 	d.Set("additional_headers", webhook.AdditionalHeaders)
+	d.Set("ca_file_path", webhook.CaFilePath)
 
 	return nil
 }
@@ -134,6 +140,7 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
+	data.CaFilePath = strToPtr(getOptionalStr(d, "ca_file_path", false))
 
 	params := extras.NewExtrasWebhooksUpdateParams().WithID(id).WithData(&data)
 
