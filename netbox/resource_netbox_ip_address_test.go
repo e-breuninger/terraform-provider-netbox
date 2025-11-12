@@ -362,10 +362,12 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				ResourceName:            "netbox_ip_address.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"device_interface_id"},
+				ResourceName:      "netbox_ip_address.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// import step doesn't have context about device_interface_id, thus we
+				// get interface_id and object_type imported instead
+				ImportStateVerifyIgnore: []string{"interface_id", "object_type", "device_interface_id"},
 			},
 		},
 	})
@@ -392,10 +394,12 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				ResourceName:            "netbox_ip_address.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"virtual_machine_interface_id"},
+				ResourceName:      "netbox_ip_address.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// import step doesn't have context about virtual_machine_interface_id, thus we
+				// get interface_id and object_type imported instead
+				ImportStateVerifyIgnore: []string{"interface_id", "object_type", "virtual_machine_interface_id"},
 			},
 		},
 	})

@@ -202,14 +202,24 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 		switch {
 		case vmInterfaceID != nil:
 			d.Set("virtual_machine_interface_id", ipAddress.AssignedObjectID)
+			d.Set("interface_id", nil)
+			d.Set("object_type", "")
 		case deviceInterfaceID != nil:
 			d.Set("device_interface_id", ipAddress.AssignedObjectID)
+			d.Set("interface_id", nil)
+			d.Set("object_type", "")
 		// if interfaceID is given, object_type must be set as well
 		case interfaceID != nil:
-			d.Set("object_type", ipAddress.AssignedObjectType)
 			d.Set("interface_id", ipAddress.AssignedObjectID)
+			d.Set("object_type", ipAddress.AssignedObjectType)
+		default:
+			// Set changes made to the ip address outside of Terraform and update the state accordingly.
+			d.Set("interface_id", ipAddress.AssignedObjectID)
+			d.Set("object_type", ipAddress.AssignedObjectType)
 		}
 	} else {
+		d.Set("virtual_machine_interface_id", nil)
+		d.Set("device_interface_id", nil)
 		d.Set("interface_id", nil)
 		d.Set("object_type", "")
 	}
