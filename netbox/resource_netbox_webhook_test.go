@@ -17,6 +17,7 @@ func TestAccNetboxWebhook_basic(t *testing.T) {
 	testPayloadURL := "https://example.com/webhook"
 	testBodyTemplate := "Sample Body"
 	testAdditionalHeaders := "Authentication: Bearer abcdef123456"
+	testCaFilePath := "/etc/ssl/certs"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetBoxWebhookDestroy,
@@ -34,6 +35,7 @@ resource "netbox_webhook" "test" {
 					resource.TestCheckResourceAttr("netbox_webhook.test", "payload_url", testPayloadURL),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "body_template", testBodyTemplate),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "additional_headers", testAdditionalHeaders),
+					resource.TestCheckResourceAttr("netbox_webhook.test", "ca_file_path", testCaFilePath),
 				),
 			},
 			{
