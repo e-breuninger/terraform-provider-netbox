@@ -353,3 +353,44 @@ data "netbox_ip_addresses" "test_list" {
 		},
 	})
 }
+
+func TestAccNetboxIpAddressesDataSource_filter_description(t *testing.T) {
+	testSlug := "ipam_ipaddrs_ds_filter_description"
+	testName := testAccGetTestName(testSlug)
+	testIP0 := "203.0.113.1/24"
+	testIP1 := "203.0.113.2/24"
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test_list_0" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  role = "vip"
+  description = "test 1"
+}
+resource "netbox_ip_address" "test_list_1" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  role = "vrrp"
+  description = "test 2"
+}
+data "netbox_ip_addresses" "test_list" {
+	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1]
+
+	filter {
+		name = "description"
+		value = "test 1"
+	}
+}`, testIP0, testIP1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_list", "ip_addresses.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test_list", "ip_addresses.0.ip_address", "netbox_ip_address.test_list_0", "ip_address"),
+				),
+			},
+		},
+	})
+}
