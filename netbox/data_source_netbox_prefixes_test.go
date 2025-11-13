@@ -196,3 +196,121 @@ data "netbox_prefixes" "find_prefix_with_description" {
 		},
 	})
 }
+
+func TestAccNetboxPrefixesDataSource_customFields(t *testing.T) {
+	testSlug := "prefixes_ds_custom_fields"
+	testName := testAccGetTestName(testSlug)
+	// Custom field names can only contain alphanumeric characters and underscores
+	testFieldPrefix := "tf_test_cf"
+	testPrefix := "10.100.0.0/24"
+	testGatewayIP := "10.100.0.1/24"
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+# Create a text custom field (simple type)
+resource "netbox_custom_field" "test_text" {
+  name          = "%[4]s_text"
+  type          = "text"
+  content_types = ["ipam.prefix"]
+}
+
+# Create a JSON custom field (can store complex objects like IP addresses)
+# Note: Object type custom fields are available in NetBox v4.0+, but this provider
+# version is tested against v4.2.2 which doesn't fully support them yet.
+# JSON fields can be used as a workaround for complex data structures.
+resource "netbox_custom_field" "test_json" {
+  name          = "%[4]s_json"
+  type          = "json"
+  content_types = ["ipam.prefix"]
+}
+
+# Create a prefix with custom fields
+resource "netbox_prefix" "test_with_custom_fields" {
+  prefix = "%[2]s"
+  status = "active"
+  custom_fields = {
+    (netbox_custom_field.test_text.name) = "test-value"
+    (netbox_custom_field.test_json.name) = jsonencode({
+      gateway = {
+        address = "%[3]s"
+        family  = "IPv4"
+      }
+    })
+  }
+  depends_on = [
+    netbox_custom_field.test_text,
+    netbox_custom_field.test_json,
+  ]
+}
+
+# Data source to fetch the prefix with custom fields
+data "netbox_prefixes" "with_custom_fields" {
+  depends_on = [netbox_prefix.test_with_custom_fields]
+  filter {
+    name  = "prefix"
+    value = netbox_prefix.test_with_custom_fields.prefix
+  }
+}
+
+# Output to test that custom_fields can be accessed
+output "custom_fields_output" {
+  value = length(data.netbox_prefixes.with_custom_fields.prefixes) > 0 ? data.netbox_prefixes.with_custom_fields.prefixes[0].custom_fields : {}
+}
+
+# Output to test contains() function with keys() for simple field
+output "has_text_field" {
+  value = (
+    length(data.netbox_prefixes.with_custom_fields.prefixes) > 0 &&
+    contains(
+      keys(data.netbox_prefixes.with_custom_fields.prefixes[0].custom_fields),
+      "%[4]s_text"
+    )
+  )
+}
+
+# Output to test contains() function with keys() for complex JSON field
+output "has_json_field" {
+  value = (
+    length(data.netbox_prefixes.with_custom_fields.prefixes) > 0 &&
+    contains(
+      keys(data.netbox_prefixes.with_custom_fields.prefixes[0].custom_fields),
+      "%[4]s_json"
+    )
+  )
+}
+
+# Test that JSON field can be parsed (it will be a JSON string containing JSON)
+output "json_field_is_valid" {
+  value = (
+    length(data.netbox_prefixes.with_custom_fields.prefixes) > 0 &&
+    can(jsondecode(data.netbox_prefixes.with_custom_fields.prefixes[0].custom_fields["%[4]s_json"]))
+  )
+}
+`, testName, testPrefix, testGatewayIP, testFieldPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					// Verify we got one prefix
+					resource.TestCheckResourceAttr("data.netbox_prefixes.with_custom_fields", "prefixes.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.with_custom_fields", "prefixes.0.prefix", testPrefix),
+
+					// Verify custom_fields attribute exists and is set
+					resource.TestCheckResourceAttrSet("data.netbox_prefixes.with_custom_fields", "prefixes.0.custom_fields.%"),
+
+					// Verify simple custom field values
+					resource.TestCheckResourceAttr("data.netbox_prefixes.with_custom_fields", fmt.Sprintf("prefixes.0.custom_fields.%s_text", testFieldPrefix), "test-value"),
+
+					// Verify complex JSON field exists and is a JSON string
+					resource.TestCheckResourceAttrSet("data.netbox_prefixes.with_custom_fields", fmt.Sprintf("prefixes.0.custom_fields.%s_json", testFieldPrefix)),
+
+					// Verify outputs work for simple fields
+					resource.TestCheckOutput("has_text_field", "true"),
+
+					// Verify outputs work for complex JSON field - this tests flattenCustomFields works!
+					resource.TestCheckOutput("has_json_field", "true"),
+					resource.TestCheckOutput("json_field_is_valid", "true"),
+				),
+			},
+		},
+	})
+}
