@@ -1,0 +1,77 @@
+stages:
+  - test
+  - build
+  - release
+
+variables:
+  GOLANG_IMAGE_VERSION: "1.25.4"
+  GOPATH: ${CI_PROJECT_DIR}/.go
+
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+default:
+  image: golang:${GOLANG_IMAGE_VERSION}
+
+cache:
+  key:
+    files:
+      - go.sum
+      - GNUMakefile
+  paths:
+    - .go/pkg/mod
+
+go:test:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - "**/*.go"
+        - go.mod
+        - go.sum
+        - .gitlab-ci.yml
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+  stage: test
+  script:
+    - go test
+
+go:build:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - "**/*.go"
+        - go.mod
+        - go.sum
+        - .gitlab-ci.yml
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+  needs: []
+  stage: build
+  script:
+    - go mod tidy
+    - go install
+
+goreleaser:
+  stage: release
+  dependencies: []
+  only:
+    - tags
+  image:
+    name: golang:${GOLANG_IMAGE_VERSION}
+    entrypoint: [""]
+  variables:
+    # Disable shallow cloning so that goreleaser can diff between tags to
+    # generate a changelog.
+    GIT_DEPTH: 0
+    GITLAB_TOKEN: $CI_JOB_TOKEN
+  before_script:
+    - echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
+    - apt update
+    - apt install -y goreleaser gettext-base
+    - envsubst < "${GORELEASER_ENVTPL}" > /tmp/goreleaser.divd.yml
+  script:
+    - goreleaser release -f /tmp/goreleaser.divd.yml
+    - cp terraform-registry-manifest.json dist/${CI_PROJECT_NAME}_${CI_COMMIT_TAG:1}_manifest.json
