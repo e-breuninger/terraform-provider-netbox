@@ -10,7 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var resourceNetboxEventRuleActionTypeOptions = []string{"webhook"}
+var resourceNetboxEventRuleActionTypeOptions = []string{"webhook", "script"}
+
+var resourceNetboxEventRuleActionTypeToObjectType = map[string]string{
+	"webhook": "extras.webhook",
+	"script":  "extras.script",
+}
 
 func resourceNetboxEventRule() *schema.Resource {
 	return &schema.Resource{
@@ -89,8 +94,9 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 	data.ActionType = actionType
 	data.Description = getOptionalStr(d, "description", false)
 
-	// Currently, we just support the webhook action type
-	data.ActionObjectType = strToPtr("extras.webhook")
+	if objectType, ok := resourceNetboxEventRuleActionTypeToObjectType[actionType]; ok {
+		data.ActionObjectType = strToPtr(objectType)
+	}
 
 	eventTypes := make([]string, 0)
 	for _, eventType := range d.Get("event_types").(*schema.Set).List() {
@@ -185,8 +191,9 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 	data.ActionType = actionType
 	data.Description = getOptionalStr(d, "description", true)
 
-	// Currently, we just support the webhook action type
-	data.ActionObjectType = strToPtr("extras.webhook")
+	if objectType, ok := resourceNetboxEventRuleActionTypeToObjectType[actionType]; ok {
+		data.ActionObjectType = strToPtr(objectType)
+	}
 
 	eventTypes := make([]string, 0)
 	for _, eventType := range d.Get("event_types").(*schema.Set).List() {
