@@ -25,6 +25,12 @@ func TestAccNetboxVlanGroupDataSource_basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("no vlan group found matching filter"),
 			},
 			{
+				Config: setUp + testAccNetboxVlanGroupDataByID("netbox_vlan_group.test", "id"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_vlan_group.test", "id", "netbox_vlan_group.test", "id"),
+				),
+			},
+			{
 				Config: setUp + testAccNetboxVlanGroupDataByName(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_vlan_group.test", "id", "netbox_vlan_group.test", "id"),
@@ -108,6 +114,13 @@ const testAccNetboxVlanGroupDataNoResult = `
 data "netbox_vlan_group" "no_result" {
   name = "_no_result_"
 }`
+
+func testAccNetboxVlanGroupDataByID(resourceRef, field string) string {
+	return fmt.Sprintf(`
+data "netbox_vlan_group" "test" {
+  id = %[1]s.%[2]s
+}`, resourceRef, field)
+}
 
 func testAccNetboxVlanGroupDataByName(testName string) string {
 	return fmt.Sprintf(`
