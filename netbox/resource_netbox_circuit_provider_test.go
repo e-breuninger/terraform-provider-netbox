@@ -23,10 +23,13 @@ func TestAccNetboxCircuitProvider_basic(t *testing.T) {
 resource "netbox_circuit_provider" "test" {
   name = "%[1]s"
   slug = "%[2]s"
+  description = "This is my circuit provider!"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "description", "This is my circuit provider!"),
+
 				),
 			},
 			{
@@ -34,10 +37,12 @@ resource "netbox_circuit_provider" "test" {
 resource "netbox_circuit_provider" "test" {
   name = "%[1]s"
   slug = "%[2]s"
+  description = "This is my circuit provider!"
 }`, testName+"2", randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "name", testName+"2"),
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "description", "This is my circuit provider!"),
 				),
 			},
 			{

@@ -47,6 +47,10 @@ func resourceNetboxCircuit() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(resourceNetboxCircuitStatusOptions, false),
 				Description:  buildValidValueDescription(resourceNetboxCircuitStatusOptions),
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -63,6 +67,7 @@ func resourceNetboxCircuitCreate(d *schema.ResourceData, m interface{}) error {
 	data.Cid = &cid
 
 	data.Status = d.Get("status").(string)
+	data.Description = d.Get("description").(string)
 
 	providerIDValue, ok := d.GetOk("provider_id")
 	if ok {
@@ -114,6 +119,7 @@ func resourceNetboxCircuitRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("cid", res.GetPayload().Cid)
 	d.Set("status", res.GetPayload().Status.Value)
+	d.Set("description", res.GetPayload().Description)
 
 	if res.GetPayload().Provider != nil {
 		d.Set("provider_id", res.GetPayload().Provider.ID)
@@ -146,6 +152,7 @@ func resourceNetboxCircuitUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Cid = &cid
 
 	data.Status = d.Get("status").(string)
+	data.Description = d.Get("description").(string)
 
 	providerIDValue, ok := d.GetOk("provider_id")
 	if ok {

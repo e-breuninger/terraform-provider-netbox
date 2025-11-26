@@ -68,6 +68,10 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(resourceNetboxCircuitTerminationTermSideOptions, false),
 				Description:  buildValidValueDescription(resourceNetboxCircuitTerminationTermSideOptions),
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
 		},
@@ -84,6 +88,7 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 
 	termside := d.Get("term_side").(string)
 	data.TermSide = &termside
+	data.Description = d.Get("description").(string)
 
 	circuitIDValue, ok := d.GetOk("circuit_id")
 	if ok {
@@ -184,6 +189,7 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 	d.Set("location_id", nil)
 	d.Set("region_id", nil)
 	d.Set("provider_network_id", nil)
+	d.Set("description", res.GetPayload().Description)
 
 	if term.TerminationType != nil && term.TerminationID != nil {
 		scopeID := term.TerminationID
@@ -231,6 +237,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 
 	termside := d.Get("term_side").(string)
 	data.TermSide = &termside
+	data.Description = d.Get("description").(string)
 
 	circuitIDValue, ok := d.GetOk("circuit_id")
 	if ok {

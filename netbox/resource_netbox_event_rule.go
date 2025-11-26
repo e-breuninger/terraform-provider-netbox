@@ -10,7 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var resourceNetboxEventRuleActionTypeOptions = []string{"webhook"}
+var resourceNetboxEventRuleActionTypeOptions = []string{"webhook", "script"}
+
+var resourceNetboxEventRuleActionTypeToObjectType = map[string]string{
+	"webhook": "extras.webhook",
+	"script":  "extras.script",
+}
 
 func resourceNetboxEventRule() *schema.Resource {
 	return &schema.Resource{
@@ -21,7 +26,8 @@ func resourceNetboxEventRule() *schema.Resource {
 
 		Description: `:meta:subcategory:Extras:From the [official documentation](https://docs.netbox.dev/en/stable/features/event-rules/):
 
-> NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.`,
+> NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
+	Event rules can also execute custom scripts, enabling NetBox to run defined logic locally in response to object changes.`,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -89,8 +95,9 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 	data.ActionType = actionType
 	data.Description = getOptionalStr(d, "description", false)
 
-	// Currently, we just support the webhook action type
-	data.ActionObjectType = strToPtr("extras.webhook")
+	if objectType, ok := resourceNetboxEventRuleActionTypeToObjectType[actionType]; ok {
+		data.ActionObjectType = strToPtr(objectType)
+	}
 
 	eventTypes := make([]string, 0)
 	for _, eventType := range d.Get("event_types").(*schema.Set).List() {
@@ -185,8 +192,9 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 	data.ActionType = actionType
 	data.Description = getOptionalStr(d, "description", true)
 
-	// Currently, we just support the webhook action type
-	data.ActionObjectType = strToPtr("extras.webhook")
+	if objectType, ok := resourceNetboxEventRuleActionTypeToObjectType[actionType]; ok {
+		data.ActionObjectType = strToPtr(objectType)
+	}
 
 	eventTypes := make([]string, 0)
 	for _, eventType := range d.Get("event_types").(*schema.Set).List() {

@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -87,6 +88,7 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	data.IsActive = active
 	data.IsStaff = staff
 	data.Groups = groupIDs
+	data.DateJoined = strfmt.DateTime(time.Now())
 
 	params := users.NewUsersUsersCreateParams().WithData(&data)
 	res, err := api.Users.UsersUsersCreate(params, nil)
@@ -155,6 +157,7 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	data.IsActive = active
 	data.IsStaff = staff
 	data.Groups = groupIDs
+	data.DateJoined = strfmt.DateTime(time.Now())
 
 	params := users.NewUsersUsersUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Users.UsersUsersUpdate(params, nil)

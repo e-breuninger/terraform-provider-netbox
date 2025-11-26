@@ -33,6 +33,10 @@ func resourceNetboxCircuitProvider() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -47,6 +51,7 @@ func resourceNetboxCircuitProviderCreate(d *schema.ResourceData, m interface{}) 
 
 	name := d.Get("name").(string)
 	data.Name = &name
+	data.Description = d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to generated slug if not given
@@ -92,6 +97,7 @@ func resourceNetboxCircuitProviderRead(d *schema.ResourceData, m interface{}) er
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	d.Set("description", res.GetPayload().Description)
 
 	return nil
 }
@@ -104,6 +110,7 @@ func resourceNetboxCircuitProviderUpdate(d *schema.ResourceData, m interface{}) 
 
 	name := d.Get("name").(string)
 	data.Name = &name
+	data.Description = d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to generated slug if not given

@@ -38,6 +38,7 @@ data "netbox_site" "get_by_slug" {
 - `description` (String)
 - `group_id` (Number)
 - `id` (String) The ID of this resource.
+- `physical_address` (String)
 - `region_id` (Number)
 - `site_id` (Number)
 - `status` (String)

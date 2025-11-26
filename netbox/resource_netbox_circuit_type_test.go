@@ -23,10 +23,12 @@ func TestAccNetboxCircuitType_basic(t *testing.T) {
 resource "netbox_circuit_type" "test" {
   name = "%[1]s"
   slug = "%[2]s"
+  description = "This is my circuit type!"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_circuit_type.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_circuit_type.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_circuit_type.test", "description", "This is my circuit type!"),
 				),
 			},
 			{
