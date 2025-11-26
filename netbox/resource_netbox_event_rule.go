@@ -26,7 +26,8 @@ func resourceNetboxEventRule() *schema.Resource {
 
 		Description: `:meta:subcategory:Extras:From the [official documentation](https://docs.netbox.dev/en/stable/features/event-rules/):
 
-> NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.`,
+> NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
+	Event rules can also execute custom scripts, enabling NetBox to run defined logic locally in response to object changes.`,
 
 		Schema: map[string]*schema.Schema{
 			"name": {

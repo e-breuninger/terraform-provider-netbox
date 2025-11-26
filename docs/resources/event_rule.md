@@ -5,6 +5,7 @@ subcategory: "Extras"
 description: |-
   From the official documentation https://docs.netbox.dev/en/stable/features/event-rules/:
   NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
+      Event rules can also execute custom scripts, enabling NetBox to run defined logic locally in response to object changes.
 ---
 
 # netbox_event_rule (Resource)
@@ -12,8 +13,7 @@ description: |-
 From the [official documentation](https://docs.netbox.dev/en/stable/features/event-rules/):
 
 > NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
-
-Event rules can also execute NetBox Scripts by setting `action_type = "script"`.
+	Event rules can also execute custom scripts, enabling NetBox to run defined logic locally in response to object changes.
 
 ## Example Usage
 
@@ -70,4 +70,5 @@ resource "netbox_event_rule" "script" {
 
 - `id` (String) The ID of this resource.
 - `tags_all` (Set of String)
+
 
