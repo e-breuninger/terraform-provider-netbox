@@ -39,6 +39,7 @@ Required:
 
 Read-Only:
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `id` (Number)
 - `location_id` (Number)
