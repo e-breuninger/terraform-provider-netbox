@@ -54,7 +54,7 @@ resource "netbox_event_rule" "script" {
 ### Required
 
 - `action_object_id` (Number)
-- `action_type` (String) Valid values are `webhook`, `script`.
+- `action_type` (String) Valid values are `webhook` and `script`.
 - `content_types` (Set of String)
 - `event_types` (Set of String) The types of event which will trigger this rule. By default, valid values are `object_created`, `oject_updated`, `object_deleted`, `job_started`, `job_completed`, `job_failed` and `job_errored`.
 - `name` (String)
