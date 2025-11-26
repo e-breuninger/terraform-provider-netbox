@@ -1,11 +1,14 @@
 package netbox
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
 	netboxclient "github.com/fbreckle/go-netbox/netbox/client"
+	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/goware/urlx"
 	log "github.com/sirupsen/logrus"
@@ -83,6 +86,16 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 	transport := httptransport.NewWithClient(parsedURL.Host, parsedURL.Path+netboxclient.DefaultBasePath, desiredRuntimeClientSchemes, httpClient)
 	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", fmt.Sprintf("Token %v", cfg.APIToken))
 	transport.SetLogger(log.StandardLogger())
+
+	// Configure the transport to handle interface{} values properly
+	// This helps prevent TextConsumer issues with interface{} types
+	transport.Consumers["application/json"] = runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
+		dec := json.NewDecoder(reader)
+		// Use json.Number to handle numeric values that might be interface{}
+		dec.UseNumber()
+		return dec.Decode(data)
+	})
+
 	netboxClient := netboxclient.New(transport, nil)
 
 	return netboxClient, nil
