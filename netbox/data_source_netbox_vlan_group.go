@@ -15,9 +15,9 @@ func dataSourceNetboxVlanGroup() *schema.Resource {
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     		schema.TypeString,
-				Computed: 		true,
-				Optional: 		true,
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
 				AtLeastOneOf: []string{"id", "name", "slug", "scope_type"},
 			},
 			"name": {
@@ -61,7 +61,7 @@ func dataSourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error 
 	params := ipam.NewIpamVlanGroupsListParams()
 
 	params.Limit = int64ToPtr(2)
-	
+
 	if id, ok := d.Get("id").(string); ok && id != "" {
 		params.ID = strToPtr(id)
 	}
@@ -92,12 +92,12 @@ func dataSourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error 
 
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
-	d.Set("id", result.ID)
+	d.Set("id", strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
 	d.Set("vlan_count", result.VlanCount)
 	d.Set("description", result.Description)
-	d.Set("scope_id", result.ScopeID)
+	d.Set("scope_id", strconv.FormatInt(*result.ScopeID, 10))
 	d.Set("scope_type", result.ScopeType)
 	return nil
 }

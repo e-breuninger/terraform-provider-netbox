@@ -18,21 +18,16 @@ data "netbox_vlan_group" "example1" {
   name = "example1"
 }
 
-# Get VLAN group by slug
+# Get VLAN group by stub
 data "netbox_vlan_group" "example2" {
   slug = "example2"
-}
-
-# Get VLAN group by ID
-data "netbox_vlan_group" "example_id" {
-  id = "1"
 }
 
 # Get VLAN group by name and scope_type/id
 data "netbox_vlan_group" "example3" {
   name       = "example"
   scope_type = "dcim.site"
-  scope_id   = "1"
+  scope_id   = netbox_site.example.id
 }
 ```
 
@@ -41,7 +36,7 @@ data "netbox_vlan_group" "example3" {
 
 ### Optional
 
-- `id` (String) The ID of the VLAN group.
+- `id` (String) At least one of `id`, `name`, `slug` or `scope_type` must be given.
 - `name` (String) At least one of `id`, `name`, `slug` or `scope_type` must be given.
 - `scope_id` (String) Required when `scope_type` is set.
 - `scope_type` (String) Valid values are `dcim.location`, `dcim.site`, `dcim.sitegroup`, `dcim.region`, `dcim.rack`, `virtualization.cluster` and `virtualization.clustergroup`. At least one of `id`, `name`, `slug` or `scope_type` must be given.
@@ -50,9 +45,6 @@ data "netbox_vlan_group" "example3" {
 ### Read-Only
 
 - `description` (String)
-- `id` (String) The ID of this resource.
-- `scope_id` (String)
-- `scope_type` (String)
 - `vlan_count` (Number)
 
 
