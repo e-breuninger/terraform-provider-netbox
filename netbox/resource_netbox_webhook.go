@@ -140,10 +140,7 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
-	ca := getOptionalStr(d, "ca_file_path", false)
-	if ca != "" {
-			data.CaFilePath = &ca
-	}
+	data.CaFilePath = strToPtr(getOptionalStr(d, "ca_file_path", false))
 
 	params := extras.NewExtrasWebhooksUpdateParams().WithID(id).WithData(&data)
 
