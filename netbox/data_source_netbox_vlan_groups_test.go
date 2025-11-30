@@ -94,6 +94,12 @@ func TestAccNetboxVlanGroupsDataSource_search(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
+				Config: setUp,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_1", "name", "VLANGroup1"),
+				),
+			},
+			{
 				Config: setUp + testAccNetboxVlanGroupsWithQ(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_vlan_groups.test", "vlan_groups.#", "3"),
