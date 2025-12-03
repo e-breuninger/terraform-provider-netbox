@@ -76,6 +76,13 @@ func TestAccNetboxVlansDataSource_basic(t *testing.T) {
 				Config: setUp + testAccNetboxVlansByVid(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_vlans.test", "vlans.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.0.id", "netbox_vlan.test_1", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxVlansByVid(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_vlans.test", "vlans.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.0.vid", "netbox_vlan.test_1", "vid"),
 				),
 			},
