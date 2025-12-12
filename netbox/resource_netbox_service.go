@@ -108,14 +108,8 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 	virtualMachineID := getOptionalInt(d, "virtual_machine_id")
 	deviceID := getOptionalInt(d, "device_id")
 
-	switch {
-	case virtualMachineID != nil:
-		data.ParentObjectType = strToPtr("virtualization.virtualmachine")
-		data.ParentObjectID = virtualMachineID
-	case deviceID != nil:
-		data.ParentObjectType = strToPtr("dcim.device")
-		data.ParentObjectID = deviceID
-	}
+	data.VirtualMachine = virtualMachineID
+	data.Device = deviceID
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
@@ -166,12 +160,11 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ports", service.Ports)
 	d.Set("description", service.Description)
 
-	parentObjectType := service.ParentObjectType
-	switch parentObjectType {
-	case "virtualization.virtualmachine":
-		d.Set("virtual_machine_id", service.ParentObjectID)
-	case "dcim.device":
-		d.Set("device_id", service.ParentObjectID)
+	if service.VirtualMachine != nil {
+		d.Set("virtual_machine_id", *service.VirtualMachine)
+	}
+	if service.Device != nil {
+		d.Set("device_id", *service.Device)
 	}
 
 	if tags := service.Tags; tags != nil {
@@ -223,14 +216,8 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 	virtualMachineID := getOptionalInt(d, "virtual_machine_id")
 	deviceID := getOptionalInt(d, "device_id")
 
-	switch {
-	case virtualMachineID != nil:
-		data.ParentObjectType = strToPtr("virtualization.virtualmachine")
-		data.ParentObjectID = virtualMachineID
-	case deviceID != nil:
-		data.ParentObjectType = strToPtr("dcim.device")
-		data.ParentObjectID = deviceID
-	}
+	data.VirtualMachine = virtualMachineID
+	data.Device = deviceID
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
