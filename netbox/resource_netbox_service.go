@@ -108,8 +108,15 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 	virtualMachineID := getOptionalInt(d, "virtual_machine_id")
 	deviceID := getOptionalInt(d, "device_id")
 
-	data.VirtualMachine = virtualMachineID
-	data.Device = deviceID
+	// NetBox 4.3+ uses parent_object_type/parent_object_id instead of device/virtual_machine
+	switch {
+	case virtualMachineID != nil:
+		data.ParentObjectType = strToPtr("virtualization.virtualmachine")
+		data.ParentObjectID = virtualMachineID
+	case deviceID != nil:
+		data.ParentObjectType = strToPtr("dcim.device")
+		data.ParentObjectID = deviceID
+	}
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
@@ -160,11 +167,12 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ports", service.Ports)
 	d.Set("description", service.Description)
 
-	if service.VirtualMachine != nil {
-		d.Set("virtual_machine_id", *service.VirtualMachine)
-	}
-	if service.Device != nil {
-		d.Set("device_id", *service.Device)
+	// NetBox 4.3+ uses parent_object_type/parent_object_id instead of device/virtual_machine
+	switch service.ParentObjectType {
+	case "virtualization.virtualmachine":
+		d.Set("virtual_machine_id", service.ParentObjectID)
+	case "dcim.device":
+		d.Set("device_id", service.ParentObjectID)
 	}
 
 	if tags := service.Tags; tags != nil {
@@ -216,8 +224,15 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 	virtualMachineID := getOptionalInt(d, "virtual_machine_id")
 	deviceID := getOptionalInt(d, "device_id")
 
-	data.VirtualMachine = virtualMachineID
-	data.Device = deviceID
+	// NetBox 4.3+ uses parent_object_type/parent_object_id instead of device/virtual_machine
+	switch {
+	case virtualMachineID != nil:
+		data.ParentObjectType = strToPtr("virtualization.virtualmachine")
+		data.ParentObjectID = virtualMachineID
+	case deviceID != nil:
+		data.ParentObjectType = strToPtr("dcim.device")
+		data.ParentObjectID = deviceID
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
