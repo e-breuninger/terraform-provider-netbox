@@ -295,7 +295,7 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			mapping["status"] = *device.Status.Value
 		}
 		if device.CustomFields != nil {
-			mapping["custom_fields"] = device.CustomFields
+			mapping["custom_fields"] = flattenCustomFields(device.CustomFields)
 		}
 		if device.Rack != nil {
 			mapping["rack_id"] = device.Rack.ID

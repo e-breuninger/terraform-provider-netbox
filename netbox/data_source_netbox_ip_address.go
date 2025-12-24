@@ -1,10 +1,11 @@
 package netbox
 
 import (
+	"strconv"
+
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"strconv"
 )
 
 func dataSourceNetboxIPAddress() *schema.Resource {
@@ -124,7 +125,7 @@ func dataSourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("description", result.Description)
 	d.Set("created", result.Created.String())
 	d.Set("last_updated", result.LastUpdated.String())
-	d.Set("custom_fields", result.CustomFields)
+	d.Set("custom_fields", flattenCustomFields(result.CustomFields))
 	d.Set("address_family", result.Family.Label)
 	d.Set("status", result.Status.Value)
 	d.Set("dns_name", result.DNSName)

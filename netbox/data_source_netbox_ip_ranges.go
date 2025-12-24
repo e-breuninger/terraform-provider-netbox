@@ -193,7 +193,7 @@ func dataSourceNetboxIPRangesRead(d *schema.ResourceData, m interface{}) error {
 		mapping["description"] = v.Description
 		mapping["created"] = v.Created.String()
 		mapping["last_updated"] = v.LastUpdated.String()
-		mapping["custom_fields"] = v.CustomFields
+		mapping["custom_fields"] = flattenCustomFields(v.CustomFields)
 
 		mapping["start_address"] = v.StartAddress
 		mapping["end_address"] = v.EndAddress
