@@ -147,7 +147,7 @@ func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) erro
 			mapping["virtual_machine_id"] = v.VirtualMachine.ID
 		}
 		if v.CustomFields != nil {
-			mapping["custom_fields"] = v.CustomFields
+			mapping["custom_fields"] = flattenCustomFields(v.CustomFields)
 		}
 		if v.Tags != nil {
 			tags := []string{}

@@ -195,7 +195,7 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 		mapping["created"] = v.Created.String()
 		mapping["last_updated"] = v.LastUpdated.String()
 		mapping["comments"] = v.Comments
-		mapping["custom_fields"] = v.CustomFields
+		mapping["custom_fields"] = flattenCustomFields(v.CustomFields)
 
 		mapping["site_count"] = v.SiteCount
 		mapping["rack_count"] = v.RackCount
