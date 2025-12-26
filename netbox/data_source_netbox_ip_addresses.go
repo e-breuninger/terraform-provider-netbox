@@ -202,7 +202,7 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 		mapping["description"] = v.Description
 		mapping["created"] = v.Created.String()
 		mapping["last_updated"] = v.LastUpdated.String()
-		mapping["custom_fields"] = v.CustomFields
+		mapping["custom_fields"] = flattenCustomFields(v.CustomFields)
 
 		mapping["ip_address"] = v.Address
 		mapping["address_family"] = v.Family.Label
