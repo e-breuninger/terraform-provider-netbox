@@ -21,6 +21,9 @@ type providerState struct {
 
 	// concurrent access ok, only populated on provider start
 	tagCache map[string]*models.NestedTag
+
+	// HTTP client for custom API endpoints not covered by go-netbox
+	httpClient *ClientWithHTTP
 }
 
 // This makes the description contain the default value, particularly useful for the docs
@@ -166,51 +169,52 @@ func Provider() *schema.Provider {
 			"netbox_mac_address":                resourceNetboxMACAddress(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"netbox_asn":                dataSourceNetboxAsn(),
-			"netbox_asns":               dataSourceNetboxAsns(),
-			"netbox_available_prefix":   dataSourceNetboxAvailablePrefix(),
-			"netbox_cluster":            dataSourceNetboxCluster(),
-			"netbox_cluster_group":      dataSourceNetboxClusterGroup(),
-			"netbox_cluster_type":       dataSourceNetboxClusterType(),
-			"netbox_contact":            dataSourceNetboxContact(),
-			"netbox_contact_role":       dataSourceNetboxContactRole(),
-			"netbox_contact_group":      dataSourceNetboxContactGroup(),
-			"netbox_tenant":             dataSourceNetboxTenant(),
-			"netbox_tenants":            dataSourceNetboxTenants(),
-			"netbox_tenant_group":       dataSourceNetboxTenantGroup(),
-			"netbox_vrf":                dataSourceNetboxVrf(),
-			"netbox_vrfs":               dataSourceNetboxVrfs(),
-			"netbox_platform":           dataSourceNetboxPlatform(),
-			"netbox_prefix":             dataSourceNetboxPrefix(),
-			"netbox_prefixes":           dataSourceNetboxPrefixes(),
-			"netbox_devices":            dataSourceNetboxDevices(),
-			"netbox_device_role":        dataSourceNetboxDeviceRole(),
-			"netbox_device_type":        dataSourceNetboxDeviceType(),
-			"netbox_site":               dataSourceNetboxSite(),
-			"netbox_location":           dataSourceNetboxLocation(),
-			"netbox_locations":          dataSourceNetboxLocations(),
-			"netbox_tag":                dataSourceNetboxTag(),
-			"netbox_tags":               dataSourceNetboxTags(),
-			"netbox_virtual_machines":   dataSourceNetboxVirtualMachine(),
-			"netbox_interfaces":         dataSourceNetboxInterfaces(),
-			"netbox_device_interfaces":  dataSourceNetboxDeviceInterfaces(),
-			"netbox_device_power_ports": dataSourceNetboxDevicePowerPorts(),
-			"netbox_ipam_role":          dataSourceNetboxIPAMRole(),
-			"netbox_route_target":       dataSourceNetboxRouteTarget(),
-			"netbox_ip_address":         dataSourceNetboxIPAddress(),
-			"netbox_ip_addresses":       dataSourceNetboxIPAddresses(),
-			"netbox_ip_range":           dataSourceNetboxIPRange(),
-			"netbox_ip_ranges":          dataSourceNetboxIPRanges(),
-			"netbox_region":             dataSourceNetboxRegion(),
-			"netbox_rir":                dataSourceNetboxRir(),
-			"netbox_vlan":               dataSourceNetboxVlan(),
-			"netbox_vlans":              dataSourceNetboxVlans(),
-			"netbox_vlan_group":         dataSourceNetboxVlanGroup(),
-			"netbox_site_group":         dataSourceNetboxSiteGroup(),
-			"netbox_racks":              dataSourceNetboxRacks(),
-			"netbox_rack_role":          dataSourceNetboxRackRole(),
-			"netbox_config_context":     dataSourceNetboxConfigContext(),
-			"netbox_virtual_disk":       dataSourceNetboxVirtualDisk(),
+			"netbox_asn":                  dataSourceNetboxAsn(),
+			"netbox_asns":                 dataSourceNetboxAsns(),
+			"netbox_available_prefix":     dataSourceNetboxAvailablePrefix(),
+			"netbox_cluster":              dataSourceNetboxCluster(),
+			"netbox_cluster_group":        dataSourceNetboxClusterGroup(),
+			"netbox_cluster_type":         dataSourceNetboxClusterType(),
+			"netbox_contact":              dataSourceNetboxContact(),
+			"netbox_contact_role":         dataSourceNetboxContactRole(),
+			"netbox_contact_group":        dataSourceNetboxContactGroup(),
+			"netbox_tenant":               dataSourceNetboxTenant(),
+			"netbox_tenants":              dataSourceNetboxTenants(),
+			"netbox_tenant_group":         dataSourceNetboxTenantGroup(),
+			"netbox_vrf":                  dataSourceNetboxVrf(),
+			"netbox_vrfs":                 dataSourceNetboxVrfs(),
+			"netbox_platform":             dataSourceNetboxPlatform(),
+			"netbox_prefix":               dataSourceNetboxPrefix(),
+			"netbox_prefixes":             dataSourceNetboxPrefixes(),
+			"netbox_devices":              dataSourceNetboxDevices(),
+			"netbox_device_role":          dataSourceNetboxDeviceRole(),
+			"netbox_device_type":          dataSourceNetboxDeviceType(),
+			"netbox_site":                 dataSourceNetboxSite(),
+			"netbox_location":             dataSourceNetboxLocation(),
+			"netbox_locations":            dataSourceNetboxLocations(),
+			"netbox_tag":                  dataSourceNetboxTag(),
+			"netbox_tags":                 dataSourceNetboxTags(),
+			"netbox_virtual_machines":     dataSourceNetboxVirtualMachine(),
+			"netbox_interfaces":           dataSourceNetboxInterfaces(),
+			"netbox_device_interfaces":    dataSourceNetboxDeviceInterfaces(),
+			"netbox_device_power_ports":   dataSourceNetboxDevicePowerPorts(),
+			"netbox_ipam_role":            dataSourceNetboxIPAMRole(),
+			"netbox_route_target":         dataSourceNetboxRouteTarget(),
+			"netbox_ip_address":           dataSourceNetboxIPAddress(),
+			"netbox_ip_addresses":         dataSourceNetboxIPAddresses(),
+			"netbox_ip_range":             dataSourceNetboxIPRange(),
+			"netbox_ip_ranges":            dataSourceNetboxIPRanges(),
+			"netbox_region":               dataSourceNetboxRegion(),
+			"netbox_rir":                  dataSourceNetboxRir(),
+			"netbox_vlan":                 dataSourceNetboxVlan(),
+			"netbox_vlans":                dataSourceNetboxVlans(),
+			"netbox_vlan_group":           dataSourceNetboxVlanGroup(),
+			"netbox_site_group":           dataSourceNetboxSiteGroup(),
+			"netbox_racks":                dataSourceNetboxRacks(),
+			"netbox_rack_role":            dataSourceNetboxRackRole(),
+			"netbox_config_context":       dataSourceNetboxConfigContext(),
+			"netbox_virtual_disk":         dataSourceNetboxVirtualDisk(),
+			"netbox_device_render_config": dataSourceNetboxDeviceRenderConfig(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
@@ -326,10 +330,11 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	config.ServerURL = serverURL
 
-	netboxClient, clientError := config.Client()
+	httpClient, clientError := config.ClientWithHTTP()
 	if clientError != nil {
 		return nil, diag.FromErr(clientError)
 	}
+	netboxClient := httpClient.API
 
 	// Unless explicitly switched off, use the client to retrieve the Netbox version
 	// so we can determine compatibility of the provider with the used Netbox
@@ -384,6 +389,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		NetBoxAPI:   netboxClient,
 		defaultTags: schema.CopySet(tags),
 		tagCache:    tagCache,
+		httpClient:  httpClient,
 	}
 	return state, diags
 }

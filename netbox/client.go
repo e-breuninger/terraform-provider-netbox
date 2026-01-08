@@ -22,6 +22,14 @@ type Config struct {
 	CACertFile                  string
 }
 
+// ClientWithHTTP holds both the NetBox API client and a raw HTTP client for custom endpoints
+type ClientWithHTTP struct {
+	API        *netboxclient.NetBoxAPI
+	HTTPClient *http.Client
+	BaseURL    string
+	APIToken   string
+}
+
 // customHeaderTransport is a transport that adds the specified headers on
 // every request.
 type customHeaderTransport struct {
@@ -31,6 +39,15 @@ type customHeaderTransport struct {
 
 // Client does the heavy lifting of establishing a base Open API client to Netbox.
 func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
+	clientWithHTTP, err := cfg.ClientWithHTTP()
+	if err != nil {
+		return nil, err
+	}
+	return clientWithHTTP.API, nil
+}
+
+// ClientWithHTTP creates both a NetBox API client and a raw HTTP client for custom endpoints.
+func (cfg *Config) ClientWithHTTP() (*ClientWithHTTP, error) {
 	log.WithFields(log.Fields{
 		"server_url": cfg.ServerURL,
 	}).Debug("Initializing Netbox client")
@@ -85,7 +102,15 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 	transport.SetLogger(log.StandardLogger())
 	netboxClient := netboxclient.New(transport, nil)
 
-	return netboxClient, nil
+	// Build the base URL for custom HTTP requests
+	baseURL := fmt.Sprintf("%s://%s%s", parsedURL.Scheme, parsedURL.Host, parsedURL.Path)
+
+	return &ClientWithHTTP{
+		API:        netboxClient,
+		HTTPClient: httpClient,
+		BaseURL:    baseURL,
+		APIToken:   cfg.APIToken,
+	}, nil
 }
 
 // RoundTrip adds the headers specified in the transport on every request.
