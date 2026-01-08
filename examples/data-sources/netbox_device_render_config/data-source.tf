@@ -17,4 +17,3 @@ output "template_used" {
 #   content  = data.netbox_device_render_config.server_config.content
 #   filename = "${path.module}/kickstart.cfg"
 # }
-
