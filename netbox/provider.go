@@ -170,6 +170,7 @@ func Provider() *schema.Provider {
 			"netbox_asns":                 dataSourceNetboxAsns(),
 			"netbox_available_prefix":     dataSourceNetboxAvailablePrefix(),
 			"netbox_cluster":              dataSourceNetboxCluster(),
+			"netbox_clusters":             dataSourceNetboxClusters(),
 			"netbox_cluster_group":        dataSourceNetboxClusterGroup(),
 			"netbox_cluster_type":         dataSourceNetboxClusterType(),
 			"netbox_contact":              dataSourceNetboxContact(),
