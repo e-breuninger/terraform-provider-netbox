@@ -53,6 +53,7 @@ Read-Only:
 - `manufacturer_id` (Number)
 - `model` (String)
 - `name` (String)
+- `oob_ip` (String)
 - `platform_id` (Number)
 - `primary_ipv4` (String)
 - `primary_ipv6` (String)

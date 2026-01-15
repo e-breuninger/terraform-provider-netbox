@@ -6,16 +6,15 @@ package netbox
 import (
 	"encoding/json"
 	"fmt"
+	"net"
+	"regexp"
+	"strings"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"net"
-	"regexp"
-	"strings"
 )
 
 func dataSourceNetboxDevices() *schema.Resource {
@@ -149,6 +148,10 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"oob_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"tags": tagsSchemaRead,
 					},
 				},
@@ -158,7 +161,7 @@ func dataSourceNetboxDevices() *schema.Resource {
 }
 
 func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := dcim.NewDcimDevicesListParams()
 
@@ -318,6 +321,13 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			if err == nil {
 				primaryIPv6 := ip.String()
 				mapping["primary_ipv6"] = &primaryIPv6
+			}
+		}
+		if device.OobIP != nil {
+			ip, _, err := net.ParseCIDR(*device.OobIP.Address)
+			if err == nil {
+				OobIP := ip.String()
+				mapping["oob_ip"] = &OobIP
 			}
 		}
 		s = append(s, mapping)

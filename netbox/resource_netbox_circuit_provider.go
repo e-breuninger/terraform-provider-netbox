@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -34,6 +33,10 @@ func resourceNetboxCircuitProvider() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -42,12 +45,13 @@ func resourceNetboxCircuitProvider() *schema.Resource {
 }
 
 func resourceNetboxCircuitProviderCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableProvider{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
+	data.Description = d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to generated slug if not given
@@ -73,7 +77,7 @@ func resourceNetboxCircuitProviderCreate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxCircuitProviderRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsProvidersReadParams().WithID(id)
 
@@ -93,18 +97,20 @@ func resourceNetboxCircuitProviderRead(d *schema.ResourceData, m interface{}) er
 
 	d.Set("name", res.GetPayload().Name)
 	d.Set("slug", res.GetPayload().Slug)
+	d.Set("description", res.GetPayload().Description)
 
 	return nil
 }
 
 func resourceNetboxCircuitProviderUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableProvider{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
+	data.Description = d.Get("description").(string)
 
 	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to generated slug if not given
@@ -128,7 +134,7 @@ func resourceNetboxCircuitProviderUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceNetboxCircuitProviderDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsProvidersDeleteParams().WithID(id)

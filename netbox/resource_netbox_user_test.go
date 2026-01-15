@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -22,12 +21,32 @@ func TestAccNetboxUser_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_user" "test_basic" {
   username = "%s"
-  password = "abcdefghijkl"
+  password = "Abcdefghijkl1"
   active = true
   staff = true
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "username", testName),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "active", "true"),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "staff", "true"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_user" "test_basic" {
+  username = "%s"
+  password = "Abcdefghijkl1"
+	email = "foo@bar.com"
+	first_name = "Hannah"
+	last_name = "Acker"
+  active = true
+  staff = true
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "username", testName),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "email", "foo@bar.com"),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "first_name", "Hannah"),
+					resource.TestCheckResourceAttr("netbox_user.test_basic", "last_name", "Acker"),
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "active", "true"),
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "staff", "true"),
 				),
@@ -56,7 +75,7 @@ resource "netbox_group" "test_group" {
 
 resource "netbox_user" "test_group" {
 	  username = "%[1]s"
-	  password = "abcdefghijkl"
+	  password = "Abcdefghijkl1"
 	  active = true
 	  staff = true
 	  group_ids = [netbox_group.test_group.id]
@@ -86,7 +105,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := users.NewUsersUsersListParams()
 			res, err := api.Users.UsersUsersList(params, nil)
 			if err != nil {

@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -72,7 +71,7 @@ func resourceNetboxVlan() *schema.Resource {
 }
 
 func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableVLAN{}
 
 	name := d.Get("name").(string)
@@ -105,7 +104,11 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 		data.CustomFields = getCustomFields(customFields)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamVlansCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamVlansCreate(params, nil)
@@ -118,7 +121,7 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansReadParams().WithID(id)
 
@@ -140,7 +143,7 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", vlan.Name)
 	d.Set("vid", vlan.Vid)
 	d.Set("description", vlan.Description)
-	d.Set(tagsKey, getTagListFromNestedTagList(vlan.Tags))
+	api.readTags(d, vlan.Tags)
 
 	if vlan.CustomFields != nil {
 		d.Set(customFieldsKey, vlan.CustomFields)
@@ -168,7 +171,7 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVLAN{}
 	name := d.Get("name").(string)
@@ -201,10 +204,14 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 		data.CustomFields = getCustomFields(customFields)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamVlansUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Ipam.IpamVlansUpdate(params, nil)
+	_, err = api.Ipam.IpamVlansUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -212,7 +219,7 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxVlanDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamVlansDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamVlansDelete(params, nil)

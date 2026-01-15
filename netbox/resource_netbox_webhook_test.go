@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -18,6 +17,7 @@ func TestAccNetboxWebhook_basic(t *testing.T) {
 	testPayloadURL := "https://example.com/webhook"
 	testBodyTemplate := "Sample Body"
 	testAdditionalHeaders := "Authentication: Bearer abcdef123456"
+	testCaFilePath := "/etc/ssl/certs"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetBoxWebhookDestroy,
@@ -29,12 +29,14 @@ resource "netbox_webhook" "test" {
   payload_url        = "%s"
   body_template      = "%s"
   additional_headers = "%s"
-}`, testName, testPayloadURL, testBodyTemplate, testAdditionalHeaders),
+  ca_file_path = "%s"
+}`, testName, testPayloadURL, testBodyTemplate, testAdditionalHeaders, testCaFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_webhook.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "payload_url", testPayloadURL),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "body_template", testBodyTemplate),
 					resource.TestCheckResourceAttr("netbox_webhook.test", "additional_headers", testAdditionalHeaders),
+					resource.TestCheckResourceAttr("netbox_webhook.test", "ca_file_path", testCaFilePath),
 				),
 			},
 			{
@@ -124,7 +126,7 @@ resource "netbox_webhook" "test" {
 }
 
 func testAccCheckNetBoxWebhookDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*client.NetBoxAPI)
+	client := testAccProvider.Meta().(*providerState)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "netbox_webhook" {
@@ -152,7 +154,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := extras.NewExtrasWebhooksListParams()
 			res, err := api.Extras.ExtrasWebhooksList(params, nil)
 			if err != nil {

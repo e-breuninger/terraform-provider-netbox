@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -38,9 +37,14 @@ Each location must have a name that is unique within its parent site and locatio
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"facility": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(1, 50),
+			},
 			"site_id": {
 				Type:     schema.TypeInt,
-				Optional: true,
+				Required: true,
 			},
 			"parent_id": {
 				Type:     schema.TypeInt,
@@ -60,7 +64,7 @@ Each location must have a name that is unique within its parent site and locatio
 }
 
 func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableLocation{}
 
@@ -76,6 +80,7 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Description = getOptionalStr(d, "description", true)
+	data.Facility = getOptionalStr(d, "facility", true)
 
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
@@ -92,7 +97,11 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -112,7 +121,7 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimLocationsReadParams().WithID(id)
 
@@ -135,6 +144,7 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", location.Name)
 	d.Set("slug", location.Slug)
 	d.Set("description", location.Description)
+	d.Set("facility", location.Facility)
 
 	if res.GetPayload().Site != nil {
 		d.Set("site_id", res.GetPayload().Site.ID)
@@ -158,13 +168,13 @@ func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableLocation{}
@@ -181,6 +191,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Description = getOptionalStr(d, "description", true)
+	data.Facility = getOptionalStr(d, "facility", true)
 
 	siteIDValue, ok := d.GetOk("site_id")
 	if ok {
@@ -200,7 +211,11 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Tenant = int64ToPtr(int64(tenantIDValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -209,7 +224,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimLocationsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimLocationsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimLocationsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -218,7 +233,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxLocationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimLocationsDeleteParams().WithID(id)

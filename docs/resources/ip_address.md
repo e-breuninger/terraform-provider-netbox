@@ -93,7 +93,7 @@ resource "netbox_ip_address" "this" {
 
 ### Creating an IP address that is not assigned to anything
 
-You can create an IP address that is not assigend to anything by omitting the attributes mentioned above.
+You can create an IP address that is not assigned to anything by omitting the attributes mentioned above.
 
 ```terraform
 resource "netbox_ip_address" "this" {
@@ -129,6 +129,7 @@ resource "netbox_ip_address" "this" {
 
 - `id` (String) The ID of this resource.
 - `nat_outside_addresses` (List of Object) (see [below for nested schema](#nestedatt--nat_outside_addresses))
+- `tags_all` (Set of String)
 
 <a id="nestedatt--nat_outside_addresses"></a>
 ### Nested Schema for `nat_outside_addresses`

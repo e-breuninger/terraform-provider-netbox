@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -38,6 +37,10 @@ func dataSourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"subdevice_role": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"u_height": {
 				Type:     schema.TypeFloat,
 				Computed: true,
@@ -47,7 +50,7 @@ func dataSourceNetboxDeviceType() *schema.Resource {
 }
 
 func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	params := dcim.NewDcimDeviceTypesListParams()
 
 	params.Limit = int64ToPtr(2)
@@ -81,6 +84,11 @@ func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error
 	d.Set("manufacturer_id", result.Manufacturer.ID)
 	d.Set("model", result.Model)
 	d.Set("part_number", result.PartNumber)
+	if result.SubdeviceRole != nil && result.SubdeviceRole.Value != nil {
+		d.Set("subdevice_role", *result.SubdeviceRole.Value)
+	} else {
+		d.Set("subdevice_role", "")
+	}
 	d.Set("slug", result.Slug)
 	d.Set("u_height", result.UHeight)
 	return nil

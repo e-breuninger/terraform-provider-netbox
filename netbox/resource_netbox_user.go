@@ -2,10 +2,11 @@ package netbox
 
 import (
 	"strconv"
+	"time"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/fbreckle/go-netbox/netbox/models"
+	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -27,6 +28,21 @@ func resourceNetboxUser() *schema.Resource {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
+			},
+			"email": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+			"first_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+			"last_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
 			},
 			"active": {
 				Type:     schema.TypeBool,
@@ -52,20 +68,27 @@ func resourceNetboxUser() *schema.Resource {
 	}
 }
 func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableUser{}
 
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
+	email := d.Get("email").(string)
+	firstName := d.Get("first_name").(string)
+	lastName := d.Get("last_name").(string)
 	active := d.Get("active").(bool)
 	staff := d.Get("staff").(bool)
 	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
 	data.Password = &password
+	data.Email = strfmt.Email(email)
+	data.FirstName = firstName
+	data.LastName = lastName
 	data.IsActive = active
 	data.IsStaff = staff
 	data.Groups = groupIDs
+	data.DateJoined = strfmt.DateTime(time.Now())
 
 	params := users.NewUsersUsersCreateParams().WithData(&data)
 	res, err := api.Users.UsersUsersCreate(params, nil)
@@ -78,7 +101,7 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersUsersReadParams().WithID(id)
 
@@ -99,6 +122,10 @@ func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("username", res.GetPayload().Username)
 	}
 
+	d.Set("email", res.GetPayload().Email)
+	d.Set("first_name", res.GetPayload().FirstName)
+	d.Set("last_name", res.GetPayload().LastName)
+
 	d.Set("staff", res.GetPayload().IsStaff)
 	d.Set("active", res.GetPayload().IsActive)
 	d.Set("group_ids", getIDsFromNestedGroup(res.GetPayload().Groups))
@@ -109,21 +136,28 @@ func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableUser{}
 
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
+	email := d.Get("email").(string)
+	firstName := d.Get("first_name").(string)
+	lastName := d.Get("last_name").(string)
 	active := d.Get("active").(bool)
 	staff := d.Get("staff").(bool)
 	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
 	data.Password = &password
+	data.Email = strfmt.Email(email)
+	data.FirstName = firstName
+	data.LastName = lastName
 	data.IsActive = active
 	data.IsStaff = staff
 	data.Groups = groupIDs
+	data.DateJoined = strfmt.DateTime(time.Now())
 
 	params := users.NewUsersUsersUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Users.UsersUsersUpdate(params, nil)
@@ -134,7 +168,7 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxUserDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersUsersDeleteParams().WithID(id)
 	_, err := api.Users.UsersUsersDelete(params, nil)

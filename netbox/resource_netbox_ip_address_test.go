@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -363,10 +362,12 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				ResourceName:            "netbox_ip_address.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"device_interface_id"},
+				ResourceName:      "netbox_ip_address.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// import step doesn't have context about device_interface_id, thus we
+				// get interface_id and object_type imported instead
+				ImportStateVerifyIgnore: []string{"interface_id", "object_type", "device_interface_id"},
 			},
 		},
 	})
@@ -393,10 +394,12 @@ resource "netbox_ip_address" "test" {
 				),
 			},
 			{
-				ResourceName:            "netbox_ip_address.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"virtual_machine_interface_id"},
+				ResourceName:      "netbox_ip_address.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// import step doesn't have context about virtual_machine_interface_id, thus we
+				// get interface_id and object_type imported instead
+				ImportStateVerifyIgnore: []string{"interface_id", "object_type", "virtual_machine_interface_id"},
 			},
 		},
 	})
@@ -528,7 +531,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := ipam.NewIpamIPAddressesListParams()
 			res, err := api.Ipam.IpamIPAddressesList(params, nil)
 			if err != nil {

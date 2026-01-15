@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -71,6 +70,10 @@ func dataSourceNetboxLocations() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"facility": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"tenant_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -95,7 +98,7 @@ func dataSourceNetboxLocations() *schema.Resource {
 }
 
 func dataSourceNetboxLocationsRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	params := dcim.NewDcimLocationsListParams()
 
 	if limitValue, ok := d.GetOk("limit"); ok {
@@ -154,6 +157,7 @@ func dataSourceNetboxLocationsRead(d *schema.ResourceData, m interface{}) error 
 		mapping["slug"] = v.Slug
 		mapping["site_id"] = v.Site.ID
 		mapping["description"] = v.Description
+		mapping["facility"] = v.Facility
 
 		if v.Parent != nil {
 			mapping["parent_id"] = v.Parent.ID

@@ -1,6 +1,6 @@
 resource "netbox_user" "test" {
   username = "johndoe"
-  password = "abcdefghijkl"
+  password = "Abcdefghijkl1"
 }
 
 resource "netbox_token" "test_basic" {
@@ -8,4 +8,5 @@ resource "netbox_token" "test_basic" {
   key           = "0123456789012345678901234567890123456789"
   allowed_ips   = ["2.4.8.16/32"]
   write_enabled = false
+  expires       = "2036-01-02T15:04:05.000Z"
 }

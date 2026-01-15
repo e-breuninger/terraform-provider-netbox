@@ -59,7 +59,7 @@ Read-Only:
 - `status` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
-- `type` (String)
+- `type_id` (Number)
 - `u_height` (Number)
 - `weight` (Number)
 - `weight_unit` (String)

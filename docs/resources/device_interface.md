@@ -39,9 +39,8 @@ resource "netbox_device_interface" "test" {
 - `enabled` (Boolean) Defaults to `true`.
 - `label` (String)
 - `lag_device_interface_id` (Number) If this device is a member of a LAG group, you can reference the LAG interface here.
-- `mac_address` (String)
 - `mgmtonly` (Boolean)
-- `mode` (String) Valid values are `access`, `tagged` and `tagged-all`.
+- `mode` (String) Valid values are `access`, `tagged`, `tagged-all` and `q-in-q`.
 - `mtu` (Number)
 - `parent_device_interface_id` (Number) The netbox_device_interface id of the parent interface. Useful if this interface is a logical interface.
 - `speed` (Number)
@@ -52,5 +51,17 @@ resource "netbox_device_interface" "test" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `mac_address` (String) The MAC address as string from the first MAC address assigned to this interface, if any.
+- `mac_addresses` (Set of Object) (see [below for nested schema](#nestedatt--mac_addresses))
+- `tags_all` (Set of String)
+
+<a id="nestedatt--mac_addresses"></a>
+### Nested Schema for `mac_addresses`
+
+Read-Only:
+
+- `description` (String)
+- `id` (Number)
+- `mac_address` (String)
 
 

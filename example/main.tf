@@ -77,7 +77,7 @@ resource "netbox_virtual_machine" "testvm" {
   comments     = "my-test-comment"
   memory_mb    = 1024
   vcpus        = 4
-  disk_size_gb = 512
+  disk_size_mb = 512
   cluster_id   = netbox_cluster.testcluster.id
   tenant_id    = netbox_tenant.testtenant.id
   platform_id  = netbox_platform.testplatform.id

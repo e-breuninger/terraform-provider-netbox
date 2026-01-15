@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -24,10 +23,13 @@ func TestAccNetboxCircuitProvider_basic(t *testing.T) {
 resource "netbox_circuit_provider" "test" {
   name = "%[1]s"
   slug = "%[2]s"
+  description = "This is my circuit provider!"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "description", "This is my circuit provider!"),
+
 				),
 			},
 			{
@@ -35,10 +37,12 @@ resource "netbox_circuit_provider" "test" {
 resource "netbox_circuit_provider" "test" {
   name = "%[1]s"
   slug = "%[2]s"
+  description = "This is my circuit provider!"
 }`, testName+"2", randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "name", testName+"2"),
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "description", "This is my circuit provider!"),
 				),
 			},
 			{
@@ -59,7 +63,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := circuits.NewCircuitsProvidersListParams()
 			res, err := api.Circuits.CircuitsProvidersList(params, nil)
 			if err != nil {

@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -49,6 +48,10 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"subdevice_role": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -58,7 +61,7 @@ func resourceNetboxDeviceType() *schema.Resource {
 }
 
 func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableDeviceType{}
 
@@ -82,15 +85,23 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		data.PartNumber = partNo.(string)
 	}
 
-	if uHeightValue, ok := d.GetOk("u_height"); ok {
-		data.UHeight = float64ToPtr(float64(uHeightValue.(float64)))
-	}
+	//Needed to account for 0 u_height values
+	uHeightValue := d.Get("u_height")
+	data.UHeight = float64ToPtr(uHeightValue.(float64))
 
 	if isFullDepthValue, ok := d.GetOk("is_full_depth"); ok {
 		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
+		data.SubdeviceRole = subdeviceRoleValue.(string)
+	}
+
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
 
@@ -105,7 +116,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceTypesReadParams().WithID(id)
 
@@ -130,13 +141,18 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("part_number", deviceType.PartNumber)
 	d.Set("u_height", deviceType.UHeight)
 	d.Set("is_full_depth", deviceType.IsFullDepth)
-	d.Set(tagsKey, getTagListFromNestedTagList(deviceType.Tags))
+	if deviceType.SubdeviceRole != nil && deviceType.SubdeviceRole.Value != nil {
+		d.Set("subdevice_role", *deviceType.SubdeviceRole.Value)
+	} else {
+		d.Set("subdevice_role", "")
+	}
+	api.readTags(d, deviceType.Tags)
 
 	return nil
 }
 
 func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableDeviceType{}
@@ -161,19 +177,26 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 		data.PartNumber = partNo.(string)
 	}
 
-	if uHeightValue, ok := d.GetOk("u_height"); ok {
-		data.UHeight = float64ToPtr(float64(uHeightValue.(float64)))
-	}
+	uHeightValue := d.Get("u_height")
+	data.UHeight = float64ToPtr(uHeightValue.(float64))
 
 	if isFullDepthValue, ok := d.GetOk("is_full_depth"); ok {
 		data.IsFullDepth = isFullDepthValue.(bool)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
+		data.SubdeviceRole = subdeviceRoleValue.(string)
+	}
+
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := dcim.NewDcimDeviceTypesPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimDeviceTypesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimDeviceTypesPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -182,7 +205,7 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetboxDeviceTypeDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimDeviceTypesDeleteParams().WithID(id)

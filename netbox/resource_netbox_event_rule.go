@@ -4,14 +4,18 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var resourceNetboxEventRuleActionTypeOptions = []string{"webhook"}
+var resourceNetboxEventRuleActionTypeOptions = []string{"webhook", "script"}
+
+var resourceNetboxEventRuleActionTypeToObjectType = map[string]string{
+	"webhook": "extras.webhook",
+	"script":  "extras.script",
+}
 
 func resourceNetboxEventRule() *schema.Resource {
 	return &schema.Resource{
@@ -22,7 +26,8 @@ func resourceNetboxEventRule() *schema.Resource {
 
 		Description: `:meta:subcategory:Extras:From the [official documentation](https://docs.netbox.dev/en/stable/features/event-rules/):
 
-> NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.`,
+> NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
+	Event rules can also execute custom scripts, enabling NetBox to run defined logic locally in response to object changes.`,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -38,30 +43,14 @@ func resourceNetboxEventRule() *schema.Resource {
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"trigger_on_create": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
-			},
-			"trigger_on_update": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
-			},
-			"trigger_on_delete": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
-			},
-			"trigger_on_job_start": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
-			},
-			"trigger_on_job_end": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				AtLeastOneOf: []string{"trigger_on_create", "trigger_on_update", "trigger_on_delete", "trigger_on_job_start", "trigger_on_job_end"},
+			"event_types": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem: &schema.Schema{
+					// We do not enforce event-type validation, because plugins might extend the list of valid events
+					Type: schema.TypeString,
+				},
+				Description: "The types of event which will trigger this rule. By default, valid values are `object_created`, `oject_updated`, `object_deleted`, `job_started`, `job_completed`, `job_failed` and `job_errored`",
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
@@ -96,7 +85,7 @@ func resourceNetboxEventRule() *schema.Resource {
 }
 
 func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := &models.WritableEventRule{}
 
@@ -106,24 +95,21 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 	data.ActionType = actionType
 	data.Description = getOptionalStr(d, "description", false)
 
-	// Currently, we just support the webhook action type
-	data.ActionObjectType = strToPtr("extras.webhook")
+	if objectType, ok := resourceNetboxEventRuleActionTypeToObjectType[actionType]; ok {
+		data.ActionObjectType = strToPtr(objectType)
+	}
 
-	triggerOnCreate := d.Get("trigger_on_create").(bool)
-	data.TypeCreate = triggerOnCreate
-	triggerOnUpdate := d.Get("trigger_on_update").(bool)
-	data.TypeUpdate = triggerOnUpdate
-	triggerOnDelete := d.Get("trigger_on_delete").(bool)
-	data.TypeDelete = triggerOnDelete
-	triggerOnJobStart := d.Get("trigger_on_job_start").(bool)
-	data.TypeJobStart = triggerOnJobStart
-	triggerOnJobEnd := d.Get("trigger_on_job_end").(bool)
-	data.TypeJobEnd = triggerOnJobEnd
+	eventTypes := make([]string, 0)
+	for _, eventType := range d.Get("event_types").(*schema.Set).List() {
+		eventTypes = append(eventTypes, eventType.(string))
+	}
+	data.EventTypes = eventTypes
+
 	enabled := d.Get("enabled").(bool)
 	data.Enabled = enabled
 	data.ActionObjectID = getOptionalInt(d, "action_object_id")
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	ctypes := d.Get("content_types").(*schema.Set).List()
@@ -155,7 +141,7 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasEventRulesReadParams().WithID(id)
 
@@ -176,12 +162,8 @@ func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", eventRule.Description)
 	d.Set("action_type", eventRule.ActionType.Value)
 	d.Set("content_types", eventRule.ObjectTypes)
+	d.Set("event_types", eventRule.EventTypes)
 
-	d.Set("trigger_on_create", eventRule.TypeCreate)
-	d.Set("trigger_on_update", eventRule.TypeUpdate)
-	d.Set("trigger_on_delete", eventRule.TypeDelete)
-	d.Set("trigger_on_job_start", eventRule.TypeJobStart)
-	d.Set("trigger_on_job_end", eventRule.TypeJobEnd)
 	d.Set("enabled", eventRule.Enabled)
 	d.Set("action_object_id", eventRule.ActionObjectID)
 
@@ -193,13 +175,13 @@ func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("conditions", string(conditions))
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(eventRule.Tags))
+	api.readTags(d, eventRule.Tags)
 
 	return nil
 }
 
 func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableEventRule{}
@@ -210,19 +192,16 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 	data.ActionType = actionType
 	data.Description = getOptionalStr(d, "description", true)
 
-	// Currently, we just support the webhook action type
-	data.ActionObjectType = strToPtr("extras.webhook")
+	if objectType, ok := resourceNetboxEventRuleActionTypeToObjectType[actionType]; ok {
+		data.ActionObjectType = strToPtr(objectType)
+	}
 
-	triggerOnCreate := d.Get("trigger_on_create").(bool)
-	data.TypeCreate = triggerOnCreate
-	triggerOnUpdate := d.Get("trigger_on_update").(bool)
-	data.TypeUpdate = triggerOnUpdate
-	triggerOnDelete := d.Get("trigger_on_delete").(bool)
-	data.TypeDelete = triggerOnDelete
-	triggerOnJobStart := d.Get("trigger_on_job_start").(bool)
-	data.TypeJobStart = triggerOnJobStart
-	triggerOnJobEnd := d.Get("trigger_on_job_end").(bool)
-	data.TypeJobEnd = triggerOnJobEnd
+	eventTypes := make([]string, 0)
+	for _, eventType := range d.Get("event_types").(*schema.Set).List() {
+		eventTypes = append(eventTypes, eventType.(string))
+	}
+	data.EventTypes = eventTypes
+
 	enabled := d.Get("enabled").(bool)
 	data.Enabled = enabled
 	data.ActionObjectID = getOptionalInt(d, "action_object_id")
@@ -236,7 +215,7 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 		data.Conditions = conditions
 	}
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	ctypes := d.Get("content_types").(*schema.Set).List()
@@ -257,7 +236,7 @@ func resourceNetboxEventRuleUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceNetboxEventRuleDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasEventRulesDeleteParams().WithID(id)

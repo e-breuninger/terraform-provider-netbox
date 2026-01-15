@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -190,7 +189,7 @@ resource "netbox_virtual_machine" "test" {
   comments = "thisisacomment"
   description = "thisisadescription"
   memory_mb = 1024
-  disk_size_gb = 256
+  disk_size_mb = 256
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
@@ -210,7 +209,7 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "description", "thisisadescription"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_mb", "256"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName+"a"),
@@ -224,7 +223,7 @@ resource "netbox_virtual_machine" "test" {
   comments = "thisisacomment"
   description = "thisisadescription"
   memory_mb = 1024
-  disk_size_gb = 256
+  disk_size_mb = 256
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
@@ -242,7 +241,7 @@ resource "netbox_virtual_machine" "test" {
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "description", "thisisadescription"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "memory_mb", "1024"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "vcpus", "4"),
-					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_gb", "256"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "disk_size_mb", "256"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.0", testName+"a"),
@@ -322,7 +321,7 @@ resource "netbox_virtual_machine" "test" {
 
 func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*client.NetBoxAPI)
+	conn := testAccProvider.Meta().(*providerState)
 
 	// loop through the resources in state, verifying each virtual machine
 	// is destroyed
@@ -545,7 +544,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := virtualization.NewVirtualizationVirtualMachinesListParams()
 			res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil)
 			if err != nil {

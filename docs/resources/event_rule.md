@@ -5,6 +5,7 @@ subcategory: "Extras"
 description: |-
   From the official documentation https://docs.netbox.dev/en/stable/features/event-rules/:
   NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
+      Event rules can also execute custom scripts, enabling NetBox to run defined logic locally in response to object changes.
 ---
 
 # netbox_event_rule (Resource)
@@ -12,6 +13,7 @@ description: |-
 From the [official documentation](https://docs.netbox.dev/en/stable/features/event-rules/):
 
 > NetBox can be configured via Event Rules to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
+	Event rules can also execute custom scripts, enabling NetBox to run defined logic locally in response to object changes.
 
 ## Example Usage
 
@@ -21,12 +23,28 @@ resource "netbox_webhook" "test" {
   payload_url = "https://example.com/webhook"
 }
 
-resource "netbox_event_rule" "test" {
-  name              = "my-event-rule"
-  content_types     = ["dcim.site", "virtualization.cluster"]
-  action_type       = "webhook"
-  action_object_id  = netbox_webhook.test.id
-  trigger_on_create = true
+resource "netbox_event_rule" "webhook" {
+  name             = "my-event-rule"
+  content_types    = ["dcim.site", "virtualization.cluster"]
+  action_type      = "webhook"
+  action_object_id = netbox_webhook.test.id
+  event_types = [
+    "object_created",
+    "object_updated",
+    "object_deleted",
+    "job_started",
+    "job_completed",
+    "job_failed",
+    "job_errored"
+  ]
+}
+
+resource "netbox_event_rule" "script" {
+  name             = "my-script-event-rule"
+  content_types    = ["dcim.site"]
+  action_type      = "script"
+  action_object_id = 42 # existing NetBox Script ID
+  event_types      = ["object_created"]
 }
 ```
 
@@ -36,8 +54,9 @@ resource "netbox_event_rule" "test" {
 ### Required
 
 - `action_object_id` (Number)
-- `action_type` (String) Valid values are `webhook`.
+- `action_type` (String) Valid values are `webhook` and `script`.
 - `content_types` (Set of String)
+- `event_types` (Set of String) The types of event which will trigger this rule. By default, valid values are `object_created`, `oject_updated`, `object_deleted`, `job_started`, `job_completed`, `job_failed` and `job_errored`.
 - `name` (String)
 
 ### Optional
@@ -46,14 +65,10 @@ resource "netbox_event_rule" "test" {
 - `description` (String)
 - `enabled` (Boolean) Defaults to `true`.
 - `tags` (Set of String)
-- `trigger_on_create` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
-- `trigger_on_delete` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
-- `trigger_on_job_end` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
-- `trigger_on_job_start` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
-- `trigger_on_update` (Boolean) At least one of `trigger_on_create`, `trigger_on_update`, `trigger_on_delete`, `trigger_on_job_start` or `trigger_on_job_end` must be given.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -73,7 +72,7 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Optional: true,
 			},
-			"disk_size_gb": {
+			"disk_size_mb": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -104,19 +103,24 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-		SchemaVersion: 1,
+		SchemaVersion: 2,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceNetboxVirtualMachineResourceV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceNetboxVirtualMachineStateUpgradeV0,
 				Version: 0,
 			},
+			{
+				Type:    resourceNetboxVirtualMachineResourceV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceNetboxVirtualMachineStateUpgradeV1,
+				Version: 1,
+			},
 		},
 	}
 }
 
 func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 
@@ -151,7 +155,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 		data.Memory = &memoryMb
 	}
 
-	diskSizeValue, ok := d.GetOk("disk_size_gb")
+	diskSizeValue, ok := d.GetOk("disk_size_mb")
 	if ok {
 		diskSize := int64(diskSizeValue.(int))
 		data.Disk = &diskSize
@@ -192,7 +196,11 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	data.Status = d.Get("status").(string)
 
-	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	data.Tags = tags
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -208,11 +216,11 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return append(resourceNetboxVirtualMachineRead(ctx, d, m), diags...)
+	return resourceNetboxVirtualMachineRead(ctx, d, m)
 }
 
 func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 
@@ -308,13 +316,13 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 		d.Set("vcpus", nil)
 	}
 	d.Set("memory_mb", vm.Memory)
-	d.Set("disk_size_gb", vm.Disk)
+	d.Set("disk_size_mb", vm.Disk)
 	if vm.Status != nil {
 		d.Set("status", vm.Status.Value)
 	} else {
 		d.Set("status", nil)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(vm.Tags))
+	api.readTags(d, vm.Tags)
 
 	cf := getCustomFields(vm.CustomFields)
 	if cf != nil {
@@ -325,7 +333,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableVirtualMachineWithConfigContext{}
@@ -381,7 +389,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.Vcpus = &vcpus
 	}
 
-	diskSizeValue, ok := d.GetOk("disk_size_gb")
+	diskSizeValue, ok := d.GetOk("disk_size_mb")
 	if ok {
 		diskSize := int64(diskSizeValue.(int))
 		data.Disk = &diskSize
@@ -408,7 +416,11 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	tags, diags := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	data.Tags = tags
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -440,16 +452,16 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 
 	params := virtualization.NewVirtualizationVirtualMachinesUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Virtualization.VirtualizationVirtualMachinesUpdate(params, nil)
+	_, err = api.Virtualization.VirtualizationVirtualMachinesUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	return append(resourceNetboxVirtualMachineRead(ctx, d, m), diags...)
+	return resourceNetboxVirtualMachineRead(ctx, d, m)
 }
 
 func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	var diags diag.Diagnostics
 

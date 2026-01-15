@@ -7,16 +7,17 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.22
-      - uses: actions/cache@v4
+          go-version-file: go.mod
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-build
@@ -28,30 +29,27 @@ jobs:
         run: make test
 
   testacc:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         netbox-version:
-          # - v4.0.0 has mandatory tenant group
-          - v4.0.1
-          - v4.0.2
-          - v4.0.3
-          # - v4.0.4 does not exist for some reason
-          - v4.0.5
-          - v4.0.6
-          - v4.0.7
-          - v4.0.8
-          - v4.0.9
-          - v4.0.10
-          - v4.0.11
+          - v4.3.0
+          # - v4.3.1 # with this version, we get {"scope":["Please select a site."]} for prefixes
+          - v4.3.2
+          - v4.3.3
+          - v4.3.4
+          - v4.3.5
+          - v4.3.6
+          - v4.3.7
+          - v4.4.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.22
-      - uses: actions/cache@v4
+          go-version-file: go.mod
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-build

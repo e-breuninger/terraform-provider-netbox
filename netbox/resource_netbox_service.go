@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -79,8 +78,9 @@ func resourceNetboxService() *schema.Resource {
 		},
 	}
 }
+
 func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	data := models.WritableService{}
 
 	dataName := d.Get("name").(string)
@@ -91,7 +91,6 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 
 	// for backwards compatibility, we allow either port or ports
 	// the API only supports ports. We give precedence to port, if it exists.
-	//dataPort := int64(d.Get("port").(int))
 	dataPort, dataPortOk := d.GetOk("port")
 	if dataPortOk {
 		data.Ports = []int64{int64(dataPort.(int))}
@@ -106,18 +105,19 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if v, ok := d.GetOk("device_id"); ok {
-		deviceID := int64(v.(int))
-		data.Device = &deviceID
+	virtualMachineID := getOptionalInt(d, "virtual_machine_id")
+	deviceID := getOptionalInt(d, "device_id")
+
+	switch {
+	case virtualMachineID != nil:
+		data.ParentObjectType = strToPtr("virtualization.virtualmachine")
+		data.ParentObjectID = virtualMachineID
+	case deviceID != nil:
+		data.ParentObjectType = strToPtr("dcim.device")
+		data.ParentObjectID = deviceID
 	}
 
-	if v, ok := d.GetOk("virtual_machine_id"); ok {
-		dataVirtualMachineID := int64(v.(int))
-		data.VirtualMachine = &dataVirtualMachineID
-	}
-
-	v := d.Get("tags")
-	tags, _ := getNestedTagListFromResourceDataSet(api, v)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	if v, ok := d.GetOk("description"); ok {
@@ -142,7 +142,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesReadParams().WithID(id)
 
@@ -159,33 +159,26 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("protocol", res.GetPayload().Protocol.Value)
-	d.Set("ports", res.GetPayload().Ports)
-	d.Set("description", res.GetPayload().Description)
+	service := res.GetPayload()
 
-	if res.GetPayload().VirtualMachine != nil {
-		d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
-	} else {
-		d.Set("virtual_machine_id", nil)
+	d.Set("name", service.Name)
+	d.Set("protocol", service.Protocol.Value)
+	d.Set("ports", service.Ports)
+	d.Set("description", service.Description)
+
+	parentObjectType := service.ParentObjectType
+	switch parentObjectType {
+	case "virtualization.virtualmachine":
+		d.Set("virtual_machine_id", service.ParentObjectID)
+	case "dcim.device":
+		d.Set("device_id", service.ParentObjectID)
 	}
 
-	if res.GetPayload().Device != nil {
-		d.Set("device_id", res.GetPayload().Device.ID)
-	} else {
-		d.Set("device_id", nil)
+	if tags := service.Tags; tags != nil {
+		api.readTags(d, tags)
 	}
 
-	if tags := res.GetPayload().Tags; tags != nil {
-		var tagList []interface{}
-		for _, tag := range tags {
-			tagName := tag.Name
-			tagList = append(tagList, *tagName)
-		}
-		d.Set("tags", tagList)
-	}
-
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := getCustomFields(service.CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
@@ -194,7 +187,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableService{}
 
@@ -220,22 +213,23 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Ipaddresses = []int64{}
 
-	v := d.Get("tags")
-	tags, _ := getNestedTagListFromResourceDataSet(api, v)
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	data.Tags = tags
 
 	if v, ok := d.GetOk("description"); ok {
 		data.Description = v.(string)
 	}
 
-	if v, ok := d.GetOk("device_id"); ok {
-		deviceID := int64(v.(int))
-		data.Device = &deviceID
-	}
+	virtualMachineID := getOptionalInt(d, "virtual_machine_id")
+	deviceID := getOptionalInt(d, "device_id")
 
-	if v, ok := d.GetOk("virtual_machine_id"); ok {
-		dataVirtualMachineID := int64(v.(int))
-		data.VirtualMachine = &dataVirtualMachineID
+	switch {
+	case virtualMachineID != nil:
+		data.ParentObjectType = strToPtr("virtualization.virtualmachine")
+		data.ParentObjectID = virtualMachineID
+	case deviceID != nil:
+		data.ParentObjectType = strToPtr("dcim.device")
+		data.ParentObjectID = deviceID
 	}
 
 	cf, ok := d.GetOk(customFieldsKey)
@@ -252,7 +246,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxServiceDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamServicesDeleteParams().WithID(id)
 	_, err := api.Ipam.IpamServicesDelete(params, nil)

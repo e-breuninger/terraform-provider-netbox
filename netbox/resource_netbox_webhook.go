@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -58,6 +57,10 @@ func resourceNetboxWebhook() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"ca_file_path": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -66,7 +69,7 @@ func resourceNetboxWebhook() *schema.Resource {
 }
 
 func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := &models.Webhook{}
 	name := d.Get("name").(string)
@@ -78,6 +81,7 @@ func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
+	data.CaFilePath = strToPtr(getOptionalStr(d, "ca_file_path", false))
 
 	params := extras.NewExtrasWebhooksCreateParams().WithData(data)
 
@@ -92,7 +96,7 @@ func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasWebhooksReadParams().WithID(id)
 
@@ -115,12 +119,13 @@ func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("http_method", webhook.HTTPMethod)
 	d.Set("http_content_type", webhook.HTTPContentType)
 	d.Set("additional_headers", webhook.AdditionalHeaders)
+	d.Set("ca_file_path", webhook.CaFilePath)
 
 	return nil
 }
 
 func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.Webhook{}
@@ -135,6 +140,7 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	data.HTTPMethod = getOptionalStr(d, "http_method", false)
 	data.HTTPContentType = getOptionalStr(d, "http_content_type", false)
 	data.AdditionalHeaders = getOptionalStr(d, "additional_headers", false)
+	data.CaFilePath = strToPtr(getOptionalStr(d, "ca_file_path", false))
 
 	params := extras.NewExtrasWebhooksUpdateParams().WithID(id).WithData(&data)
 
@@ -147,7 +153,7 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxWebhookDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasWebhooksDeleteParams().WithID(id)

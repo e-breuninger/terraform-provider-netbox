@@ -1,3 +1,145 @@
+## 5.0.1 Ho-Ho-Ho (December 25th, 2025) 
+
+ENHANCEMENTS
+
+* resource/netbox_circuit: Add `description` attribute ([#766](https://github.com/e-breuninger/terraform-provider-netbox/pull/766) by [@jakegroves](https://github.com/jakegroves))
+* resource/netbox_circuit_provider: Add `description` attribute ([#766](https://github.com/e-breuninger/terraform-provider-netbox/pull/766) by [@jakegroves](https://github.com/jakegroves))
+* resource/netbox_circuit_termination: Add `description` attribute ([#766](https://github.com/e-breuninger/terraform-provider-netbox/pull/766) by [@jakegroves](https://github.com/jakegroves))
+* resource/netbox_circuit_type: Add `description` attribute ([#766](https://github.com/e-breuninger/terraform-provider-netbox/pull/766) by [@jakegroves](https://github.com/jakegroves))
+* data-source/netbox_site: Add `physical_address` attribute to result ([#781](https://github.com/e-breuninger/terraform-provider-netbox/pull/781) by [@sytmd](https://github.com/sytmd))
+* data_source/netbox_ip_addresses: Add `description` attribute to results ([#784](https://github.com/e-breuninger/terraform-provider-netbox/pull/784) by [@christopher-svensson-stegra](https://github.com/christopher-svensson-stegra))
+* resource/netbox_event_rule: Allow `script` action type ([#799](https://github.com/e-breuninger/terraform-provider-netbox/pull/799) by [@jorgenspange](https://github.com/jorgenspange))
+* data-source/netbox_prefixes: Add `custom_fields` to results ([#779](https://github.com/e-breuninger/terraform-provider-netbox/pull/779) by [@lgogolin](https://github.com/lgogolin))
+* resource/netbox_webhook: Add `ca_file_path` attribute ([#797](https://github.com/e-breuninger/terraform-provider-netbox/pull/797) by [@jorgenspange](https://github.com/jorgenspange))
+* data-source/netbox_virtual_machines: Add `platform_name` to results ([#810](https://github.com/e-breuninger/terraform-provider-netbox/pull/810) by [@Slartibartfast1](https://github.com/Slartibartfast1))
+
+BUG FIXES
+
+* resource/netbox_user: Fix date_joined datetime out of range error ([#796](https://github.com/e-breuninger/terraform-provider-netbox/pull/796) by [@luispcoutinho](https://github.com/luispcoutinho))
+* resource/netbox_ip_address: Fix IP Address Assignment being removed despite being in ignore_changes ([#790](https://github.com/e-breuninger/terraform-provider-netbox/pull/790) by [@chuyang-wang-dev](https://github.com/chuyang-wang-dev))
+
+## 5.0.0 (September 12th, 2025)
+
+ENHANCEMENTS
+
+provider: Now supports NetBox 4.3.x and 4.4.0
+
+## 4.3.1 (September 12th, 2025)
+
+ENHANCEMENTS
+
+* provider: Allow setting a CA file in the provider ([#765](https://github.com/e-breuninger/terraform-provider-netbox/pull/765) by [@bodgit](https://github.com/bodgit))
+
+## 4.3.0 (September 11th, 2025)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_rir` ([#759](https://github.com/e-breuninger/terraform-provider-netbox/pull/759) by [@MrKeiKun](https://github.com/MrKeiKun))
+* data-source/netbox_prefixes: Allow filtering by `description` ([#756](https://github.com/e-breuninger/terraform-provider-netbox/pull/756) by [@jonas-sjodin-h2gs](https://github.com/jonas-sjodin-h2gs))
+* resource/netbox_contact: Add `link` and `description` attributes ([#753](https://github.com/e-breuninger/terraform-provider-netbox/pull/753) by [@hikhvar](https://github.com/hikhvar))
+* resource/netbox_ip_range: Add `size` attribute ([#761](https://github.com/e-breuninger/terraform-provider-netbox/pull/761) by [@MrKeiKun](https://github.com/MrKeiKun))
+* data-source/netbox_device_interfaces: Add `type` attribute to results ([#764](https://github.com/e-breuninger/terraform-provider-netbox/pull/764) by [@xvzf](https://github.com/xvzf))
+
+BUG FIXES
+
+* resource/netbox_available_ip_address: Prevent provider crash when no IP is available ([#760](https://github.com/e-breuninger/terraform-provider-netbox/pull/760) by [@MrKeiKun](https://github.com/MrKeiKun))
+
+## 4.2.0 (August 20th, 2025)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_device_bay` ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* **New Resource:** `netbox_device_bay_template` ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* **New Data Source:** `netbox_ip_address` ([#743](https://github.com/e-breuninger/terraform-provider-netbox/pull/743) by [@c24holdingit](https://github.com/c24holdingit))
+* resource/netbox_device_type: Add `subdevice_role` field ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* data-source/netbox_device_type: Add `subdevice_role` field ([#734](https://github.com/e-breuninger/terraform-provider-netbox/pull/734) by [@kyleprice](https://github.com/kyleprice))
+* resource/netbox_token: Add `expires` field ([#742](https://github.com/e-breuninger/terraform-provider-netbox/pull/742) by [@thomas-VIGINUM](https://github.com/thomas-VIGINUM))
+
+## 4.1.0 (July 2nd, 2025)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_virtual_disk` ([#731](https://github.com/e-breuninger/terraform-provider-netbox/pull/731) by [@lgogolin](https://github.com/lgogolin))
+* resource/netbox_available_prefix: Add `custom_fields` attribute ([#679](https://github.com/e-breuninger/terraform-provider-netbox/pull/679) by [@rs-hock](https://github.com/rs-hock))
+* data-source/netbox_devices: Add `oob_ip` attribute to output([#705](https://github.com/e-breuninger/terraform-provider-netbox/pull/705) by [@sempervictus](https://github.com/sempervictus))
+
+BUG FIXES
+
+* provider: Now properly detects netbox-docker versions
+
+## 4.0.0 (June 12th, 2025)
+
+**BREAKING CHANGES**
+
+NetBox 4.2 came with some breaking changes and these are reflected in the provider.
+
+* resource/netbox_device_interface: Make `mac_address` attribute read-only
+* resource/netbox_device_interface: Add read-only `mac_addresses` attribute
+
+ENHANCEMENTS
+
+provider: Now supports NetBox 4.2.x
+* **New Resource:** `netbox_mac_address`
+* resource/netbox_cluster: Add `location_id`, `site_group_id`, `region_id`, `scope_id` and `scope_type` attributes
+* resource/netbox_prefix: Add `location_id`, `site_group_id` and `region_id` attributes
+* resource/netbox_device_interface: Allow `q-in-q` value in `mode` attribute
+* resource/netbox_circuit_termination: Add `location_id`, `site_group_id`, `region_id`, `site_id` and `provider_network_id` attributes
+
+BUG FIXES
+
+* resource/netbox_location: Mark `site_id` as required
+
+## 3.11.1 (June 12th, 2025)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_device_power_ports` ([#721](https://github.com/e-breuninger/terraform-provider-netbox/pull/721) by [@mraerino](https://github.com/mraerino))
+* **New Resource:** `netbox_available_vlan` ([#717](https://github.com/e-breuninger/terraform-provider-netbox/pull/717) by [@MacherelR](https://github.com/MacherelR))
+
+## 3.11.0 (May 27th, 2025)
+
+* provider: Add `default_tags` attribute ([#711](https://github.com/e-breuninger/terraform-provider-netbox/pull/711) by [@mraerino](https://github.com/mraerino))
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_ip_ranges` ([#719](https://github.com/e-breuninger/terraform-provider-netbox/pull/719) by [@waza-ari](https://github.com/waza-ari))
+* resource/netbox_device: Allow `decommissioning` value in `status` attribute ([#767](https://github.com/e-breuninger/terraform-provider-netbox/pull/767) by [@sboschman](https://github.com/sboschman))
+* resource/netbox_site: Add `comments` attribute ([#710](https://github.com/e-breuninger/terraform-provider-netbox/pull/710) by [@mraerino](https://github.com/mraerino))
+* resource/netbox_user: Add `email`, `first_name` and `last_name` attributes ([#693](https://github.com/e-breuninger/terraform-provider-netbox/pull/693) by [@mraerino](https://github.com/mraerino))
+* data-source/netbox_device_interfaces: Add `limit` attribute ([#695](https://github.com/e-breuninger/terraform-provider-netbox/pull/695) by [@sempervictus](https://github.com/sempervictus))
+* resource/netbox_group: Add `description` attribute ([#694](https://github.com/e-breuninger/terraform-provider-netbox/pull/694) by [@mraerino](https://github.com/mraerino))
+* resource/netbox_location: Add `facility` attribute ([#718](https://github.com/e-breuninger/terraform-provider-netbox/pull/718) by [@mraerino](https://github.com/mraerino))
+* data-source/netbox_locations: Add `facility` attribute ([#718](https://github.com/e-breuninger/terraform-provider-netbox/pull/718) by [@mraerino](https://github.com/mraerino))
+
+## 3.10.0 (January 9th, 2025)
+
+**BREAKING CHANGES**
+
+NetBox 4.1 came with some breaking changes and these are reflected in the provider.
+
+* resource/netbox_event_rule: Replace `trigger_on_X` attributes with `event_types` list attribute
+* resource/netbox_racks: Remove `type` attribute
+* resource/netbox_virtual_disk: Change `size_gb` attribute to `size_mb`
+* resource/netbox_virtual_machine: Change `disk_size_gb` attribute to `disk_size_mb`
+* resource/netbox_vlan_group: Remove `min_vid` and `max_vid` attributes in favor of `vid_ranges` attribute
+
+ENHANCEMENTS
+
+provider: Now supports NetBox 4.1.x
+* **New Resource:** `netbox_rack_type`
+* resource/netbox_racks: Add `form_factor` attribute
+
+## 3.9.3 (January 9th, 2025)
+
+ENHANCEMENTS
+
+* resource/netbox_custom_field: Add `default` attribute ([#647](https://github.com/e-breuninger/terraform-provider-netbox/pull/647) by [@jenxie](https://github.com/jenxie))
+* data-source/netbox_vlans: Allow filtering by `site_id` ([#654](https://github.com/e-breuninger/terraform-provider-netbox/pull/654) by [@i-am-smolli](https://github.com/i-am-smolli))
+* data-source/netbox_vlan_group: Make `name` and `slug` definitions optional when `scope_type` is defined ([#657](https://github.com/e-breuninger/terraform-provider-netbox/pull/657) by [@TGM](https://github.com/TGM))
+* resource/netbox_asn: Add `description` and `comments` attributes ([#664](https://github.com/e-breuninger/terraform-provider-netbox/pull/664) by [@ymylei](https://github.com/ymylei))
+* data-source/netbox_prefix: Allow searching by `tenant_id` and `status` ([#666](https://github.com/e-breuninger/terraform-provider-netbox/pull/666) by [@xabinapal](https://github.com/xabinapal))
+* data-source/netbox_prefixes: Allow searching by `tenant_id` ([#666](https://github.com/e-breuninger/terraform-provider-netbox/pull/666) by [@xabinapal](https://github.com/xabinapal))
+
 ## 3.9.2 (October 10th, 2024)
 
 ENHANCEMENTS

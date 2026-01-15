@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -40,6 +39,7 @@ func TestAccNetboxCircuit_basic(t *testing.T) {
 resource "netbox_circuit" "test" {
   cid = "%[1]s"
   status = "active"
+  description = "This is my circuit!"
   provider_id = netbox_circuit_provider.test.id
   type_id = netbox_circuit_type.test.id
 }`, testName),
@@ -47,6 +47,7 @@ resource "netbox_circuit" "test" {
 					resource.TestCheckResourceAttr("netbox_circuit.test", "cid", testName),
 					resource.TestCheckResourceAttrPair("netbox_circuit.test", "provider_id", "netbox_circuit_provider.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_circuit.test", "type_id", "netbox_circuit_type.test", "id"),
+					resource.TestCheckResourceAttr("netbox_circuit.test", "description", "This is my circuit!"),
 				),
 			},
 			{
@@ -54,6 +55,7 @@ resource "netbox_circuit" "test" {
 resource "netbox_circuit" "test" {
   cid = "%[1]s"
   status = "active"
+  description = "This is my circuit!"
   provider_id = netbox_circuit_provider.test.id
   type_id = netbox_circuit_type.test.id
   tenant_id = netbox_tenant.test.id
@@ -63,6 +65,7 @@ resource "netbox_circuit" "test" {
 					resource.TestCheckResourceAttrPair("netbox_circuit.test", "provider_id", "netbox_circuit_provider.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_circuit.test", "type_id", "netbox_circuit_type.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_circuit.test", "tenant_id", "netbox_tenant.test", "id"),
+					resource.TestCheckResourceAttr("netbox_circuit.test", "description", "This is my circuit!"),
 				),
 			},
 			{
@@ -83,7 +86,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := circuits.NewCircuitsCircuitsListParams()
 			res, err := api.Circuits.CircuitsCircuitsList(params, nil)
 			if err != nil {

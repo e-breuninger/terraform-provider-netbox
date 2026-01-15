@@ -35,13 +35,16 @@ resource "netbox_contact" "test" {
 
 ### Optional
 
+- `description` (String)
 - `email` (String)
 - `group_id` (Number)
+- `link` (String)
 - `phone` (String)
 - `tags` (Set of String)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

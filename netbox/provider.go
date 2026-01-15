@@ -6,11 +6,22 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"golang.org/x/exp/slices"
 )
+
+type providerState struct {
+	*client.NetBoxAPI
+	defaultTags *schema.Set
+
+	// concurrent access ok, only populated on provider start
+	tagCache map[string]*models.NestedTag
+}
 
 // This makes the description contain the default value, particularly useful for the docs
 // From https://github.com/hashicorp/terraform-plugin-docs/issues/65#issuecomment-1152842370
@@ -103,6 +114,7 @@ func Provider() *schema.Provider {
 			"netbox_site":                       resourceNetboxSite(),
 			"netbox_vlan":                       resourceNetboxVlan(),
 			"netbox_vlan_group":                 resourceNetboxVlanGroup(),
+			"netbox_available_vlan":             resourceNetboxAvailableVLAN(),
 			"netbox_ipam_role":                  resourceNetboxIpamRole(),
 			"netbox_ip_range":                   resourceNetboxIPRange(),
 			"netbox_region":                     resourceNetboxRegion(),
@@ -122,6 +134,7 @@ func Provider() *schema.Provider {
 			"netbox_location":                   resourceNetboxLocation(),
 			"netbox_site_group":                 resourceNetboxSiteGroup(),
 			"netbox_rack":                       resourceNetboxRack(),
+			"netbox_rack_type":                  resourceNetboxRackType(),
 			"netbox_rack_role":                  resourceNetboxRackRole(),
 			"netbox_rack_reservation":           resourceNetboxRackReservation(),
 			"netbox_cable":                      resourceNetboxCable(),
@@ -132,6 +145,8 @@ func Provider() *schema.Provider {
 			"netbox_device_front_port":          resourceNetboxDeviceFrontPort(),
 			"netbox_device_rear_port":           resourceNetboxDeviceRearPort(),
 			"netbox_device_module_bay":          resourceNetboxDeviceModuleBay(),
+			"netbox_device_bay":                 resourceNetboxDeviceBay(),
+			"netbox_device_bay_template":        resourceNetboxDeviceBayTemplate(),
 			"netbox_module":                     resourceNetboxModule(),
 			"netbox_module_type":                resourceNetboxModuleType(),
 			"netbox_power_feed":                 resourceNetboxPowerFeed(),
@@ -148,48 +163,54 @@ func Provider() *schema.Provider {
 			"netbox_vpn_tunnel":                 resourceNetboxVpnTunnel(),
 			"netbox_vpn_tunnel_termination":     resourceNetboxVpnTunnelTermination(),
 			"netbox_config_context":             resourceNetboxConfigContext(),
+			"netbox_mac_address":                resourceNetboxMACAddress(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"netbox_asn":               dataSourceNetboxAsn(),
-			"netbox_asns":              dataSourceNetboxAsns(),
-			"netbox_available_prefix":  dataSourceNetboxAvailablePrefix(),
-			"netbox_cluster":           dataSourceNetboxCluster(),
-			"netbox_cluster_group":     dataSourceNetboxClusterGroup(),
-			"netbox_cluster_type":      dataSourceNetboxClusterType(),
-			"netbox_contact":           dataSourceNetboxContact(),
-			"netbox_contact_role":      dataSourceNetboxContactRole(),
-			"netbox_contact_group":     dataSourceNetboxContactGroup(),
-			"netbox_tenant":            dataSourceNetboxTenant(),
-			"netbox_tenants":           dataSourceNetboxTenants(),
-			"netbox_tenant_group":      dataSourceNetboxTenantGroup(),
-			"netbox_vrf":               dataSourceNetboxVrf(),
-			"netbox_vrfs":              dataSourceNetboxVrfs(),
-			"netbox_platform":          dataSourceNetboxPlatform(),
-			"netbox_prefix":            dataSourceNetboxPrefix(),
-			"netbox_prefixes":          dataSourceNetboxPrefixes(),
-			"netbox_devices":           dataSourceNetboxDevices(),
-			"netbox_device_role":       dataSourceNetboxDeviceRole(),
-			"netbox_device_type":       dataSourceNetboxDeviceType(),
-			"netbox_site":              dataSourceNetboxSite(),
-			"netbox_location":          dataSourceNetboxLocation(),
-			"netbox_locations":         dataSourceNetboxLocations(),
-			"netbox_tag":               dataSourceNetboxTag(),
-			"netbox_tags":              dataSourceNetboxTags(),
-			"netbox_virtual_machines":  dataSourceNetboxVirtualMachine(),
-			"netbox_interfaces":        dataSourceNetboxInterfaces(),
-			"netbox_device_interfaces": dataSourceNetboxDeviceInterfaces(),
-			"netbox_ipam_role":         dataSourceNetboxIPAMRole(),
-			"netbox_route_target":      dataSourceNetboxRouteTarget(),
-			"netbox_ip_addresses":      dataSourceNetboxIPAddresses(),
-			"netbox_ip_range":          dataSourceNetboxIPRange(),
-			"netbox_region":            dataSourceNetboxRegion(),
-			"netbox_vlan":              dataSourceNetboxVlan(),
-			"netbox_vlans":             dataSourceNetboxVlans(),
-			"netbox_vlan_group":        dataSourceNetboxVlanGroup(),
-			"netbox_site_group":        dataSourceNetboxSiteGroup(),
-			"netbox_racks":             dataSourceNetboxRacks(),
-			"netbox_rack_role":         dataSourceNetboxRackRole(),
-			"netbox_config_context":    dataSourceNetboxConfigContext(),
+			"netbox_asn":                dataSourceNetboxAsn(),
+			"netbox_asns":               dataSourceNetboxAsns(),
+			"netbox_available_prefix":   dataSourceNetboxAvailablePrefix(),
+			"netbox_cluster":            dataSourceNetboxCluster(),
+			"netbox_cluster_group":      dataSourceNetboxClusterGroup(),
+			"netbox_cluster_type":       dataSourceNetboxClusterType(),
+			"netbox_contact":            dataSourceNetboxContact(),
+			"netbox_contact_role":       dataSourceNetboxContactRole(),
+			"netbox_contact_group":      dataSourceNetboxContactGroup(),
+			"netbox_tenant":             dataSourceNetboxTenant(),
+			"netbox_tenants":            dataSourceNetboxTenants(),
+			"netbox_tenant_group":       dataSourceNetboxTenantGroup(),
+			"netbox_vrf":                dataSourceNetboxVrf(),
+			"netbox_vrfs":               dataSourceNetboxVrfs(),
+			"netbox_platform":           dataSourceNetboxPlatform(),
+			"netbox_prefix":             dataSourceNetboxPrefix(),
+			"netbox_prefixes":           dataSourceNetboxPrefixes(),
+			"netbox_devices":            dataSourceNetboxDevices(),
+			"netbox_device_role":        dataSourceNetboxDeviceRole(),
+			"netbox_device_type":        dataSourceNetboxDeviceType(),
+			"netbox_site":               dataSourceNetboxSite(),
+			"netbox_location":           dataSourceNetboxLocation(),
+			"netbox_locations":          dataSourceNetboxLocations(),
+			"netbox_tag":                dataSourceNetboxTag(),
+			"netbox_tags":               dataSourceNetboxTags(),
+			"netbox_virtual_machines":   dataSourceNetboxVirtualMachine(),
+			"netbox_interfaces":         dataSourceNetboxInterfaces(),
+			"netbox_device_interfaces":  dataSourceNetboxDeviceInterfaces(),
+			"netbox_device_power_ports": dataSourceNetboxDevicePowerPorts(),
+			"netbox_ipam_role":          dataSourceNetboxIPAMRole(),
+			"netbox_route_target":       dataSourceNetboxRouteTarget(),
+			"netbox_ip_address":         dataSourceNetboxIPAddress(),
+			"netbox_ip_addresses":       dataSourceNetboxIPAddresses(),
+			"netbox_ip_range":           dataSourceNetboxIPRange(),
+			"netbox_ip_ranges":          dataSourceNetboxIPRanges(),
+			"netbox_region":             dataSourceNetboxRegion(),
+			"netbox_rir":                dataSourceNetboxRir(),
+			"netbox_vlan":               dataSourceNetboxVlan(),
+			"netbox_vlans":              dataSourceNetboxVlans(),
+			"netbox_vlan_group":         dataSourceNetboxVlanGroup(),
+			"netbox_site_group":         dataSourceNetboxSiteGroup(),
+			"netbox_racks":              dataSourceNetboxRacks(),
+			"netbox_rack_role":          dataSourceNetboxRackRole(),
+			"netbox_config_context":     dataSourceNetboxConfigContext(),
+			"netbox_virtual_disk":       dataSourceNetboxVirtualDisk(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
@@ -234,9 +255,36 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_REQUEST_TIMEOUT", 10),
 				Description: "Netbox API HTTP request timeout in seconds. Can be set via the `NETBOX_REQUEST_TIMEOUT` environment variable.",
 			},
+			"default_tags": {
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Optional:    true,
+				Description: "Tags to add to every resource managed by this provider",
+			},
+			"ca_cert_file": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NETBOX_CA_CERT_FILE", nil),
+				Description: "Path to a PEM-encoded CA certificate for verifying the Netbox server certificate. Can be set via the `NETBOX_CA_CERT_FILE` environment variable.",
+			},
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
+
+	// all resources that have tags get a custom diff function
+	for _, def := range provider.ResourcesMap {
+		if _, ok := def.Schema[tagsKey]; ok {
+			def.Schema[tagsAllKey] = tagsAllSchema // add computed key for all tags
+			if existingDiff := def.CustomizeDiff; existingDiff != nil {
+				def.CustomizeDiff = customdiff.Sequence(existingDiff, tagsCustomDiff)
+			} else {
+				def.CustomizeDiff = tagsCustomDiff
+			}
+		}
+	}
+
 	return provider
 }
 
@@ -249,6 +297,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		Headers:                     data.Get("headers").(map[string]interface{}),
 		RequestTimeout:              data.Get("request_timeout").(int),
 		StripTrailingSlashesFromURL: data.Get("strip_trailing_slashes_from_url").(bool),
+		CACertFile:                  data.Get("ca_cert_file").(string),
 	}
 
 	serverURL := data.Get("server_url").(string)
@@ -293,19 +342,62 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 			return nil, diag.FromErr(err)
 		}
 
-		netboxVersion := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
+		netboxVersionStringFromAPI := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-		supportedVersions := []string{"4.0.0", "4.0.1", "4.0.2", "4.0.3", "4.0.5", "4.0.6", "4.0.7", "4.0.8", "4.0.9", "4.0.10", "4.0.11"}
+		netboxVersion, err := extractSemanticVersionFromString(netboxVersionStringFromAPI)
+		if err != nil {
+			return nil, diag.FromErr(fmt.Errorf("error extracting netbox version. try using the `skip_version_check` provider parameter to bypass this error. original error: %w", err))
+		}
+
+		supportedVersions := []string{"4.3.0", "4.3.2", "4.3.3", "4.3.4", "4.3.5", "4.3.6", "4.3.7", "4.4.0"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
 			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
 				Summary:  "Possibly unsupported Netbox version",
-				Detail:   fmt.Sprintf("Your Netbox version is v%v. The provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", netboxVersion, strings.Join(supportedVersions, ", ")),
+				Detail:   fmt.Sprintf("Your Netbox reports version %v. From that, the provider extracted Netbox version %v.\nThe provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", netboxVersionStringFromAPI, netboxVersion, strings.Join(supportedVersions, ", ")),
 			})
 		}
 	}
 
-	return netboxClient, diags
+	tags, ok := data.Get("default_tags").(*schema.Set)
+	tagCache := make(map[string]*models.NestedTag, tags.Len())
+	if ok {
+		for _, tag := range tags.List() {
+			if tagName, ok := tag.(string); ok {
+				nbTag, err := findTag(netboxClient, tagName)
+				if err != nil {
+					d := diag.FromErr(fmt.Errorf("default tag not found: %w", err))
+					d[0].Severity = diag.Warning
+					diags = append(diags, d...)
+				} else {
+					tagCache[tagName] = nbTag
+				}
+			} else {
+				diags = append(diags, diag.Errorf("invalid type for default tag: %T", tag)...)
+			}
+		}
+	}
+
+	state := &providerState{
+		NetBoxAPI:   netboxClient,
+		defaultTags: schema.CopySet(tags),
+		tagCache:    tagCache,
+	}
+	return state, diags
+}
+
+func tagsCustomDiff(ctx context.Context, diff *schema.ResourceDiff, m interface{}) error {
+	state := m.(*providerState)
+
+	tagSet := diff.Get(tagsKey).(*schema.Set)
+	allTags := tagSet.Union(state.defaultTags)
+
+	// check if tags are already up-to-date
+	if diff.Get(tagsAllKey).(*schema.Set).Equal(allTags) {
+		return nil // nothing to do, same set
+	}
+
+	return diff.SetNew(tagsAllKey, allTags.List())
 }

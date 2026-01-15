@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -56,16 +55,15 @@ resource "netbox_interface" "test" {
 }`, testName)
 }
 
-func testAccNetboxInterfaceOpts(testName string, testMac string, enabled string) string {
+func testAccNetboxInterfaceOpts(testName string, enabled string) string {
 	return fmt.Sprintf(`
 resource "netbox_interface" "test" {
   name = "%[1]s"
   description = "%[1]s"
-  enabled = %[3]s
-  mac_address = "%[2]s"
+  enabled = %[2]s
   mtu = 1440
   virtual_machine_id = netbox_virtual_machine.test.id
-}`, testName, testMac, enabled)
+}`, testName, enabled)
 }
 
 func testAccNetboxInterfaceVlans(testName string) string {
@@ -121,8 +119,7 @@ func TestAccNetboxInterface_basic(t *testing.T) {
 }
 
 func TestAccNetboxInterface_opts(t *testing.T) {
-	testSlug := "iface_mac"
-	testMac := "00:01:02:03:04:05"
+	testSlug := "iface"
 	testName := testAccGetTestName(testSlug)
 	setUp := testAccNetboxInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
@@ -131,23 +128,21 @@ func TestAccNetboxInterface_opts(t *testing.T) {
 		CheckDestroy: testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: setUp + testAccNetboxInterfaceOpts(testName, testMac, "true"),
+				Config: setUp + testAccNetboxInterfaceOpts(testName, "true"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_interface.test", "description", testName),
 					resource.TestCheckResourceAttr("netbox_interface.test", "enabled", "true"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
 					resource.TestCheckResourceAttr("netbox_interface.test", "mtu", "1440"),
 					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
 				),
 			},
 			{
-				Config: setUp + testAccNetboxInterfaceOpts(testName, testMac, "false"),
+				Config: setUp + testAccNetboxInterfaceOpts(testName, "false"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_interface.test", "description", testName),
 					resource.TestCheckResourceAttr("netbox_interface.test", "enabled", "false"),
-					resource.TestCheckResourceAttr("netbox_interface.test", "mac_address", "00:01:02:03:04:05"),
 					resource.TestCheckResourceAttr("netbox_interface.test", "mtu", "1440"),
 					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
 				),
@@ -203,7 +198,7 @@ func TestAccNetboxInterface_vlans(t *testing.T) {
 
 func testAccCheckInterfaceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
-	conn := testAccProvider.Meta().(*client.NetBoxAPI)
+	conn := testAccProvider.Meta().(*providerState)
 
 	// loop through the resources in state, verifying each interface
 	// is destroyed
@@ -243,7 +238,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := virtualization.NewVirtualizationInterfacesListParams()
 			res, err := api.Virtualization.VirtualizationInterfacesList(params, nil)
 			if err != nil {

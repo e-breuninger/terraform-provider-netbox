@@ -43,5 +43,7 @@ resource "netbox_ip_range" "cust_a_prod" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `size` (Number) The total member count of the IP range.
+- `tags_all` (Set of String)
 
 

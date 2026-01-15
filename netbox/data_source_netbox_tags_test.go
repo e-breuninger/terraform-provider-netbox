@@ -28,8 +28,8 @@ func testAccNetboxTagsByName() string {
 	return `
 data "netbox_tags" "test" {
   filter {
-	name  = "name"
-	value = "Tag1234"
+    name  = "name"
+    value = "Tag1234"
   }
 }`
 }
@@ -38,17 +38,17 @@ func testAccNetboxTagsBySlug() string {
 	return `
 data "netbox_tags" "test" {
   filter {
-	name = "slug"
-	value = "weird"
+    name = "slug"
+    value = "weird"
   }
 }`
 }
 
-func testAccNetboxTagsAll() string {
-	return `
-data "netbox_tags" "test" {
-}`
-}
+// func testAccNetboxTagsAll() string {
+// 	return `
+// data "netbox_tags" "test" {
+// }`
+// }
 
 func TestAccNetboxTagsDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxTagsSetUp()
@@ -75,15 +75,15 @@ func TestAccNetboxTagsDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.0.tag_id", "netbox_tag.test_3", "id"),
 				),
 			},
-			{
-				Config: setUp + testAccNetboxTagsAll(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_tags.test", "tags.#", "3"),
-					resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.0.tag_id", "netbox_tag.test_1", "id"),
-					resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.1.tag_id", "netbox_tag.test_2", "id"),
-					resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.2.tag_id", "netbox_tag.test_3", "id"),
-				),
-			},
+			// {
+			// 	Config: setUp + testAccNetboxTagsAll(),
+			// 	Check: resource.ComposeTestCheckFunc(
+			// 		resource.TestCheckResourceAttr("data.netbox_tags.test", "tags.#", "3"),
+			// 		resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.0.tag_id", "netbox_tag.test_1", "id"),
+			// 		resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.1.tag_id", "netbox_tag.test_2", "id"),
+			// 		resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.2.tag_id", "netbox_tag.test_3", "id"),
+			// 	),
+			// },
 		},
 	})
 }

@@ -7,7 +7,7 @@ description: |-
 
 # Netbox Provider
 
-The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://docs.netbox.dev/en/stable/) resources.
+The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://netboxlabs.com/docs/netbox/) resources.
 
 Use the navigation to the left to read about the available resources.
 
@@ -16,7 +16,10 @@ Netbox often makes breaking API changes even in non-major releases. Check the ta
 
 | Netbox version  | Provider version |
 | --------------- | ---------------- |
-| v4.0.0 - 4.0.11 | v3.9.0 and up    |
+| v4.3.0 - 4.4.0  | v5.0.0 and up    |
+| v4.2.2 - 4.2.9  | v4.0.0 - 4.3.1   |
+| v4.1.0 - 4.1.11 | v3.10.0 - 3.11.1 |
+| v4.0.0 - 4.0.11 | v3.9.0 - 3.9.2   |
 | v3.7.0 - 3.7.8  | v3.8.0 - 3.8.9   |
 | v3.6.0 - 3.6.9  | v3.7.0 - 3.7.7   |
 | v3.5.1 - 3.5.9  | v3.6.x           |
@@ -65,6 +68,8 @@ provider "netbox" {
 ### Optional
 
 - `allow_insecure_https` (Boolean) Flag to set whether to allow https with invalid certificates. Can be set via the `NETBOX_ALLOW_INSECURE_HTTPS` environment variable. Defaults to `false`.
+- `ca_cert_file` (String) Path to a PEM-encoded CA certificate for verifying the Netbox server certificate. Can be set via the `NETBOX_CA_CERT_FILE` environment variable.
+- `default_tags` (Set of String) Tags to add to every resource managed by this provider.
 - `headers` (Map of String) Set these header on all requests to Netbox. Can be set via the `NETBOX_HEADERS` environment variable.
 - `request_timeout` (Number) Netbox API HTTP request timeout in seconds. Can be set via the `NETBOX_REQUEST_TIMEOUT` environment variable.
 - `skip_version_check` (Boolean) If true, do not try to determine the running Netbox version at provider startup. Disables warnings about possibly unsupported Netbox version. Also useful for local testing on terraform plans. Can be set via the `NETBOX_SKIP_VERSION_CHECK` environment variable. Defaults to `false`.

@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -47,6 +46,10 @@ func resourceNetboxSite() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 200),
+			},
+			"comments": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"facility": {
 				Type:         schema.TypeString,
@@ -104,7 +107,7 @@ func resourceNetboxSite() *schema.Resource {
 }
 
 func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableSite{}
 
@@ -123,6 +126,10 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 
 	if description, ok := d.GetOk("description"); ok {
 		data.Description = description.(string)
+	}
+
+	if comments, ok := d.GetOk("comments"); ok {
+		data.Comments = comments.(string)
 	}
 
 	if facility, ok := d.GetOk("facility"); ok {
@@ -173,7 +180,11 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -193,7 +204,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimSitesReadParams().WithID(id)
 
@@ -217,6 +228,7 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", site.Slug)
 	d.Set("status", site.Status.Value)
 	d.Set("description", site.Description)
+	d.Set("comments", site.Comments)
 	d.Set("facility", site.Facility)
 	d.Set("longitude", site.Longitude)
 	d.Set("latitude", site.Latitude)
@@ -247,13 +259,13 @@ func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
-	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
+	api.readTags(d, res.GetPayload().Tags)
 
 	return nil
 }
 
 func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableSite{}
@@ -276,6 +288,13 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 	} else if d.HasChange("description") {
 		// If GetOK returned unset description and its value changed, set it as a space string to delete it ...
 		data.Description = " "
+	}
+
+	if comments, ok := d.GetOk("comments"); ok {
+		data.Comments = comments.(string)
+	} else if d.HasChange("comments") {
+		// If GetOK returned unset description and its value changed, set it as a space string to delete it ...
+		data.Comments = " "
 	}
 
 	if facility, ok := d.GetOk("facility"); ok {
@@ -332,7 +351,11 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Asns = toInt64List(asnsValue)
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -341,7 +364,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimSitesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimSitesPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -350,7 +373,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := dcim.NewDcimSitesDeleteParams().WithID(id)

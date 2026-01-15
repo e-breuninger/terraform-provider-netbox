@@ -1,21 +1,23 @@
 package netbox
 
 import (
+	"context"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/fbreckle/go-netbox/netbox/models"
+	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxToken() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxTokenCreate,
-		Read:   resourceNetboxTokenRead,
-		Update: resourceNetboxTokenUpdate,
-		Delete: resourceNetboxTokenDelete,
+		CreateContext: resourceNetboxTokenCreate,
+		ReadContext:   resourceNetboxTokenRead,
+		UpdateContext: resourceNetboxTokenUpdate,
+		DeleteContext: resourceNetboxTokenDelete,
 
 		Description: `:meta:subcategory:Authentication:From the [official documentation](https://docs.netbox.dev/en/stable/rest-api/authentication/#tokens):
 
@@ -49,8 +51,9 @@ func resourceNetboxToken() *schema.Resource {
 				Computed: true,
 			},
 			"expires": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.IsRFC3339Time,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -63,8 +66,8 @@ func resourceNetboxToken() *schema.Resource {
 	}
 }
 
-func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+func resourceNetboxTokenCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	api := m.(*providerState)
 	data := models.WritableToken{}
 
 	userid := int64(d.Get("user_id").(int))
@@ -83,18 +86,24 @@ func resourceNetboxTokenCreate(d *schema.ResourceData, m interface{}) error {
 	data.WriteEnabled = d.Get("write_enabled").(bool)
 	data.Description = d.Get("description").(string)
 
+	expires, err := strfmt.ParseDateTime(d.Get("expires").(string))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	data.Expires = &expires
+
 	params := users.NewUsersTokensCreateParams().WithData(&data)
 	res, err := api.Users.UsersTokensCreate(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
 
-	return resourceNetboxTokenUpdate(d, m)
+	return resourceNetboxTokenUpdate(ctx, d, m)
 }
 
-func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+func resourceNetboxTokenRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersTokensReadParams().WithID(id)
 
@@ -108,7 +117,7 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 				return nil
 			}
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	token := res.GetPayload()
 
@@ -116,9 +125,15 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("user_id", token.User.ID)
 	}
 
-	d.Set("key", token.Key)
+	// Since NetBox 4.3.0, ALLOW_TOKEN_RETRIEVAL is disabled by default
+	// This means we will usually not get a Key value from the API
+	if token.Key != "" {
+		d.Set("key", token.Key)
+	}
 	d.Set("last_used", token.LastUsed)
-	d.Set("expires", token.Expires)
+	if token.Expires != nil {
+		d.Set("expires", token.Expires.String())
+	}
 	d.Set("allowed_ips", token.AllowedIps)
 	d.Set("write_enabled", token.WriteEnabled)
 	d.Set("description", token.Description)
@@ -126,8 +141,8 @@ func resourceNetboxTokenRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+func resourceNetboxTokenUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableToken{}
 
@@ -146,16 +161,22 @@ func resourceNetboxTokenUpdate(d *schema.ResourceData, m interface{}) error {
 	data.WriteEnabled = d.Get("write_enabled").(bool)
 	data.Description = d.Get("description").(string)
 
-	params := users.NewUsersTokensUpdateParams().WithID(id).WithData(&data)
-	_, err := api.Users.UsersTokensUpdate(params, nil)
+	expires, err := strfmt.ParseDateTime(d.Get("expires").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return resourceNetboxTokenRead(d, m)
+	data.Expires = &expires
+
+	params := users.NewUsersTokensUpdateParams().WithID(id).WithData(&data)
+	_, err = api.Users.UsersTokensUpdate(params, nil)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return resourceNetboxTokenRead(ctx, d, m)
 }
 
-func resourceNetboxTokenDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+func resourceNetboxTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := users.NewUsersTokensDeleteParams().WithID(id)
 	_, err := api.Users.UsersTokensDelete(params, nil)
@@ -166,7 +187,7 @@ func resourceNetboxTokenDelete(d *schema.ResourceData, m interface{}) error {
 				return nil
 			}
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId("")
 	return nil

@@ -35,11 +35,15 @@ resource "netbox_available_prefix" "test" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `is_pool` (Boolean)
+- `location_id` (Number) Conflicts with `site_id`, `site_group_id` and `region_id`.
 - `mark_utilized` (Boolean)
+- `region_id` (Number) Conflicts with `location_id`, `site_id` and `site_group_id`.
 - `role_id` (Number)
-- `site_id` (Number)
+- `site_group_id` (Number) Conflicts with `location_id`, `site_id` and `region_id`.
+- `site_id` (Number) Conflicts with `location_id`, `site_group_id` and `region_id`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vlan_id` (Number)
@@ -49,5 +53,6 @@ resource "netbox_available_prefix" "test" {
 
 - `id` (String) The ID of this resource.
 - `prefix` (String)
+- `tags_all` (Set of String)
 
 

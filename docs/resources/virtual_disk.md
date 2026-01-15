@@ -29,7 +29,7 @@ resource "netbox_virtual_machine" "base_vm" {
 resource "netbox_virtual_disk" "example" {
   name               = "disk-01"
   description        = "Main disk"
-  size_gb            = 50
+  size_mb            = 50
   virtual_machine_id = netbox_virtual_machine.base_vm.id
 }
 ```
@@ -40,7 +40,7 @@ resource "netbox_virtual_disk" "example" {
 ### Required
 
 - `name` (String)
-- `size_gb` (Number)
+- `size_mb` (Number)
 - `virtual_machine_id` (Number)
 
 ### Optional
@@ -52,5 +52,6 @@ resource "netbox_virtual_disk" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

@@ -3,18 +3,14 @@
 page_title: "netbox_cluster Resource - terraform-provider-netbox"
 subcategory: "Virtualization"
 description: |-
-  From the official documentation https://docs.netbox.dev/en/stable/features/virtualization/#clusters:
-  A cluster is a logical grouping of physical resources within which virtual machines run. A cluster must be assigned a type (technological classification), and may optionally be assigned to a cluster group, site, and/or tenant. Each cluster must have a unique name within its assigned group and/or site, if any.
-  Physical devices may be associated with clusters as hosts. This allows users to track on which host(s) a particular virtual machine may reside. However, NetBox does not support pinning a specific VM within a cluster to a particular host device.
+  From the official documentation https://netboxlabs.com/docs/netbox/models/virtualization/cluster/:
+  > A cluster is a logical grouping of physical resources within which virtual machines run. Physical devices may be associated with clusters as hosts. This allows users to track on which host(s) a particular virtual machine may reside.
 ---
 
 # netbox_cluster (Resource)
 
-From the [official documentation](https://docs.netbox.dev/en/stable/features/virtualization/#clusters):
-
-> A cluster is a logical grouping of physical resources within which virtual machines run. A cluster must be assigned a type (technological classification), and may optionally be assigned to a cluster group, site, and/or tenant. Each cluster must have a unique name within its assigned group and/or site, if any.
->
-> Physical devices may be associated with clusters as hosts. This allows users to track on which host(s) a particular virtual machine may reside. However, NetBox does not support pinning a specific VM within a cluster to a particular host device.
+From the [official documentation](https://netboxlabs.com/docs/netbox/models/virtualization/cluster/):
+> A cluster is a logical grouping of physical resources within which virtual machines run. Physical devices may be associated with clusters as hosts. This allows users to track on which host(s) a particular virtual machine may reside.
 
 ## Example Usage
 
@@ -48,12 +44,16 @@ resource "netbox_cluster" "vmw_cluster_01" {
 - `cluster_group_id` (Number)
 - `comments` (String)
 - `description` (String)
-- `site_id` (Number)
+- `location_id` (Number) Conflicts with `site_id`, `site_group_id` and `region_id`.
+- `region_id` (Number) Conflicts with `location_id`, `site_id` and `site_group_id`.
+- `site_group_id` (Number) Conflicts with `location_id`, `site_id` and `region_id`.
+- `site_id` (Number) Conflicts with `location_id`, `site_group_id` and `region_id`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

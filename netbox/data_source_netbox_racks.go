@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -92,8 +91,8 @@ func dataSourceNetboxRacks() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"type": {
-							Type:     schema.TypeString,
+						"type_id": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"weight": {
@@ -148,7 +147,7 @@ func dataSourceNetboxRacks() *schema.Resource {
 }
 
 func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := dcim.NewDcimRacksListParams()
 
@@ -203,7 +202,7 @@ func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
 				params.Status = &vString
 			case "tenant_id":
 				params.TenantID = &vString
-			case "type":
+			case "type_id":
 				params.Type = &vString
 			case "u_height":
 				params.UHeight = &vString
@@ -259,9 +258,7 @@ func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
 		}
 		mapping["serial"] = v.Serial
 		mapping["asset_tag"] = v.AssetTag
-		if v.Type != nil {
-			mapping["type"] = v.Type.Value
-		}
+		mapping["type_id"] = v.Type
 		mapping["weight"] = v.Weight
 		mapping["max_weight"] = v.MaxWeight
 		mapping["desc_units"] = v.DescUnits

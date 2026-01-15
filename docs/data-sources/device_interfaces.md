@@ -18,6 +18,7 @@ description: |-
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
+- `limit` (Number)
 - `name_regex` (String)
 
 ### Read-Only
@@ -44,12 +45,24 @@ Read-Only:
 - `enabled` (Boolean)
 - `id` (Number)
 - `mac_address` (String)
+- `mac_addresses` (Set of Object) (see [below for nested schema](#nestedobjatt--interfaces--mac_addresses))
 - `mode` (Map of String)
 - `mtu` (Number)
 - `name` (String)
 - `tag_ids` (List of Number)
 - `tagged_vlans` (List of Object) (see [below for nested schema](#nestedobjatt--interfaces--tagged_vlans))
+- `type` (String)
 - `untagged_vlan` (List of Object) (see [below for nested schema](#nestedobjatt--interfaces--untagged_vlan))
+
+<a id="nestedobjatt--interfaces--mac_addresses"></a>
+### Nested Schema for `interfaces.mac_addresses`
+
+Read-Only:
+
+- `description` (String)
+- `id` (Number)
+- `mac_address` (String)
+
 
 <a id="nestedobjatt--interfaces--tagged_vlans"></a>
 ### Nested Schema for `interfaces.tagged_vlans`

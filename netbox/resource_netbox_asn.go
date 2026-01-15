@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,12 +22,24 @@ func resourceNetboxAsn() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"asn": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Value for the AS Number record",
 			},
 			"rir_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "ID for the RIR for the AS Number record",
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description field for the AS Number record",
+			},
+			"comments": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Comments field for the AS Number record",
 			},
 			tagsKey: tagsSchema,
 		},
@@ -39,7 +50,7 @@ func resourceNetboxAsn() *schema.Resource {
 }
 
 func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableASN{}
 
@@ -49,7 +60,13 @@ func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 	rir := int64(d.Get("rir_id").(int))
 	data.Rir = &rir
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Description = d.Get("description").(string)
+	data.Comments = d.Get("comments").(string)
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamAsnsCreateParams().WithData(&data)
 
@@ -64,7 +81,7 @@ func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamAsnsReadParams().WithID(id)
 
@@ -85,14 +102,15 @@ func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 	asn := res.GetPayload()
 	d.Set("asn", asn.Asn)
 	d.Set("rir_id", asn.Rir.ID)
-
-	d.Set(tagsKey, getTagListFromNestedTagList(asn.Tags))
+	d.Set("description", asn.Description)
+	d.Set("comments", asn.Comments)
+	api.readTags(d, asn.Tags)
 
 	return nil
 }
 
 func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableASN{}
@@ -103,11 +121,17 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 	rir := int64(d.Get("rir_id").(int))
 	data.Rir = &rir
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	data.Description = d.Get("description").(string)
+	data.Comments = d.Get("comments").(string)
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	params := ipam.NewIpamAsnsUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Ipam.IpamAsnsUpdate(params, nil)
+	_, err = api.Ipam.IpamAsnsUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -116,7 +140,7 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxAsnDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := ipam.NewIpamAsnsDeleteParams().WithID(id)

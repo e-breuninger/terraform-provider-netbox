@@ -5,7 +5,6 @@ import (
 	"log"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -31,10 +30,15 @@ resource "netbox_asn" "test" {
   asn    = 1337
   rir_id = netbox_rir.test.id
 
+  description = "test"
+  comments = "test"
+
   tags = ["%[1]sa"]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_asn.test", "asn", "1337"),
+					resource.TestCheckResourceAttr("netbox_asn.test", "description", "test"),
+					resource.TestCheckResourceAttr("netbox_asn.test", "comments", "test"),
 					resource.TestCheckResourceAttr("netbox_asn.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_asn.test", "tags.0", testName+"a"),
 				),
@@ -91,7 +95,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := ipam.NewIpamAsnsListParams()
 			res, err := api.Ipam.IpamAsnsList(params, nil)
 			if err != nil {

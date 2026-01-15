@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -30,9 +29,30 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"location_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"site_id", "site_group_id", "region_id", "provider_network_id"},
+			},
 			"site_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"location_id", "site_group_id", "region_id", "provider_network_id"},
+			},
+			"site_group_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"location_id", "site_id", "region_id", "provider_network_id"},
+			},
+			"region_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"location_id", "site_id", "site_group_id", "provider_network_id"},
+			},
+			"provider_network_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: []string{"location_id", "site_id", "site_group_id", "region_id"},
 			},
 			"port_speed": {
 				Type:     schema.TypeInt,
@@ -48,6 +68,10 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(resourceNetboxCircuitTerminationTermSideOptions, false),
 				Description:  buildValidValueDescription(resourceNetboxCircuitTerminationTermSideOptions),
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
 		},
@@ -58,21 +82,44 @@ func resourceNetboxCircuitTermination() *schema.Resource {
 }
 
 func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableCircuitTermination{}
 
 	termside := d.Get("term_side").(string)
 	data.TermSide = &termside
+	data.Description = d.Get("description").(string)
 
 	circuitIDValue, ok := d.GetOk("circuit_id")
 	if ok {
 		data.Circuit = int64ToPtr(int64(circuitIDValue.(int)))
 	}
 
-	siteIDValue, ok := d.GetOk("site_id")
-	if ok {
-		data.Site = int64ToPtr(int64(siteIDValue.(int)))
+	siteID := getOptionalInt(d, "site_id")
+	siteGroupID := getOptionalInt(d, "site_group_id")
+	locationID := getOptionalInt(d, "location_id")
+	regionID := getOptionalInt(d, "region_id")
+	providerNetworkID := getOptionalInt(d, "provider_network_id")
+
+	switch {
+	case siteID != nil:
+		data.TerminationType = strToPtr("dcim.site")
+		data.TerminationID = siteID
+	case siteGroupID != nil:
+		data.TerminationType = strToPtr("dcim.sitegroup")
+		data.TerminationID = siteGroupID
+	case locationID != nil:
+		data.TerminationType = strToPtr("dcim.location")
+		data.TerminationID = locationID
+	case regionID != nil:
+		data.TerminationType = strToPtr("dcim.region")
+		data.TerminationID = regionID
+	case providerNetworkID != nil:
+		data.TerminationType = strToPtr("circuits.providernetwork")
+		data.TerminationID = providerNetworkID
+	default:
+		data.TerminationType = nil
+		data.TerminationID = nil
 	}
 
 	portspeedValue, ok := d.GetOk("port_speed")
@@ -85,7 +132,11 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 		data.UpstreamSpeed = int64ToPtr(int64(upstreamspeedValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -105,7 +156,7 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitTerminationsReadParams().WithID(id)
 
@@ -133,10 +184,27 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 		d.Set("circuit_id", nil)
 	}
 
-	if term.Site != nil {
-		d.Set("site_id", term.Site.ID)
-	} else {
-		d.Set("site_id", nil)
+	d.Set("site_id", nil)
+	d.Set("site_group_id", nil)
+	d.Set("location_id", nil)
+	d.Set("region_id", nil)
+	d.Set("provider_network_id", nil)
+	d.Set("description", res.GetPayload().Description)
+
+	if term.TerminationType != nil && term.TerminationID != nil {
+		scopeID := term.TerminationID
+		switch scopeType := term.TerminationType; *scopeType {
+		case "dcim.site":
+			d.Set("site_id", scopeID)
+		case "dcim.sitegroup":
+			d.Set("site_group_id", scopeID)
+		case "dcim.location":
+			d.Set("location_id", scopeID)
+		case "dcim.region":
+			d.Set("region_id", scopeID)
+		case "circuits.providernetwork":
+			d.Set("provider_network_id", scopeID)
+		}
 	}
 
 	if term.PortSpeed != nil {
@@ -151,7 +219,7 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 		d.Set("upstream_speed", nil)
 	}
 
-	d.Set(tagsKey, getTagListFromNestedTagList(term.Tags))
+	api.readTags(d, term.Tags)
 
 	cf := getCustomFields(term.CustomFields)
 	if cf != nil {
@@ -162,22 +230,45 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 }
 
 func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableCircuitTermination{}
 
 	termside := d.Get("term_side").(string)
 	data.TermSide = &termside
+	data.Description = d.Get("description").(string)
 
 	circuitIDValue, ok := d.GetOk("circuit_id")
 	if ok {
 		data.Circuit = int64ToPtr(int64(circuitIDValue.(int)))
 	}
 
-	siteIDValue, ok := d.GetOk("site_id")
-	if ok {
-		data.Site = int64ToPtr(int64(siteIDValue.(int)))
+	siteID := getOptionalInt(d, "site_id")
+	siteGroupID := getOptionalInt(d, "site_group_id")
+	locationID := getOptionalInt(d, "location_id")
+	regionID := getOptionalInt(d, "region_id")
+	providerNetworkID := getOptionalInt(d, "provider_network_id")
+
+	switch {
+	case siteID != nil:
+		data.TerminationType = strToPtr("dcim.site")
+		data.TerminationID = siteID
+	case siteGroupID != nil:
+		data.TerminationType = strToPtr("dcim.sitegroup")
+		data.TerminationID = siteGroupID
+	case locationID != nil:
+		data.TerminationType = strToPtr("dcim.location")
+		data.TerminationID = locationID
+	case regionID != nil:
+		data.TerminationType = strToPtr("dcim.region")
+		data.TerminationID = regionID
+	case providerNetworkID != nil:
+		data.TerminationType = strToPtr("circuits.providernetwork")
+		data.TerminationID = providerNetworkID
+	default:
+		data.TerminationType = nil
+		data.TerminationID = nil
 	}
 
 	portspeedValue, ok := d.GetOk("port_speed")
@@ -190,7 +281,11 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 		data.UpstreamSpeed = int64ToPtr(int64(upstreamspeedValue.(int)))
 	}
 
-	data.Tags, _ = getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -199,7 +294,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 
 	params := circuits.NewCircuitsCircuitTerminationsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Circuits.CircuitsCircuitTerminationsPartialUpdate(params, nil)
+	_, err = api.Circuits.CircuitsCircuitTerminationsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}
@@ -208,7 +303,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 }
 
 func resourceNetboxCircuitTerminationDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitTerminationsDeleteParams().WithID(id)

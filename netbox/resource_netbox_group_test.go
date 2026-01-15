@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -22,9 +21,11 @@ func TestAccNetboxGroup_basic(t *testing.T) {
 				Config: fmt.Sprintf(`
 resource "netbox_group" "test_basic" {
   name = "%s"
+	description = "This is my example resource"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_group.test_basic", "name", testName),
+					resource.TestCheckResourceAttr("netbox_group.test_basic", "description", "This is my example resource"),
 				),
 			},
 			{
@@ -45,7 +46,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := users.NewUsersGroupsListParams()
 			res, err := api.Users.UsersGroupsList(params, nil)
 			if err != nil {

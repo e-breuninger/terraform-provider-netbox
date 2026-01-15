@@ -24,12 +24,13 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.name", testName+"_0"),
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.vcpus", "4"),
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.memory_mb", "1024"),
-					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.disk_size_gb", "256"),
+					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.disk_size_mb", "256"),
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.0.comments", "thisisacomment"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.platform_id", "netbox_platform.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.platform_slug", "netbox_platform.test", "slug"),
+					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.platform_name", "netbox_platform.test", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.device_name", "netbox_device.test", "name"),
 				),
@@ -126,7 +127,7 @@ resource "netbox_virtual_machine" "test0" {
   device_id = netbox_device.test.id
   comments = "thisisacomment"
   memory_mb = 1024
-  disk_size_gb = 256
+  disk_size_mb = 256
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
@@ -156,11 +157,11 @@ resource "netbox_virtual_machine" "test3" {
 func testAccNetboxVirtualMachineDataSourceDependenciesWithTags(testName string) string {
 	return testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_tag" "servicea" {
-	name      = "%[1]s_service-a"
+  name = "%[1]s_service-a"
 }
 
 resource "netbox_tag" "serviceb" {
-	name      = "%[1]s_service-b"
+  name = "%[1]s_service-b"
 }
 
 resource "netbox_virtual_machine" "test0" {
@@ -169,33 +170,33 @@ resource "netbox_virtual_machine" "test0" {
   site_id = netbox_site.test.id
   comments = "thisisacomment"
   memory_mb = 1024
-  disk_size_gb = 256
+  disk_size_mb = 256
   tenant_id = netbox_tenant.test.id
   role_id = netbox_device_role.test.id
   platform_id = netbox_platform.test.id
   vcpus = 4
   tags = [
-		netbox_tag.servicea.name,
-		netbox_tag.serviceb.name,
-	]
+    netbox_tag.servicea.name,
+    netbox_tag.serviceb.name,
+  ]
 }
 
 resource "netbox_virtual_machine" "test1" {
   name = "%[1]s_1"
   cluster_id = netbox_cluster.test.id
   site_id = netbox_site.test.id
-	tags = [
-		netbox_tag.servicea.name,
-	]
+  tags = [
+    netbox_tag.servicea.name,
+  ]
 }
 
 resource "netbox_virtual_machine" "test2" {
   name = "%[1]s_2_regex"
   cluster_id = netbox_cluster.test.id
   site_id = netbox_site.test.id
-	tags = [
-		netbox_tag.serviceb.name,
-	]
+  tags = [
+    netbox_tag.serviceb.name,
+  ]
 }
 `, testName)
 }
@@ -242,12 +243,12 @@ data "netbox_virtual_machines" "test" {
 
 func testAccNetboxVirtualMachineDataSourceTagA(testName string) string {
 	return fmt.Sprintf(`
-	data "netbox_virtual_machines" "tag-a" {
-		filter {
-			name  = "tag"
-			value = "%[1]s_service-a"
-		}
-	}`, testName)
+data "netbox_virtual_machines" "tag-a" {
+  filter {
+    name  = "tag"
+    value = "%[1]s_service-a"
+  }
+}`, testName)
 }
 
 func testAccNetboxVirtualMachineDataSourceTagB(testName string) string {
@@ -256,21 +257,21 @@ data "netbox_virtual_machines" "tag-b" {
   filter {
     name  = "tag"
     value = "%[1]s_service-b"
-	}
+  }
 }`, testName)
 }
 
 func testAccNetboxVirtualMachineDataSourceTagAB(testName string) string {
 	return fmt.Sprintf(`
 data "netbox_virtual_machines" "tag-ab" {
-	filter {
+  filter {
     name  = "tag"
     value = "%[1]s_service-a"
-	}
+  }
   filter {
     name  = "tag"
     value = "%[1]s_service-b"
-	}
+  }
 }`, testName)
 }
 
@@ -293,40 +294,40 @@ data "netbox_virtual_machines" "test_decommissioning" {
 func testAccNetboxVirtualMachineDataSourceDependenciesWithStatus(testName string) string {
 	return testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
 resource "netbox_tag" "servicea" {
-	name      = "%[1]s_service-a"
+  name = "%[1]s_service-a"
 }
 
 resource "netbox_virtual_machine" "test0" {
-	name = "%[1]s_0"
-	cluster_id = netbox_cluster.test.id
-	site_id = netbox_site.test.id
-	comments = "thisisacomment"
-	memory_mb = 1024
-	disk_size_gb = 256
-	tenant_id = netbox_tenant.test.id
-	role_id = netbox_device_role.test.id
-	platform_id = netbox_platform.test.id
-	vcpus = 4
-	status = "active"
-	tags = [
-		netbox_tag.servicea.name,
-	]
+  name         = "%[1]s_0"
+  cluster_id   = netbox_cluster.test.id
+  site_id      = netbox_site.test.id
+  comments     = "thisisacomment"
+  memory_mb    = 1024
+  disk_size_mb = 256
+  tenant_id    = netbox_tenant.test.id
+  role_id      = netbox_device_role.test.id
+  platform_id  = netbox_platform.test.id
+  vcpus        = 4
+  status       = "active"
+  tags         = [
+    netbox_tag.servicea.name,
+  ]
 }
 
 resource "netbox_virtual_machine" "test1" {
-	name = "%[1]s_1"
-	cluster_id = netbox_cluster.test.id
-	site_id = netbox_site.test.id
-	comments = "thisisacomment"
-	memory_mb = 1024
-	disk_size_gb = 256
-	tenant_id = netbox_tenant.test.id
-	role_id = netbox_device_role.test.id
-	platform_id = netbox_platform.test.id
-	vcpus = 4
-	status = "decommissioning"
-	tags = [
-		netbox_tag.servicea.name,
-	]
+  name         = "%[1]s_1"
+  cluster_id   = netbox_cluster.test.id
+  site_id      = netbox_site.test.id
+  comments     = "thisisacomment"
+  memory_mb    = 1024
+  disk_size_mb = 256
+  tenant_id    = netbox_tenant.test.id
+  role_id      = netbox_device_role.test.id
+  platform_id  = netbox_platform.test.id
+  vcpus        = 4
+  status       = "decommissioning"
+  tags         = [
+    netbox_tag.servicea.name,
+  ]
 }`, testName)
 }

@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -62,6 +61,7 @@ resource "netbox_ip_range" "test_basic" {
 					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "description", testDescription),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "tags.#", "0"),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_basic", "size", "50"),
 				),
 			},
 			{
@@ -127,6 +127,7 @@ resource "netbox_ip_range" "test_with_dependencies" {
 					resource.TestCheckResourceAttrPair("netbox_ip_range.test_with_dependencies", "role_id", "netbox_ipam_role.test", "id"),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_with_dependencies", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_with_dependencies", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_with_dependencies", "size", "50"),
 				),
 			},
 			{
@@ -147,7 +148,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := ipam.NewIpamIPRangesListParams()
 			res, err := api.Ipam.IpamIPRangesList(params, nil)
 			if err != nil {

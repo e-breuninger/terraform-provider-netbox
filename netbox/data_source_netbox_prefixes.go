@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -25,7 +24,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `site_id`, & `tag`.",
+							Description: "The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `tenant_id`, `site_id`, `description` & `tag`.",
 						},
 						"value": {
 							Type:        schema.TypeString,
@@ -59,7 +58,23 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"tenant_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"site_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"site_group_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"location_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"region_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -80,6 +95,13 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Computed: true,
 						},
 						"tags": tagsSchemaRead,
+						customFieldsKey: {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -88,7 +110,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 }
 
 func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := ipam.NewIpamPrefixesListParams()
 
@@ -119,8 +141,12 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 				params.VlanID = &vString
 			case "status":
 				params.Status = &vString
+			case "tenant_id":
+				params.TenantID = &vString
 			case "site_id":
 				params.SiteID = &vString
+			case "description":
+				params.Description = &vString
 			case "tag":
 				params.Tag = []string{vString}
 			default:
@@ -150,11 +176,29 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		if v.Vrf != nil {
 			mapping["vrf_id"] = v.Vrf.ID
 		}
-		if v.Site != nil {
-			mapping["site_id"] = v.Site.ID
+		if v.Tenant != nil {
+			mapping["tenant_id"] = v.Tenant.ID
+		}
+		if v.ScopeType != nil && v.ScopeID != nil {
+			scopeID := v.ScopeID
+			switch scopeType := v.ScopeType; *scopeType {
+			case "dcim.site":
+				mapping["site_id"] = scopeID
+			case "dcim.sitegroup":
+				mapping["site_group_id"] = scopeID
+			case "dcim.location":
+				mapping["location_id"] = scopeID
+			case "dcim.region":
+				mapping["region_id"] = scopeID
+			}
 		}
 		mapping["status"] = v.Status.Value
 		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
+
+		cf := flattenCustomFields(v.CustomFields)
+		if cf != nil {
+			mapping[customFieldsKey] = cf
+		}
 
 		s = append(s, mapping)
 	}

@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -35,6 +34,7 @@ resource "netbox_location" "test" {
   name        = "%[1]s"
   slug        = "%[2]s"
   description = "my-description"
+  facility    = "Building B"
   site_id     = netbox_site.test.id
   tenant_id   = netbox_tenant.test.id
 }
@@ -50,6 +50,7 @@ resource "netbox_location" "test-sub" {
 					resource.TestCheckResourceAttr("netbox_location.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_location.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_location.test", "description", "my-description"),
+					resource.TestCheckResourceAttr("netbox_location.test", "facility", "Building B"),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "site_id", "netbox_site.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_location.test", "id", "netbox_location.test-sub", "parent_id"),
@@ -79,6 +80,7 @@ resource "netbox_location" "test" {
 					resource.TestCheckResourceAttr("netbox_location.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_location.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_location.test", "description", ""),
+					resource.TestCheckResourceAttr("netbox_location.test", "facility", ""),
 				),
 			},
 			{
@@ -176,7 +178,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := dcim.NewDcimLocationsListParams()
 			res, err := api.Dcim.DcimLocationsList(params, nil)
 			if err != nil {

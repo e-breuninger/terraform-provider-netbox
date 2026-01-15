@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
@@ -77,7 +76,7 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"disk_size_gb": {
+						"disk_size_mb": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -98,6 +97,10 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 							Computed: true,
 						},
 						"platform_slug": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"platform_name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -152,7 +155,7 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 }
 
 func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := virtualization.NewVirtualizationVirtualMachinesListParams()
 
@@ -244,7 +247,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			mapping["custom_fields"] = v.CustomFields
 		}
 		if v.Disk != nil {
-			mapping["disk_size_gb"] = *v.Disk
+			mapping["disk_size_mb"] = *v.Disk
 		}
 		if v.LocalContextData != nil {
 			if localContextData, err := json.Marshal(v.LocalContextData); err == nil {
@@ -260,6 +263,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		if v.Platform != nil {
 			mapping["platform_id"] = v.Platform.ID
 			mapping["platform_slug"] = v.Platform.Slug
+			mapping["platform_name"] = v.Platform.Name
 		}
 		if v.PrimaryIP != nil {
 			mapping["primary_ip"] = v.PrimaryIP.Address

@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -276,6 +275,106 @@ resource "netbox_prefix" "test" {
 	})
 }
 
+func TestAccNetboxPrefix_scopes(t *testing.T) {
+	testPrefix := "1.8.1.128/25"
+	testPrefix2 := "1.8.2.128/25"
+	testPrefix3 := "1.8.3.128/25"
+	testSlug := "prefix-scopes"
+	testVid := "333"
+	randomSlug := testAccGetTestName(testSlug)
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  status = "active"
+}`, testPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "site_id", "0"),
+					// resource.TestCheckNoResourceAttr("netbox_prefix.test", "site_id"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "site_group_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "region_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "location_id", "0"),
+				),
+			},
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  status = "active"
+  site_id = netbox_site.test.id
+}`, testPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_prefix.test", "site_id", "netbox_site.test", "id"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "site_group_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "region_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "location_id", "0"),
+				),
+			},
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_location" "test" {
+  name = "%s"
+  site_id = netbox_site.test.id
+}
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  status = "active"
+  location_id = netbox_location.test.id
+}`, testSlug, testPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "site_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "site_group_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test", "region_id", "0"),
+					resource.TestCheckResourceAttrPair("netbox_prefix.test", "location_id", "netbox_location.test", "id"),
+				),
+			},
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_region" "test" {
+  name = "%s"
+}
+resource "netbox_prefix" "test2" {
+  prefix = "%s"
+  status = "active"
+  region_id = netbox_region.test.id
+}`, testSlug, testPrefix2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test2", "site_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test2", "site_group_id", "0"),
+					resource.TestCheckResourceAttrPair("netbox_prefix.test2", "region_id", "netbox_region.test", "id"),
+					resource.TestCheckResourceAttr("netbox_prefix.test2", "location_id", "0"),
+				),
+			},
+			{
+				Config: testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_site_group" "test" {
+  name = "%s"
+}
+resource "netbox_prefix" "test3" {
+  prefix = "%s"
+  status = "active"
+  site_group_id = netbox_site_group.test.id
+}`, testSlug, testPrefix3),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test3", "site_id", "0"),
+					resource.TestCheckResourceAttrPair("netbox_prefix.test3", "site_group_id", "netbox_site_group.test", "id"),
+					resource.TestCheckResourceAttr("netbox_prefix.test3", "region_id", "0"),
+					resource.TestCheckResourceAttr("netbox_prefix.test3", "location_id", "0"),
+				),
+			},
+			{
+				ResourceName:      "netbox_prefix.test3",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_prefix", &resource.Sweeper{
 		Name:         "netbox_prefix",
@@ -285,7 +384,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := ipam.NewIpamPrefixesListParams()
 			res, err := api.Ipam.IpamPrefixesList(params, nil)
 			if err != nil {

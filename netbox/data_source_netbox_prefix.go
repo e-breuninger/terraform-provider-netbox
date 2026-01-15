@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -25,21 +24,21 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Deprecated:    "The `cidr` parameter is deprecated in favor of the canonical `prefix` attribute.",
 				ConflictsWith: []string{"prefix"},
 				ValidateFunc:  validation.IsCIDR,
-				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
 			customFieldsKey: customFieldsSchema,
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 				Description:  "Description to include in the data source filter.",
 			},
 			"family": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 				ValidateFunc: validation.IntInSlice([]int{4, 6}),
 				Description:  "The IP family of the prefix. One of 4 or 6",
 			},
@@ -47,40 +46,57 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
 			"prefix": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ValidateFunc:  validation.IsCIDR,
 				ConflictsWith: []string{"cidr"},
-				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
 			"vlan_vid": {
 				Type:         schema.TypeFloat,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+			},
+			"tenant_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
 			"site_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+			},
+			"site_group_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"location_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"region_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 			"tag": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "site_id", "role_id", "cidr", "tag"},
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 				Description:  "Tag to include in the data source filter (must match the tag's slug).",
 			},
 			"tag__n": {
@@ -91,8 +107,9 @@ Refer to [Netbox's documentation](https://demo.netbox.dev/static/docs/rest-api/f
 for more information on available lookup expressions.`,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
 			},
 			"tags": tagsSchemaRead,
 		},
@@ -100,7 +117,7 @@ for more information on available lookup expressions.`,
 }
 
 func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	params := ipam.NewIpamPrefixesListParams()
 
@@ -143,6 +160,11 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		params.VlanVid = &vlanVid
 	}
 
+	if tenantID, ok := d.Get("tenant_id").(int); ok && tenantID != 0 {
+		// Note that tenant_id is a string pointer in the netbox filter, but we use a number in the provider
+		params.TenantID = strToPtr(strconv.Itoa(tenantID))
+	}
+
 	if siteID, ok := d.Get("site_id").(int); ok && siteID != 0 {
 		// Note that site_id is a string pointer in the netbox filter, but we use a number in the provider
 		params.SiteID = strToPtr(strconv.Itoa(siteID))
@@ -153,6 +175,10 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	}
 	if tagn, ok := d.Get("tag__n").(string); ok && tagn != "" {
 		params.Tagn = &tagn
+	}
+
+	if status, ok := d.Get("status").(string); ok && status != "" {
+		params.Status = &status
 	}
 
 	res, err := api.Ipam.IpamPrefixesList(params, nil)
@@ -190,9 +216,29 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("vlan_vid", result.Vlan.Vid)
 		d.Set("vlan_id", result.Vlan.ID)
 	}
-	if result.Site != nil {
-		d.Set("site_id", result.Site.ID)
+	if result.Tenant != nil {
+		d.Set("tenant_id", result.Tenant.ID)
 	}
+
+	d.Set("site_id", nil)
+	d.Set("site_group_id", nil)
+	d.Set("location_id", nil)
+	d.Set("region_id", nil)
+
+	if result.ScopeType != nil && result.ScopeID != nil {
+		scopeID := result.ScopeID
+		switch scopeType := result.ScopeType; *scopeType {
+		case "dcim.site":
+			d.Set("site_id", scopeID)
+		case "dcim.sitegroup":
+			d.Set("site_group_id", scopeID)
+		case "dcim.location":
+			d.Set("location_id", scopeID)
+		case "dcim.region":
+			d.Set("region_id", scopeID)
+		}
+	}
+
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	return nil
 }

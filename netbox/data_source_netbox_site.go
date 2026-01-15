@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -73,12 +72,16 @@ func dataSourceNetboxSite() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"physical_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	params := dcim.NewDcimSitesListParams()
 
 	params.Limit = int64ToPtr(2)
@@ -118,6 +121,7 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", site.Slug)
 	d.Set("time_zone", site.TimeZone)
 	d.Set("facility", site.Facility)
+	d.Set("physical_address", site.PhysicalAddress)
 
 	if site.Group != nil {
 		d.Set("group_id", site.Group.ID)

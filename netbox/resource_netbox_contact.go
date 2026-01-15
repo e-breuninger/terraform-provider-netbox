@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/go-openapi/strfmt"
@@ -41,6 +40,14 @@ func resourceNetboxContact() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"link": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -49,14 +56,16 @@ func resourceNetboxContact() *schema.Resource {
 }
 
 func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	name := d.Get("name").(string)
 	phone := d.Get("phone").(string)
 	email := d.Get("email").(string)
+	link := d.Get("link").(string)
+	description := d.Get("description").(string)
 	groupID := int64(d.Get("group_id").(int))
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data := &models.WritableContact{}
 
@@ -64,7 +73,8 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 	data.Tags = tags
 	data.Phone = phone
 	data.Email = strfmt.Email(email)
-
+	data.Link = strfmt.URI(link)
+	data.Description = description
 	if groupID != 0 {
 		data.Group = &groupID
 	}
@@ -82,7 +92,7 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactsReadParams().WithID(id)
 
@@ -102,6 +112,8 @@ func resourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", res.GetPayload().Name)
 	d.Set("phone", res.GetPayload().Phone)
 	d.Set("email", res.GetPayload().Email)
+	d.Set("link", res.GetPayload().Link)
+	d.Set("description", res.GetPayload().Description)
 	if res.GetPayload().Group != nil {
 		d.Set("group_id", res.GetPayload().Group.ID)
 	}
@@ -110,7 +122,7 @@ func resourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableContact{}
@@ -118,14 +130,18 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	phone := d.Get("phone").(string)
 	email := d.Get("email").(string)
+	link := d.Get("link").(string)
+	description := d.Get("description").(string)
 	groupID := int64(d.Get("group_id").(int))
 
-	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
+	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	data.Name = &name
 	data.Tags = tags
 	data.Phone = phone
 	data.Email = strfmt.Email(email)
+	data.Link = strfmt.URI(link)
+	data.Description = description
 	if groupID != 0 {
 		data.Group = &groupID
 	}
@@ -141,7 +157,7 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxContactDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := tenancy.NewTenancyContactsDeleteParams().WithID(id)

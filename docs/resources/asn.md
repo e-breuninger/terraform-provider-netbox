@@ -24,8 +24,10 @@ resource "netbox_rir" "test" {
 }
 
 resource "netbox_asn" "test" {
-  asn    = 1337
-  rir_id = netbox_rir.test.id
+  asn         = 1337
+  rir_id      = netbox_rir.test.id
+  description = "test"
+  comments    = "test"
 }
 ```
 
@@ -34,15 +36,18 @@ resource "netbox_asn" "test" {
 
 ### Required
 
-- `asn` (Number)
-- `rir_id` (Number)
+- `asn` (Number) Value for the AS Number record.
+- `rir_id` (Number) ID for the RIR for the AS Number record.
 
 ### Optional
 
+- `comments` (String) Comments field for the AS Number record.
+- `description` (String) Description field for the AS Number record.
 - `tags` (Set of String)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

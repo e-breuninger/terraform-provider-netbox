@@ -3,7 +3,6 @@ package netbox
 import (
 	"strconv"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -48,6 +47,10 @@ func resourceNetboxCircuit() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(resourceNetboxCircuitStatusOptions, false),
 				Description:  buildValidValueDescription(resourceNetboxCircuitStatusOptions),
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -56,7 +59,7 @@ func resourceNetboxCircuit() *schema.Resource {
 }
 
 func resourceNetboxCircuitCreate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	data := models.WritableCircuit{}
 
@@ -64,6 +67,7 @@ func resourceNetboxCircuitCreate(d *schema.ResourceData, m interface{}) error {
 	data.Cid = &cid
 
 	data.Status = d.Get("status").(string)
+	data.Description = d.Get("description").(string)
 
 	providerIDValue, ok := d.GetOk("provider_id")
 	if ok {
@@ -95,7 +99,7 @@ func resourceNetboxCircuitCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCircuitRead(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitsReadParams().WithID(id)
 
@@ -115,6 +119,7 @@ func resourceNetboxCircuitRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("cid", res.GetPayload().Cid)
 	d.Set("status", res.GetPayload().Status.Value)
+	d.Set("description", res.GetPayload().Description)
 
 	if res.GetPayload().Provider != nil {
 		d.Set("provider_id", res.GetPayload().Provider.ID)
@@ -138,7 +143,7 @@ func resourceNetboxCircuitRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCircuitUpdate(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	data := models.WritableCircuit{}
@@ -147,6 +152,7 @@ func resourceNetboxCircuitUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Cid = &cid
 
 	data.Status = d.Get("status").(string)
+	data.Description = d.Get("description").(string)
 
 	providerIDValue, ok := d.GetOk("provider_id")
 	if ok {
@@ -176,7 +182,7 @@ func resourceNetboxCircuitUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetboxCircuitDelete(d *schema.ResourceData, m interface{}) error {
-	api := m.(*client.NetBoxAPI)
+	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := circuits.NewCircuitsCircuitsDeleteParams().WithID(id)

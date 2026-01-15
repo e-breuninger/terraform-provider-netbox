@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -38,6 +37,7 @@ resource "netbox_site" "test" {
   slug = "%[2]s"
   status = "planned"
   description = "%[1]s"
+  comments = "%[1]s"
   facility = "%[1]s"
   physical_address = "%[1]s"
   shipping_address = "%[1]s"
@@ -49,6 +49,7 @@ resource "netbox_site" "test" {
 					resource.TestCheckResourceAttr("netbox_site.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_site.test", "status", "planned"),
 					resource.TestCheckResourceAttr("netbox_site.test", "description", testName),
+					resource.TestCheckResourceAttr("netbox_site.test", "comments", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "facility", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", testName),
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", testName),
@@ -61,39 +62,6 @@ resource "netbox_site" "test" {
 				ResourceName:      "netbox_site.test",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccNetboxSite_defaultSlug(t *testing.T) {
-	testSlug := "site_defSlug"
-	testName := testAccGetTestName(testSlug)
-	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-resource "netbox_tenant" "test" {
-  name = "%[1]s"
-}
-resource "netbox_tag" "test" {
-  name = "%[1]s"
-}
-resource "netbox_site" "test" {
-  name = "%[1]s"
-  tenant_id = netbox_tenant.test.id
-  tags = ["%[1]s"]
-}`, testName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_site.test", "name", testName),
-					resource.TestCheckResourceAttr("netbox_site.test", "slug", getSlug(testName)),
-					resource.TestCheckResourceAttrPair("netbox_site.test", "tenant_id", "netbox_tenant.test", "id"),
-					resource.TestCheckResourceAttr("netbox_site.test", "status", "active"),
-					resource.TestCheckResourceAttr("netbox_site.test", "tags.#", "1"),
-					resource.TestCheckResourceAttr("netbox_site.test", "tags.0", testName),
-				),
 			},
 		},
 	})
@@ -147,6 +115,7 @@ func TestAccNetboxSite_fieldUpdate(t *testing.T) {
 resource "netbox_site" "test" {
 	name        = "%[2]s"
 	description = "Test site description"
+	comments = "Test comment"
 	physical_address = "Physical address"
 	shipping_address = "Shipping address"
 	latitude      = "12.123456"
@@ -155,6 +124,7 @@ resource "netbox_site" "test" {
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "description", "Test site description"),
+					resource.TestCheckResourceAttr("netbox_site.test", "comments", "Test comment"),
 					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", "Physical address"),
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", "Shipping address"),
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
@@ -167,6 +137,7 @@ resource "netbox_site" "test" {
 }`, testField, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_site.test", "description", ""),
+					resource.TestCheckResourceAttr("netbox_site.test", "comments", ""),
 					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", ""),
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", ""),
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "0"),
@@ -186,7 +157,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := dcim.NewDcimSitesListParams()
 			res, err := api.Dcim.DcimSitesList(params, nil)
 			if err != nil {

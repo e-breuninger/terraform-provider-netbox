@@ -54,18 +54,24 @@ resource "netbox_circuit_termination" "test" {
 ### Required
 
 - `circuit_id` (Number)
-- `site_id` (Number)
 - `term_side` (String) Valid values are `A` and `Z`.
 
 ### Optional
 
 - `custom_fields` (Map of String)
+- `description` (String)
+- `location_id` (Number) Exactly one of `site_id`, `site_group_id`, `region_id` or `provider_network_id` must be given.
 - `port_speed` (Number)
+- `provider_network_id` (Number) Exactly one of `location_id`, `site_id`, `site_group_id` or `region_id` must be given.
+- `region_id` (Number) Exactly one of `location_id`, `site_id`, `site_group_id` or `provider_network_id` must be given.
+- `site_group_id` (Number) Exactly one of `location_id`, `site_id`, `region_id` or `provider_network_id` must be given.
+- `site_id` (Number) Exactly one of `location_id`, `site_group_id`, `region_id` or `provider_network_id` must be given.
 - `tags` (Set of String)
 - `upstream_speed` (Number)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 

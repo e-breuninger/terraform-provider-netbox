@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -42,14 +41,18 @@ resource "netbox_contact" "test" {
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_contact" "test" {
-  name = "%s"
-  email = "test@test.com"
-  phone = "123-123123"
+  name        = "%s"
+  email       = "test@test.com"
+  phone       = "123-123123"
+  link        = "https://example.com"
+  description = "desc"
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_contact.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_contact.test", "email", "test@test.com"),
 					resource.TestCheckResourceAttr("netbox_contact.test", "phone", "123-123123"),
+					resource.TestCheckResourceAttr("netbox_contact.test", "link", "https://example.com"),
+					resource.TestCheckResourceAttr("netbox_contact.test", "description", "desc"),
 				),
 			},
 			{
@@ -114,7 +117,7 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("Error getting client: %s", err)
 			}
-			api := m.(*client.NetBoxAPI)
+			api := m.(*providerState)
 			params := tenancy.NewTenancyContactsListParams()
 			res, err := api.Tenancy.TenancyContactsList(params, nil)
 			if err != nil {

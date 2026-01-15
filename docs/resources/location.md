@@ -41,13 +41,14 @@ resource "netbox_location" "test" {
 ### Required
 
 - `name` (String)
+- `site_id` (Number)
 
 ### Optional
 
 - `custom_fields` (Map of String)
 - `description` (String)
+- `facility` (String)
 - `parent_id` (Number)
-- `site_id` (Number)
 - `slug` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
@@ -55,5 +56,6 @@ resource "netbox_location" "test" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 
