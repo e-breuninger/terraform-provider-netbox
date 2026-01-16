@@ -62,12 +62,12 @@ provider "netbox" {
 
 ### Required
 
-- `api_token` (String) Netbox API authentication token. Can be set via the `NETBOX_API_TOKEN` environment variable.
 - `server_url` (String) Location of Netbox server including scheme (http or https) and optional port. Can be set via the `NETBOX_SERVER_URL` environment variable.
 
 ### Optional
 
 - `allow_insecure_https` (Boolean) Flag to set whether to allow https with invalid certificates. Can be set via the `NETBOX_ALLOW_INSECURE_HTTPS` environment variable. Defaults to `false`.
+- `api_token` (String) Netbox API authentication token. Can be set via the `NETBOX_API_TOKEN` environment variable.
 - `ca_cert_file` (String) Path to a PEM-encoded CA certificate for verifying the Netbox server certificate. Can be set via the `NETBOX_CA_CERT_FILE` environment variable.
 - `default_tags` (Set of String) Tags to add to every resource managed by this provider.
 - `headers` (Map of String) Set these header on all requests to Netbox. Can be set via the `NETBOX_HEADERS` environment variable.

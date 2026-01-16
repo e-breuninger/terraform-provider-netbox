@@ -10,6 +10,23 @@ import (
 )
 
 func dataSourceNetboxPrefix() *schema.Resource {
+	filterAtLeastOneOf := []string{
+		"description",
+		"family",
+		"prefix",
+		"vlan_vid",
+		"vrf_id",
+		"vlan_id",
+		"tenant_id",
+		"site_id",
+		"role_id",
+		"cidr",
+		"custom_fields",
+		"tag",
+		"status",
+	}
+	customFieldsFilterSchema := *customFieldsSchema
+	customFieldsFilterSchema.AtLeastOneOf = filterAtLeastOneOf
 	return &schema.Resource{
 		Read:        dataSourceNetboxPrefixRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
@@ -24,21 +41,21 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Deprecated:    "The `cidr` parameter is deprecated in favor of the canonical `prefix` attribute.",
 				ConflictsWith: []string{"prefix"},
 				ValidateFunc:  validation.IsCIDR,
-				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf:  filterAtLeastOneOf,
 			},
-			customFieldsKey: customFieldsSchema,
+			customFieldsKey: &customFieldsFilterSchema,
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 				Description:  "Description to include in the data source filter.",
 			},
 			"family": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 				ValidateFunc: validation.IntInSlice([]int{4, 6}),
 				Description:  "The IP family of the prefix. One of 4 or 6",
 			},
@@ -46,40 +63,40 @@ func dataSourceNetboxPrefix() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 			},
 			"prefix": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ValidateFunc:  validation.IsCIDR,
 				ConflictsWith: []string{"cidr"},
-				AtLeastOneOf:  []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf:  filterAtLeastOneOf,
 			},
 			"vlan_vid": {
 				Type:         schema.TypeFloat,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 				ValidateFunc: validation.FloatBetween(1, 4094),
 			},
 			"vrf_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 			},
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 			},
 			"tenant_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 			},
 			"site_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 			},
 			"site_group_id": {
 				Type:     schema.TypeInt,
@@ -96,7 +113,7 @@ func dataSourceNetboxPrefix() *schema.Resource {
 			"tag": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 				Description:  "Tag to include in the data source filter (must match the tag's slug).",
 			},
 			"tag__n": {
@@ -109,7 +126,7 @@ for more information on available lookup expressions.`,
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"description", "family", "prefix", "vlan_vid", "vrf_id", "vlan_id", "tenant_id", "site_id", "role_id", "cidr", "tag", "status"},
+				AtLeastOneOf: filterAtLeastOneOf,
 			},
 			"tags": tagsSchemaRead,
 		},
@@ -120,6 +137,7 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	params := ipam.NewIpamPrefixesListParams()
+	var opts []ipam.ClientOption
 
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
@@ -181,7 +199,11 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 		params.Status = &status
 	}
 
-	res, err := api.Ipam.IpamPrefixesList(params, nil)
+	if cfm, ok := d.Get(customFieldsKey).(map[string]interface{}); ok {
+		opts = append(opts, WithCustomFieldParamsOption(cfm))
+	}
+
+	res, err := api.Ipam.IpamPrefixesList(params, nil, opts...)
 	if err != nil {
 		return err
 	}
