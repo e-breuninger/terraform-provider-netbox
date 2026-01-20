@@ -1,3 +1,23 @@
+## 5.0.1 Ho-Ho-Ho (December 25th, 2025) 
+
+ENHANCEMENTS
+
+* resource/netbox_circuit: Add `description` attribute ([#766](https://github.com/e-breuninger/terraform-provider-netbox/pull/766) by [@jakegroves](https://github.com/jakegroves))
+* resource/netbox_circuit_provider: Add `description` attribute ([#766](https://github.com/e-breuninger/terraform-provider-netbox/pull/766) by [@jakegroves](https://github.com/jakegroves))
+* resource/netbox_circuit_termination: Add `description` attribute ([#766](https://github.com/e-breuninger/terraform-provider-netbox/pull/766) by [@jakegroves](https://github.com/jakegroves))
+* resource/netbox_circuit_type: Add `description` attribute ([#766](https://github.com/e-breuninger/terraform-provider-netbox/pull/766) by [@jakegroves](https://github.com/jakegroves))
+* data-source/netbox_site: Add `physical_address` attribute to result ([#781](https://github.com/e-breuninger/terraform-provider-netbox/pull/781) by [@sytmd](https://github.com/sytmd))
+* data_source/netbox_ip_addresses: Add `description` attribute to results ([#784](https://github.com/e-breuninger/terraform-provider-netbox/pull/784) by [@christopher-svensson-stegra](https://github.com/christopher-svensson-stegra))
+* resource/netbox_event_rule: Allow `script` action type ([#799](https://github.com/e-breuninger/terraform-provider-netbox/pull/799) by [@jorgenspange](https://github.com/jorgenspange))
+* data-source/netbox_prefixes: Add `custom_fields` to results ([#779](https://github.com/e-breuninger/terraform-provider-netbox/pull/779) by [@lgogolin](https://github.com/lgogolin))
+* resource/netbox_webhook: Add `ca_file_path` attribute ([#797](https://github.com/e-breuninger/terraform-provider-netbox/pull/797) by [@jorgenspange](https://github.com/jorgenspange))
+* data-source/netbox_virtual_machines: Add `platform_name` to results ([#810](https://github.com/e-breuninger/terraform-provider-netbox/pull/810) by [@Slartibartfast1](https://github.com/Slartibartfast1))
+
+BUG FIXES
+
+* resource/netbox_user: Fix date_joined datetime out of range error ([#796](https://github.com/e-breuninger/terraform-provider-netbox/pull/796) by [@luispcoutinho](https://github.com/luispcoutinho))
+* resource/netbox_ip_address: Fix IP Address Assignment being removed despite being in ignore_changes ([#790](https://github.com/e-breuninger/terraform-provider-netbox/pull/790) by [@chuyang-wang-dev](https://github.com/chuyang-wang-dev))
+
 ## 5.0.0 (September 12th, 2025)
 
 ENHANCEMENTS

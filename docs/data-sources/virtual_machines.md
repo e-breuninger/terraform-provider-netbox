@@ -67,6 +67,7 @@ Read-Only:
 - `memory_mb` (Number)
 - `name` (String)
 - `platform_id` (Number)
+- `platform_name` (String)
 - `platform_slug` (String)
 - `primary_ip` (String)
 - `primary_ip4` (String)

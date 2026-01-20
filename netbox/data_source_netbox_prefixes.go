@@ -95,6 +95,13 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Computed: true,
 						},
 						"tags": tagsSchemaRead,
+						customFieldsKey: {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -187,6 +194,11 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		mapping["status"] = v.Status.Value
 		mapping["tags"] = getTagListFromNestedTagList(v.Tags)
+
+		cf := flattenCustomFields(v.CustomFields)
+		if cf != nil {
+			mapping[customFieldsKey] = cf
+		}
 
 		s = append(s, mapping)
 	}
