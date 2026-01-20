@@ -1,26 +1,11 @@
 package netbox
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
 	"strconv"
 
+	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
-
-// deviceRenderConfigResponse represents the response from the render-config API
-type deviceRenderConfigResponse struct {
-	ConfigTemplate *struct {
-		ID          int64  `json:"id"`
-		URL         string `json:"url"`
-		Display     string `json:"display"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
-	} `json:"configtemplate"`
-	Content string `json:"content"`
-}
 
 func dataSourceNetboxDeviceRenderConfig() *schema.Resource {
 	return &schema.Resource{
@@ -54,46 +39,23 @@ func dataSourceNetboxDeviceRenderConfig() *schema.Resource {
 func dataSourceNetboxDeviceRenderConfigRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	deviceID := d.Get("device_id").(int)
+	deviceID := int64(d.Get("device_id").(int))
 
-	// Build the URL for the render-config endpoint
-	url := fmt.Sprintf("%s/api/dcim/devices/%d/render-config/", api.httpClient.BaseURL, deviceID)
+	params := dcim.NewDcimDevicesRenderConfigParams().WithID(deviceID)
 
-	// Create a POST request
-	req, err := http.NewRequest("POST", url, nil)
+	res, err := api.Dcim.DcimDevicesRenderConfig(params, nil)
 	if err != nil {
-		return fmt.Errorf("error creating request: %w", err)
+		return err
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Token %s", api.httpClient.APIToken))
+	result := res.GetPayload()
 
-	// Execute the request
-	resp, err := api.httpClient.HTTPClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("error calling render-config API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Check for errors
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("render-config API returned status %d: %s", resp.StatusCode, string(body))
-	}
-
-	// Parse the response
-	var result deviceRenderConfigResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return fmt.Errorf("error decoding render-config response: %w", err)
-	}
-
-	d.SetId(strconv.Itoa(deviceID))
+	d.SetId(strconv.FormatInt(deviceID, 10))
 	d.Set("content", result.Content)
 
-	if result.ConfigTemplate != nil {
-		d.Set("config_template_id", result.ConfigTemplate.ID)
-		d.Set("config_template_name", result.ConfigTemplate.Name)
+	if result.Configtemplate != nil {
+		d.Set("config_template_id", result.Configtemplate.ID)
+		d.Set("config_template_name", result.Configtemplate.Name)
 	}
 
 	return nil

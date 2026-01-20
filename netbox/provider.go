@@ -21,9 +21,6 @@ type providerState struct {
 
 	// concurrent access ok, only populated on provider start
 	tagCache map[string]*models.NestedTag
-
-	// HTTP client for custom API endpoints not covered by go-netbox
-	httpClient *ClientWithHTTP
 }
 
 // This makes the description contain the default value, particularly useful for the docs
@@ -330,11 +327,10 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	config.ServerURL = serverURL
 
-	httpClient, clientError := config.ClientWithHTTP()
+	netboxClient, clientError := config.Client()
 	if clientError != nil {
 		return nil, diag.FromErr(clientError)
 	}
-	netboxClient := httpClient.API
 
 	// Unless explicitly switched off, use the client to retrieve the Netbox version
 	// so we can determine compatibility of the provider with the used Netbox
@@ -389,7 +385,6 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		NetBoxAPI:   netboxClient,
 		defaultTags: schema.CopySet(tags),
 		tagCache:    tagCache,
-		httpClient:  httpClient,
 	}
 	return state, diags
 }
