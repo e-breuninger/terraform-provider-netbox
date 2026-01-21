@@ -52,6 +52,10 @@ resource "netbox_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
   tags = ["%[1]s"]
+}
+
+resource "netbox_vrf" "test" {
+  name = "%[1]s"
 }`, testName)
 }
 
@@ -107,6 +111,7 @@ func TestAccNetboxInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("netbox_interface.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
 					resource.TestCheckResourceAttr("netbox_interface.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_interface.test", "tags.0", testName),
+					resource.TestCheckResourceAttr("netbox_interface.test", "vrf_id", "0"),
 				),
 			},
 			{
