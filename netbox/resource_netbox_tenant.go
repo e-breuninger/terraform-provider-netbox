@@ -114,6 +114,7 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 	if res.GetPayload().Group != nil {
 		d.Set("group_id", res.GetPayload().Group.ID)
 	}
+	d.Set(tagsKey, getTagListFromNestedTagList(res.GetPayload().Tags))
 
 	return nil
 }
