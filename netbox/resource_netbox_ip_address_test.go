@@ -522,6 +522,181 @@ resource "netbox_ip_address" "test" {
 	})
 }
 
+func TestAccNetboxIPAddress_deviceByObjectType_external(t *testing.T) {
+	testIP := "1.1.1.12/32"
+	testSlug := "ipadr_dev_ot_ext"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  external_assignment = true
+  status = "active"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_ip_address.test.id
+  object_type = "dcim.interface"
+  interface_id = netbox_device_interface.test.id
+}`, testIP),
+			},
+			// we update the description, to see if the ip and assignment don't conflict
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  external_assignment = true
+  status = "active"
+  description = "update"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_ip_address.test.id
+  object_type = "dcim.interface"
+  interface_id = netbox_device_interface.test.id
+}`, testIP),
+			},
+			{
+				ResourceName:            "netbox_ip_address.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"external_assignment", "interface_id", "object_type"},
+			},
+		},
+	})
+}
+
+func TestAccNetboxIPAddress_vmByObjectType_external(t *testing.T) {
+	testIP := "1.1.1.13/32"
+	testSlug := "ipadr_vm_ot_ext"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  external_assignment = true
+  status = "active"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_ip_address.test.id
+  object_type = "virtualization.vminterface"
+  interface_id = netbox_interface.test.id
+}`, testIP),
+			},
+			// we update the description, to see if the ip and assignment don't conflict
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  external_assignment = true
+  status = "active"
+  description = "update"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_ip_address.test.id
+  object_type = "virtualization.vminterface"
+  interface_id = netbox_interface.test.id
+}`, testIP),
+			},
+			{
+				ResourceName:            "netbox_ip_address.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"external_assignment", "interface_id", "object_type"},
+			},
+		},
+	})
+}
+
+// TestAccNetboxIPAddress_deviceByFieldName tests if creating an ip address and linking it to a device via the `device_interface_id` field works
+func TestAccNetboxIPAddress_deviceByFieldName_external(t *testing.T) {
+	testIP := "1.1.1.14/32"
+	testSlug := "ipadr_dev_fn_ext"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  external_assignment = true
+  status = "active"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_ip_address.test.id
+  device_interface_id = netbox_device_interface.test.id
+}`, testIP),
+			},
+			{
+				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  external_assignment = true
+  status = "active"
+  description = "update"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_ip_address.test.id
+  device_interface_id = netbox_device_interface.test.id
+}`, testIP),
+			},
+			{
+				ResourceName:            "netbox_ip_address.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"external_assignment", "interface_id", "object_type"},
+			},
+		},
+	})
+}
+
+func TestAccNetboxIPAddress_vmByFieldName_external(t *testing.T) {
+	testIP := "1.1.1.15/32"
+	testSlug := "ipadr_vm_fn_ext"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  external_assignment = true
+  status = "active"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_ip_address.test.id
+  virtual_machine_interface_id = netbox_interface.test.id
+}`, testIP),
+			},
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  external_assignment = true
+  status = "active"
+  description = "update"
+}
+resource "netbox_ip_address_assignment" "test" {
+  ip_address_id = netbox_ip_address.test.id
+  virtual_machine_interface_id = netbox_interface.test.id
+}`, testIP),
+			},
+			{
+				ResourceName:            "netbox_ip_address.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"external_assignment", "interface_id", "object_type"},
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_ip_address", &resource.Sweeper{
 		Name:         "netbox_ip_address",
