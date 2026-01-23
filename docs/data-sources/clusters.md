@@ -61,22 +61,14 @@ Required:
 - `name` (String)
 - `value` (String)
 
-The following filter names are supported:
-
-- `name` - Filter by cluster name
-- `cluster_type_id` - Filter by cluster type ID
-- `cluster_group_id` - Filter by cluster group ID
-- `site_id` - Filter by site ID
-- `tag` - Filter by tag (can be specified multiple times for AND logic)
-
 
 <a id="nestedatt--clusters"></a>
 ### Nested Schema for `clusters`
 
 Read-Only:
 
-- `cluster_id` (Number)
 - `cluster_group_id` (Number)
+- `cluster_id` (Number)
 - `cluster_type_id` (Number)
 - `comments` (String)
 - `custom_fields` (Map of String)
@@ -90,3 +82,5 @@ Read-Only:
 - `site_id` (Number)
 - `tags` (Set of String)
 - `tenant_id` (Number)
+
+
