@@ -1,3 +1,15 @@
+## 5.1.0 (January 26th, 2026)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_device_render_config` ([#816](https://github.com/e-breuninger/terraform-provider-netbox/pull/816) by [@lgogolin](https://github.com/lgogolin))
+* **New Data Source:** `netbox_clusters` ([#817](https://github.com/e-breuninger/terraform-provider-netbox/pull/817) by [@sasler](https://github.com/sasler))
+* data-source/netbox_prefix: Add support for filtering netbox_prefix by custom fields ([#819](https://github.com/e-breuninger/terraform-provider-netbox/pull/819) by [@christopher-svensson-stegra](https://github.com/christopher-svensson-stegra))
+
+BUG FIXES
+
+* Fix an error where datasources with boolean custom fields returned 'expected type string, got unconvertible type bool' ([#814](https://github.com/e-breuninger/terraform-provider-netbox/pull/814) by [@mcanevet](https://github.com/mcanevet))
+
 ## 5.0.1 Ho-Ho-Ho (December 25th, 2025) 
 
 ENHANCEMENTS
