@@ -16,7 +16,7 @@ Netbox often makes breaking API changes even in non-major releases. Check the ta
 
 | Netbox version  | Provider version |
 | --------------- | ---------------- |
-| v4.3.0 - 4.4.4  | v5.0.0 and up    |
+| v4.3.0 - 4.4.10 | v5.0.0 and up    |
 | v4.2.2 - 4.2.9  | v4.0.0 - 4.3.1   |
 | v4.1.0 - 4.1.11 | v3.10.0 - 3.11.1 |
 | v4.0.0 - 4.0.11 | v3.9.0 - 3.9.2   |
