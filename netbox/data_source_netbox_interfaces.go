@@ -134,6 +134,10 @@ func dataSourceNetboxInterfaces() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -231,6 +235,10 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 		}
 
 		mapping["vm_id"] = v.VirtualMachine.ID
+
+		if v.Type != nil {
+			mapping["type"] = *v.Type.Value
+		}
 
 		s = append(s, mapping)
 	}
