@@ -1,13 +1,13 @@
 ---
 services:
   postgres:
-    image: postgres:14-alpine
+    image: postgres:18-alpine
     environment:
       - POSTGRES_USER=netbox
       - POSTGRES_PASSWORD=netbox
       - POSTGRES_DB=netbox
   redis:
-    image: redis:6-alpine
+    image: docker.io/valkey/valkey:9.0-alpine
   netbox:
     image: netboxcommunity/netbox:${NETBOX_VERSION}
     depends_on:
