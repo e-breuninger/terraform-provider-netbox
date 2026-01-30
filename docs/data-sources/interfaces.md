@@ -13,7 +13,7 @@ description: |-
 ## Example Usage
 
 ```terraform
-data "netbox_interfaces" "myvm_eth0" {
+data "netbox_interface" "myvm_eth0" {
   name_regex = "eth0"
   filter {
     name  = "name"
