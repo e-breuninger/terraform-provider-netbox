@@ -119,7 +119,7 @@ func resourceNetboxPowerPanelRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", powerPanel.Description)
 	d.Set("comments", powerPanel.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

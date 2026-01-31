@@ -152,7 +152,7 @@ func resourceNetboxDevicePowerPortRead(d *schema.ResourceData, m interface{}) er
 	d.Set("description", powerPort.Description)
 	d.Set("mark_connected", powerPort.MarkConnected)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

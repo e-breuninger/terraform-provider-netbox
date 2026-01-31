@@ -162,7 +162,7 @@ func resourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) er
 	d.Set("description", frontPort.Description)
 	d.Set("mark_connected", frontPort.MarkConnected)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
