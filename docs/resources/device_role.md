@@ -16,9 +16,19 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/dev
 ## Example Usage
 
 ```terraform
+# Device role for physical devices only
 resource "netbox_device_role" "core_sw" {
   color_hex = "FF00FF"
   name      = "core-sw"
+  vm_role   = false
+}
+
+# Device role that can be used for both devices and VMs
+resource "netbox_device_role" "web_server" {
+  color_hex   = "00FF00"
+  name        = "web-server"
+  description = "Web server role"
+  vm_role     = true
 }
 ```
 
@@ -35,7 +45,7 @@ resource "netbox_device_role" "core_sw" {
 - `description` (String)
 - `slug` (String)
 - `tags` (Set of String)
-- `vm_role` (Boolean) Defaults to `true`.
+- `vm_role` (Boolean) Virtual machines may be assigned to this role. Defaults to `false`.
 
 ### Read-Only
 
