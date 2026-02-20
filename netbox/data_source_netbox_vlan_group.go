@@ -97,7 +97,11 @@ func dataSourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("slug", result.Slug)
 	d.Set("vlan_count", result.VlanCount)
 	d.Set("description", result.Description)
-	d.Set("scope_id", strconv.FormatInt(*result.ScopeID, 10))
-	d.Set("scope_type", result.ScopeType)
+	if result.ScopeID != nil {
+		d.Set("scope_id", strconv.FormatInt(*result.ScopeID, 10))
+	}
+	if result.ScopeType != nil {
+		d.Set("scope_type", *result.ScopeType)
+	}
 	return nil
 }

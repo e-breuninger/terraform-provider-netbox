@@ -47,13 +47,34 @@ data "netbox_vlan_groups" "test" {
 }`
 }
 
-func testAccNetboxVlanGroupsWithQ() string {
+func testAccNetboxVlanGroupsWithNameIsw() string {
 	return `
 data "netbox_vlan_groups" "test" {
   filter {
-	name = "name"
+	name  = "name__isw"
 	value = "VLANGroup"
   }
+}`
+}
+
+func testAccNetboxVlanGroupsByID() string {
+	return `
+data "netbox_vlan_groups" "test" {
+  filter {
+	name  = "id"
+	value = netbox_vlan_group.test_1.id
+  }
+}`
+}
+
+func testAccNetboxVlanGroupsWithLimit() string {
+	return `
+data "netbox_vlan_groups" "test" {
+  filter {
+	name  = "name__isw"
+	value = "VLANGroup"
+  }
+  limit = 2
 }`
 }
 
@@ -100,12 +121,49 @@ func TestAccNetboxVlanGroupsDataSource_search(t *testing.T) {
 				),
 			},
 			{
-				Config: setUp + testAccNetboxVlanGroupsWithQ(),
+				Config: setUp + testAccNetboxVlanGroupsWithNameIsw(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_vlan_groups.test", "vlan_groups.#", "3"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlan_groups.test", "vlan_groups.0.slug", "netbox_vlan_group.test_1", "slug"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlan_groups.test", "vlan_groups.1.slug", "netbox_vlan_group.test_2", "slug"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlan_groups.test", "vlan_groups.2.slug", "netbox_vlan_group.test_3", "slug"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxVlanGroupsDataSource_byID(t *testing.T) {
+	setUp := testAccNetboxVlanGroupsSetUp()
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: setUp,
+			},
+			{
+				Config: setUp + testAccNetboxVlanGroupsByID(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_vlan_groups.test", "vlan_groups.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_vlan_groups.test", "vlan_groups.0.name", "netbox_vlan_group.test_1", "name"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxVlanGroupsDataSource_limit(t *testing.T) {
+	setUp := testAccNetboxVlanGroupsSetUp()
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: setUp,
+			},
+			{
+				Config: setUp + testAccNetboxVlanGroupsWithLimit(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_vlan_groups.test", "vlan_groups.#", "2"),
 				),
 			},
 		},
