@@ -43,6 +43,16 @@ jobs:
           - v4.3.6
           - v4.3.7
           - v4.4.0
+          - v4.4.1
+          - v4.4.2
+          # - v4.4.3 # this version cannot be spun up for testing due to TypeError: issubclass() arg 1 must be a class
+          - v4.4.4
+          - v4.4.5
+          - v4.4.6
+          - v4.4.7
+          - v4.4.8
+          - v4.4.9
+          - v4.4.10
     steps:
       - uses: actions/checkout@v6
       - name: Set up Go
