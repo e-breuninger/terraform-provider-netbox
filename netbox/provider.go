@@ -207,6 +207,7 @@ func Provider() *schema.Provider {
 			"netbox_vlan":                 dataSourceNetboxVlan(),
 			"netbox_vlans":                dataSourceNetboxVlans(),
 			"netbox_vlan_group":           dataSourceNetboxVlanGroup(),
+			"netbox_vlan_groups":          dataSourceNetboxVlanGroups(),
 			"netbox_site_group":           dataSourceNetboxSiteGroup(),
 			"netbox_racks":                dataSourceNetboxRacks(),
 			"netbox_rack_role":            dataSourceNetboxRackRole(),
