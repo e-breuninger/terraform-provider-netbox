@@ -98,6 +98,31 @@ resource "netbox_custom_field" "test" {
 	})
 }
 
+func TestAccNetboxCustomField_ui_visibility(t *testing.T) {
+	testSlug := "custom_fields_ui_visibility"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "%s"
+  type          = "text"
+  content_types = ["virtualization.vminterface"]
+  weight        = 100
+  ui_visibility = "always"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "ui_visibility", "always"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccNetboxCustomField_select(t *testing.T) {
 	testSlug := "custom_fields_select"
 	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
