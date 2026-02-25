@@ -76,7 +76,7 @@ func TestFlattenCustomFields(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"gateway": `{"address":"10.21.10.254/24","display":"10.21.10.254/24","family":{"label":"IPv4","value":4},"id":9,"url":"https://netbox.example.com/api/ipam/ip-addresses/9/"}`,
+				"gateway": "9",
 			},
 		},
 		{
@@ -191,21 +191,15 @@ func TestFlattenCustomFields_ComplexRealWorldExample(t *testing.T) {
 		t.Fatal("expected non-nil result")
 	}
 
-	// Check that gateway is a JSON string
+	// Check that gateway is extracted to just the ID string
 	gateway, ok := result["gateway"].(string)
 	if !ok {
 		t.Errorf("expected gateway to be a string, got %T", result["gateway"])
 	}
 
-	// Verify we can parse the gateway JSON
-	var gatewayObj map[string]interface{}
-	if err := json.Unmarshal([]byte(gateway), &gatewayObj); err != nil {
-		t.Errorf("failed to parse gateway JSON: %v", err)
-	}
-
-	// Verify the gateway object has expected fields
-	if gatewayObj["address"] != "10.21.10.254/24" {
-		t.Errorf("expected address 10.21.10.254/24, got %v", gatewayObj["address"])
+	// Verify the gateway is just the ID
+	if gateway != "9" {
+		t.Errorf("expected gateway=9, got %v", gateway)
 	}
 
 	// Check simple fields

@@ -171,7 +171,7 @@ func resourceNetboxMACAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("comments", macAddress.Comments)
 	api.readTags(d, macAddress.Tags)
 
-	cf := getCustomFields(macAddress.CustomFields)
+	cf := flattenCustomFields(macAddress.CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

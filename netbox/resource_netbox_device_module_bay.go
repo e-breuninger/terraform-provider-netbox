@@ -115,7 +115,7 @@ func resourceNetboxDeviceModuleBayRead(d *schema.ResourceData, m interface{}) er
 	d.Set("position", moduleBay.Position)
 	d.Set("description", moduleBay.Description)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

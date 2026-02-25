@@ -154,7 +154,7 @@ func resourceNetboxModuleRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", module.Description)
 	d.Set("comments", module.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

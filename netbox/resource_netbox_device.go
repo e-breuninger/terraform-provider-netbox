@@ -353,7 +353,7 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("config_template_id", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

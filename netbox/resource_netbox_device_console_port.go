@@ -150,7 +150,7 @@ func resourceNetboxDeviceConsolePortRead(d *schema.ResourceData, m interface{}) 
 	d.Set("description", consolePort.Description)
 	d.Set("mark_connected", consolePort.MarkConnected)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
