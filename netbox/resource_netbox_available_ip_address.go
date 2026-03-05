@@ -35,11 +35,13 @@ This resource will retrieve the next available IP address from a given prefix or
 			"prefix_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
 			"ip_range_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
 			"ip_address": {
