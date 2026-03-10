@@ -47,3 +47,4 @@ resource "netbox_ip_range" "cust_a_prod" {
 - `size` (Number) The total member count of the IP range.
 - `tags_all` (Set of String)
 
+
