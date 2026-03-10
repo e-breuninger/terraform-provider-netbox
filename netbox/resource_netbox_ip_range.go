@@ -59,7 +59,8 @@ func resourceNetboxIPRange() *schema.Resource {
 				Computed:    true,
 				Description: "The total member count of the IP range",
 			},
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -148,6 +149,10 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	api.readTags(d, res.GetPayload().Tags)
+	cf := getCustomFields(res.GetPayload().CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
 
 	return nil
 }
@@ -183,6 +188,9 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return err
+	}
+	if cf, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = cf
 	}
 
 	params := ipam.NewIpamIPRangesUpdateParams().WithID(id).WithData(&data)

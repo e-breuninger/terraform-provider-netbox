@@ -33,6 +33,7 @@ resource "netbox_ip_range" "cust_a_prod" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `role_id` (Number)
 - `status` (String) Valid values are `active`, `reserved` and `deprecated`. Defaults to `active`.
@@ -45,5 +46,4 @@ resource "netbox_ip_range" "cust_a_prod" {
 - `id` (String) The ID of this resource.
 - `size` (Number) The total member count of the IP range.
 - `tags_all` (Set of String)
-
 
