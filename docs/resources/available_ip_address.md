@@ -103,3 +103,4 @@ resource "netbox_available_ip_address" "myvm-ip" {
 - `ip_address` (String)
 - `tags_all` (Set of String)
 
+
