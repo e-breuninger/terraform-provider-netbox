@@ -27,7 +27,18 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 	if !ok || len(cfm) == 0 {
 		return nil
 	}
-	return cfm
+
+	result := make(map[string]interface{})
+	for key, value := range cfm {
+		if value != nil {
+			result[key] = value
+		}
+	}
+
+	if len(result) == 0 {
+		return nil
+	}
+	return result
 }
 
 // flattenCustomFields converts custom fields to a map where all values are strings.
