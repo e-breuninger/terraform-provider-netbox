@@ -1,3 +1,15 @@
+## 5.2.0 (March 11th, 2026)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_vlan_groups` ([#787](https://github.com/e-breuninger/terraform-provider-netbox/pull/787) by [@hp197](https://github.com/hp197))
+* data-source/netbox_vlan_group: Add `id` attribute ([#787](https://github.com/e-breuninger/terraform-provider-netbox/pull/787) by [@hp197](https://github.com/hp197))
+* data-source/netbox_ip_range: Add many missing filters ([#827](https://github.com/e-breuninger/terraform-provider-netbox/pull/827) by [@oliverwiegers](https://github.com/oliverwiegers))
+
+BUG FIXES
+
+* resource/netbox_available_ip_address: Force replacement when `prefix_id` or `ip_range_id` changes ([#837](https://github.com/e-breuninger/terraform-provider-netbox/pull/837) by [@bl0way](https://github.com/bl0way))
+
 ## 5.1.0 (January 26th, 2026)
 
 ENHANCEMENTS
