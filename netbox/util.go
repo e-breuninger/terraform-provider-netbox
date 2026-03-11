@@ -66,7 +66,7 @@ func joinStringWithFinalConjunction(elems []string, sep, con string) string {
 
 	var b strings.Builder
 	b.WriteString(strings.Join(elems[0:len(elems)-1], sep))
-	b.WriteString(fmt.Sprintf(" %s %s", con, elems[len(elems)-1]))
+	fmt.Fprintf(&b, " %s %s", con, elems[len(elems)-1])
 	return b.String()
 }
 
