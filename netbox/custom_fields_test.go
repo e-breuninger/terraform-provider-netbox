@@ -254,6 +254,24 @@ func TestGetCustomFields(t *testing.T) {
 			input:    "not a map",
 			expected: nil,
 		},
+		{
+			name: "map with nil values excluded",
+			input: map[string]interface{}{
+				"set_field":   "value1",
+				"unset_field": nil,
+			},
+			expected: map[string]interface{}{
+				"set_field": "value1",
+			},
+		},
+		{
+			name: "map with only nil values returns nil",
+			input: map[string]interface{}{
+				"unset1": nil,
+				"unset2": nil,
+			},
+			expected: nil,
+		},
 	}
 
 	for _, tt := range tests {
