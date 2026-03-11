@@ -38,8 +38,10 @@ func dataSourceNetboxClusters() *schema.Resource {
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          0,
 			},
 			"clusters": {
 				Type:     schema.TypeList,
@@ -115,6 +117,12 @@ func dataSourceNetboxClustersRead(d *schema.ResourceData, m interface{}) error {
 
 	params := virtualization.NewVirtualizationClustersListParams()
 
+	// Get user limit (0 = fetch all)
+	var userLimit int64 = 0
+	if limitValue, ok := d.GetOk("limit"); ok {
+		userLimit = int64(limitValue.(int))
+	}
+
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
 		var tags []string
@@ -140,26 +148,51 @@ func dataSourceNetboxClustersRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if limit, ok := d.GetOk("limit"); ok {
-		limitInt := int64(limit.(int))
-		params.Limit = &limitInt
+	// Fetch all pages with pagination (fetch all when name_regex is used)
+	paginationHelper := NewPaginationHelper(FetchAll)
+	var allClusters []*models.Cluster
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Virtualization.VirtualizationClustersList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch clusters at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allClusters = append(allClusters, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allClusters)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	res, err := api.Virtualization.VirtualizationClustersList(params, nil)
-	if err != nil {
-		return err
-	}
-
+	// Apply name_regex filter
 	var filteredClusters []*models.Cluster
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r := regexp.MustCompile(nameRegex.(string))
-		for _, cluster := range res.GetPayload().Results {
+		for _, cluster := range allClusters {
 			if r.MatchString(*cluster.Name) {
 				filteredClusters = append(filteredClusters, cluster)
 			}
 		}
 	} else {
-		filteredClusters = res.GetPayload().Results
+		filteredClusters = allClusters
+	}
+
+	// Apply user limit to filtered results
+	if userLimit > 0 && int64(len(filteredClusters)) > userLimit {
+		filteredClusters = filteredClusters[:userLimit]
 	}
 
 	var s []map[string]interface{}

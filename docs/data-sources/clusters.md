@@ -45,7 +45,7 @@ data "netbox_clusters" "site_clusters" {
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `limit` (Number)
+- `limit` (Number) Defaults to `0`.
 - `name_regex` (String)
 
 ### Read-Only

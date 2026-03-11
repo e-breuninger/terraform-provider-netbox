@@ -36,7 +36,7 @@ func dataSourceNetboxIPAddresses() *schema.Resource {
 				Type:             schema.TypeInt,
 				Optional:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
-				Default:          1000,
+				Default:          0,
 			},
 			"ip_addresses": {
 				Type:     schema.TypeList,
@@ -140,8 +140,10 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 
 	params := ipam.NewIpamIPAddressesListParams()
 
+	// Get user limit
+	var userLimit int64 = 0
 	if limitValue, ok := d.GetOk("limit"); ok {
-		params.Limit = int64ToPtr(int64(limitValue.(int)))
+		userLimit = int64(limitValue.(int))
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
@@ -183,16 +185,42 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 		}
 	}
 
-	res, err := api.Ipam.IpamIPAddressesList(params, nil)
-	if err != nil {
-		return err
+	// Fetch all pages with pagination
+	paginationHelper := NewPaginationHelper(userLimit)
+	var allIPAddresses []*models.IPAddress
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Ipam.IpamIPAddressesList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch IP addresses at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allIPAddresses = append(allIPAddresses, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allIPAddresses)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	if *res.GetPayload().Count == int64(0) {
+	// Trim to user limit if specified
+	trimmedCount := paginationHelper.TrimToLimit(len(allIPAddresses))
+	filteredIPAddresses := allIPAddresses[:trimmedCount]
+
+	if len(filteredIPAddresses) == 0 {
 		return errors.New("no result")
 	}
-
-	filteredIPAddresses := res.GetPayload().Results
 
 	var s []map[string]interface{}
 	for _, v := range filteredIPAddresses {
