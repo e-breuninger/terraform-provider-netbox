@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -98,8 +99,10 @@ func dataSourceNetboxVlanGroupsRead(d *schema.ResourceData, m interface{}) error
 
 	params := ipam.NewIpamVlanGroupsListParams()
 
+	// Get user limit (0 = fetch all)
+	var userLimit int64 = 0
 	if limitValue, ok := d.GetOk("limit"); ok {
-		params.Limit = int64ToPtr(int64(limitValue.(int)))
+		userLimit = int64(limitValue.(int))
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
@@ -265,16 +268,42 @@ func dataSourceNetboxVlanGroupsRead(d *schema.ResourceData, m interface{}) error
 		}
 	}
 
-	res, err := api.Ipam.IpamVlanGroupsList(params, nil)
-	if err != nil {
-		return err
+	// Fetch all pages with pagination
+	paginationHelper := NewPaginationHelper(userLimit)
+	var allVlanGroups []*models.VLANGroup
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Ipam.IpamVlanGroupsList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch VLAN groups at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allVlanGroups = append(allVlanGroups, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allVlanGroups)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	if *res.GetPayload().Count == int64(0) {
+	// Trim to user limit if specified
+	trimmedCount := paginationHelper.TrimToLimit(len(allVlanGroups))
+	filteredVlanGroups := allVlanGroups[:trimmedCount]
+
+	if len(filteredVlanGroups) == 0 {
 		return errors.New("no result")
 	}
-
-	filteredVlanGroups := res.GetPayload().Results
 
 	var s []map[string]interface{}
 	for _, vg := range filteredVlanGroups {

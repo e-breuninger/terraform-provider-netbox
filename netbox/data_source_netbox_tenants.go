@@ -36,7 +36,7 @@ func dataSourceNetboxTenants() *schema.Resource {
 				Type:             schema.TypeInt,
 				Optional:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
-				Default:          1000,
+				Default:          0,
 			},
 			"tenants": {
 				Type:     schema.TypeList,
@@ -152,8 +152,10 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 
 	params := tenancy.NewTenancyTenantsListParams()
 
+	// Get user limit
+	var userLimit int64 = 0
 	if limitValue, ok := d.GetOk("limit"); ok {
-		params.Limit = int64ToPtr(int64(limitValue.(int)))
+		userLimit = int64(limitValue.(int))
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
@@ -173,16 +175,42 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	res, err := api.Tenancy.TenancyTenantsList(params, nil)
-	if err != nil {
-		return err
+	// Fetch all pages with pagination
+	paginationHelper := NewPaginationHelper(userLimit)
+	var allTenants []*models.Tenant
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Tenancy.TenancyTenantsList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch tenants at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allTenants = append(allTenants, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allTenants)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	if *res.GetPayload().Count == int64(0) {
+	// Trim to user limit if specified
+	trimmedCount := paginationHelper.TrimToLimit(len(allTenants))
+	filteredTenants := allTenants[:trimmedCount]
+
+	if len(filteredTenants) == 0 {
 		return errors.New("no result")
 	}
-
-	filteredTenants := res.GetPayload().Results
 
 	var s []map[string]interface{}
 	for _, v := range filteredTenants {

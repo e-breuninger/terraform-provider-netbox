@@ -38,8 +38,10 @@ func dataSourceNetboxVirtualDisk() *schema.Resource {
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          0,
 			},
 			"virtual_disks": {
 				Type:     schema.TypeList,
@@ -86,6 +88,12 @@ func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 	params := virtualization.NewVirtualizationVirtualDisksListParams()
 
+	// Get user limit (0 = fetch all)
+	var userLimit int64 = 0
+	if limitValue, ok := d.GetOk("limit"); ok {
+		userLimit = int64(limitValue.(int))
+	}
+
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.([]interface{})
 		var tags []string
@@ -106,26 +114,52 @@ func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) erro
 			params.Tag = tags
 		}
 	}
-	if limit, ok := d.GetOk("limit"); ok {
-		limitInt := int64(limit.(int))
-		params.Limit = &limitInt
+
+	// Fetch all pages with pagination (fetch all when name_regex is used)
+	paginationHelper := NewPaginationHelper(FetchAll)
+	var allDisks []*models.VirtualDisk
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Virtualization.VirtualizationVirtualDisksList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch virtual disks at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allDisks = append(allDisks, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allDisks)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	res, err := api.Virtualization.VirtualizationVirtualDisksList(params, nil)
-	if err != nil {
-		return err
-	}
-
+	// Apply name_regex filter
 	var filteredDisks []*models.VirtualDisk
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r := regexp.MustCompile(nameRegex.(string))
-		for _, disk := range res.GetPayload().Results {
+		for _, disk := range allDisks {
 			if disk.Name != nil && r.MatchString(*disk.Name) {
 				filteredDisks = append(filteredDisks, disk)
 			}
 		}
 	} else {
-		filteredDisks = res.GetPayload().Results
+		filteredDisks = allDisks
+	}
+
+	// Apply user limit to filtered results
+	if userLimit > 0 && int64(len(filteredDisks)) > userLimit {
+		filteredDisks = filteredDisks[:userLimit]
 	}
 
 	var s []map[string]interface{}

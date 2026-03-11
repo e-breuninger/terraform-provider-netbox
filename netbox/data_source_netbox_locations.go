@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -101,8 +102,10 @@ func dataSourceNetboxLocationsRead(d *schema.ResourceData, m interface{}) error 
 	api := m.(*providerState)
 	params := dcim.NewDcimLocationsListParams()
 
+	// Get user limit
+	var userLimit int64 = 0
 	if limitValue, ok := d.GetOk("limit"); ok {
-		params.Limit = int64ToPtr(int64(limitValue.(int)))
+		userLimit = int64(limitValue.(int))
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
@@ -140,13 +143,39 @@ func dataSourceNetboxLocationsRead(d *schema.ResourceData, m interface{}) error 
 			params.Tag = append(params.Tag, tagV)
 		}
 	}
-	res, err := api.Dcim.DcimLocationsList(params, nil)
 
-	if err != nil {
-		return err
+	// Fetch all pages with pagination
+	paginationHelper := NewPaginationHelper(userLimit)
+	var allLocations []*models.Location
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Dcim.DcimLocationsList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch locations at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allLocations = append(allLocations, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allLocations)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	filteredLocations := res.GetPayload().Results
+	// Trim to user limit if specified
+	trimmedCount := paginationHelper.TrimToLimit(len(allLocations))
+	filteredLocations := allLocations[:trimmedCount]
 
 	var s []map[string]any
 	for _, v := range filteredLocations {

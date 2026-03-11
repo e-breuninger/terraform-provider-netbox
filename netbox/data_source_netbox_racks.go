@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -151,8 +152,10 @@ func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimRacksListParams()
 
+	// Get user limit
+	var userLimit int64 = 0
 	if limitValue, ok := d.GetOk("limit"); ok {
-		params.Limit = int64ToPtr(int64(limitValue.(int)))
+		userLimit = int64(limitValue.(int))
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
@@ -218,16 +221,42 @@ func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	res, err := api.Dcim.DcimRacksList(params, nil)
-	if err != nil {
-		return err
+	// Fetch all pages with pagination
+	paginationHelper := NewPaginationHelper(userLimit)
+	var allRacks []*models.Rack
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Dcim.DcimRacksList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch racks at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allRacks = append(allRacks, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allRacks)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	if *res.GetPayload().Count == int64(0) {
+	// Trim to user limit if specified
+	trimmedCount := paginationHelper.TrimToLimit(len(allRacks))
+	filteredRacks := allRacks[:trimmedCount]
+
+	if len(filteredRacks) == 0 {
 		return errors.New("no result")
 	}
-
-	filteredRacks := res.GetPayload().Results
 
 	var s []map[string]interface{}
 	for _, v := range filteredRacks {
