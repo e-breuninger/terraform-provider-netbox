@@ -35,7 +35,6 @@ services:
       - SUPERUSER_PASSWORD=admin
       - SUPERUSER_API_TOKEN=${NETBOX_API_TOKEN}
       - METRICS_ENABLED=true
-      - API_TOKEN_PEPPER_1=D1)T@tb@cRf(guHO1q+rs&zrXKKA=96uQU3bT_N8t0NNo5mHy2
     volumes:
       - ./super_user.py:/opt/netbox/super_user.py:ro
     healthcheck:
