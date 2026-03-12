@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	semver "github.com/Masterminds/semver/v3"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -33,6 +34,21 @@ func testAccGetTestName(testSlug string) string {
 func testAccGetTestToken() string {
 	randomToken := acctest.RandStringFromCharSet(40, "0123456789")
 	return randomToken
+}
+
+// testAccNetboxVersionAtLeast returns true if the NETBOX_VERSION env var is >= the given constraint.
+// If NETBOX_VERSION is unset or unparseable, it returns false.
+func testAccNetboxVersionAtLeast(constraint string) bool {
+	raw := strings.TrimPrefix(os.Getenv("NETBOX_VERSION"), "v")
+	v, err := semver.NewVersion(raw)
+	if err != nil {
+		return false
+	}
+	c, err := semver.NewConstraint(">= " + constraint)
+	if err != nil {
+		return false
+	}
+	return c.Check(v)
 }
 
 func testAccPreCheck(t *testing.T) {
