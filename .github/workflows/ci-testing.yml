@@ -45,6 +45,11 @@ jobs:
           - v4.4.8
           - v4.4.9
           - v4.4.10
+          # - v4.5.0 # this version cannot be spun up for testing due to startup stall at "Building search index"
+          - v4.5.1
+          - v4.5.2
+          - v4.5.3
+          - v4.5.4
     steps:
       - uses: actions/checkout@v6
       - name: Set up Go
