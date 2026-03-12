@@ -12,6 +12,7 @@ import (
 )
 
 func dataSourceNetboxIPAddresses() *schema.Resource {
+	customFieldsFilterSchema := *customFieldsSchema
 	return &schema.Resource{
 		Read:        dataSourceNetboxIPAddressesRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
@@ -38,6 +39,7 @@ func dataSourceNetboxIPAddresses() *schema.Resource {
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
 				Default:          0,
 			},
+			customFieldsKey: &customFieldsFilterSchema,
 			"ip_addresses": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -139,6 +141,7 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 
 	params := ipam.NewIpamIPAddressesListParams()
+	var opts []ipam.ClientOption
 
 	// Get user limit
 	var userLimit int64 = 0
@@ -189,13 +192,17 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 	paginationHelper := NewPaginationHelper(userLimit)
 	var allIPAddresses []*models.IPAddress
 
+	if cfm, ok := d.Get(customFieldsKey).(map[string]interface{}); ok {
+		opts = append(opts, WithCustomFieldParamsOption(cfm))
+	}
+
 	pageSize := paginationHelper.GetPageSize()
 	for {
 		currentOffset := paginationHelper.CurrentOffset()
 		params.Limit = &pageSize
 		params.Offset = &currentOffset
 
-		res, err := api.Ipam.IpamIPAddressesList(params, nil)
+		res, err := api.Ipam.IpamIPAddressesList(params, nil, opts...)
 		if err != nil {
 			return fmt.Errorf("failed to fetch IP addresses at offset %d: %w", currentOffset, err)
 		}
