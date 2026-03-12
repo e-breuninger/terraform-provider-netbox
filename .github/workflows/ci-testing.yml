@@ -17,14 +17,6 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
-      - uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: test
         run: make test
 
@@ -59,14 +51,6 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
-      - uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: testacc
         run: make -e testacc
         env:
