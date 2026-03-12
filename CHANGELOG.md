@@ -1,3 +1,10 @@
+## 5.2.1 (March 12th, 2026)
+
+ENHANCEMENTS
+
+* All plural data sources now use pagination ([#846](https://github.com/e-breuninger/terraform-provider-netbox/pull/846) by [@mcanevet](https://github.com/mcanevet))
+* Ignore unset custom fields ([#844](https://github.com/e-breuninger/terraform-provider-netbox/pull/844) by [@mcanevet](https://github.com/mcanevet))
+
 ## 5.2.0 (March 11th, 2026)
 
 ENHANCEMENTS
