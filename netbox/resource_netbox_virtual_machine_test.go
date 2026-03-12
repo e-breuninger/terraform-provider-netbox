@@ -196,7 +196,7 @@ resource "netbox_virtual_machine" "test" {
   device_id = netbox_device.test.id
   vcpus = 4
   status = "active"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
@@ -229,7 +229,7 @@ resource "netbox_virtual_machine" "test" {
   platform_id = netbox_platform.test.id
   vcpus = 4
   status = "active"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
@@ -365,7 +365,7 @@ resource "netbox_virtual_machine" "test" {
   name = "%[1]s"
   cluster_id = netbox_cluster.test.id
   site_id = netbox_site.test.id
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName),
@@ -379,7 +379,7 @@ resource "netbox_virtual_machine" "test" {
   name = "%s"
   cluster_id = netbox_cluster.test.id
   site_id = netbox_site.test.id
-  tags = ["%[1]sa", "%[1]sb"]
+  tags = [netbox_tag.test_a.name, netbox_tag.test_b.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "tags.#", "2"),
