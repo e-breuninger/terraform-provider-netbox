@@ -33,7 +33,7 @@ resource "netbox_asn" "test" {
   description = "test"
   comments = "test"
 
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_asn.test", "asn", "1337"),

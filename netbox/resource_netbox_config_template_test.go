@@ -66,7 +66,7 @@ func TestAccNetboxConfigTemplate_tags(t *testing.T) {
 resource "netbox_config_template" "test_tags" {
   name = "%[1]s"
   template_code = "hostname test"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_config_template.test_tags", "name", testName),
@@ -79,7 +79,7 @@ resource "netbox_config_template" "test_tags" {
 resource "netbox_config_template" "test_tags" {
   name = "%[1]s"
   template_code = "hostname test"
-  tags = ["%[1]sa", "%[1]sb"]
+  tags = [netbox_tag.test_a.name, netbox_tag.test_b.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_config_template.test_tags", "tags.#", "2"),

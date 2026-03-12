@@ -88,7 +88,7 @@ resource "netbox_device_power_port" "test" {
 	type = "iec-60320-c6"
   module_id = netbox_module.test.id
   description = "%[1]s_description"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_power_port.test", "name", testName),

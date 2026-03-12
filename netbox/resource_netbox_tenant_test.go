@@ -85,7 +85,7 @@ func TestAccNetboxTenant_tags(t *testing.T) {
 				Config: testAccNetboxTenantTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_tenant" "test_tags" {
   name = "%[1]s"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "name", testName),
@@ -97,7 +97,7 @@ resource "netbox_tenant" "test_tags" {
 				Config: testAccNetboxTenantTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_tenant" "test_tags" {
   name = "%[1]s"
-  tags = ["%[1]sa", "%[1]sb"]
+  tags = [netbox_tag.test_a.name, netbox_tag.test_b.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tenant.test_tags", "tags.#", "2"),

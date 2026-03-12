@@ -54,7 +54,7 @@ resource "netbox_rack" "test" {
   status      = "reserved"
   width       = 19
   u_height    = 48
-  tags        = ["%[1]sa"]
+  tags        = [netbox_tag.test_a.name]
   tenant_id   = netbox_tenant.test.id
   facility_id = "%[1]sfacility"
   location_id = netbox_location.test.id

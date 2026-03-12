@@ -51,7 +51,7 @@ func testAccNetboxInterfaceBasic(testName string) string {
 resource "netbox_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
-  tags = ["%[1]s"]
+  tags = [netbox_tag.test.name]
 }`, testName)
 }
 
