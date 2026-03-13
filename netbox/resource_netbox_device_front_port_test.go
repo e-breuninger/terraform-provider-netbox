@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -79,6 +80,10 @@ resource "netbox_device_rear_port" "test" {
 func TestAccNetboxDeviceFrontPort_basic(t *testing.T) {
 	testSlug := "device_front_port_basic"
 	testName := testAccGetTestName(testSlug)
+	// NetBox v4.5 changed rear_port_position from 1-based to 0-based
+	// (migration dcim.0223_frontport_positions). Sending position=1 causes
+	// v4.5 to read back position=0, resulting in a perpetual drift.
+	expectNonEmptyPlan := strings.HasPrefix(os.Getenv("NETBOX_VERSION"), "v4.5")
 	resource.ParallelTest(t, resource.TestCase{
 		Providers:    testAccProviders,
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -91,6 +96,7 @@ resource "netbox_device_front_port" "test" {
   name = "%[1]s"
   type = "8p8c"
   rear_port_id = netbox_device_rear_port.test.id
+  rear_port_position = 1
 
   mark_connected = true
   module_id = netbox_module.test.id
@@ -113,6 +119,7 @@ resource "netbox_device_front_port" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "rear_port_id", "netbox_device_rear_port.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "module_id", "netbox_module.test", "id"),
 				),
+				ExpectNonEmptyPlan: expectNonEmptyPlan,
 			},
 			{
 				Config: testAccNetboxDeviceFrontPortFullDependencies(testName) + fmt.Sprintf(`
@@ -121,6 +128,7 @@ resource "netbox_device_front_port" "test" {
   name = "%[1]s"
   type = "8p8c"
   rear_port_id = netbox_device_rear_port.test.id
+  rear_port_position = 1
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "name", testName),
@@ -135,11 +143,13 @@ resource "netbox_device_front_port" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "rear_port_id", "netbox_device_rear_port.test", "id"),
 				),
+				ExpectNonEmptyPlan: expectNonEmptyPlan,
 			},
 			{
-				ResourceName:      "netbox_device_front_port.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "netbox_device_front_port.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"rear_port_position"},
 			},
 		},
 	})

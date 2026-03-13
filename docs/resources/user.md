@@ -36,7 +36,7 @@ resource "netbox_user" "test" {
 - `first_name` (String) Defaults to `""`.
 - `group_ids` (Set of Number)
 - `last_name` (String) Defaults to `""`.
-- `staff` (Boolean) Defaults to `false`.
+- `staff` (Boolean, Deprecated) Defaults to `false`.
 
 ### Read-Only
 
