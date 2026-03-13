@@ -72,8 +72,8 @@ data "netbox_ip_addresses" "test_list" {
 		value = "%s"
 	}
 	filter {
-		name = "vrf_id"
-		value = netbox_vrf.test.id
+		name = "vrf"
+		value = netbox_vrf.test.name
 	}
 }`, testIP0, testIP1, testIP0),
 				Check: resource.ComposeTestCheckFunc(
@@ -119,8 +119,8 @@ data "netbox_ip_addresses" "test_list" {
 		value = "vip"
 	}
 	filter {
-		name = "vrf_id"
-		value = netbox_vrf.test.id
+		name = "vrf"
+		value = netbox_vrf.test.name
 	}
 }`, testIP0, testIP1),
 				Check: resource.ComposeTestCheckFunc(
@@ -170,8 +170,8 @@ data "netbox_ip_addresses" "test_list" {
 		value = "%s"
 	}
 	filter {
-		name = "vrf_id"
-		value = netbox_vrf.test.id
+		name = "vrf"
+		value = netbox_vrf.test.name
 	}
 }`, testPrefix1, testIP0, testIP1, testPrefix1),
 				Check: resource.ComposeTestCheckFunc(
@@ -377,8 +377,8 @@ data "netbox_ip_addresses" "test_list" {
 		value = "%s"
 	}
 	filter {
-		name = "vrf_id"
-		value = netbox_vrf.test.id
+		name = "vrf"
+		value = netbox_vrf.test.name
 	}
 }`, testTag, testIP0, testIP1, testIP2, testTag),
 				Check: resource.ComposeTestCheckFunc(
@@ -424,8 +424,8 @@ data "netbox_ip_addresses" "test_list" {
 		value = "test 1"
 	}
 	filter {
-		name = "vrf_id"
-		value = netbox_vrf.test.id
+		name = "vrf"
+		value = netbox_vrf.test.name
 	}
 }`, testIP0, testIP1),
 				Check: resource.ComposeTestCheckFunc(
