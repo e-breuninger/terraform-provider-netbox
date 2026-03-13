@@ -91,7 +91,6 @@ resource "netbox_device_front_port" "test" {
   name = "%[1]s"
   type = "8p8c"
   rear_port_id = netbox_device_rear_port.test.id
-  rear_port_position = 1
 
   mark_connected = true
   module_id = netbox_module.test.id
@@ -107,7 +106,6 @@ resource "netbox_device_front_port" "test" {
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "label", testName+"_label"),
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "color_hex", "123456"),
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "description", testName+"_description"),
-					resource.TestCheckResourceAttr("netbox_device_front_port.test", "rear_port_position", "1"),
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "tags.0", testName+"a"),
 
@@ -123,7 +121,6 @@ resource "netbox_device_front_port" "test" {
   name = "%[1]s"
   type = "8p8c"
   rear_port_id = netbox_device_rear_port.test.id
-  rear_port_position = 1
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "name", testName),
@@ -132,7 +129,6 @@ resource "netbox_device_front_port" "test" {
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "label", ""),
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "color_hex", ""),
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "description", ""),
-					resource.TestCheckResourceAttr("netbox_device_front_port.test", "rear_port_position", "1"),
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "tags.#", "0"),
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "module_id", "0"),
 
