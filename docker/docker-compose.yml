@@ -35,6 +35,7 @@ services:
       - SUPERUSER_PASSWORD=admin
       - SUPERUSER_API_TOKEN=${NETBOX_API_TOKEN}
       - METRICS_ENABLED=true
+      - GRANIAN_BACKPRESSURE=100
     volumes:
       - ./super_user.py:/opt/netbox/super_user.py:ro
     healthcheck:
