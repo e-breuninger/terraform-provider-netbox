@@ -72,8 +72,8 @@ data "netbox_ip_addresses" "test_list" {
 		value = "%s"
 	}
 	filter {
-		name = "vrf"
-		value = netbox_vrf.test.name
+		name = "vm_interface_id"
+		value = netbox_interface.test.id
 	}
 }`, testIP0, testIP1, testIP0),
 				Check: resource.ComposeTestCheckFunc(
@@ -119,8 +119,8 @@ data "netbox_ip_addresses" "test_list" {
 		value = "vip"
 	}
 	filter {
-		name = "vrf"
-		value = netbox_vrf.test.name
+		name = "vm_interface_id"
+		value = netbox_interface.test.id
 	}
 }`, testIP0, testIP1),
 				Check: resource.ComposeTestCheckFunc(
@@ -170,8 +170,8 @@ data "netbox_ip_addresses" "test_list" {
 		value = "%s"
 	}
 	filter {
-		name = "vrf"
-		value = netbox_vrf.test.name
+		name = "vm_interface_id"
+		value = netbox_interface.test.id
 	}
 }`, testPrefix1, testIP0, testIP1, testPrefix1),
 				Check: resource.ComposeTestCheckFunc(
@@ -376,10 +376,6 @@ data "netbox_ip_addresses" "test_list" {
 		name = "tag"
 		value = "%s"
 	}
-	filter {
-		name = "vrf"
-		value = netbox_vrf.test.name
-	}
 }`, testTag, testIP0, testIP1, testIP2, testTag),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_list", "ip_addresses.#", "1"),
@@ -405,7 +401,7 @@ resource "netbox_ip_address" "test_list_0" {
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   role = "vip"
-  description = "test 1"
+  description = "%s_test1"
   vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
@@ -413,7 +409,7 @@ resource "netbox_ip_address" "test_list_1" {
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   role = "vrrp"
-  description = "test 2"
+  description = "%s_test2"
   vrf_id = netbox_vrf.test.id
 }
 data "netbox_ip_addresses" "test_list" {
@@ -421,13 +417,9 @@ data "netbox_ip_addresses" "test_list" {
 
 	filter {
 		name = "description"
-		value = "test 1"
+		value = "%s_test1"
 	}
-	filter {
-		name = "vrf"
-		value = netbox_vrf.test.name
-	}
-}`, testIP0, testIP1),
+}`, testIP0, testName, testIP1, testName, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_list", "ip_addresses.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test_list", "ip_addresses.0.ip_address", "netbox_ip_address.test_list_0", "ip_address"),
