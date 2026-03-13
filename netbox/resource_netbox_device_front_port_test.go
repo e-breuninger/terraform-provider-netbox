@@ -121,7 +121,7 @@ resource "netbox_device_front_port" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "rear_port_id", "netbox_device_rear_port.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "module_id", "netbox_module.test", "id"),
 				),
-	
+
 			},
 			{
 				Config: testAccNetboxDeviceFrontPortFullDependencies(testName) + fmt.Sprintf(`
@@ -145,7 +145,7 @@ resource "netbox_device_front_port" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "rear_port_id", "netbox_device_rear_port.test", "id"),
 				),
-	
+
 			},
 			{
 				ResourceName:            "netbox_device_front_port.test",
