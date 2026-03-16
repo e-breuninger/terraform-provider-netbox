@@ -48,6 +48,10 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"subdevice_role": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -96,6 +100,11 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
 		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
+
+	if descriptionValue, ok := d.GetOk("description"); ok {
+		data.Description = descriptionValue.(string)
+	}
+
 
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
@@ -146,6 +155,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("subdevice_role", "")
 	}
+	d.Set("description", deviceType.Description)
 	api.readTags(d, deviceType.Tags)
 
 	return nil
@@ -186,6 +196,10 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
 		data.SubdeviceRole = subdeviceRoleValue.(string)
+	}
+
+	if descriptionValue, ok := d.GetOk("description"); ok {
+		data.Description = descriptionValue.(string)
 	}
 
 	var err error
