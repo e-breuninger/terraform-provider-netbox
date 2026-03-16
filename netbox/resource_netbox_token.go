@@ -86,11 +86,13 @@ func resourceNetboxTokenCreate(ctx context.Context, d *schema.ResourceData, m in
 	data.WriteEnabled = d.Get("write_enabled").(bool)
 	data.Description = d.Get("description").(string)
 
-	expires, err := strfmt.ParseDateTime(d.Get("expires").(string))
-	if err != nil {
-		return diag.FromErr(err)
+	if expiresRaw, ok := d.GetOk("expires"); ok {
+		expires, err := strfmt.ParseDateTime(expiresRaw.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		data.Expires = &expires
 	}
-	data.Expires = &expires
 
 	params := users.NewUsersTokensCreateParams().WithData(&data)
 	res, err := api.Users.UsersTokensCreate(params, nil)
@@ -161,14 +163,16 @@ func resourceNetboxTokenUpdate(ctx context.Context, d *schema.ResourceData, m in
 	data.WriteEnabled = d.Get("write_enabled").(bool)
 	data.Description = d.Get("description").(string)
 
-	expires, err := strfmt.ParseDateTime(d.Get("expires").(string))
-	if err != nil {
-		return diag.FromErr(err)
+	if expiresRaw, ok := d.GetOk("expires"); ok {
+		expires, err := strfmt.ParseDateTime(expiresRaw.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		data.Expires = &expires
 	}
-	data.Expires = &expires
 
 	params := users.NewUsersTokensUpdateParams().WithID(id).WithData(&data)
-	_, err = api.Users.UsersTokensUpdate(params, nil)
+	_, err := api.Users.UsersTokensUpdate(params, nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
