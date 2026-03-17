@@ -106,7 +106,7 @@ func TestAccNetboxVirtualMachinesDataSource_status(t *testing.T) {
 				Config: dependencies,
 			},
 			{
-				Config: dependencies + testAccNetboxVirtualMachineDataSourceStatusActive + testAccNetboxVirtualMachineDataSourceStatusDecommissioning,
+				Config: dependencies + testAccNetboxVirtualMachineDataSourceStatusActive() + testAccNetboxVirtualMachineDataSourceStatusDecommissioning(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test_active", "vms.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test_decommissioning", "vms.#", "1"),
@@ -275,21 +275,33 @@ data "netbox_virtual_machines" "tag-ab" {
 }`, testName)
 }
 
-const testAccNetboxVirtualMachineDataSourceStatusActive = `
+func testAccNetboxVirtualMachineDataSourceStatusActive() string {
+	return `
 data "netbox_virtual_machines" "test_active" {
   filter {
     name  = "status"
     value = "active"
   }
+  filter {
+    name  = "cluster_id"
+    value = netbox_cluster.test.id
+  }
 }`
+}
 
-const testAccNetboxVirtualMachineDataSourceStatusDecommissioning = `
+func testAccNetboxVirtualMachineDataSourceStatusDecommissioning() string {
+	return `
 data "netbox_virtual_machines" "test_decommissioning" {
   filter {
     name  = "status"
     value = "decommissioning"
   }
+  filter {
+    name  = "cluster_id"
+    value = netbox_cluster.test.id
+  }
 }`
+}
 
 func testAccNetboxVirtualMachineDataSourceDependenciesWithStatus(testName string) string {
 	return testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`

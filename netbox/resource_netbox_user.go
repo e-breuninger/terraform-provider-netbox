@@ -50,9 +50,10 @@ func resourceNetboxUser() *schema.Resource {
 				Default:  true,
 			},
 			"staff": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Default:    false,
+				Deprecated: "The staff field has been removed in NetBox v4.5 (migration users.0013_user_remove_is_staff). This attribute is ignored by NetBox v4.5 and later.",
 			},
 			"group_ids": {
 				Type:     schema.TypeSet,

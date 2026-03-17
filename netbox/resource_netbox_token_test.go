@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"testing"
 
@@ -11,6 +12,11 @@ import (
 )
 
 func TestAccNetboxToken_basic(t *testing.T) {
+	netboxVersion := os.Getenv("NETBOX_VERSION")
+	if strings.HasPrefix(netboxVersion, "v4.5") {
+		t.Skipf("Skipping token test on NetBox %s: token creation requires API_TOKEN_PEPPERS which is not configured in the test environment", netboxVersion)
+	}
+
 	testSlug := "users"
 	testName := testAccGetTestName(testSlug)
 	testToken := testAccGetTestToken()
