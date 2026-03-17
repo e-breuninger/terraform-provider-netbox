@@ -50,6 +50,10 @@ func dataSourceNetboxVlan() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"custom_fields": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -105,6 +109,9 @@ func dataSourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	}
 	if vlan.Tenant != nil {
 		d.Set("tenant", vlan.Tenant.ID)
+	}
+	if vlan.CustomFields != nil {
+		d.Set("custom_fields", vlan.CustomFields)
 	}
 
 	return nil
