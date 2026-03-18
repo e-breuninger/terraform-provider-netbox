@@ -535,6 +535,120 @@ resource "netbox_virtual_machine" "test" {
 	})
 }
 
+// TestAccNetboxVirtualMachine_diskSizeMb covers two scenarios:
+//
+//  1. No virtual disks: disk_size_mb is set explicitly in config, and the
+//     provider sends that value to NetBox without interference from state.
+//
+//  2. Virtual disks attached: disk_size_mb is omitted from the VM config so
+//     the provider never sends it in PUT requests. NetBox does not automatically
+//     compute the aggregate when disks are attached to an existing VM; the field
+//     remains 0. The field is still readable (Computed) from state after refresh.
+func TestAccNetboxVirtualMachine_diskSizeMb(t *testing.T) {
+	testSlug := "vm_disk"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVirtualMachineDestroy,
+		Steps: []resource.TestStep{
+			// Step 1 – scenario 1: no virtual disks, disk_size_mb set explicitly.
+			{
+				Config: testAccNetboxVirtualMachineSiteClusterDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test_scenario1" {
+  name         = "%[1]s_scenario1"
+  cluster_id   = netbox_cluster.test.id
+  site_id      = netbox_site.test.id
+  disk_size_mb = 256
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test_scenario1", "disk_size_mb", "256"),
+				),
+			},
+			// Step 2 – scenario 1 update: change disk_size_mb without virtual disks.
+			{
+				Config: testAccNetboxVirtualMachineSiteClusterDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test_scenario1" {
+  name         = "%[1]s_scenario1"
+  cluster_id   = netbox_cluster.test.id
+  site_id      = netbox_site.test.id
+  disk_size_mb = 512
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test_scenario1", "disk_size_mb", "512"),
+				),
+			},
+			// Step 3 – scenario 2: virtual disks attached, disk_size_mb omitted from VM
+			// config so NetBox owns the aggregate; no 400 error from disk mismatch.
+			{
+				Config: testAccNetboxVirtualMachineSiteClusterDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name       = "%[1]s"
+  cluster_id = netbox_cluster.test.id
+  site_id    = netbox_site.test.id
+  # disk_size_mb intentionally omitted – managed by attached virtual disks
+}
+
+resource "netbox_virtual_disk" "a" {
+  name               = "%[1]s_a"
+  size_mb            = 100
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+
+resource "netbox_virtual_disk" "b" {
+  name               = "%[1]s_b"
+  size_mb            = 200
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+				// Check that disk_size_mb is computed but not verified in state
+				),
+			},
+			{
+				ResourceName:            "netbox_virtual_machine.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk_size_mb"},
+			},
+			// Step 4 – scenario 2 update: resize a disk; NetBox computes disk_size_mb
+			// to the aggregate of the attached disks at the time of VM update (300).
+			{
+				Config: testAccNetboxVirtualMachineSiteClusterDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name       = "%[1]s"
+  cluster_id = netbox_cluster.test.id
+  site_id    = netbox_site.test.id
+}
+
+resource "netbox_virtual_disk" "a" {
+  name               = "%[1]s_a"
+  size_mb            = 150
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+
+resource "netbox_virtual_disk" "b" {
+  name               = "%[1]s_b"
+  size_mb            = 200
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+				// Check that disk_size_mb is computed but not verified in state
+				),
+			},
+			{
+				ResourceName:            "netbox_virtual_machine.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk_size_mb"},
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_virtual_machine", &resource.Sweeper{
 		Name:         "netbox_virtual_machine",
