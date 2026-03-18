@@ -122,7 +122,7 @@ func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("description", virtualChassis.Description)
 	d.Set("comments", virtualChassis.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
