@@ -73,9 +73,10 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Optional: true,
 			},
 			"disk_size_mb": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "The disk size in MB. When virtual disks are attached to this VM, NetBox automatically computes this as the aggregate of those disks and rejects manual values. In that case, omit this field from the configuration and let it be computed.",
 			},
 			"status": {
 				Type:         schema.TypeString,
@@ -389,9 +390,11 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 		data.Vcpus = &vcpus
 	}
 
-	diskSizeValue, ok := d.GetOk("disk_size_mb")
-	if ok {
-		diskSize := int64(diskSizeValue.(int))
+	// Only send disk_size_mb when explicitly set in config. When virtual disks
+	// are attached, NetBox computes this as their aggregate and rejects any
+	// value that does not match — including stale prior-state values.
+	if !d.GetRawConfig().GetAttr("disk_size_mb").IsNull() {
+		diskSize := int64(d.Get("disk_size_mb").(int))
 		data.Disk = &diskSize
 	}
 
