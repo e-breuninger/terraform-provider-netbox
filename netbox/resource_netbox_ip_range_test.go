@@ -42,7 +42,7 @@ func TestAccNetboxIpRange_basic(t *testing.T) {
 	testStartAddress := "10.0.0.1/24"
 	testEndAddress := "10.0.0.50/24"
 	testDescription := "Test Description"
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
@@ -101,7 +101,7 @@ func TestAccNetboxIpRange_with_dependencies(t *testing.T) {
 	testStartAddress := "10.0.0.51/24"
 	testEndAddress := "10.0.0.100/24"
 	testDescription := "Test Description"
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
