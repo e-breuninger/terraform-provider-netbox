@@ -49,6 +49,7 @@ resource "netbox_interface" "myvm_eth1" {
 
 ### Optional
 
+- `bridge_interface_id` (Number) ID of the bridge interface this interface belongs to.
 - `description` (String)
 - `enabled` (Boolean) Defaults to `true`.
 - `mac_address` (String)
