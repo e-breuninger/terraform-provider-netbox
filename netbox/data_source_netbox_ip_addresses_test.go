@@ -22,6 +22,7 @@ resource "netbox_ip_address" "test" {
 	status = "active"
 	tags = [netbox_tag.test.name]
 	role = "anycast"
+	vrf_id = netbox_vrf.test.id
 }
 data "netbox_ip_addresses" "test" {
 	depends_on = [netbox_ip_address.test]
@@ -54,12 +55,14 @@ resource "netbox_ip_address" "test_list_0" {
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
+  vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
   ip_address = "%s"
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
+  vrf_id = netbox_vrf.test.id
 }
 data "netbox_ip_addresses" "test_list" {
 	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1]
@@ -67,6 +70,10 @@ data "netbox_ip_addresses" "test_list" {
 	filter {
 		name = "ip_address"
 		value = "%s"
+	}
+	filter {
+		name = "vm_interface_id"
+		value = netbox_interface.test.id
 	}
 }`, testIP0, testIP1, testIP0),
 				Check: resource.ComposeTestCheckFunc(
@@ -94,6 +101,7 @@ resource "netbox_ip_address" "test_list_0" {
   status = "active"
   role = "vip"
   tags = [netbox_tag.test.name]
+  vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
   ip_address = "%s"
@@ -101,6 +109,7 @@ resource "netbox_ip_address" "test_list_1" {
   status = "active"
   role = "vrrp"
   tags = [netbox_tag.test.name]
+  vrf_id = netbox_vrf.test.id
 }
 data "netbox_ip_addresses" "test_list" {
 	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1]
@@ -108,6 +117,10 @@ data "netbox_ip_addresses" "test_list" {
 	filter {
 		name = "role"
 		value = "vip"
+	}
+	filter {
+		name = "vm_interface_id"
+		value = netbox_interface.test.id
 	}
 }`, testIP0, testIP1),
 				Check: resource.ComposeTestCheckFunc(
@@ -133,18 +146,21 @@ func TestAccNetboxIpAddressesDataSource_filter_parent_prefix(t *testing.T) {
 resource "netbox_prefix" "testv4" {
   prefix = "%s"
   status = "active"
+  vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_0" {
   ip_address = "%s"
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
+  vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
   ip_address = "%s"
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
+  vrf_id = netbox_vrf.test.id
 }
 data "netbox_ip_addresses" "test_list" {
 	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1]
@@ -152,6 +168,10 @@ data "netbox_ip_addresses" "test_list" {
 	filter {
 		name = "parent_prefix"
 		value = "%s"
+	}
+	filter {
+		name = "vm_interface_id"
+		value = netbox_interface.test.id
 	}
 }`, testPrefix1, testIP0, testIP1, testPrefix1),
 				Check: resource.ComposeTestCheckFunc(
@@ -178,12 +198,14 @@ resource "netbox_ip_address" "test_list_0" {
 	virtual_machine_interface_id = netbox_interface.test.id
 	status = "active"
 	tags = [netbox_tag.test.name]
+	vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
 	ip_address = "%s"
 	virtual_machine_interface_id = netbox_interface.test.id
 	status = "active"
 	tags = [netbox_tag.test.name]
+	vrf_id = netbox_vrf.test.id
 }
 
 data "netbox_ip_addresses" "test_list" {
@@ -220,6 +242,7 @@ resource "netbox_ip_address" "test_list_0" {
 	status = "active"
 	tags = [netbox_tag.test.name]
 	tenant_id = netbox_tenant.test.id
+	vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
 	ip_address = "%s"
@@ -227,6 +250,7 @@ resource "netbox_ip_address" "test_list_1" {
 	status = "active"
 	tags = [netbox_tag.test.name]
 	tenant_id = netbox_tenant.test.id
+	vrf_id = netbox_vrf.test.id
 }
 
 data "netbox_ip_addresses" "test_list" {
@@ -261,14 +285,19 @@ resource "netbox_interface" "test" {
   virtual_machine_id = netbox_virtual_machine.test.id
 }
 
+resource "netbox_vrf" "test" {
+  name = "%s"
+}
+
 resource "netbox_ip_address" "test" {
   count       = 51
   ip_address  = "10.11.12.${count.index}/32"
   status      = "active"
   virtual_machine_interface_id = netbox_interface.test.id
   dns_name = "%s"
+  vrf_id = netbox_vrf.test.id
 }
-`, testName)
+`, testName, testName)
 }
 
 func TestAccNetboxIpAddressessDataSource_many(t *testing.T) {
@@ -306,8 +335,8 @@ data "netbox_ip_addresses" "test" {
 
 func TestAccNetboxIpAddressesDataSource_filter_tags(t *testing.T) {
 	testSlug := "ipam_ipaddrs_ds_filter_tags"
-	testTag := "default-gw"
 	testName := testAccGetTestName(testSlug)
+	testTag := testName + "_gw"
 	testIP0 := "203.0.113.1/24"
 	testIP1 := "203.0.113.2/24"
 	testIP2 := "203.0.113.3/24"
@@ -324,18 +353,21 @@ resource "netbox_ip_address" "test_list_0" {
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
+  vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
   ip_address = "%s"
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name, netbox_tag.gw_tag.name]
+  vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_2" {
   ip_address = "%s"
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   tags = [netbox_tag.test.name]
+  vrf_id = netbox_vrf.test.id
 }
 data "netbox_ip_addresses" "test_list" {
 	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1, netbox_ip_address.test_list_2]
@@ -369,23 +401,25 @@ resource "netbox_ip_address" "test_list_0" {
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   role = "vip"
-  description = "test 1"
+  description = "%s_test1"
+  vrf_id = netbox_vrf.test.id
 }
 resource "netbox_ip_address" "test_list_1" {
   ip_address = "%s"
   virtual_machine_interface_id = netbox_interface.test.id
   status = "active"
   role = "vrrp"
-  description = "test 2"
+  description = "%s_test2"
+  vrf_id = netbox_vrf.test.id
 }
 data "netbox_ip_addresses" "test_list" {
 	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1]
 
 	filter {
 		name = "description"
-		value = "test 1"
+		value = "%s_test1"
 	}
-}`, testIP0, testIP1),
+}`, testIP0, testName, testIP1, testName, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_list", "ip_addresses.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test_list", "ip_addresses.0.ip_address", "netbox_ip_address.test_list_0", "ip_address"),

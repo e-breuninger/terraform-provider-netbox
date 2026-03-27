@@ -39,7 +39,8 @@ func resourceNetboxDeviceFrontPort() *schema.Resource {
 			},
 			"rear_port_position": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"module_id": {
 				Type:     schema.TypeInt,
