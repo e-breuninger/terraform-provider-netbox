@@ -228,6 +228,38 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))
 		data.UntaggedVlan = &untaggedvlan
 	}
+
+	// About the `nullFields` hack
+	//
+	// Without this hack, the `bridge_interface_id` field can never be unset
+	// in the Netbox API once it has been set. This likely also applies to other
+	// fields, but for now, this is only solved for this field. It can be extended
+	// though.
+	//
+	// Why is it needed?
+	//
+	// This method uses VirtualizationInterfacesPartialUpdate which takes similar
+	// parameters as Create/Update, but will only apply changes to fields that are
+	// supplied in the JSON payload.
+	//
+	// Example:
+	// - `{ "bridge": 123 }` - will set the field
+	// - `{ "bridge": null }` - will unset the field
+	// - `{}` - will make no changes
+	//
+	// Unfortunately with how the Netbox API client is generated, there is no way
+	// to produce the second example. If you set the field `Bridge` to `nil` it
+	// will produce JSON without the field present. This is because of the
+	// `omitempty` struct tag on the field. Which is something you need to make
+	// partial updates work, but prevents you from unsetting the field.
+	// There is simply no way to represent this case in Go without introducing
+	// a special wrapper type that can represent all 3 states.
+	// (Note that sending `"bridge": 0` is not accepted by the API.)
+	//
+	// The way this is solved is on the serialization level.
+	// With `hackSerializeAsNull` I made a serialization middleware of sorts that
+	// will serialize an explicit `null` value for field names given in the slice.
+
 	var nullFields []string
 	if d.HasChange("bridge_interface_id") {
 		ifID := int64(d.Get("bridge_interface_id").(int))
@@ -310,6 +342,13 @@ func (ip interceptParams) WriteToRequest(req runtime.ClientRequest, reg strfmt.R
 	return ip.inner.WriteToRequest(writer, reg)
 }
 
+// hackSerializeAsNull is a serialization middleware of sorts that will
+// serialize an explicit `null` value for all field names given in the slice.
+//
+// It does this by first serializing the params from a struct to a map
+// and then sets the value for given fields to `nil`.
+// With this the field will definitely be serialized and not omitted when set
+// to `nil`.
 func hackSerializeAsNull(fields ...string) virtualization.ClientOption {
 	return func(co *runtime.ClientOperation) {
 		originalParams := co.Params
