@@ -164,6 +164,8 @@ func Provider() *schema.Provider {
 			"netbox_vpn_tunnel_termination":     resourceNetboxVpnTunnelTermination(),
 			"netbox_config_context":             resourceNetboxConfigContext(),
 			"netbox_mac_address":                resourceNetboxMACAddress(),
+			"netbox_wireless_lan_group":         resourceNetboxWirelessLANGroup(),
+			"netbox_wireless_lan":               resourceNetboxWirelessLAN(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":                  dataSourceNetboxAsn(),
