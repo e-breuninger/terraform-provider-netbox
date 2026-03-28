@@ -40,11 +40,11 @@ func resourceNetboxCable() *schema.Resource {
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "One of [cat3, cat5, cat5e, cat6, cat6a, cat7, cat7a, cat8, dac-active, dac-passive, mrj21-trunk, coaxial, mmf, mmf-om1, mmf-om2, mmf-om3, mmf-om4, mmf-om5, smf, smf-os1, smf-os2, aoc, power]",
+				Description: "One of [cat3, cat5, cat5e, cat6, cat6a, cat7, cat7a, cat8, dac-active, dac-passive, mrj21-trunk, coaxial, mmf, mmf-om1, mmf-om2, mmf-om3, mmf-om4, mmf-om5, smf, smf-os1, smf-os2, aoc, power, usb]",
 				ValidateFunc: validation.StringInSlice([]string{
 					"cat3", "cat5", "cat5e", "cat6", "cat6a", "cat7", "cat7a", "cat8", "dac-active",
 					"dac-passive", "mrj21-trunk", "coaxial", "mmf", "mmf-om1", "mmf-om2", "mmf-om3",
-					"mmf-om4", "mmf-om5", "smf", "smf-os1", "smf-os2", "aoc", "power",
+					"mmf-om4", "mmf-om5", "smf", "smf-os1", "smf-os2", "aoc", "power", "usb",
 				}, false),
 			},
 			"tenant_id": {
