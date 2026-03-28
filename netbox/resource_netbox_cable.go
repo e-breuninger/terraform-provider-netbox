@@ -181,7 +181,7 @@ func resourceNetboxCableRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", cable.Description)
 	d.Set("comments", cable.Comments)
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

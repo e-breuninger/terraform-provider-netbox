@@ -221,7 +221,7 @@ func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{})
 
 	api.readTags(d, term.Tags)
 
-	cf := getCustomFields(term.CustomFields)
+	cf := flattenCustomFields(term.CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
