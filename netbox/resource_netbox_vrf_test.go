@@ -71,9 +71,7 @@ func TestAccNetboxVrf_tags(t *testing.T) {
 				Config: testAccNetboxVrfTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vrf" "test_tags" {
   name = "%[1]s"
-  tags = ["%[1]sa"]
-
-  depends_on = [netbox_tag.test_a]
+  tags = [netbox_tag.test_a.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vrf.test_tags", "name", testName),
@@ -85,9 +83,7 @@ resource "netbox_vrf" "test_tags" {
 				Config: testAccNetboxVrfTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_vrf" "test_tags" {
   name = "%[1]s"
-  tags = ["%[1]sa", "%[1]sb"]
-
-  depends_on = [netbox_tag.test_a, netbox_tag.test_b]
+  tags = [netbox_tag.test_a.name, netbox_tag.test_b.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vrf.test_tags", "tags.#", "2"),

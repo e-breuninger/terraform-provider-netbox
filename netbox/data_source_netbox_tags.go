@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -74,8 +75,10 @@ func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
 
 	params := extras.NewExtrasTagsListParams()
 
+	// Get user limit
+	var userLimit int64 = 0
 	if limitValue, ok := d.GetOk("limit"); ok {
-		params.Limit = int64ToPtr(int64(limitValue.(int)))
+		userLimit = int64(limitValue.(int))
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
@@ -125,17 +128,44 @@ func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	res, err := api.Extras.ExtrasTagsList(params, nil)
-	if err != nil {
-		return err
+	// Fetch all pages with pagination
+	paginationHelper := NewPaginationHelper(userLimit)
+	var allTags []*models.Tag
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Extras.ExtrasTagsList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch tags at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allTags = append(allTags, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allTags)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	if *res.GetPayload().Count == int64(0) {
+	// Trim to user limit if specified
+	trimmedCount := paginationHelper.TrimToLimit(len(allTags))
+	results := allTags[:trimmedCount]
+
+	if len(results) == 0 {
 		return errors.New("no result")
 	}
 
 	var s []map[string]interface{}
-	results := res.GetPayload().Results
 	for _, v := range results {
 		mapping := make(map[string]interface{})
 

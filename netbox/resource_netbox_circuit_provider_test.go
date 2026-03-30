@@ -29,7 +29,6 @@ resource "netbox_circuit_provider" "test" {
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_circuit_provider.test", "description", "This is my circuit provider!"),
-
 				),
 			},
 			{

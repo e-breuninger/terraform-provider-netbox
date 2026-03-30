@@ -40,8 +40,10 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          0,
 			},
 			"vms": {
 				Type:     schema.TypeList,
@@ -159,6 +161,12 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 
 	params := virtualization.NewVirtualizationVirtualMachinesListParams()
 
+	// Get user limit (0 = fetch all)
+	var userLimit int64 = 0
+	if limitValue, ok := d.GetOk("limit"); ok {
+		userLimit = int64(limitValue.(int))
+	}
+
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
 		var tags []string
@@ -196,30 +204,55 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 		}
 	}
 
-	if limit, ok := d.GetOk("limit"); ok {
-		limitInt := int64(limit.(int))
-		params.Limit = &limitInt
+	// Fetch all pages with pagination (fetch all when name_regex is used)
+	paginationHelper := NewPaginationHelper(FetchAll)
+	var allVms []*models.VirtualMachineWithConfigContext
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch virtual machines at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allVms = append(allVms, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allVms)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil)
-	if err != nil {
-		return err
-	}
-
-	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
-	}
-
+	// Apply name_regex filter
 	var filteredVms []*models.VirtualMachineWithConfigContext
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r := regexp.MustCompile(nameRegex.(string))
-		for _, vm := range res.GetPayload().Results {
+		for _, vm := range allVms {
 			if r.MatchString(*vm.Name) {
 				filteredVms = append(filteredVms, vm)
 			}
 		}
 	} else {
-		filteredVms = res.GetPayload().Results
+		filteredVms = allVms
+	}
+
+	// Apply user limit to filtered results
+	if userLimit > 0 && int64(len(filteredVms)) > userLimit {
+		filteredVms = filteredVms[:userLimit]
+	}
+
+	if len(filteredVms) == 0 {
+		return errors.New("no result")
 	}
 
 	var s []map[string]interface{}
@@ -244,7 +277,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			}
 		}
 		if v.CustomFields != nil {
-			mapping["custom_fields"] = v.CustomFields
+			mapping["custom_fields"] = flattenCustomFields(v.CustomFields)
 		}
 		if v.Disk != nil {
 			mapping["disk_size_mb"] = *v.Disk

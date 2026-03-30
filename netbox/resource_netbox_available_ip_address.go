@@ -35,11 +35,13 @@ This resource will retrieve the next available IP address from a given prefix or
 			"prefix_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
 			"ip_range_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
 			"ip_address": {
@@ -98,6 +100,7 @@ This resource will retrieve the next available IP address from a given prefix or
 				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressRoleOptions, false),
 				Description:  buildValidValueDescription(resourceNetboxIPAddressRoleOptions),
 			},
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -204,6 +207,10 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
 	api.readTags(d, ipAddress.Tags)
+	cf := getCustomFields(ipAddress.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
 	return nil
 }
 
@@ -221,6 +228,9 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	data.DNSName = getOptionalStr(d, "dns_name", false)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")
+	if cf, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = cf
+	}
 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
 		// The other possible type is dcim.interface for devices

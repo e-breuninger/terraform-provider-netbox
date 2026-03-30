@@ -17,8 +17,9 @@ description: |-
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `limit` (Number) Defaults to `1000`.
+- `limit` (Number) Defaults to `0`.
 
 ### Read-Only
 

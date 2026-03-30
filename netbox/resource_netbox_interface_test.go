@@ -51,7 +51,7 @@ func testAccNetboxInterfaceBasic(testName string) string {
 resource "netbox_interface" "test" {
   name = "%s"
   virtual_machine_id = netbox_virtual_machine.test.id
-  tags = ["%[1]s"]
+  tags = [netbox_tag.test.name]
 }`, testName)
 }
 
@@ -88,6 +88,21 @@ resource "netbox_interface" "test3" {
   mode = "tagged-all"
   tagged_vlans = [netbox_vlan.test1.id, netbox_vlan.test2.id]
   virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName)
+}
+
+func testAccNetboxInterfaceBridge(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_interface" "bridge" {
+  name = "%[1]s_1"
+  description = "%[1]s"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+
+resource "netbox_interface" "test" {
+  name = "%[1]s_2"
+  virtual_machine_id = netbox_virtual_machine.test.id
+  bridge_interface_id = netbox_interface.bridge.id
 }`, testName)
 }
 
@@ -189,6 +204,36 @@ func TestAccNetboxInterface_vlans(t *testing.T) {
 			},
 			{
 				ResourceName:      "netbox_interface.test3",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxInterface_bridge(t *testing.T) {
+	testSlug := "iface_bridge"
+	testName := testAccGetTestName(testSlug)
+	setUp := testAccNetboxInterfaceFullDependencies(testName)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: setUp + testAccNetboxInterfaceBridge(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_interface.test", "bridge_interface_id", "netbox_interface.bridge", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxInterfaceBasic(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_interface.test", "bridge_interface_id", "0"),
+				),
+			},
+			{
+				ResourceName:      "netbox_interface.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

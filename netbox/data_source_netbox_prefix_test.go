@@ -165,11 +165,20 @@ resource "netbox_prefix" "test" {
 data "netbox_prefix" "test_output" {
   depends_on = [netbox_prefix.test]
   prefix = "%[2]s"
-}`, testField, testPrefix),
+}
+
+data "netbox_prefix" "by_custom_fields" {
+  depends_on = [netbox_prefix.test]
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "test value"
+  }
+}
+`, testField, testPrefix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "status", "active"),
 					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "prefix", testPrefix),
 					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "custom_fields."+testField, "test value"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_custom_fields", "id", "netbox_prefix.test", "id"),
 				),
 			},
 		},

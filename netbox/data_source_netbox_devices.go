@@ -44,8 +44,10 @@ func dataSourceNetboxDevices() *schema.Resource {
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          0,
 			},
 			"devices": {
 				Type:     schema.TypeList,
@@ -165,6 +167,12 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 
 	params := dcim.NewDcimDevicesListParams()
 
+	// Get user limit
+	var userLimit int64 = 0
+	if limit, ok := d.GetOk("limit"); ok {
+		userLimit = int64(limit.(int))
+	}
+
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.(*schema.Set)
 		for _, f := range filterParams.List() {
@@ -213,26 +221,51 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if limit, ok := d.GetOk("limit"); ok {
-		limitInt := int64(limit.(int))
-		params.Limit = &limitInt
+	// Fetch all pages with pagination (fetch all when name_regex is used)
+	paginationHelper := NewPaginationHelper(FetchAll)
+	var allDevices []*models.DeviceWithConfigContext
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Dcim.DcimDevicesList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch devices at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allDevices = append(allDevices, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allDevices)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	res, err := api.Dcim.DcimDevicesList(params, nil)
-	if err != nil {
-		return err
-	}
-
+	// Apply name_regex filter to all fetched devices
 	var filteredDevices []*models.DeviceWithConfigContext
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r := regexp.MustCompile(nameRegex.(string))
-		for _, device := range res.GetPayload().Results {
+		for _, device := range allDevices {
 			if r.MatchString(*device.Name) {
 				filteredDevices = append(filteredDevices, device)
 			}
 		}
 	} else {
-		filteredDevices = res.GetPayload().Results
+		filteredDevices = allDevices
+	}
+
+	// Apply user limit to filtered results
+	if userLimit > 0 && int64(len(filteredDevices)) > userLimit {
+		filteredDevices = filteredDevices[:userLimit]
 	}
 
 	var s []map[string]interface{}
@@ -295,7 +328,7 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			mapping["status"] = *device.Status.Value
 		}
 		if device.CustomFields != nil {
-			mapping["custom_fields"] = device.CustomFields
+			mapping["custom_fields"] = flattenCustomFields(device.CustomFields)
 		}
 		if device.Rack != nil {
 			mapping["rack_id"] = device.Rack.ID

@@ -98,7 +98,7 @@ resource "netbox_device_front_port" "test" {
   label = "%[1]s_label"
   color_hex = "123456"
   description = "%[1]s_description"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_front_port.test", "name", testName),
