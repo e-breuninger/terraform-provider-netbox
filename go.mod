@@ -112,3 +112,5 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/fbreckle/go-netbox => github.com/msollanych-tt/go-netbox v0.3.0-tenant-fix

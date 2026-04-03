@@ -366,9 +366,6 @@ resource "netbox_available_ip_address" "test" {
 		},
 	})
 }
-		},
-	})
-}
 
 func init() {
 	resource.AddTestSweepers("netbox_available_ip_address", &resource.Sweeper{
