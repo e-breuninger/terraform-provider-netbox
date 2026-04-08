@@ -225,7 +225,7 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NETBOX_API_TOKEN", nil),
-				Description: "Netbox API authentication token. Can be set via the `NETBOX_API_TOKEN` environment variable.",
+				Description: "Netbox API authentication token. Supports both v1 tokens (`Authorization: Token <key>`) and v2 tokens (`Authorization: Bearer nbt_<key>.<token>`). V2 tokens are auto-detected by their `nbt_` prefix. Can be set via the `NETBOX_API_TOKEN` environment variable.",
 			},
 			"allow_insecure_https": {
 				Type:        schema.TypeBool,

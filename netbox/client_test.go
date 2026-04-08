@@ -87,6 +87,45 @@ func TestAdditionalHeadersSet(t *testing.T) {
 	client.Status.StatusList(req, nil)
 }
 
+func TestV1TokenUsesTokenScheme(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		assert.Equal(t, "Token 07b12b765127747e4afd56cb531b7bf9c61f3c30", auth)
+	}))
+	defer ts.Close()
+
+	config := Config{
+		APIToken:  "07b12b765127747e4afd56cb531b7bf9c61f3c30",
+		ServerURL: ts.URL,
+	}
+
+	client, err := config.Client()
+	assert.NoError(t, err)
+
+	req := status.NewStatusListParams()
+	client.Status.StatusList(req, nil)
+}
+
+func TestV2TokenUsesBearerScheme(t *testing.T) {
+	v2Token := "nbt_abc1234567890abcdef.checksum1234"
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		assert.Equal(t, "Bearer "+v2Token, auth)
+	}))
+	defer ts.Close()
+
+	config := Config{
+		APIToken:  v2Token,
+		ServerURL: ts.URL,
+	}
+
+	client, err := config.Client()
+	assert.NoError(t, err)
+
+	req := status.NewStatusListParams()
+	client.Status.StatusList(req, nil)
+}
+
 /* TODO
 func TestInvalidHttpsCertificate(t *testing.T) {}
 */
