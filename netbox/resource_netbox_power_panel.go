@@ -91,11 +91,12 @@ func resourceNetboxPowerPanelRead(d *schema.ResourceData, m interface{}) error {
 	res, err := api.Dcim.DcimPowerPanelsRead(params, nil)
 
 	if err != nil {
-		errorcode := err.(*dcim.DcimPowerPanelsReadDefault).Code()
-		if errorcode == 404 {
-			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
-			d.SetId("")
-			return nil
+		if errresp, ok := err.(*dcim.DcimPowerPanelsReadDefault); ok {
+			if errresp.Code() == 404 {
+				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
+				d.SetId("")
+				return nil
+			}
 		}
 		return err
 	}
