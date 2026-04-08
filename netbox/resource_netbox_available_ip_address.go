@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -88,6 +89,10 @@ This resource will retrieve the next available IP address from a given prefix or
 			"dns_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				// NetBox always converts DNS names to lowercase
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.EqualFold(old, new)
+				},
 			},
 			"description": {
 				Type:     schema.TypeString,

@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -71,6 +72,10 @@ func resourceNetboxIPAddress() *schema.Resource {
 			"dns_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				// NetBox always converts DNS names to lowercase
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.EqualFold(old, new)
+				},
 			},
 			tagsKey: tagsSchema,
 			"description": {
