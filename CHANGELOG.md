@@ -1,3 +1,24 @@
+## 5.3.0 (April 9th, 2026)
+
+ENHANCEMENTS
+
+* provider: Now supports using [v2 API tokens](https://netboxlabs.com/docs/netbox/integrations/rest-api/#authenticating-to-the-api) ([#862](https://github.com/e-breuninger/terraform-provider-netbox/pull/862) by [@MrKeiKun](https://github.com/MrKeiKun))
+  Note that this is a NetBox v4.5 feature. This provider does not officially support v4.5 versions yet.
+* **New Resource:** `netbox_wireless_lan` ([#859](https://github.com/e-breuninger/terraform-provider-netbox/pull/859) by [@JonasKop](https://github.com/JonasKop))
+* **New Resource:** `netbox_wireless_lan_group` ([#859](https://github.com/e-breuninger/terraform-provider-netbox/pull/859) by [@JonasKop](https://github.com/JonasKop))
+* resource/netbox_virtual_machine: Support auto-calculation of `disk_size_mb` attribute ([#854](https://github.com/e-breuninger/terraform-provider-netbox/pull/854) by [@keshy7](https://github.com/keshy7))
+* resource/netbox_ip_range: Add `custom_fields` attribute ([#842](https://github.com/e-breuninger/terraform-provider-netbox/pull/842) by [@jonas-sjodin-stegra](https://github.com/jonas-sjodin-stegra))
+* resource/netbox_available_ip_address: Add `custom_fields` attribute ([#841](https://github.com/e-breuninger/terraform-provider-netbox/pull/841) by [@jonas-sjodin-stegra](https://github.com/jonas-sjodin-stegra))
+* resource/netbox_interface: Add `bridge_interface_id` attribute ([#856](https://github.com/e-breuninger/terraform-provider-netbox/pull/856) by [@mraerino](https://github.com/mraerino))
+* data-source/netbox_ip_addresses: Add `custom_fields` attribute ([#848](https://github.com/e-breuninger/terraform-provider-netbox/pull/848) by [@jonas-sjodin-stegra](https://github.com/jonas-sjodin-stegra))
+* data-source/netbox_vlans: Add `id` attribute ([#662](https://github.com/e-breuninger/terraform-provider-netbox/pull/662) by [@rypti](https://github.com/rypti))
+* resource/netbox_cable: Add `usb` as option for `type` attribute ([#858](https://github.com/e-breuninger/terraform-provider-netbox/pull/858) by [@JonasKop](https://github.com/JonasKop))
+
+BUG FIXES
+
+* provider: use better error checking in many read functions ([#864](https://github.com/e-breuninger/terraform-provider-netbox/pull/864) by [@MrKeiKun](https://github.com/MrKeiKun))
+* resource/netbox_token: Handle `expires` field correctly ([#853](https://github.com/e-breuninger/terraform-provider-netbox/pull/853) by [@Oceaneyes123](https://github.com/Oceaneyes123))
+
 ## 5.2.1 (March 12th, 2026)
 
 ENHANCEMENTS
