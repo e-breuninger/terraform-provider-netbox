@@ -62,7 +62,7 @@ provider "netbox" {
 
 ### Required
 
-- `api_token` (String) Netbox API authentication token. Can be set via the `NETBOX_API_TOKEN` environment variable.
+- `api_token` (String) Netbox API authentication token. Supports both v1 tokens (`Authorization: Token <key>`) and v2 tokens (`Authorization: Bearer nbt_<key>.<token>`). V2 tokens are auto-detected by their `nbt_` prefix. Can be set via the `NETBOX_API_TOKEN` environment variable.
 - `server_url` (String) Location of Netbox server including scheme (http or https) and optional port. Can be set via the `NETBOX_SERVER_URL` environment variable.
 
 ### Optional
