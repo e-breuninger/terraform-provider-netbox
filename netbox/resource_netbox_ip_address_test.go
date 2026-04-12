@@ -551,3 +551,28 @@ func init() {
 		},
 	})
 }
+
+func TestAccNetboxIPAddress_dnsNameCase(t *testing.T) {
+	testIP := "1.1.1.253/32"
+	testSlug := "ipaddr_dns_case"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				// Mixed-case dns_name: NetBox stores it as lowercase.
+				// Without DiffSuppressFunc the post-apply plan check detects
+				// drift and fails with "the plan was not empty" (#828).
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "%s"
+  status     = "active"
+  dns_name   = "Mytest.Example.Com"
+}`, testIP),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_address.test", "dns_name", "Mytest.Example.Com"),
+				),
+			},
+		},
+	})
+}
