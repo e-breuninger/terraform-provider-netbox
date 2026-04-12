@@ -313,7 +313,7 @@ func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("form_factor", nil)
 	}
 
-	cf := getCustomFields(res.GetPayload().CustomFields)
+	cf := flattenCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
