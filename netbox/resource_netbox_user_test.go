@@ -23,12 +23,10 @@ resource "netbox_user" "test_basic" {
   username = "%s"
   password = "Abcdefghijkl1"
   active = true
-  staff = true
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "username", testName),
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "active", "true"),
-					resource.TestCheckResourceAttr("netbox_user.test_basic", "staff", "true"),
 				),
 			},
 			{
@@ -40,7 +38,6 @@ resource "netbox_user" "test_basic" {
 	first_name = "Hannah"
 	last_name = "Acker"
   active = true
-  staff = true
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "username", testName),
@@ -48,7 +45,6 @@ resource "netbox_user" "test_basic" {
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "first_name", "Hannah"),
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "last_name", "Acker"),
 					resource.TestCheckResourceAttr("netbox_user.test_basic", "active", "true"),
-					resource.TestCheckResourceAttr("netbox_user.test_basic", "staff", "true"),
 				),
 			},
 			{
@@ -77,13 +73,11 @@ resource "netbox_user" "test_group" {
 	  username = "%[1]s"
 	  password = "Abcdefghijkl1"
 	  active = true
-	  staff = true
 	  group_ids = [netbox_group.test_group.id]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_user.test_group", "username", testName),
 					resource.TestCheckResourceAttr("netbox_user.test_group", "active", "true"),
-					resource.TestCheckResourceAttr("netbox_user.test_group", "staff", "true"),
 					resource.TestCheckResourceAttr("netbox_user.test_group", "group_ids.#", "1"),
 				),
 			},

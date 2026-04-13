@@ -122,6 +122,10 @@ data "netbox_prefixes" "by_status" {
     name  = "status"
     value = "active"
   }
+  filter {
+    name  = "vrf_id"
+    value = netbox_vrf.test_vrf.id
+  }
 }
 
 data "netbox_prefixes" "no_results" {
