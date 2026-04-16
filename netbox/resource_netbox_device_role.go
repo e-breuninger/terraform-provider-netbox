@@ -34,7 +34,7 @@ func resourceNetboxDeviceRole() *schema.Resource {
 			"vm_role": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 			"color_hex": {
 				Type:     schema.TypeString,
