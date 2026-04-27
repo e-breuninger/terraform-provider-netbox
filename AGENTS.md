@@ -9,10 +9,10 @@
 It also depends on a **second** fork: `msollanych-tt/go-netbox` is a fork of `fbreckle/go-netbox`, used because we need at least one model field (`Tenant` on `WritableAvailableIP`) that upstream go-netbox does not expose. The dependency is wired in via a `replace` directive in `go.mod`:
 
 ```
-replace github.com/fbreckle/go-netbox => github.com/msollanych-tt/go-netbox vX.Y.Z-tenant-fix
+replace github.com/fbreckle/go-netbox => github.com/msollanych-tt/go-netbox vX.Y.Z
 ```
 
-When you change anything that touches the API client (any code under `netbox/client/...` or `netbox/models/...`), you are working in **`go-netbox`**, not here. See `Working in go-netbox` below.
+When you change anything that touches the API client (any code under `netbox/client/...` or `netbox/models/...`), you are working in **`go-netbox`**, not here. The fork's `master` branch is the canonical working branch — it is upstream `fbreckle/master` plus the patches we carry. See `Working in go-netbox` below.
 
 ## The patches we carry
 
@@ -98,12 +98,26 @@ Either leave the override on (cheap, but the warning every command may annoy a r
 When a feature requires changes to the OpenAPI-generated client (most "the field doesn't exist" or "the parent type changed" symptoms), work happens in `../go-netbox`:
 
 - Remote layout: `origin = msollanych-tt/go-netbox`, `upstream = fbreckle/go-netbox`.
-- The clean working branch is `tenant-fix`. **`master` is a tangled mess of historical merges — don't use it as a base, don't push to it, don't try to clean it up unless the user explicitly asks.**
-- All edits should be on (or branched from) `tenant-fix`, layered on top of `upstream/master`.
-- Cut a tag like `vX.Y.Z-tenant-fix` from the branch tip and push it to `origin`. Pseudo-versions work too but tags are nicer to read in `go.mod`.
+- **`master` is the canonical working branch** — it is upstream's master plus the patches we carry, kept linear. Develop directly on `master` (or short-lived feature branches off it) for ongoing work.
+- The pre-cleanup state of `master` (with various intermediate merges from initial development) is archived at the tag `master-archive-pre-cleanup-2026-04-27` in case anything in those commits is ever needed.
+- Cut a tag like `vX.Y.Z` from `master` after a change and push it to `origin`. Earlier tags used a `-tenant-fix` suffix back when there was a separate working branch named that; clean tags going forward.
 - Then bump the `replace` line in this repo's `go.mod` to the new tag and `go mod tidy`.
 
 `go-netbox` is OpenAPI-generated. If you're adding a field, the source of truth is the swagger file under `netbox/swagger.json` (or whatever the upstream layout is at the time). Ideally regenerate; in practice past patches have edited the generated Go directly because regen is fragile. If you do edit generated code by hand, keep the change minimal and isolated to the model/operation you need.
+
+When rebasing onto upstream:
+
+```
+cd ../go-netbox
+git fetch upstream
+git checkout master
+git rebase upstream/master
+git push --force-with-lease origin master
+git tag -a vX.Y.Z -m "Rebased onto upstream <sha>"
+git push origin vX.Y.Z
+```
+
+Force-pushing `master` is acceptable because (a) the provider pins by tag not branch, and (b) this is a fork only consumed by the provider in this checkout.
 
 ## Rebasing onto upstream — the standard procedure
 
@@ -116,15 +130,15 @@ The order matters. If upstream provider ships a feature that depends on a recent
 ```
 cd ../go-netbox
 git fetch upstream
-git checkout tenant-fix
+git checkout master
 git rebase upstream/master
 # resolve any conflicts on our patches
-git push --force-with-lease origin tenant-fix
-git tag -a vX.Y.Z-tenant-fix -m "Rebased onto upstream <sha>"
-git push origin vX.Y.Z-tenant-fix
+git push --force-with-lease origin master
+git tag -a vX.Y.Z -m "Rebased onto upstream <sha>"
+git push origin vX.Y.Z
 ```
 
-Force-pushing `tenant-fix` is fine — only this repo consumes it, and it's pinned by tag, not branch.
+Force-pushing `master` is fine — only this repo consumes it, and it's pinned by tag, not branch.
 
 ### Step 2: rebase the provider
 
@@ -210,14 +224,14 @@ If/when upstreaming resumes: branch any upstream PR off `upstream/master` direct
 - **Never** reuse a published version tag. Make a new prerelease (`-rc2`, `-rc3`, ...) or bump the patch.
 - **Never** break the `dev_overrides` workflow — keep the produced binary at the path the override points to.
 - **Never** let `master` diverge from upstream by an unmanageable number of commits. If we're more than ~5 commits ahead, we're probably carrying patches that should be upstreamed.
-- **Never** merge `go-netbox/master` (the messy one) into anything. If you need its contents, identify the specific commits and cherry-pick.
+- **Never** create a parallel working branch in go-netbox (no more `tenant-fix`, `feature/...`, etc. as long-lived dev branches). All ongoing development is on `master` or short-lived feature branches off it.
 
 ## Quick reference: state at last rebase
 
 Last rebase: **Apr 2026**.
 
 - Provider rebased onto upstream master at `8257f4d` ("test: add acceptance test for dns_name case drift"), which is upstream's tip 4 commits past tag `v5.3.0`.
-- go-netbox `tenant-fix` carries one commit (`Add tenant field to WritableAvailableIP for available IP creation`) on top of upstream `53bc6c52`. Tagged `v0.3.0-tenant-fix`. The provider's `go.mod` `replace` line points to that tag.
+- go-netbox `master` carries one commit (`Add tenant field to WritableAvailableIP for available IP creation`) on top of upstream `53bc6c52`. Tagged `v0.3.0-tenant-fix`. The provider's `go.mod` `replace` line points to that tag. The previously-separate `tenant-fix` branch was retired; `master` is now the canonical branch.
 - Provider tagged as `v5.3.0-tenstorrent.0` after a successful `v5.3.0-tenstorrent-rc1` prerelease build.
 - Conflicts encountered during the rebase: `go.sum` (every cherry-pick — resolved with `--ours` then `go mod tidy`), and one cherry-pick artifact in `netbox/resource_netbox_available_ip_address_test.go` (stray closing braces, caught by `go vet`).
 

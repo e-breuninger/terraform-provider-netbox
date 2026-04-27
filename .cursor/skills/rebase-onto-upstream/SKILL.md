@@ -23,7 +23,7 @@ The fork also depends on a second fork: `msollanych-tt/go-netbox` of `fbreckle/g
 Track progress with this checklist:
 
 ```
-- [ ] Phase 1: rebase go-netbox tenant-fix onto upstream/master
+- [ ] Phase 1: rebase go-netbox master onto upstream/master
 - [ ] Phase 1: push and tag new go-netbox version
 - [ ] Phase 2: create rebase branch off upstream/master
 - [ ] Phase 2: cherry-pick our patches in order, resolve conflicts
@@ -42,21 +42,19 @@ Order matters: upstream provider features sometimes depend on recent go-netbox c
 ```
 cd ../go-netbox
 git fetch upstream
-git checkout tenant-fix
+git checkout master
 git rebase upstream/master
 ```
 
 Resolve conflicts on our patches. Our changes touch model files (e.g. `WritableAvailableIP`); upstream changes are usually generated client/model deltas elsewhere.
 
 ```
-git push --force-with-lease origin tenant-fix
-git tag -a vX.Y.Z-tenant-fix -m "Rebased onto upstream <sha>"
-git push origin vX.Y.Z-tenant-fix
+git push --force-with-lease origin master
+git tag -a vX.Y.Z -m "Rebased onto upstream <sha>"
+git push origin vX.Y.Z
 ```
 
-`X.Y.Z` should bump the minor version (e.g. `v0.2.0-tenant-fix` → `v0.3.0-tenant-fix`). Force-pushing `tenant-fix` is fine because the provider pins by tag, not branch.
-
-**Do not** touch `go-netbox`'s `master` branch. It's tangled and we don't use it.
+`X.Y.Z` should bump the minor version (e.g. `v0.3.0` → `v0.4.0`). Earlier tags used a `-tenant-fix` suffix; clean tags going forward. Force-pushing `master` is fine because the provider pins by tag, not branch.
 
 ### Phase 2 — Rebase the provider
 
@@ -92,7 +90,7 @@ git cherry-pick <next-sha>
 After all cherry-picks land, edit `go.mod`:
 
 ```
-replace github.com/fbreckle/go-netbox => github.com/msollanych-tt/go-netbox vX.Y.Z-tenant-fix
+replace github.com/fbreckle/go-netbox => github.com/msollanych-tt/go-netbox vX.Y.Z
 ```
 
 Use the new tag from Phase 1. Then:
@@ -197,7 +195,6 @@ git push origin master
 - Never push to `upstream` on either repo (you don't have permission).
 - Never edit `go.sum` by hand — always regenerate with `go mod tidy`.
 - Never reuse a published version tag.
-- Never merge `go-netbox/master` into anything — it's a tangled historical mess.
 - Never promote a real tag without explicit user confirmation that the prerelease was validated.
 - Never include the `replace` directive, the release-workflow tweak, or `AGENTS.md` in a PR opened against upstream `e-breuninger`.
 
