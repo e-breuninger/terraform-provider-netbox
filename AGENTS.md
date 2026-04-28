@@ -270,31 +270,33 @@ go test -count=1 -short ./netbox/...
 
 If anything fails, fix it on this branch, not by going back and amending cherry-picks. Land the fix as a "rebase fixup" amend into the last cherry-pick or as a new commit.
 
-### Step 4: prerelease tag, verify CI build
+### Step 4: prerelease tag, verify CI build (optional)
 
-The release pipeline is the only place we have full cross-platform build coverage. Tags are immutable once published — we cannot reuse a real version tag if the build fails. So:
+The release pipeline is the only place we have full cross-platform build coverage. If you want a low-risk dry run of the build before cutting a real tag — particularly the first time after a big rebase — push a prerelease tag:
 
 ```bash
 git push -u origin rebase-onto-upstream-<MMMYYYY>
-git tag -a vX.Y.Z-tenstorrent-rc1 -m "Prerelease, rebased on upstream <sha>"
-git push origin vX.Y.Z-tenstorrent-rc1
+git tag -a vX.Y.Z-rc1 -m "Prerelease, rebased on upstream <sha>"
+git push origin vX.Y.Z-rc1
 ```
 
-Watch the `release` workflow. It takes ~6 minutes. On success, the GitHub release will have all platform zips + `SHA256SUMS` + signature. Pull it locally and smoke-test against a real NetBox if at all in doubt.
+Watch the `release` workflow. It takes ~6 minutes. On success, the GitHub release will have all platform zips + `SHA256SUMS` + signature.
 
-### Step 5: promote to real tag
+Caveat with prereleases: per SemVer, `X.Y.Z-rc1 < X.Y.Z` and Terraform `~>` constraints don't auto-resolve to prereleases. If you want to test the rc binary from the registry in a downstream deployment, pin the constraint exactly (`version = ">= X.Y.Z-rc1, < X.Y.Z"` or similar). Most of the time the dev_overrides workflow has already validated the same code, so the rc step is skippable.
 
-Once the prerelease has been validated:
+### Step 5: cut the real tag
 
 ```bash
 git checkout master
 git merge --ff-only rebase-onto-upstream-<MMMYYYY>
 git push origin master
-git tag -a vX.Y.Z-tenstorrent.0 -m "Rebased on upstream vX.Y.Z + tenstorrent patches"
-git push origin vX.Y.Z-tenstorrent.0
+git tag -a vX.Y.Z -m "Rebased on upstream <sha> + tenstorrent patches"
+git push origin vX.Y.Z
 ```
 
-**Tag scheme**: `v<upstream_version>-tenstorrent.<n>`. Anchor to whatever upstream tag (or sha-equivalent) we're sitting on top of. Bump the trailing `.<n>` if we add more tenstorrent commits without a fresh upstream rebase.
+**Tag scheme**: plain `vX.Y.Z` semver. Pick a patch version above whatever the latest tenstorrent tag is — don't anchor to upstream's version. Upstream tags (e.g. `e-breuninger v5.3.1`) live as bare commit refs in our repo and shouldn't be confused with our releases. Going forward, our scheme is monotonically increasing semver from our own history (`v5.3.0` → `v5.3.1` → `v5.3.2` → `v5.3.3` → ...). This avoids `-tenstorrent.N` prerelease quirks in downstream `~>` constraints.
+
+If we ever need a non-rebase patch release (just tenstorrent-side bug fixes / feature additions on top of the same upstream anchor), still bump the patch normally.
 
 ## Branch hygiene
 
@@ -326,14 +328,14 @@ If/when upstreaming resumes: branch any upstream PR off `upstream/master` direct
 
 ## Quick reference: state at last rebase
 
-Last rebase: **Apr 2026** (carried forward into `v5.3.1-tenstorrent.0`, no new upstream rebase).
+Last rebase: **Apr 2026** (carried forward into `v5.3.3`, no new upstream rebase).
 
 - Provider's `master` is upstream master at `8257f4d` ("test: add acceptance test for dns_name case drift") — upstream's tip 4 commits past tag `v5.3.0` — plus the carried tenstorrent patches.
 - go-netbox `master` carries two commits on top of upstream `53bc6c52`: the `Tenant` field on `WritableAvailableIP` (`ad4a0111`) and the `device_type_id` / `module_type_id` query-param fix on the dcim templates list endpoints (`af097a32`). Tagged `v0.4.0`. The provider's `go.mod` `replace` line points to `v0.4.0`. The previously-separate `tenant-fix` branch was retired; `master` is now the canonical branch.
-- Tagged releases on the provider: `v5.3.0-tenstorrent.0` (rebase release), `v5.3.1-tenstorrent.0` (this release — no upstream rebase, only tenstorrent-side feature/bug additions on top of the same upstream anchor).
-- Carried deltas active at `v5.3.1-tenstorrent.0`: `release-workflow-permissions`, `available-ip-tenant`, `service-43-parent`, `cf-null-clearing` (new), `device-type-nested-templates` (new), `dcim-templates-list-filter-param` (new, in go-netbox `v0.4.0`), `device-type-templates-examples` (new). See "The patches we carry" above for details.
+- Tagged releases on the provider: `v5.3.0-tenstorrent.0` and `v5.3.0-tenstorrent-rc1` (legacy scheme, kept on origin), then `v5.3.1`, `v5.3.2`, `v5.3.3` (current scheme). `v5.3.3` is the canonical "Apr 2026 rebase + cf null-clearing + nested device-type templates" release.
+- Carried deltas active at `v5.3.3`: `release-workflow-permissions`, `available-ip-tenant`, `service-43-parent`, `cf-null-clearing`, `device-type-nested-templates`, `dcim-templates-list-filter-param` (in go-netbox `v0.4.0`), `device-type-templates-examples`. See "The patches we carry" above for details.
 - Conflicts encountered during the original Apr 2026 rebase: `go.sum` (every cherry-pick — resolved with `--ours` then `go mod tidy`), and one cherry-pick artifact in `netbox/resource_netbox_available_ip_address_test.go` (stray closing braces, caught by `go vet`).
 
-Tag scheme going forward: `v<upstream_anchor>-tenstorrent.<n>`. The `<n>` bumps when we add tenstorrent commits on top of the same upstream anchor. Note that `v5.3.1-tenstorrent.0` is anchored to the same upstream commit as `v5.3.0-tenstorrent.0` (no fresh upstream rebase happened) — the `5.3.1` portion was chosen to track the next upstream version we expect to rebase onto. If we cut another tenstorrent-only release before that rebase happens, it should be `v5.3.1-tenstorrent.1`. Previous releases used a bare `v5.3.1` / `v5.3.2` scheme that collided with upstream's tag namespace; we no longer do that.
+Tag scheme going forward: plain `vX.Y.Z` semver, monotonically increasing from our own release history. Don't try to anchor patch numbers to upstream's version — keep ours self-contained so downstream `~> 5` constraints resolve cleanly. The `-tenstorrent.<n>` prerelease scheme used in `v5.3.0-tenstorrent.0` was retired because it sorts below `v5.3.0` per SemVer prerelease rules, which is the opposite of what we want.
 
 When you start a new rebase, update this section with the new state at the end. Don't make the next agent grovel through commit logs to figure out where things are.

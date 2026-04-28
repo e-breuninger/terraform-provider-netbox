@@ -116,17 +116,36 @@ git add <files>
 git commit --amend --no-edit
 ```
 
-#### Push branch + prerelease tag
-
-The release pipeline is the only place we have full cross-platform build coverage. Tags are immutable once published, so always prerelease first:
+#### Push branch
 
 ```bash
 git push -u origin rebase-onto-upstream-<MMMYYYY>
-git tag -a vA.B.C-tenstorrent-rc1 -m "Prerelease, rebased on upstream <sha>"
-git push origin vA.B.C-tenstorrent-rc1
 ```
 
-`A.B.C` should anchor to the latest upstream version tag. If upstream has a `v5.3.0` tag and we're rebased onto its master, prerelease as `v5.3.0-tenstorrent-rc1`.
+#### (Optional) prerelease tag
+
+The release pipeline is the only place we have full cross-platform build coverage. For risky rebases or first-time releases, push an rc tag to dry-run the build:
+
+```bash
+git tag -a vA.B.C-rc1 -m "Prerelease, rebased on upstream <sha>"
+git push origin vA.B.C-rc1
+```
+
+Most of the time you can skip this — `dev_overrides` against a real NetBox already validated the same code, and the release pipeline either builds or it doesn't (it's deterministic).
+
+Caveat: prerelease tags don't satisfy `~> 5` constraints downstream (SemVer rule). To smoke-test from the registry you'd need to pin exactly. The dev_overrides path is usually faster.
+
+### Phase 3 — Cut the real tag
+
+Once the rebase branch passes locally and (optionally) the rc build is green:
+
+```bash
+git checkout master
+git merge --ff-only rebase-onto-upstream-<MMMYYYY>
+git push origin master
+git tag -a vA.B.C -m "Rebased on upstream <sha> + tenstorrent patches"
+git push origin vA.B.C
+```
 
 Watch the release workflow:
 
@@ -143,37 +162,14 @@ gh run list --repo tenstorrent/terraform-provider-netbox --limit 5
 The build takes ~6 minutes. On success, verify all artifacts published:
 
 ```bash
-gh release view vA.B.C-tenstorrent-rc1 --repo tenstorrent/terraform-provider-netbox
+gh release view vA.B.C --repo tenstorrent/terraform-provider-netbox
 ```
 
 Should show zips for darwin/linux/windows × arm64/amd64/386 plus `SHA256SUMS` + signature.
 
-#### Validate the prerelease binary
+If the build fails on the real tag, you can't reuse the tag — bump the patch (`vA.B.D`) and try again. (This is part of why the optional rc step exists.)
 
-Before promoting to a real tag, the user should test the prerelease binary against a real NetBox. They will tell you when this is done. **Do not promote without explicit confirmation.**
-
-If the prerelease has a regression, fix it on the rebase branch and push another rc:
-
-```bash
-git tag -a vA.B.C-tenstorrent-rc2 -m "..."
-git push origin vA.B.C-tenstorrent-rc2
-```
-
-Never reuse a published tag.
-
-### Phase 3 — Promote to real tag
-
-Once the prerelease is validated:
-
-```bash
-git checkout master
-git merge --ff-only rebase-onto-upstream-<MMMYYYY>
-git push origin master
-git tag -a vA.B.C-tenstorrent.0 -m "Rebased on upstream vA.B.C + tenstorrent patches"
-git push origin vA.B.C-tenstorrent.0
-```
-
-Tag scheme: `v<upstream_version>-tenstorrent.<n>`. Bump `<n>` if we add more tenstorrent commits without a fresh upstream rebase.
+**Tag scheme**: plain `vA.B.C` semver, monotonically increasing from our own release history. Don't anchor to upstream's version. Confirm with the user what the next patch number should be before tagging.
 
 ### Phase 4 — Update AGENTS.md
 
@@ -196,7 +192,7 @@ git push origin master
 - Never push to `upstream` on either repo (you don't have permission).
 - Never edit `go.sum` by hand — always regenerate with `go mod tidy`.
 - Never reuse a published version tag.
-- Never promote a real tag without explicit user confirmation that the prerelease was validated.
+- Never tag without explicit user confirmation of the next patch number to use.
 - Never include the `replace` directive, the release-workflow tweak, or `AGENTS.md` in a PR opened against upstream `e-breuninger`.
 
 ## Cleanup (optional)
