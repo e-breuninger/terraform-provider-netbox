@@ -20,7 +20,9 @@ func resourceNetboxInterfaceTemplate() *schema.Resource {
 
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/models/dcim/interfacetemplate/):
 
-> A template for a network interface that will be created on all instantiations of the parent device type. See the interface documentation for more detail.`,
+> A template for a network interface that will be created on all instantiations of the parent device type. See the interface documentation for more detail.
+
+**Note on coexistence with ` + "`netbox_device_type`" + ` nested templates.** Each individual NetBox interface template object should be managed by exactly one of (a) a ` + "`interface_templates`" + ` block on its parent ` + "`netbox_device_type`" + `, or (b) this standalone resource. Managing the same template via both will cause Terraform and NetBox to fight: each apply will see the "other" tool's values as drift and try to overwrite them. Pick one ownership model per device_type.`,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,

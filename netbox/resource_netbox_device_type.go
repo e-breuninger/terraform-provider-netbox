@@ -22,37 +22,118 @@ func resourceNetboxDeviceType() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"model": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Marketing name of the model.",
 			},
 			"slug": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(1, 100),
+				Description:  "URL-safe identifier for the device type. Defaults to a slugified `model` if not given.",
 			},
 			"manufacturer_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "ID of the `netbox_manufacturer` this device type belongs to.",
 			},
 			"part_number": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Manufacturer part number / SKU.",
 			},
 			"u_height": {
-				Type:     schema.TypeFloat,
-				Optional: true,
-				Default:  "1.0",
+				Type:        schema.TypeFloat,
+				Optional:    true,
+				Default:     "1.0",
+				Description: "Rack height in U. Defaults to `1.0`.",
 			},
 			"is_full_depth": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Whether the device occupies the full rack depth.",
 			},
 			"subdevice_role": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "For chassis-style devices: `parent` for the chassis, `child` for the modules. Leave unset for a single-piece device.",
 			},
 			tagsKey: tagsSchema,
+
+			// Nested template lifecycle. Each block is hash-keyed by `name`.
+			// See netbox/device_type_templates.go for the full per-type schema
+			// and the orchestrator that runs them in dependency order.
+			powerPortTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        powerPortTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Power port templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/powerporttemplate/).",
+			},
+			interfaceTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        interfaceTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Network interface templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/interfacetemplate/).",
+			},
+			consolePortTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        consolePortTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Console port templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/consoleporttemplate/).",
+			},
+			consoleServerPortTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        consoleServerPortTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Console server port templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/consoleserverporttemplate/).",
+			},
+			rearPortTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        rearPortTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Rear port templates instantiated on every device of this type. Front ports reference these by name. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/rearporttemplate/).",
+			},
+			deviceBayTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        deviceBayTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Device bay templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/devicebaytemplate/).",
+			},
+			moduleBayTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        moduleBayTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Module bay templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/modulebaytemplate/).",
+			},
+			powerOutletTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        powerOutletTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Power outlet templates instantiated on every device of this type. May reference a sibling `power_port_templates` block by name. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/poweroutlettemplate/).",
+			},
+			frontPortTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        frontPortTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Front port templates instantiated on every device of this type. Each must reference a sibling `rear_port_templates` block by name. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/frontporttemplate/).",
+			},
+			inventoryItemTemplatesKey: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        inventoryItemTemplateSchema(),
+				Set:         templateNameHash,
+				Description: "Inventory item templates instantiated on every device of this type. Supports a parent tree via the `parent` field and an optional polymorphic FK via `component_type`/`component_id`. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/inventoryitemtemplate/).",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -110,7 +191,12 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		return err
 	}
 
-	d.SetId(strconv.FormatInt(res.GetPayload().ID, 10))
+	deviceTypeID := res.GetPayload().ID
+	d.SetId(strconv.FormatInt(deviceTypeID, 10))
+
+	if err := syncDeviceTypeTemplates(d, api, deviceTypeID); err != nil {
+		return err
+	}
 
 	return resourceNetboxDeviceTypeRead(d, m)
 }
@@ -147,6 +233,10 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("subdevice_role", "")
 	}
 	api.readTags(d, deviceType.Tags)
+
+	if err := readDeviceTypeTemplates(d, api, id); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -198,6 +288,10 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 
 	_, err = api.Dcim.DcimDeviceTypesPartialUpdate(params, nil)
 	if err != nil {
+		return err
+	}
+
+	if err := syncDeviceTypeTemplates(d, api, id); err != nil {
 		return err
 	}
 

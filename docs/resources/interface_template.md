@@ -5,6 +5,7 @@ subcategory: "Data Center Inventory Management (DCIM)"
 description: |-
   From the official documentation https://docs.netbox.dev/en/stable/models/dcim/interfacetemplate/:
   A template for a network interface that will be created on all instantiations of the parent device type. See the interface documentation for more detail.
+  Note on coexistence with netbox_device_type nested templates. Each individual NetBox interface template object should be managed by exactly one of (a) a interface_templates block on its parent netbox_device_type, or (b) this standalone resource. Managing the same template via both will cause Terraform and NetBox to fight: each apply will see the "other" tool's values as drift and try to overwrite them. Pick one ownership model per device_type.
 ---
 
 # netbox_interface_template (Resource)
@@ -12,6 +13,8 @@ description: |-
 From the [official documentation](https://docs.netbox.dev/en/stable/models/dcim/interfacetemplate/):
 
 > A template for a network interface that will be created on all instantiations of the parent device type. See the interface documentation for more detail.
+
+**Note on coexistence with `netbox_device_type` nested templates.** Each individual NetBox interface template object should be managed by exactly one of (a) a `interface_templates` block on its parent `netbox_device_type`, or (b) this standalone resource. Managing the same template via both will cause Terraform and NetBox to fight: each apply will see the "other" tool's values as drift and try to overwrite them. Pick one ownership model per device_type.
 
 ## Example Usage
 

@@ -19,6 +19,9 @@ description: |-
 ### Marking an IP active and assigning to interface
 {{ tffile "examples/resources/netbox_available_ip_address/assign_to_interface.tf" }}
 
+### Setting and clearing custom fields
+{{ tffile "examples/resources/netbox_available_ip_address/custom_fields.tf" }}
+
 {{ .SchemaMarkdown | trimspace }}
 
 {{ if .HasImport -}}

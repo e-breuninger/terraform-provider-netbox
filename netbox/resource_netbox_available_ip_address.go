@@ -211,10 +211,9 @@ func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{})
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
 	api.readTags(d, ipAddress.Tags)
-	cf := getCustomFields(ipAddress.CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	// Always set, including with empty map, so out-of-band CF clears propagate
+	// back into Terraform state as drift on the next plan.
+	d.Set(customFieldsKey, getCustomFields(ipAddress.CustomFields))
 	return nil
 }
 
@@ -232,9 +231,6 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	data.DNSName = getOptionalStr(d, "dns_name", false)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")
-	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
-	}
 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
 		// The other possible type is dcim.interface for devices
@@ -269,9 +265,9 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 		return err
 	}
 
-	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
-	}
+	// Send custom_fields with explicit nulls for any keys removed from config so
+	// NetBox actually clears them. See customFieldsForUpdate for the full rationale.
+	data.CustomFields = customFieldsForUpdate(d)
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 

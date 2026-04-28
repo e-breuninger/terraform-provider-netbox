@@ -8,7 +8,7 @@
 
 It also depends on a **second** fork: `msollanych-tt/go-netbox` is a fork of `fbreckle/go-netbox`, used because we need at least one model field (`Tenant` on `WritableAvailableIP`) that upstream go-netbox does not expose. The dependency is wired in via a `replace` directive in `go.mod`:
 
-```
+```text
 replace github.com/fbreckle/go-netbox => github.com/msollanych-tt/go-netbox vX.Y.Z
 ```
 
@@ -16,15 +16,113 @@ When you change anything that touches the API client (any code under `netbox/cli
 
 ## The patches we carry
 
-As of the last rebase, these are the substantive deltas vs. upstream:
+Each carried delta is recorded as a per-delta block below. Blocks are not deleted when resolved — set `Status` to `Superseded by upstream <sha> on YYYY-MM` or `Removed on YYYY-MM` so the history stays intact for the next agent.
 
-| Area | Why | Upstreamable? |
-|---|---|---|
-| `netbox_available_ip_address` — `tenant_id` field | Upstream resource never supported assigning a tenant when allocating from a prefix. | **Yes** — clean candidate. Requires the `Tenant` field added in our go-netbox fork to also be upstreamed, or for upstream go-netbox to add it. |
-| `netbox_service` — NetBox 4.3+ `parent_object_type`/`parent_object_id` | NetBox 4.3 changed the service parent schema. Upstream provider doesn't yet handle it. | **Yes** — also a clean candidate. Requires go-netbox model changes to be in upstream go-netbox first. |
-| `.github/workflows/release.yml` permissions tweak | Tenstorrent-fork-specific GH Actions permissions. | **No** — internal only. |
+### Block template
 
-If the customer asks about more features, those will land here too. New patches should land as discrete commits with descriptive messages so the next rebase is bearable.
+When adding a new delta, copy this template:
+
+```markdown
+### `<short-id>` — <one-line description>
+
+- **Type:** Bug fix | Feature | Workflow tweak | Compatibility shim
+- **Introduced:** YYYY-MM (release tag if known)
+- **Files:** `path/a.go`, `path/b.go`
+- **Tests:** `TestAccX_y`, `TestAccX_z`
+- **Why:** Plain-English problem statement.
+- **What:** Plain-English summary of the change.
+- **Upstream candidate:** Yes / No / Conditional (with prerequisite). Currently parked per user direction.
+- **Related go-netbox change:** None | tag/SHA in msollanych-tt/go-netbox
+- **Status:** Active | Superseded by upstream <sha> on YYYY-MM | Removed on YYYY-MM
+```
+
+### Carried deltas
+
+#### `release-workflow-permissions` — Release workflow permissions tweak
+
+- **Type:** Workflow tweak
+- **Introduced:** 2026-04 (`v5.3.0-tenstorrent.0`)
+- **Files:** `.github/workflows/release.yml`
+- **Tests:** N/A (workflow-only)
+- **Why:** Tenstorrent's GitHub org requires explicit `permissions:` blocks on workflow jobs that publish releases. Upstream's release workflow ran fine on `e-breuninger/...` but failed on `tenstorrent/...` until permissions were spelled out.
+- **What:** Adds explicit `permissions:` blocks for the release jobs so goreleaser can write release artifacts and tags.
+- **Upstream candidate:** No — internal only.
+- **Related go-netbox change:** None
+- **Status:** Active
+
+#### `available-ip-tenant` — `tenant_id` on `netbox_available_ip_address`
+
+- **Type:** Feature
+- **Introduced:** 2026-04 (`v5.3.0-tenstorrent.0`)
+- **Files:** `netbox/resource_netbox_available_ip_address.go`, `netbox/resource_netbox_available_ip_address_test.go`
+- **Tests:** `TestAccNetboxAvailableIPAddress_withTenant`
+- **Why:** Upstream `netbox_available_ip_address` never supported assigning a tenant at allocation time. We need it for our IPAM workflow where every leased address is owned by a tenant.
+- **What:** Adds an optional `tenant_id` schema field, plumbs it through `Create`/`Read`/`Update` against the `WritableAvailableIP.Tenant` field. The `Tenant` field on `WritableAvailableIP` only exists in `msollanych-tt/go-netbox` (see related change), not in upstream `fbreckle/go-netbox`.
+- **Upstream candidate:** Yes — clean candidate, but blocked on upstream go-netbox accepting the `Tenant` field on `WritableAvailableIP` first. Currently parked per user direction.
+- **Related go-netbox change:** Commit "Add tenant field to WritableAvailableIP for available IP creation" on `msollanych-tt/go-netbox` master (tagged `v0.3.0-tenant-fix`).
+- **Status:** Active
+
+#### `service-43-parent` — NetBox 4.3+ parent object on `netbox_service`
+
+- **Type:** Compatibility shim
+- **Introduced:** 2026-04 (`v5.3.0-tenstorrent.0`)
+- **Files:** `netbox/resource_netbox_service.go`, `netbox/resource_netbox_service_test.go`
+- **Tests:** existing `netbox_service` accept tests
+- **Why:** NetBox 4.3 replaced the `device`/`virtual_machine` fields on Service with a polymorphic `parent_object_type`/`parent_object_id` pair. Upstream provider had not yet caught up so `netbox_service` was broken on NetBox 4.3+.
+- **What:** Maps the provider's existing `device_id` / `virtual_machine_id` schema fields onto the new parent object fields when talking to NetBox 4.3+. The model changes live in our go-netbox fork (the writable Service model now has the parent fields exposed).
+- **Upstream candidate:** Yes — also a clean candidate, blocked on upstream go-netbox model alignment. Currently parked per user direction.
+- **Related go-netbox change:** Service model updates carried on `msollanych-tt/go-netbox` master.
+- **Status:** Active
+
+#### `cf-null-clearing` — `custom_fields` clearing on IP-address-family resources
+
+- **Type:** Bug fix
+- **Introduced:** 2026-04 (`v5.3.1-tenstorrent.0`)
+- **Files:** `netbox/custom_fields.go`, `netbox/resource_netbox_available_ip_address.go`, `netbox/resource_netbox_ip_address.go`, `netbox/resource_netbox_ip_range.go`
+- **Tests:** `TestAccNetboxAvailableIPAddress_cf_clear`, `TestAccNetboxIPAddress_cf_clear`, `TestAccNetboxIpRange_cf_clear`
+- **Why:** The `Update` path in all three IP-address-family resources used `if cf, ok := d.GetOk(customFieldsKey); ok { data.CustomFields = cf }`, which silently skipped the assignment whenever the user removed the field from their HCL. Combined with `json:"custom_fields,omitempty"` on the writable models, even when we did assign, an empty map was dropped before serialization, so NetBox never saw a clear and kept stale values. `Read` also gated `d.Set(customFieldsKey, ...)` on a non-empty map, so out-of-band clears never made it back into Terraform state.
+- **What:** Adds a `customFieldsForUpdate(d)` helper in `netbox/custom_fields.go` that diffs `d.GetChange(customFieldsKey)` and emits a map containing every key present in new config (with its new value) plus every key dropped from old state (with an explicit `nil` so it marshals as JSON `null`). This is what NetBox's PATCH semantics require to actually clear a CF; sending `{}` is a no-op because `omitempty` strips it. All three resources call this helper in `Update`, the duplicate `if cf, ok := d.GetOk(...)` block in `resource_netbox_available_ip_address.go` is removed, and `Read` now unconditionally calls `d.Set(customFieldsKey, getCustomFields(...))` so state stays in sync with NetBox.
+- **Upstream candidate:** Yes — clean candidate. Same gated-assignment pattern exists in upstream and almost certainly has the same bug. Currently parked per user direction.
+- **Related go-netbox change:** None
+- **Status:** Active
+
+#### `device-type-nested-templates` — nested template lifecycle on `netbox_device_type`
+
+- **Type:** Feature
+- **Introduced:** 2026-04 (`v5.3.1-tenstorrent.0`)
+- **Files:** `netbox/resource_netbox_device_type.go`, `netbox/device_type_templates.go`
+- **Tests:** `TestAccNetboxDeviceType_templates_basic`, `TestAccNetboxDeviceType_templates_update`, `TestAccNetboxDeviceType_templates_destroy`, `TestAccNetboxDeviceType_templates_fk_ordering`, `TestAccNetboxDeviceType_templates_coexistence`
+- **Why:** Upstream `netbox_device_type` is a plain wrapper around the device-type API, with no support for managing the component templates (interface, power_port, etc.) that get instantiated on every device of that type. Users had to manage every template via a separate top-level resource and string the `device_type_id` through manually, which made copy-pasting device-type definitions painful.
+- **What:** Adds `power_port_templates`, `interface_templates`, `power_outlet_templates`, `front_port_templates`, `rear_port_templates`, `console_port_templates`, `console_server_port_templates`, `device_bay_templates`, `module_bay_templates`, and `inventory_item_templates` as nested `TypeSet` blocks on `netbox_device_type`. A single `syncDeviceTypeTemplates` helper reconciles state per type via list / create / partial-update / delete in dependency order (independents → power_outlet/front_port → inventory_item tree). Coexistence is enforced by an **ownership gate**: a template is "ours" iff its name appears in either the new desired set or the prior-state set (computed via `d.GetChange`). The reconciler only deletes templates that we previously owned, and the Read path only refreshes state for templates already tracked there. This is what makes it safe to use standalone `netbox_interface_template` / `netbox_device_bay_template` resources alongside the nested blocks: the nested-block code never touches templates it doesn't already own, even though they're attached to the same device_type. The contract is still "one ownership model per template object" — but the gate prevents the nested code from silently destroying templates owned by anything else.
+- **Upstream candidate:** Conditional — design is upstream-friendly but it's a chunky feature. Would need its own discussion with upstream maintainers. Currently parked per user direction.
+- **Related go-netbox change:** Depends on the `dcim-templates-list-filter-param` fix (see below) shipped in `msollanych-tt/go-netbox v0.4.0`. Without it, the per-device-type list filter is silently ignored and the reconciler will try to delete every template in the entire DCIM.
+- **Status:** Active
+
+#### `dcim-templates-list-filter-param` — go-netbox fix for `device_type_id` query param on `dcim/*-templates/` endpoints
+
+- **Type:** Bug fix (in `msollanych-tt/go-netbox`)
+- **Introduced:** 2026-04 (`v5.3.1-tenstorrent.0`, go-netbox `v0.4.0`)
+- **Files:** `netbox/client/dcim/dcim_*_templates_list_parameters.go` in `msollanych-tt/go-netbox` (10 files, 30 query-param sites). No provider-side files.
+- **Tests:** Implicitly covered by the `device-type-nested-templates` acceptance tests, which would otherwise mass-delete unrelated templates on every Update path.
+- **Why:** The OpenAPI swagger fbreckle's go-netbox is generated from uses the legacy NetBox query-param names `devicetype_id` and `moduletype_id` for the `dcim/*-templates/` list endpoints. Modern NetBox (4.4+, possibly earlier) renamed them to `device_type_id` and `module_type_id` for consistency with the rest of the API. NetBox **silently ignores** unknown query params on these endpoints rather than erroring, so a list call with the old name returns the unfiltered global list of templates. Any reconciler using the result (notably the new nested-templates feature) would then read all templates in the DCIM and try to delete the ones not in the device_type's HCL config.
+- **What:** In `msollanych-tt/go-netbox v0.4.0`, renames the wire-format query-param strings in the `SetQueryParam` calls from `devicetype_id` → `device_type_id` and `moduletype_id` → `module_type_id` (plus the `__n` "not equal" variants) across all 10 `dcim_*_templates_list_parameters.go` files. The Go-side struct field names (`DevicetypeID`, `ModuletypeID`) and the `WithDevicetypeID` / `WithModuletypeID` setter method names are left alone for source compatibility — only the wire param strings change. Provider's `go.mod` `replace` line bumps to `v0.4.0`.
+- **Upstream candidate:** Yes — file an issue against `fbreckle/go-netbox` (or whatever upstream regeneration story they have). The right long-term fix is regenerating the client against the current NetBox swagger. Currently parked per user direction.
+- **Related go-netbox change:** This is the go-netbox change itself. Tagged `v0.4.0` on `msollanych-tt/go-netbox` master.
+- **Status:** Active
+
+#### `device-type-templates-examples` — examples and docs for nested templates
+
+- **Type:** Feature (docs)
+- **Introduced:** 2026-04 (`v5.3.1-tenstorrent.0`)
+- **Files:** `examples/resources/netbox_device_type/resource.tf`, regenerated files under `docs/resources/`
+- **Tests:** Covered by feature acceptance tests above; doc regeneration is a `make docs` artifact.
+- **Why:** With the nested-templates feature shipping, the example HCL had to grow beyond the previous 9-line minimal example so `make docs` would render meaningful guidance for the new fields.
+- **What:** Updates `examples/resources/netbox_device_type/resource.tf` to showcase the nested template blocks, and commits the regenerated `docs/resources/netbox_device_type.md`.
+- **Upstream candidate:** Yes — would go upstream alongside the feature itself.
+- **Related go-netbox change:** None
+- **Status:** Active
+
+If the customer asks about more features, they land here too. New patches should land as discrete commits with descriptive messages so the next rebase is bearable, and they should add a block above with `Status: Active`.
 
 ## Repo layout reminders
 
@@ -82,14 +180,14 @@ Either leave the override on (cheap, but the warning every command may annoy a r
 
 ### Useful Make targets
 
-| Target | What it does |
-|---|---|
-| `make test` | Unit tests (no NetBox needed). |
-| `make testacc` | Brings up a NetBox in Docker (`make docker-up`), then runs the full acceptance suite. Slow. |
-| `make testacc-specific-test TEST_FUNC=TestAccNetboxAvailableIPAddress_withTenant` | Run a single acceptance test against the dockerized NetBox. |
-| `make docker-up` / `make docker-down` | Start / tear down the NetBox container. |
-| `make docs` | Regenerate provider docs from schema. Run before committing if you've touched a schema. |
-| `make fmt` | `go fmt` over the package. |
+| Target                                                                            | What it does                                                                                |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `make test`                                                                       | Unit tests (no NetBox needed).                                                              |
+| `make testacc`                                                                    | Brings up a NetBox in Docker (`make docker-up`), then runs the full acceptance suite. Slow. |
+| `make testacc-specific-test TEST_FUNC=TestAccNetboxAvailableIPAddress_withTenant` | Run a single acceptance test against the dockerized NetBox.                                 |
+| `make docker-up` / `make docker-down`                                             | Start / tear down the NetBox container.                                                     |
+| `make docs`                                                                       | Regenerate provider docs from schema. Run before committing if you've touched a schema.     |
+| `make fmt`                                                                        | `go fmt` over the package.                                                                  |
 
 `NETBOX_VERSION` is pinned in `GNUmakefile` (currently `v4.4.10`); override per invocation if needed: `NETBOX_VERSION=v4.5.0 make testacc`.
 
@@ -107,7 +205,7 @@ When a feature requires changes to the OpenAPI-generated client (most "the field
 
 When rebasing onto upstream:
 
-```
+```bash
 cd ../go-netbox
 git fetch upstream
 git checkout master
@@ -127,7 +225,7 @@ Do this whenever upstream has tagged a new release, or every few months, whichev
 
 The order matters. If upstream provider ships a feature that depends on a recent go-netbox change (e.g. v2 API token support depended on the `WritableToken.Expires` `omitempty` removal), the provider rebase will fail or behave wrong without the underlying dep being current.
 
-```
+```bash
 cd ../go-netbox
 git fetch upstream
 git checkout master
@@ -144,7 +242,7 @@ Force-pushing `master` is fine — only this repo consumes it, and it's pinned b
 
 Create a fresh branch from upstream, cherry-pick our patches in order. Don't rebase `master` onto `upstream/master` directly — branches first, validate, then fast-forward `master`.
 
-```
+```bash
 cd ../terraform-provider-netbox
 git fetch upstream
 git checkout -b rebase-onto-upstream-<MMMYYYY> upstream/master
@@ -162,7 +260,7 @@ Cherry-picks sometimes leave whitespace or stray brace artifacts. **Always run `
 
 ### Step 3: bump go-netbox dep and verify
 
-```
+```bash
 # Edit go.mod replace line to new tag
 go mod tidy
 go vet ./...
@@ -176,7 +274,7 @@ If anything fails, fix it on this branch, not by going back and amending cherry-
 
 The release pipeline is the only place we have full cross-platform build coverage. Tags are immutable once published — we cannot reuse a real version tag if the build fails. So:
 
-```
+```bash
 git push -u origin rebase-onto-upstream-<MMMYYYY>
 git tag -a vX.Y.Z-tenstorrent-rc1 -m "Prerelease, rebased on upstream <sha>"
 git push origin vX.Y.Z-tenstorrent-rc1
@@ -188,7 +286,7 @@ Watch the `release` workflow. It takes ~6 minutes. On success, the GitHub releas
 
 Once the prerelease has been validated:
 
-```
+```bash
 git checkout master
 git merge --ff-only rebase-onto-upstream-<MMMYYYY>
 git push origin master
@@ -228,13 +326,14 @@ If/when upstreaming resumes: branch any upstream PR off `upstream/master` direct
 
 ## Quick reference: state at last rebase
 
-Last rebase: **Apr 2026**.
+Last rebase: **Apr 2026** (carried forward into `v5.3.1-tenstorrent.0`, no new upstream rebase).
 
-- Provider rebased onto upstream master at `8257f4d` ("test: add acceptance test for dns_name case drift"), which is upstream's tip 4 commits past tag `v5.3.0`.
-- go-netbox `master` carries one commit (`Add tenant field to WritableAvailableIP for available IP creation`) on top of upstream `53bc6c52`. Tagged `v0.3.0-tenant-fix`. The provider's `go.mod` `replace` line points to that tag. The previously-separate `tenant-fix` branch was retired; `master` is now the canonical branch.
-- Provider tagged as `v5.3.0-tenstorrent.0` after a successful `v5.3.0-tenstorrent-rc1` prerelease build.
-- Conflicts encountered during the rebase: `go.sum` (every cherry-pick — resolved with `--ours` then `go mod tidy`), and one cherry-pick artifact in `netbox/resource_netbox_available_ip_address_test.go` (stray closing braces, caught by `go vet`).
+- Provider's `master` is upstream master at `8257f4d` ("test: add acceptance test for dns_name case drift") — upstream's tip 4 commits past tag `v5.3.0` — plus the carried tenstorrent patches.
+- go-netbox `master` carries two commits on top of upstream `53bc6c52`: the `Tenant` field on `WritableAvailableIP` (`ad4a0111`) and the `device_type_id` / `module_type_id` query-param fix on the dcim templates list endpoints (`af097a32`). Tagged `v0.4.0`. The provider's `go.mod` `replace` line points to `v0.4.0`. The previously-separate `tenant-fix` branch was retired; `master` is now the canonical branch.
+- Tagged releases on the provider: `v5.3.0-tenstorrent.0` (rebase release), `v5.3.1-tenstorrent.0` (this release — no upstream rebase, only tenstorrent-side feature/bug additions on top of the same upstream anchor).
+- Carried deltas active at `v5.3.1-tenstorrent.0`: `release-workflow-permissions`, `available-ip-tenant`, `service-43-parent`, `cf-null-clearing` (new), `device-type-nested-templates` (new), `dcim-templates-list-filter-param` (new, in go-netbox `v0.4.0`), `device-type-templates-examples` (new). See "The patches we carry" above for details.
+- Conflicts encountered during the original Apr 2026 rebase: `go.sum` (every cherry-pick — resolved with `--ours` then `go mod tidy`), and one cherry-pick artifact in `netbox/resource_netbox_available_ip_address_test.go` (stray closing braces, caught by `go vet`).
 
-Tag scheme going forward: `v<upstream_anchor>-tenstorrent.<n>`. Note: previous releases used a bare `v5.3.1` / `v5.3.2` scheme that collided with upstream's tag namespace; we no longer do that.
+Tag scheme going forward: `v<upstream_anchor>-tenstorrent.<n>`. The `<n>` bumps when we add tenstorrent commits on top of the same upstream anchor. Note that `v5.3.1-tenstorrent.0` is anchored to the same upstream commit as `v5.3.0-tenstorrent.0` (no fresh upstream rebase happened) — the `5.3.1` portion was chosen to track the next upstream version we expect to rebase onto. If we cut another tenstorrent-only release before that rebase happens, it should be `v5.3.1-tenstorrent.1`. Previous releases used a bare `v5.3.1` / `v5.3.2` scheme that collided with upstream's tag namespace; we no longer do that.
 
 When you start a new rebase, update this section with the new state at the end. Don't make the next agent grovel through commit logs to figure out where things are.

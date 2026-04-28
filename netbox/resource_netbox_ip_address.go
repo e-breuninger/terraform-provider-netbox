@@ -279,10 +279,9 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", ipAddress.Description)
 	d.Set("status", ipAddress.Status.Value)
 	api.readTags(d, ipAddress.Tags)
-	cf := getCustomFields(res.GetPayload().CustomFields)
-	if cf != nil {
-		d.Set(customFieldsKey, cf)
-	}
+	// Always set, including with empty map, so out-of-band CF clears propagate
+	// back into Terraform state as drift on the next plan.
+	d.Set(customFieldsKey, getCustomFields(res.GetPayload().CustomFields))
 	return nil
 }
 
@@ -329,9 +328,9 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
-	}
+	// Send custom_fields with explicit nulls for any keys removed from config so
+	// NetBox actually clears them. See customFieldsForUpdate for the full rationale.
+	data.CustomFields = customFieldsForUpdate(d)
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
 

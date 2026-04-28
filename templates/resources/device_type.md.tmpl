@@ -1,0 +1,46 @@
+---
+page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
+subcategory: "Data Center Inventory Management (DCIM)"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+## Example Usage
+
+### Minimal device type
+
+A bare device-type catalog entry. Devices created from this type get no auto-instantiated components.
+
+{{ tffile "examples/resources/netbox_device_type/resource.tf" }}
+
+### Device type with nested component templates
+
+A single resource that exercises every nested component-template family. Power outlets and front ports use sibling-by-name references; the provider resolves those to NetBox IDs at apply time.
+
+{{ tffile "examples/resources/netbox_device_type/with_nested_templates.tf" }}
+
+### Inventory item parent tree with polymorphic component FK
+
+`inventory_item_templates` can form a parent/child tree (via `parent` + sibling name) and optionally point at any other component template on the same device type via `component_type` / `component_id`.
+
+{{ tffile "examples/resources/netbox_device_type/inventory_item_tree.tf" }}
+
+### Coexistence with standalone template resources
+
+Nested blocks on `netbox_device_type` can coexist with the standalone `netbox_interface_template` / `netbox_device_bay_template` / etc. resources on the same device_type. The reconciler only manages templates it previously owned, so standalone-managed templates are left alone.
+
+{{ tffile "examples/resources/netbox_device_type/coexistence_with_standalone.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
+
+{{ if .HasImport -}}
+## Import
+
+Import is supported using the following syntax:
+
+{{ printf "{{codefile \"shell\" %q}}" .ImportFile }}
+{{- end }}

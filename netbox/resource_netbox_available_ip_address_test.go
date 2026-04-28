@@ -331,6 +331,82 @@ resource "netbox_available_ip_address" "test" {
 	})
 }
 
+// TestAccNetboxAvailableIPAddress_cf_clear exercises the custom_fields
+// null-clearing fix: it sets a custom field, then removes the entire
+// custom_fields block from config and asserts both Terraform state and
+// NetBox itself drop the value, with no further drift on a subsequent plan.
+func TestAccNetboxAvailableIPAddress_cf_clear(t *testing.T) {
+	testPrefix := "1.1.10.0/24"
+	testIP := "1.1.10.1/24"
+	testSlug := "av_ipa_cf_clear"
+
+	withCF := fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.ipaddress"]
+}
+
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  status = "active"
+  is_pool = false
+}
+
+resource "netbox_available_ip_address" "test" {
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "set-then-cleared"
+  }
+}`, testSlug, testPrefix)
+
+	withoutCF := fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.ipaddress"]
+}
+
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  status = "active"
+  is_pool = false
+}
+
+resource "netbox_available_ip_address" "test" {
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+}`, testSlug, testPrefix)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: withCF,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", testIP),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", fmt.Sprintf("custom_fields.%s", testSlug), "set-then-cleared"),
+				),
+			},
+			{
+				Config: withoutCF,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", testIP),
+					resource.TestCheckNoResourceAttr("netbox_available_ip_address.test", fmt.Sprintf("custom_fields.%s", testSlug)),
+				),
+			},
+			{
+				Config:             withoutCF,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 func TestAccNetboxAvailableIPAddress_withTenant(t *testing.T) {
 	testPrefix := "1.9.1.0/24"
 	testIP := "1.9.1.1/24"

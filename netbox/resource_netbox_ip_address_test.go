@@ -242,6 +242,66 @@ resource "netbox_ip_address" "test_customfield" {
 	})
 }
 
+// TestAccNetboxIPAddress_cf_clear exercises the custom_fields null-clearing
+// fix: it sets a custom field on an IP, then removes the entire custom_fields
+// block from config and asserts both Terraform state and NetBox itself drop
+// the value, with no further drift on a subsequent plan.
+func TestAccNetboxIPAddress_cf_clear(t *testing.T) {
+	testIP := "1.1.1.9/32"
+	testSlug := "ipaddr_cf_clear"
+	testName := testAccGetTestName(testSlug)
+
+	withCF := testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.ipaddress"]
+}
+resource "netbox_ip_address" "test_customfield" {
+  ip_address = "%s"
+  status = "active"
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "set-then-cleared"
+  }
+}`, testSlug, testIP)
+
+	withoutCF := testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.ipaddress"]
+}
+resource "netbox_ip_address" "test_customfield" {
+  ip_address = "%s"
+  status = "active"
+}`, testSlug, testIP)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: withCF,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_address.test_customfield", fmt.Sprintf("custom_fields.%s", testSlug), "set-then-cleared"),
+				),
+			},
+			{
+				Config: withoutCF,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("netbox_ip_address.test_customfield", fmt.Sprintf("custom_fields.%s", testSlug)),
+				),
+			},
+			{
+				Config:             withoutCF,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 func TestAccNetboxIPAddress_deviceByObjectType(t *testing.T) {
 	testIP := "1.1.1.2/32"
 	testSlug := "ipadr_dev_ot"

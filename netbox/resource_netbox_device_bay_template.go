@@ -20,7 +20,9 @@ func resourceNetboxDeviceBayTemplate() *schema.Resource {
 
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/models/dcim/devicebaytemplate/):
 
-> A template for a device bay that will be created on all instantiations of the parent device type.`,
+> A template for a device bay that will be created on all instantiations of the parent device type.
+
+**Note on coexistence with ` + "`netbox_device_type`" + ` nested templates.** Each individual NetBox device-bay template object should be managed by exactly one of (a) a ` + "`device_bay_templates`" + ` block on its parent ` + "`netbox_device_type`" + `, or (b) this standalone resource. Managing the same template via both will cause Terraform and NetBox to fight: each apply will see the "other" tool's values as drift and try to overwrite them. Pick one ownership model per device_type.`,
 		Schema: map[string]*schema.Schema{
 			"device_type_id": {
 				Type:     schema.TypeInt,

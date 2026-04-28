@@ -139,17 +139,17 @@ resource "netbox_ip_range" "test_with_dependencies" {
 	})
 }
 
+// TestAccNetboxIpRange_cf exercises the custom_fields lifecycle on
+// netbox_ip_range: setting a value, then clearing it (verifying our
+// null-clearing fix), then a no-op apply confirming idempotency. We use a
+// single CF rather than two parallel tests so the global CF list cannot
+// pollute either test's view of state (CFs are content-type-wide in NetBox).
 func TestAccNetboxIpRange_cf(t *testing.T) {
 	testSlug := "range_cf"
 	testStartAddress := "10.0.1.1/24"
 	testEndAddress := "10.0.1.50/24"
 
-	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
+	withCF := fmt.Sprintf(`
 resource "netbox_custom_field" "test" {
   name   = "%s"
   type   = "text"
@@ -164,7 +164,28 @@ resource "netbox_ip_range" "test_cf" {
   custom_fields = {
     "${netbox_custom_field.test.name}" = "test-field"
   }
-}`, testSlug, testStartAddress, testEndAddress),
+}`, testSlug, testStartAddress, testEndAddress)
+
+	withoutCF := fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.iprange"]
+}
+
+resource "netbox_ip_range" "test_cf" {
+  start_address = "%s"
+  end_address = "%s"
+  status = "active"
+}`, testSlug, testStartAddress, testEndAddress)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: withCF,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ip_range.test_cf", "start_address", testStartAddress),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_cf", "end_address", testEndAddress),
@@ -175,6 +196,17 @@ resource "netbox_ip_range" "test_cf" {
 				ResourceName:      "netbox_ip_range.test_cf",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config: withoutCF,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("netbox_ip_range.test_cf", fmt.Sprintf("custom_fields.%s", testSlug)),
+				),
+			},
+			{
+				Config:             withoutCF,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
 			},
 		},
 	})
