@@ -625,6 +625,54 @@ resource "netbox_device_type" "test" {
 	})
 }
 
+// TestAccNetboxDeviceType_cf_unrelatedRegistered guards a real-world drift
+// scenario hit during dev-override testing: a custom_field is registered for
+// content_type dcim.devicetype, but a particular device_type does not set
+// that CF. NetBox returns the CF as a null-valued entry on Read; the provider
+// must not promote those nulls into state, otherwise every plan after Create
+// shows ghost diff. Regression for the typed-nil-map d.Set bug.
+func TestAccNetboxDeviceType_cf_unrelatedRegistered(t *testing.T) {
+	testSlug := "dt_cf_unrelated"
+	testName := testAccGetTestName(testSlug)
+
+	cfg := fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_custom_field" "registered_unused" {
+  name          = "%[2]s"
+  type          = "text"
+  weight        = 100
+  content_types = ["dcim.devicetype"]
+}
+
+resource "netbox_device_type" "no_cf" {
+  model           = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+  depends_on      = [netbox_custom_field.registered_unused]
+}
+`, testName, testSlug)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: cfg,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("netbox_device_type.no_cf", fmt.Sprintf("custom_fields.%s", testSlug)),
+				),
+			},
+			{
+				Config:             cfg,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 // TestAccNetboxDeviceType_weightUnitRequiresWeight asserts that providing
 // weight_unit without weight is rejected at plan time, per the RequiredWith
 // constraint on the schema.

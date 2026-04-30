@@ -28,11 +28,22 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 		return nil
 	}
 
+	// Filter out keys that NetBox returns as "unset". NetBox includes every
+	// custom_field registered for the content_type in the response, regardless
+	// of whether this particular object set a value. The exact null shape
+	// depends on CF type and NetBox version: text comes back as "" on 4.4,
+	// other types as JSON null. Treat empty string + nil as "not set" so they
+	// don't pollute Terraform state with ghost keys for users who never opted
+	// in to that CF on this resource.
 	result := make(map[string]interface{})
 	for key, value := range cfm {
-		if value != nil {
-			result[key] = value
+		if value == nil {
+			continue
 		}
+		if s, isStr := value.(string); isStr && s == "" {
+			continue
+		}
+		result[key] = value
 	}
 
 	if len(result) == 0 {
