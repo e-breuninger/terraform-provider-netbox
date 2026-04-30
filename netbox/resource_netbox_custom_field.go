@@ -38,6 +38,8 @@ func resourceCustomField() *schema.Resource {
 					models.CustomFieldTypeValueURL,
 					models.CustomFieldTypeValueSelect,
 					models.CustomFieldTypeValueMultiselect,
+					models.CustomFieldTypeValueObject,
+					models.CustomFieldTypeValueMultiobject,
 					models.CustomFieldTypeValueJSON,
 				}, false),
 			},
@@ -92,6 +94,10 @@ func resourceCustomField() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"related_object_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -105,15 +111,16 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
 	data := &models.WritableCustomField{
-		Name:            strToPtr(d.Get("name").(string)),
-		Type:            d.Get("type").(string),
-		Default:         d.Get("default").(string),
-		Description:     d.Get("description").(string),
-		GroupName:       d.Get("group_name").(string),
-		Label:           d.Get("label").(string),
-		Required:        d.Get("required").(bool),
-		ValidationRegex: d.Get("validation_regex").(string),
-		Weight:          int64ToPtr(int64(d.Get("weight").(int))),
+		Name:              strToPtr(d.Get("name").(string)),
+		Type:              d.Get("type").(string),
+		Default:           d.Get("default").(string),
+		Description:       d.Get("description").(string),
+		GroupName:         d.Get("group_name").(string),
+		Label:             d.Get("label").(string),
+		Required:          d.Get("required").(bool),
+		ValidationRegex:   d.Get("validation_regex").(string),
+		RelatedObjectType: d.Get("related_object_type").(string),
+		Weight:            int64ToPtr(int64(d.Get("weight").(int))),
 	}
 
 	choiceSet, ok := d.GetOk("choice_set_id")
@@ -155,15 +162,16 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 
 	data := &models.WritableCustomField{
-		Name:            strToPtr(d.Get("name").(string)),
-		Type:            d.Get("type").(string),
-		Default:         d.Get("default").(string),
-		Description:     d.Get("description").(string),
-		GroupName:       d.Get("group_name").(string),
-		Label:           d.Get("label").(string),
-		Required:        d.Get("required").(bool),
-		ValidationRegex: d.Get("validation_regex").(string),
-		Weight:          int64ToPtr(int64(d.Get("weight").(int))),
+		Name:              strToPtr(d.Get("name").(string)),
+		Type:              d.Get("type").(string),
+		Default:           d.Get("default").(string),
+		Description:       d.Get("description").(string),
+		GroupName:         d.Get("group_name").(string),
+		Label:             d.Get("label").(string),
+		Required:          d.Get("required").(bool),
+		ValidationRegex:   d.Get("validation_regex").(string),
+		RelatedObjectType: d.Get("related_object_type").(string),
+		Weight:            int64ToPtr(int64(d.Get("weight").(int))),
 	}
 
 	choiceSet, ok := d.GetOk("choice_set_id")
