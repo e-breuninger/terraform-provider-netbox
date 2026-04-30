@@ -9,6 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxDeviceTypeAirflowOptions = []string{"front-to-rear", "rear-to-front", "left-to-right", "right-to-left", "side-to-rear", "passive", "mixed"}
+var resourceNetboxDeviceTypeWeightUnitOptions = []string{"kg", "g", "lb", "oz"}
+
 func resourceNetboxDeviceType() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxDeviceTypeCreate,
@@ -59,7 +62,48 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Optional:    true,
 				Description: "For chassis-style devices: `parent` for the chassis, `child` for the modules. Leave unset for a single-piece device.",
 			},
-			tagsKey: tagsSchema,
+			"airflow": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceTypeAirflowOptions, false),
+				Description:  "Default airflow direction. " + buildValidValueDescription(resourceNetboxDeviceTypeAirflowOptions),
+			},
+			"weight": {
+				Type:        schema.TypeFloat,
+				Optional:    true,
+				Description: "Numeric weight of the device. Pair with `weight_unit`.",
+			},
+			"weight_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"weight"},
+				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceTypeWeightUnitOptions, false),
+				Description:  "Unit for `weight`. " + buildValidValueDescription(resourceNetboxDeviceTypeWeightUnitOptions),
+			},
+			"description": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(0, 200),
+				Description:  "Short description (max 200 chars).",
+			},
+			"comments": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Free-form Markdown comments.",
+			},
+			"default_platform_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "ID of the `netbox_platform` to default new devices of this type to.",
+			},
+			"exclude_from_utilization": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "If set, devices of this type are excluded from rack utilization calculations.",
+			},
+			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 
 			// Nested template lifecycle. Each block is hash-keyed by `name`.
 			// See netbox/device_type_templates.go for the full per-type schema
@@ -178,6 +222,18 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
 
+	data.Airflow = getOptionalStr(d, "airflow", false)
+	data.Weight = getOptionalFloat(d, "weight")
+	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
+	data.Description = getOptionalStr(d, "description", false)
+	data.Comments = getOptionalStr(d, "comments", false)
+	data.DefaultPlatform = getOptionalInt(d, "default_platform_id")
+	data.ExcludeFromUtilization = d.Get("exclude_from_utilization").(bool)
+
+	if cf, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = cf
+	}
+
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
@@ -232,6 +288,28 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("subdevice_role", "")
 	}
+
+	if deviceType.Airflow != nil && deviceType.Airflow.Value != nil {
+		d.Set("airflow", *deviceType.Airflow.Value)
+	} else {
+		d.Set("airflow", "")
+	}
+	d.Set("weight", deviceType.Weight)
+	if deviceType.WeightUnit != nil && deviceType.WeightUnit.Value != nil {
+		d.Set("weight_unit", *deviceType.WeightUnit.Value)
+	} else {
+		d.Set("weight_unit", "")
+	}
+	d.Set("description", deviceType.Description)
+	d.Set("comments", deviceType.Comments)
+	if deviceType.DefaultPlatform != nil {
+		d.Set("default_platform_id", deviceType.DefaultPlatform.ID)
+	} else {
+		d.Set("default_platform_id", nil)
+	}
+	d.Set("exclude_from_utilization", deviceType.ExcludeFromUtilization)
+	d.Set(customFieldsKey, getCustomFields(deviceType.CustomFields))
+
 	api.readTags(d, deviceType.Tags)
 
 	if err := readDeviceTypeTemplates(d, api, id); err != nil {
@@ -277,6 +355,18 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
 		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
+
+	data.Airflow = getOptionalStr(d, "airflow", false)
+	data.Weight = getOptionalFloat(d, "weight")
+	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
+	data.Description = getOptionalStr(d, "description", true)
+	data.Comments = getOptionalStr(d, "comments", true)
+	data.DefaultPlatform = getOptionalInt(d, "default_platform_id")
+	data.ExcludeFromUtilization = d.Get("exclude_from_utilization").(bool)
+
+	// CustomFields needs the diff-based clearing helper so keys removed from
+	// HCL get explicit JSON null; see customFieldsForUpdate for full rationale.
+	data.CustomFields = customFieldsForUpdate(d)
 
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))

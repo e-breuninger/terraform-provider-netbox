@@ -30,6 +30,32 @@ resource "netbox_device_type" "minimal" {
   part_number     = "EX1000-A"
   manufacturer_id = netbox_manufacturer.example.id
 }
+
+# Annotated device type: every optional metadata field NetBox supports on a
+# device_type, with a default platform and a couple of custom_fields entries.
+# Custom fields take strings; encode complex values with jsonencode().
+resource "netbox_platform" "linux" {
+  name = "Linux"
+}
+
+resource "netbox_device_type" "annotated" {
+  model           = "EX-2000"
+  part_number     = "EX2000-A"
+  manufacturer_id = netbox_manufacturer.example.id
+
+  airflow                  = "front-to-rear"
+  weight                   = 12.5
+  weight_unit              = "kg"
+  description              = "Aggregation switch, top-of-rack"
+  comments                 = "## Notes\nMust be paired with redundant PSU."
+  default_platform_id      = netbox_platform.linux.id
+  exclude_from_utilization = false
+
+  custom_fields = {
+    sku          = "EX2000-A"
+    system_specs = jsonencode({ ram_gb = 64, cpu_count = 2 })
+  }
+}
 ```
 
 ### Device type with nested component templates
@@ -256,9 +282,15 @@ resource "netbox_interface_template" "appliance_lan_ports" {
 
 ### Optional
 
+- `airflow` (String) Default airflow direction. Valid values are `front-to-rear`, `rear-to-front`, `left-to-right`, `right-to-left`, `side-to-rear`, `passive` and `mixed`.
+- `comments` (String) Free-form Markdown comments.
 - `console_port_templates` (Block Set) Console port templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/consoleporttemplate/). (see [below for nested schema](#nestedblock--console_port_templates))
 - `console_server_port_templates` (Block Set) Console server port templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/consoleserverporttemplate/). (see [below for nested schema](#nestedblock--console_server_port_templates))
+- `custom_fields` (Map of String)
+- `default_platform_id` (Number) ID of the `netbox_platform` to default new devices of this type to.
+- `description` (String) Short description (max 200 chars).
 - `device_bay_templates` (Block Set) Device bay templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/devicebaytemplate/). (see [below for nested schema](#nestedblock--device_bay_templates))
+- `exclude_from_utilization` (Boolean) If set, devices of this type are excluded from rack utilization calculations. Defaults to `false`.
 - `front_port_templates` (Block Set) Front port templates instantiated on every device of this type. Each must reference a sibling `rear_port_templates` block by name. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/frontporttemplate/). (see [below for nested schema](#nestedblock--front_port_templates))
 - `interface_templates` (Block Set) Network interface templates instantiated on every device of this type. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/interfacetemplate/). (see [below for nested schema](#nestedblock--interface_templates))
 - `inventory_item_templates` (Block Set) Inventory item templates instantiated on every device of this type. Supports a parent tree via the `parent` field and an optional polymorphic FK via `component_type`/`component_id`. See [the NetBox docs](https://docs.netbox.dev/en/stable/models/dcim/inventoryitemtemplate/). (see [below for nested schema](#nestedblock--inventory_item_templates))
@@ -272,6 +304,8 @@ resource "netbox_interface_template" "appliance_lan_ports" {
 - `subdevice_role` (String) For chassis-style devices: `parent` for the chassis, `child` for the modules. Leave unset for a single-piece device.
 - `tags` (Set of String)
 - `u_height` (Number) Rack height in U. Defaults to `1.0`. Defaults to `1.0`.
+- `weight` (Number) Numeric weight of the device. Pair with `weight_unit`.
+- `weight_unit` (String) Unit for `weight`. Valid values are `kg`, `g`, `lb` and `oz`. Required when `weight` is set.
 
 ### Read-Only
 

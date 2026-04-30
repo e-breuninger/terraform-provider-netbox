@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -444,6 +445,207 @@ resource "netbox_interface_template" "ext" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_type.nested", "interface_templates.#", "1"),
 				),
+			},
+		},
+	})
+}
+
+// TestAccNetboxDeviceType_extendedFields exercises every newly-exposed field on
+// netbox_device_type — airflow / weight / weight_unit / description / comments
+// / default_platform_id / exclude_from_utilization / custom_fields — by setting
+// them on Create, mutating a representative subset on Update, and round-tripping
+// through Import. The custom_fields map intentionally includes a JSON-encoded
+// complex value to mirror the real-world workflow the user requested.
+func TestAccNetboxDeviceType_extendedFields(t *testing.T) {
+	testSlug := "dt_ext"
+	testName := testAccGetTestName(testSlug)
+	// NetBox custom_field.name must be [A-Za-z0-9_]+ — keep these as static
+	// slugs (matching the IP-side _cf_clear pattern) since the test isn't
+	// parallel and there's no collision risk inside a single binary run.
+	cfName := "dt_ext_sku"
+	cfNameStruct := "dt_ext_specs"
+
+	deps := fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_platform" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_custom_field" "sku" {
+  name          = "%[2]s"
+  type          = "text"
+  weight        = 100
+  content_types = ["dcim.devicetype"]
+}
+
+resource "netbox_custom_field" "system_specs" {
+  name          = "%[3]s"
+  type          = "json"
+  weight        = 100
+  content_types = ["dcim.devicetype"]
+}
+`, testName, cfName, cfNameStruct)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: deps + fmt.Sprintf(`
+resource "netbox_device_type" "test" {
+  model           = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+
+  airflow                  = "front-to-rear"
+  weight                   = 12.5
+  weight_unit              = "kg"
+  description              = "Aggregation switch, top-of-rack"
+  comments                 = "## Notes\nMust be paired with redundant PSU"
+  default_platform_id      = netbox_platform.test.id
+  exclude_from_utilization = true
+
+  custom_fields = {
+    "${netbox_custom_field.sku.name}"          = "SKU-1"
+    "${netbox_custom_field.system_specs.name}" = jsonencode({ ram_gb = 64, cpu_count = 2 })
+  }
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_type.test", "airflow", "front-to-rear"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "weight", "12.5"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "weight_unit", "kg"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "description", "Aggregation switch, top-of-rack"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "comments", "## Notes\nMust be paired with redundant PSU"),
+					resource.TestCheckResourceAttrPair("netbox_device_type.test", "default_platform_id", "netbox_platform.test", "id"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "exclude_from_utilization", "true"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", fmt.Sprintf("custom_fields.%s", cfName), "SKU-1"),
+				),
+			},
+			{
+				Config: deps + fmt.Sprintf(`
+resource "netbox_device_type" "test" {
+  model           = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+
+  airflow                  = "rear-to-front"
+  weight                   = 30.0
+  weight_unit              = "lb"
+  description              = "Updated description"
+  comments                 = "Updated comments"
+  default_platform_id      = netbox_platform.test.id
+  exclude_from_utilization = false
+
+  custom_fields = {
+    "${netbox_custom_field.sku.name}"          = "SKU-2"
+    "${netbox_custom_field.system_specs.name}" = jsonencode({ ram_gb = 128 })
+  }
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_type.test", "airflow", "rear-to-front"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "weight", "30"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "weight_unit", "lb"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "description", "Updated description"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "comments", "Updated comments"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "exclude_from_utilization", "false"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", fmt.Sprintf("custom_fields.%s", cfName), "SKU-2"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device_type.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+// TestAccNetboxDeviceType_cf_clear mirrors the IP-side _cf_clear tests: it sets a
+// custom_fields value, then re-applies with the entire custom_fields block
+// removed, asserting NetBox actually drops the value and a subsequent plan is
+// clean. This proves customFieldsForUpdate is wired through Update on this
+// resource.
+func TestAccNetboxDeviceType_cf_clear(t *testing.T) {
+	testSlug := "dt_cf_clear"
+	testName := testAccGetTestName(testSlug)
+	// NetBox custom_field.name must be [A-Za-z0-9_]+; use the slug directly.
+	cfName := testSlug
+
+	deps := fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_custom_field" "test" {
+  name          = "%[2]s"
+  type          = "text"
+  weight        = 100
+  content_types = ["dcim.devicetype"]
+}
+`, testName, cfName)
+
+	withCF := deps + fmt.Sprintf(`
+resource "netbox_device_type" "test" {
+  model           = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "set-then-cleared"
+  }
+}`, testName)
+
+	withoutCF := deps + fmt.Sprintf(`
+resource "netbox_device_type" "test" {
+  model           = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+}`, testName)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: withCF,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_type.test", fmt.Sprintf("custom_fields.%s", cfName), "set-then-cleared"),
+				),
+			},
+			{
+				Config: withoutCF,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("netbox_device_type.test", fmt.Sprintf("custom_fields.%s", cfName)),
+				),
+			},
+			{
+				Config:             withoutCF,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
+// TestAccNetboxDeviceType_weightUnitRequiresWeight asserts that providing
+// weight_unit without weight is rejected at plan time, per the RequiredWith
+// constraint on the schema.
+func TestAccNetboxDeviceType_weightUnitRequiresWeight(t *testing.T) {
+	testSlug := "dt_w_req"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+resource "netbox_device_type" "test" {
+  model           = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+  weight_unit     = "kg"
+}`, testName),
+				ExpectError: regexp.MustCompile(`(?s)weight_unit.*weight`),
 			},
 		},
 	})

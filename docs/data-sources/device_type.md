@@ -43,9 +43,17 @@ data "netbox_device_type" "ex3" {
 
 ### Read-Only
 
+- `airflow` (String)
+- `comments` (String)
+- `custom_fields` (Map of String)
+- `default_platform_id` (Number)
+- `description` (String)
+- `exclude_from_utilization` (Boolean)
 - `id` (String) The ID of this resource.
 - `is_full_depth` (Boolean)
 - `manufacturer_id` (Number)
 - `u_height` (Number)
+- `weight` (Number)
+- `weight_unit` (String)
 
 

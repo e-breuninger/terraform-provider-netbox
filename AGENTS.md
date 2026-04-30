@@ -122,6 +122,18 @@ When adding a new delta, copy this template:
 - **Related go-netbox change:** None
 - **Status:** Active
 
+#### `device-type-extended-fields` — full metadata field coverage on `netbox_device_type`
+
+- **Type:** Feature
+- **Introduced:** 2026-04 (`v5.3.4`)
+- **Files:** `netbox/resource_netbox_device_type.go`, `netbox/data_source_netbox_device_type.go`, `netbox/resource_netbox_device_type_test.go`, `examples/resources/netbox_device_type/resource.tf`, regenerated `docs/resources/device_type.md` and `docs/data-sources/device_type.md`
+- **Tests:** `TestAccNetboxDeviceType_extendedFields`, `TestAccNetboxDeviceType_cf_clear`, `TestAccNetboxDeviceType_weightUnitRequiresWeight`
+- **Why:** Upstream `netbox_device_type` only exposed `model`, `slug`, `manufacturer_id`, `part_number`, `u_height`, `is_full_depth`, and `subdevice_role`. NetBox itself supports a much richer set of metadata on device types — airflow direction, physical weight, free-form description/comments, a default platform pointer, an "exclude from utilization" flag, and arbitrary custom fields — and our IPAM workflow now wants all of them, including the ability to attach JSON-typed custom fields like `system_specs` (per the `TG-00002.yml` workflow).
+- **What:** Adds `airflow`, `weight`, `weight_unit` (with `RequiredWith: ["weight"]` mirroring `netbox_rack`), `description` (200-char max), `comments`, `default_platform_id` (FK to `netbox_platform`), `exclude_from_utilization` (defaults to `false`), and the standard `custom_fields` schema to both the resource and the data source. The resource's Update path uses `customFieldsForUpdate(d)` for the same null-clearing behavior the IP-family resources got in `cf-null-clearing`. The two NetBox-4.x-only fields (`default_platform`, `exclude_from_utilization`) required a companion go-netbox change.
+- **Upstream candidate:** Yes — clean candidate, but blocked on the related go-netbox change reaching `fbreckle/go-netbox` first. Currently parked per user direction.
+- **Related go-netbox change:** Commit "Add default_platform and exclude_from_utilization to DeviceType models" on `msollanych-tt/go-netbox` master (tagged `v0.5.0`).
+- **Status:** Active
+
 If the customer asks about more features, they land here too. New patches should land as discrete commits with descriptive messages so the next rebase is bearable, and they should add a block above with `Status: Active`.
 
 ## Repo layout reminders
@@ -328,12 +340,12 @@ If/when upstreaming resumes: branch any upstream PR off `upstream/master` direct
 
 ## Quick reference: state at last rebase
 
-Last rebase: **Apr 2026** (carried forward into `v5.3.3`, no new upstream rebase).
+Last rebase: **Apr 2026** (carried forward into `v5.3.4`, no new upstream rebase since `v5.3.3`).
 
 - Provider's `master` is upstream master at `8257f4d` ("test: add acceptance test for dns_name case drift") — upstream's tip 4 commits past tag `v5.3.0` — plus the carried tenstorrent patches.
-- go-netbox `master` carries two commits on top of upstream `53bc6c52`: the `Tenant` field on `WritableAvailableIP` (`ad4a0111`) and the `device_type_id` / `module_type_id` query-param fix on the dcim templates list endpoints (`af097a32`). Tagged `v0.4.0`. The provider's `go.mod` `replace` line points to `v0.4.0`. The previously-separate `tenant-fix` branch was retired; `master` is now the canonical branch.
-- Tagged releases on the provider: `v5.3.0-tenstorrent.0` and `v5.3.0-tenstorrent-rc1` (legacy scheme, kept on origin), then `v5.3.1`, `v5.3.2`, `v5.3.3` (current scheme). `v5.3.3` is the canonical "Apr 2026 rebase + cf null-clearing + nested device-type templates" release.
-- Carried deltas active at `v5.3.3`: `release-workflow-permissions`, `available-ip-tenant`, `service-43-parent`, `cf-null-clearing`, `device-type-nested-templates`, `dcim-templates-list-filter-param` (in go-netbox `v0.4.0`), `device-type-templates-examples`. See "The patches we carry" above for details.
+- go-netbox `master` carries three commits on top of upstream `53bc6c52`: the `Tenant` field on `WritableAvailableIP` (`ad4a0111`), the `device_type_id` / `module_type_id` query-param fix on the dcim templates list endpoints (`af097a32`), and the `default_platform` + `exclude_from_utilization` fields on `WritableDeviceType` / `DeviceType` (`cc70b0e9`). Tagged `v0.5.0`. The provider's `go.mod` `replace` line points to `v0.5.0`. The previously-separate `tenant-fix` branch was retired; `master` is now the canonical branch.
+- Tagged releases on the provider: `v5.3.0-tenstorrent.0` and `v5.3.0-tenstorrent-rc1` (legacy scheme, kept on origin), then `v5.3.1`, `v5.3.2`, `v5.3.3`, `v5.3.4` (current scheme). `v5.3.4` is the "extended device_type fields + go-netbox v0.5.0" release.
+- Carried deltas active at `v5.3.4`: `release-workflow-permissions`, `available-ip-tenant`, `service-43-parent`, `cf-null-clearing`, `device-type-nested-templates`, `dcim-templates-list-filter-param` (in go-netbox `v0.4.0`+), `device-type-templates-examples`, `device-type-extended-fields`. See "The patches we carry" above for details.
 - Conflicts encountered during the original Apr 2026 rebase: `go.sum` (every cherry-pick — resolved with `--ours` then `go mod tidy`), and one cherry-pick artifact in `netbox/resource_netbox_available_ip_address_test.go` (stray closing braces, caught by `go vet`).
 
 Tag scheme going forward: plain `vX.Y.Z` semver, monotonically increasing from our own release history. Don't try to anchor patch numbers to upstream's version — keep ours self-contained so downstream `~> 5` constraints resolve cleanly. The `-tenstorrent.<n>` prerelease scheme used in `v5.3.0-tenstorrent.0` was retired because it sorts below `v5.3.0` per SemVer prerelease rules, which is the opposite of what we want.

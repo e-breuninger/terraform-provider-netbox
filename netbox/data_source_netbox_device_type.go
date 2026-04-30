@@ -45,6 +45,41 @@ func dataSourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Computed: true,
 			},
+			"airflow": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"weight": {
+				Type:     schema.TypeFloat,
+				Computed: true,
+			},
+			"weight_unit": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"comments": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"default_platform_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"exclude_from_utilization": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			customFieldsKey: {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -91,5 +126,27 @@ func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error
 	}
 	d.Set("slug", result.Slug)
 	d.Set("u_height", result.UHeight)
+
+	if result.Airflow != nil && result.Airflow.Value != nil {
+		d.Set("airflow", *result.Airflow.Value)
+	} else {
+		d.Set("airflow", "")
+	}
+	d.Set("weight", result.Weight)
+	if result.WeightUnit != nil && result.WeightUnit.Value != nil {
+		d.Set("weight_unit", *result.WeightUnit.Value)
+	} else {
+		d.Set("weight_unit", "")
+	}
+	d.Set("description", result.Description)
+	d.Set("comments", result.Comments)
+	if result.DefaultPlatform != nil {
+		d.Set("default_platform_id", result.DefaultPlatform.ID)
+	} else {
+		d.Set("default_platform_id", nil)
+	}
+	d.Set("exclude_from_utilization", result.ExcludeFromUtilization)
+	d.Set(customFieldsKey, getCustomFields(result.CustomFields))
+
 	return nil
 }
