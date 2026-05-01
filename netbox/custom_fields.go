@@ -22,6 +22,25 @@ var customFieldsSchema = &schema.Schema{
 	},
 }
 
+// coerceJSONStringValue checks if a value is a JSON string produced by
+// jsonencode() in HCL representing an object or array. If so it unmarshals it
+// to a native Go type so the API client serialises it as a proper JSON object
+// rather than a quoted string. Plain scalar strings are returned unchanged.
+func coerceJSONStringValue(value interface{}) interface{} {
+	s, isStr := value.(string)
+	if !isStr {
+		return value
+	}
+	var parsed interface{}
+	if err := json.Unmarshal([]byte(s), &parsed); err == nil {
+		switch parsed.(type) {
+		case map[string]interface{}, []interface{}:
+			return parsed
+		}
+	}
+	return value
+}
+
 func getCustomFields(cf interface{}) map[string]interface{} {
 	cfm, ok := cf.(map[string]interface{})
 	if !ok || len(cfm) == 0 {
@@ -43,7 +62,7 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 		if s, isStr := value.(string); isStr && s == "" {
 			continue
 		}
-		result[key] = value
+		result[key] = coerceJSONStringValue(value)
 	}
 
 	if len(result) == 0 {
@@ -83,7 +102,45 @@ func customFieldsForUpdate(d *schema.ResourceData) interface{} {
 		result[k] = nil
 	}
 	for k, v := range newMap {
-		result[k] = v
+		result[k] = coerceJSONStringValue(v)
+	}
+	return result
+}
+
+// readCustomFields is used in resource Read paths. It combines the nil/empty
+// filtering of getCustomFields (so unset NetBox CFs don't pollute state) with
+// the string serialisation of flattenCustomFields (so JSON-object CFs land in
+// state as JSON strings that can be compared against jsonencode() in HCL).
+func readCustomFields(cf interface{}) map[string]interface{} {
+	cfm, ok := cf.(map[string]interface{})
+	if !ok || len(cfm) == 0 {
+		return nil
+	}
+
+	result := make(map[string]interface{})
+	for key, value := range cfm {
+		if value == nil {
+			continue
+		}
+		if s, isStr := value.(string); isStr && s == "" {
+			continue
+		}
+		switch v := value.(type) {
+		case string:
+			result[key] = v
+		case float64, int, int64, bool:
+			result[key] = fmt.Sprintf("%v", v)
+		default:
+			if jsonBytes, err := json.Marshal(value); err == nil {
+				result[key] = string(jsonBytes)
+			} else {
+				result[key] = fmt.Sprintf("%v", value)
+			}
+		}
+	}
+
+	if len(result) == 0 {
+		return nil
 	}
 	return result
 }

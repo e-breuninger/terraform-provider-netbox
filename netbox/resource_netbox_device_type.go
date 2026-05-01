@@ -231,7 +231,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 	data.ExcludeFromUtilization = d.Get("exclude_from_utilization").(bool)
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	var err error
@@ -308,7 +308,7 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("default_platform_id", nil)
 	}
 	d.Set("exclude_from_utilization", deviceType.ExcludeFromUtilization)
-	d.Set(customFieldsKey, getCustomFields(deviceType.CustomFields))
+	d.Set(customFieldsKey, readCustomFields(deviceType.CustomFields))
 
 	api.readTags(d, deviceType.Tags)
 
