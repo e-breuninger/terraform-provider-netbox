@@ -140,11 +140,11 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 
 	vmax, ok := d.GetOk("validation_maximum")
 	if ok {
-		data.ValidationMaximum = int64ToPtr(int64(vmax.(int)))
+		data.ValidationMaximum = float64ToPtr(float64(vmax.(int)))
 	}
 	vmin, ok := d.GetOk("validation_minimum")
 	if ok {
-		data.ValidationMinimum = int64ToPtr(int64(vmin.(int)))
+		data.ValidationMinimum = float64ToPtr(float64(vmin.(int)))
 	}
 
 	params := extras.NewExtrasCustomFieldsUpdateParams().WithID(id).WithData(data)
@@ -191,11 +191,11 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 
 	vmax, ok := d.GetOk("validation_maximum")
 	if ok {
-		data.ValidationMaximum = int64ToPtr(int64(vmax.(int)))
+		data.ValidationMaximum = float64ToPtr(float64(vmax.(int)))
 	}
 	vmin, ok := d.GetOk("validation_minimum")
 	if ok {
-		data.ValidationMinimum = int64ToPtr(int64(vmin.(int)))
+		data.ValidationMinimum = float64ToPtr(float64(vmin.(int)))
 	}
 
 	params := extras.NewExtrasCustomFieldsCreateParams().WithData(data)
