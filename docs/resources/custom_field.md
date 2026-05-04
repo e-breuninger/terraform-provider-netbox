@@ -44,6 +44,7 @@ resource "netbox_custom_field" "test" {
 - `description` (String)
 - `group_name` (String)
 - `label` (String)
+- `related_object_type` (String)
 - `required` (Boolean)
 - `validation_maximum` (Number)
 - `validation_minimum` (Number)
