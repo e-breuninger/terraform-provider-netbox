@@ -207,6 +207,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			case "status":
 				var statusString = v.(string)
 				params.Status = &statusString
+			case "platform_id":
+				var platformIdString = v.(string)
+				params.PlatformID = &platformIdString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
