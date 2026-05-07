@@ -66,6 +66,17 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: dependencies + testAccNetboxDeviceDataSourceFilterPlatformID,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.#", "4"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.1.platform_id", "netbox_platform.test", "id"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.0.name", "netbox_device.test0", "name"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.1.name", "netbox_device.test1", "name"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.2.name", "netbox_device.test2", "name"),
+					resource.TestCheckResourceAttrPair("data.netbox_devices.test", "devices.3.name", "netbox_device.test3", "name"),
+				),
+			},
+			{
 				Config: dependencies + testAccNetboxDeviceDataSourceNameRegex(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_devices.test", "devices.#", "2"),
@@ -289,6 +300,14 @@ data "netbox_devices" "test" {
   filter {
     name  = "role_id"
     value = netbox_device_role.test.id
+  }
+}`
+
+const testAccNetboxDeviceDataSourceFilterPlatformID = `
+data "netbox_devices" "test" {
+  filter {
+    name  = "platform_id"
+    value = netbox_platform.test.id
   }
 }`
 
