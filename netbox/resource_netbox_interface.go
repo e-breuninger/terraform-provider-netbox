@@ -47,12 +47,18 @@ func resourceNetboxInterface() *schema.Resource {
 			},
 			"mac_address": {
 				Type:         schema.TypeString,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.IsMACAddress,
 				// Netbox converts MAC addresses always to uppercase
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return strings.EqualFold(old, new)
 				},
+			},
+			"primary_mac_address_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The primary MAC address id.",
 			},
 			"mode": {
 				Type:         schema.TypeString,
@@ -186,6 +192,9 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	} else {
 		d.Set("bridge_interface_id", nil)
 	}
+	if iface.PrimaryMacAddress != nil {
+		d.Set("primary_mac_address_id", iface.PrimaryMacAddress.ID)
+	}
 
 	return diags
 }
@@ -227,6 +236,10 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	if d.HasChange("untagged_vlan") {
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))
 		data.UntaggedVlan = &untaggedvlan
+	}
+	if d.HasChange("primary_mac_address_id") {
+		primaryMac := int64(d.Get("primary_mac_address_id").(int))
+		data.PrimaryMacAddress = &primaryMac
 	}
 
 	// About the `nullFields` hack

@@ -3,14 +3,14 @@ page_title: "netbox_mac_address Resource - terraform-provider-netbox"
 subcategory: "Data Center Inventory Management (DCIM)"
 description: |-
   From the official documentation https://netboxlabs.com/docs/netbox/models/dcim/macaddress/:
-  A MAC address object in NetBox comprises a single Ethernet link layer address, and represents a MAC address as reported by or assigned to a network interface. MAC addresses can be assigned to device and virtual machine interfaces. A MAC address can be specified as the primary MAC address for a given device or VM interface.
+  A MAC address object in NetBox comprises a single Ethernet link layer address, and represents a MAC address as reported by or assigned to a network interface. MAC addresses can be assigned to device and virtual machine interfaces.
 ---
 
 # netbox_mac_address (Resource)
 
 From the [official documentation](https://netboxlabs.com/docs/netbox/models/dcim/macaddress/):
 
-> A MAC address object in NetBox comprises a single Ethernet link layer address, and represents a MAC address as reported by or assigned to a network interface. MAC addresses can be assigned to device and virtual machine interfaces. A MAC address can be specified as the primary MAC address for a given device or VM interface.
+> A MAC address object in NetBox comprises a single Ethernet link layer address, and represents a MAC address as reported by or assigned to a network interface. MAC addresses can be assigned to device and virtual machine interfaces.
 
 ## Example Usage
 

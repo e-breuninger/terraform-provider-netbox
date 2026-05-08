@@ -63,6 +63,7 @@ resource "netbox_interface" "myvm_eth1" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `primary_mac_address_id` (Number) The primary MAC address id.
 - `tags_all` (Set of String)
 
 
