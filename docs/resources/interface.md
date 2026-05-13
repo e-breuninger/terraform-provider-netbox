@@ -52,7 +52,6 @@ resource "netbox_interface" "myvm_eth1" {
 - `bridge_interface_id` (Number) ID of the bridge interface this interface belongs to.
 - `description` (String)
 - `enabled` (Boolean) Defaults to `true`.
-- `mac_address` (String)
 - `mode` (String) Valid values are `access`, `tagged` and `tagged-all`.
 - `mtu` (Number)
 - `tagged_vlans` (Set of Number)
@@ -63,6 +62,7 @@ resource "netbox_interface" "myvm_eth1" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `mac_address` (String)
 - `primary_mac_address_id` (Number) The primary MAC address id.
 - `tags_all` (Set of String)
 

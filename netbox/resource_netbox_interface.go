@@ -3,7 +3,6 @@ package netbox
 import (
 	"context"
 	"strconv"
-	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -46,14 +45,8 @@ func resourceNetboxInterface() *schema.Resource {
 				Default:  true,
 			},
 			"mac_address": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: validation.IsMACAddress,
-				// Netbox converts MAC addresses always to uppercase
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return strings.EqualFold(old, new)
-				},
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"primary_mac_address_id": {
 				Type:        schema.TypeInt,
@@ -124,9 +117,6 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 		Tags:           tags,
 		TaggedVlans:    taggedVlans,
 		VirtualMachine: &virtualMachineID,
-	}
-	if macAddress := d.Get("mac_address").(string); macAddress != "" {
-		data.MacAddress = &macAddress
 	}
 	if mtu, ok := d.Get("mtu").(int); ok && mtu != 0 {
 		data.Mtu = int64ToPtr(int64(mtu))
