@@ -5,7 +5,7 @@ go 1.25.8
 require (
 	github.com/fbreckle/go-netbox v0.0.0-20260504070953-54758efa1183
 	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3
-	github.com/go-openapi/runtime v0.29.5
+	github.com/go-openapi/runtime v0.30.0
 	github.com/go-openapi/strfmt v0.26.2
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/goware/urlx v0.3.2
@@ -36,6 +36,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
 	github.com/go-openapi/jsonreference v0.21.5 // indirect
 	github.com/go-openapi/loads v0.23.3 // indirect
+	github.com/go-openapi/runtime/server-middleware v0.30.0 // indirect
 	github.com/go-openapi/spec v0.22.4 // indirect
 	github.com/go-openapi/swag v0.25.5 // indirect
 	github.com/go-openapi/swag/cmdutils v0.25.5 // indirect
