@@ -1,3 +1,16 @@
+## 5.4.0 (May 15th, 2026)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_virtual_machine_interface_primary_mac_address` ([#879](https://github.com/e-breuninger/terraform-provider-netbox/pull/879) by [@somniumV](https://github.com/somniumV))
+* **New Resource:** `netbox_device_interface_primary_mac_address` ([#879](https://github.com/e-breuninger/terraform-provider-netbox/pull/879) by [@somniumV](https://github.com/somniumV))
+
+BUG FIXES
+
+* resource/netbox_ip_address: ignore DNS name case drift ([#863](https://github.com/e-breuninger/terraform-provider-netbox/pull/863) by [@MrKeiKun](https://github.com/MrKeiKun))
+* resource/netbox_available_ip_address: ignore DNS name case drift ([#863](https://github.com/e-breuninger/terraform-provider-netbox/pull/863) by [@MrKeiKun](https://github.com/MrKeiKun))
+* resource/custom_field: add `related_object_type` attribute and allow `multiobject` and `object` as types ([#872](https://github.com/e-breuninger/terraform-provider-netbox/pull/872) by [@etonnerre](https://github.com/etonnerre))
+
 ## 5.3.0 (April 9th, 2026)
 
 ENHANCEMENTS
