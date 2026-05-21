@@ -54,7 +54,7 @@ data "netbox_virtual_disk" "disk_regex" {
 ### Optional
 
 - `filter` (Block List) (see [below for nested schema](#nestedblock--filter))
-- `limit` (Number)
+- `limit` (Number) Defaults to `0`.
 - `name_regex` (String)
 
 ### Read-Only

@@ -83,7 +83,7 @@ resource "netbox_device_bay" "test" {
   label = "%[1]s_label"
   description = "%[1]s_description"
   installed_device_id = netbox_device.test_installed.id
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_bay.test", "name", testName),

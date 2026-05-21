@@ -17,7 +17,7 @@ From the [official documentation](https://docs.netbox.dev/en/stable/features/dev
 
 ```terraform
 resource "netbox_device_role" "core_sw" {
-  color_hex = "FF00FF"
+  color_hex = "ff00ff"
   name      = "core-sw"
 }
 ```

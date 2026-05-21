@@ -43,7 +43,7 @@ resource "netbox_module_type" "test" {
 
   weight = 1
   weight_unit = "kg"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_module_type.test", "model", testName),

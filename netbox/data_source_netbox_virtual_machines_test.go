@@ -30,6 +30,7 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.role_id", "netbox_device_role.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.platform_id", "netbox_platform.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.platform_slug", "netbox_platform.test", "slug"),
+					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.platform_name", "netbox_platform.test", "name"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.device_name", "netbox_device.test", "name"),
 				),

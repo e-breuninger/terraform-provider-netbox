@@ -63,7 +63,7 @@ func testAccNetboxDeviceInterfaceBasic(testName string) string {
 resource "netbox_device_interface" "test" {
   name = "%s"
   device_id = netbox_device.test.id
-  tags = ["%[1]s"]
+  tags = [netbox_tag.test.name]
   type = "1000base-t"
 }`, testName)
 }

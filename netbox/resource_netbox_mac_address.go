@@ -21,7 +21,7 @@ func resourceNetboxMACAddress() *schema.Resource {
 
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://netboxlabs.com/docs/netbox/models/dcim/macaddress/):
 
-> A MAC address object in NetBox comprises a single Ethernet link layer address, and represents a MAC address as reported by or assigned to a network interface. MAC addresses can be assigned to device and virtual machine interfaces. A MAC address can be specified as the primary MAC address for a given device or VM interface.`,
+> A MAC address object in NetBox comprises a single Ethernet link layer address, and represents a MAC address as reported by or assigned to a network interface. MAC addresses can be assigned to device and virtual machine interfaces.`,
 
 		Schema: map[string]*schema.Schema{
 			"mac_address": {
@@ -131,7 +131,6 @@ func resourceNetboxMACAddressRead(d *schema.ResourceData, m interface{}) error {
 	params := dcim.NewDcimMacAddressesReadParams().WithID(id)
 
 	res, err := api.Dcim.DcimMacAddressesRead(params, nil)
-
 	if err != nil {
 		if errresp, ok := err.(*dcim.DcimMacAddressesReadDefault); ok {
 			errorcode := errresp.Code()

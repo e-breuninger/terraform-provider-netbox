@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	netboxclient "github.com/fbreckle/go-netbox/netbox/client"
@@ -81,7 +82,11 @@ func (cfg *Config) Client() (*netboxclient.NetBoxAPI, error) {
 	}
 
 	transport := httptransport.NewWithClient(parsedURL.Host, parsedURL.Path+netboxclient.DefaultBasePath, desiredRuntimeClientSchemes, httpClient)
-	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", fmt.Sprintf("Token %v", cfg.APIToken))
+	authScheme := "Token"
+	if strings.HasPrefix(cfg.APIToken, "nbt_") {
+		authScheme = "Bearer"
+	}
+	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", fmt.Sprintf("%s %v", authScheme, cfg.APIToken))
 	transport.SetLogger(log.StandardLogger())
 	netboxClient := netboxclient.New(transport, nil)
 

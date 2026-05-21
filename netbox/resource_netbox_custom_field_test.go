@@ -228,3 +228,63 @@ resource "netbox_custom_field" "test" {
 		},
 	})
 }
+
+func TestAccNetboxCustomField_object(t *testing.T) {
+	testSlug := "custom_fields_object"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name                = "%[1]s"
+  type                = "object"
+  content_types       = ["dcim.device"]
+  related_object_type = "tenancy.tenant"
+  required            = false
+  weight              = 100
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "object"),
+					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "content_types.*", "dcim.device"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "related_object_type", "tenancy.tenant"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "required", "false"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "100"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxCustomField_multiobject(t *testing.T) {
+	testSlug := "custom_fields_multiobject"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name                = "%[1]s"
+  type                = "multiobject"
+  content_types       = ["dcim.device"]
+  related_object_type = "tenancy.tenant"
+  required            = false
+  weight              = 100
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "multiobject"),
+					resource.TestCheckTypeSetElemAttr("netbox_custom_field.test", "content_types.*", "dcim.device"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "related_object_type", "tenancy.tenant"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "required", "false"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "weight", "100"),
+				),
+			},
+		},
+	})
+}

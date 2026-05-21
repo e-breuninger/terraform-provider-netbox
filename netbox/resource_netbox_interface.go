@@ -3,10 +3,12 @@ package netbox
 import (
 	"context"
 	"strconv"
-	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -43,13 +45,13 @@ func resourceNetboxInterface() *schema.Resource {
 				Default:  true,
 			},
 			"mac_address": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.IsMACAddress,
-				// Netbox converts MAC addresses always to uppercase
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return strings.EqualFold(old, new)
-				},
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"primary_mac_address_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The primary MAC address id.",
 			},
 			"mode": {
 				Type:         schema.TypeString,
@@ -78,6 +80,11 @@ func resourceNetboxInterface() *schema.Resource {
 			"untagged_vlan": {
 				Type:     schema.TypeInt,
 				Optional: true,
+			},
+			"bridge_interface_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "ID of the bridge interface this interface belongs to",
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -111,14 +118,14 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 		TaggedVlans:    taggedVlans,
 		VirtualMachine: &virtualMachineID,
 	}
-	if macAddress := d.Get("mac_address").(string); macAddress != "" {
-		data.MacAddress = &macAddress
-	}
 	if mtu, ok := d.Get("mtu").(int); ok && mtu != 0 {
 		data.Mtu = int64ToPtr(int64(mtu))
 	}
 	if untaggedVlan, ok := d.Get("untagged_vlan").(int); ok && untaggedVlan != 0 {
 		data.UntaggedVlan = int64ToPtr(int64(untaggedVlan))
+	}
+	if bridgeIF, ok := d.Get("bridge_interface_id").(int); ok && bridgeIF != 0 {
+		data.Bridge = int64ToPtr(int64(bridgeIF))
 	}
 	params := virtualization.NewVirtualizationInterfacesCreateParams().WithData(&data)
 
@@ -170,14 +177,20 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 	if iface.UntaggedVlan != nil {
 		d.Set("untagged_vlan", iface.UntaggedVlan.ID)
 	}
+	if iface.Bridge != nil {
+		d.Set("bridge_interface_id", iface.Bridge.ID)
+	} else {
+		d.Set("bridge_interface_id", nil)
+	}
+	if iface.PrimaryMacAddress != nil {
+		d.Set("primary_mac_address_id", iface.PrimaryMacAddress.ID)
+	}
 
 	return diags
 }
 
 func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
-
-	var diags diag.Diagnostics
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
@@ -214,14 +227,58 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))
 		data.UntaggedVlan = &untaggedvlan
 	}
+	if d.HasChange("primary_mac_address_id") {
+		primaryMac := int64(d.Get("primary_mac_address_id").(int))
+		data.PrimaryMacAddress = &primaryMac
+	}
+
+	// About the `nullFields` hack
+	//
+	// Without this hack, the `bridge_interface_id` field can never be unset
+	// in the Netbox API once it has been set. This likely also applies to other
+	// fields, but for now, this is only solved for this field. It can be extended
+	// though.
+	//
+	// Why is it needed?
+	//
+	// This method uses VirtualizationInterfacesPartialUpdate which takes similar
+	// parameters as Create/Update, but will only apply changes to fields that are
+	// supplied in the JSON payload.
+	//
+	// Example:
+	// - `{ "bridge": 123 }` - will set the field
+	// - `{ "bridge": null }` - will unset the field
+	// - `{}` - will make no changes
+	//
+	// Unfortunately with how the Netbox API client is generated, there is no way
+	// to produce the second example. If you set the field `Bridge` to `nil` it
+	// will produce JSON without the field present. This is because of the
+	// `omitempty` struct tag on the field. Which is something you need to make
+	// partial updates work, but prevents you from unsetting the field.
+	// There is simply no way to represent this case in Go without introducing
+	// a special wrapper type that can represent all 3 states.
+	// (Note that sending `"bridge": 0` is not accepted by the API.)
+	//
+	// The way this is solved is on the serialization level.
+	// With `hackSerializeAsNull` I made a serialization middleware of sorts that
+	// will serialize an explicit `null` value for field names given in the slice.
+
+	var nullFields []string
+	if d.HasChange("bridge_interface_id") {
+		ifID := int64(d.Get("bridge_interface_id").(int))
+		data.Bridge = &ifID
+		if ifID == 0 {
+			nullFields = append(nullFields, "bridge")
+		}
+	}
 
 	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
-	_, err = api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil)
+	_, err = api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil, hackSerializeAsNull(nullFields...))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	return diags
+	return resourceNetboxInterfaceRead(ctx, d, m)
 }
 
 func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -249,4 +306,55 @@ func getIDsFromNestedVLAN(nestedvlans []*models.NestedVLAN) []int64 {
 		vlans = append(vlans, vlan.ID)
 	}
 	return vlans
+}
+
+type interceptWriter struct {
+	runtime.ClientRequest
+	fields []string
+}
+
+func (iw interceptWriter) SetBodyParam(p any) error {
+	out := make(map[string]any)
+	dec, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		TagName: "json",
+		Result:  &out,
+	})
+	if err != nil {
+		return err
+	}
+	if err := dec.Decode(p); err != nil {
+		return err
+	}
+	for _, fieldName := range iw.fields {
+		_, ok := out[fieldName]
+		if ok {
+			out[fieldName] = nil
+		}
+	}
+	return iw.ClientRequest.SetBodyParam(out)
+}
+
+type interceptParams struct {
+	inner  runtime.ClientRequestWriter
+	fields []string
+}
+
+// WriteToRequest implements [runtime.ClientRequestWriter].
+func (ip interceptParams) WriteToRequest(req runtime.ClientRequest, reg strfmt.Registry) error {
+	writer := interceptWriter{ClientRequest: req, fields: ip.fields}
+	return ip.inner.WriteToRequest(writer, reg)
+}
+
+// hackSerializeAsNull is a serialization middleware of sorts that will
+// serialize an explicit `null` value for all field names given in the slice.
+//
+// It does this by first serializing the params from a struct to a map
+// and then sets the value for given fields to `nil`.
+// With this the field will definitely be serialized and not omitted when set
+// to `nil`.
+func hackSerializeAsNull(fields ...string) virtualization.ClientOption {
+	return func(co *runtime.ClientOperation) {
+		originalParams := co.Params
+		co.Params = interceptParams{inner: originalParams, fields: fields}
+	}
 }

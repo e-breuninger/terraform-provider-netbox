@@ -94,7 +94,7 @@ resource "netbox_device_power_outlet" "test" {
 	feed_leg = "A"
 	description = "%[1]s_description"
 	mark_connected = true
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_power_outlet.test", "name", testName),

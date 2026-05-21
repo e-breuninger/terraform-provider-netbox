@@ -33,7 +33,7 @@ data "netbox_virtual_machines" "base_vm" {
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `limit` (Number)
+- `limit` (Number) Defaults to `0`.
 - `name_regex` (String)
 
 ### Read-Only
@@ -67,6 +67,7 @@ Read-Only:
 - `memory_mb` (Number)
 - `name` (String)
 - `platform_id` (Number)
+- `platform_name` (String)
 - `platform_slug` (String)
 - `primary_ip` (String)
 - `primary_ip4` (String)

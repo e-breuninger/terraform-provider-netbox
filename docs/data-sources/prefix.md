@@ -17,22 +17,22 @@ description: |-
 
 ### Optional
 
-- `cidr` (String, Deprecated) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given. Conflicts with `prefix`.
-- `custom_fields` (Map of String)
-- `description` (String) Description to include in the data source filter. At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
-- `family` (Number) The IP family of the prefix. One of 4 or 6. At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
-- `prefix` (String) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given. Conflicts with `cidr`.
-- `role_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
-- `site_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
-- `status` (String) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
-- `tag` (String) Tag to include in the data source filter (must match the tag's slug). At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
+- `cidr` (String, Deprecated) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given. Conflicts with `prefix`.
+- `custom_fields` (Map of String) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `description` (String) Description to include in the data source filter. At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `family` (Number) The IP family of the prefix. One of 4 or 6. At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `prefix` (String) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given. Conflicts with `cidr`.
+- `role_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `site_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `status` (String) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `tag` (String) Tag to include in the data source filter (must match the tag's slug). At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
 - `tag__n` (String) Tag to exclude from the data source filter (must match the tag's slug).
 Refer to [Netbox's documentation](https://demo.netbox.dev/static/docs/rest-api/filtering/#lookup-expressions)
 for more information on available lookup expressions.
-- `tenant_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
-- `vlan_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
-- `vlan_vid` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
-- `vrf_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `tag` or `status` must be given.
+- `tenant_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `vlan_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `vlan_vid` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
+- `vrf_id` (Number) At least one of `description`, `family`, `prefix`, `vlan_vid`, `vrf_id`, `vlan_id`, `tenant_id`, `site_id`, `role_id`, `cidr`, `custom_fields`, `tag` or `status` must be given.
 
 ### Read-Only
 

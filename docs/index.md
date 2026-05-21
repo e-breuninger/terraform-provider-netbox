@@ -16,7 +16,7 @@ Netbox often makes breaking API changes even in non-major releases. Check the ta
 
 | Netbox version  | Provider version |
 | --------------- | ---------------- |
-| v4.3.0 - 4.4.0  | v5.0.0 and up    |
+| v4.3.0 - 4.4.10 | v5.0.0 and up    |
 | v4.2.2 - 4.2.9  | v4.0.0 - 4.3.1   |
 | v4.1.0 - 4.1.11 | v3.10.0 - 3.11.1 |
 | v4.0.0 - 4.0.11 | v3.9.0 - 3.9.2   |
@@ -62,7 +62,7 @@ provider "netbox" {
 
 ### Required
 
-- `api_token` (String) Netbox API authentication token. Can be set via the `NETBOX_API_TOKEN` environment variable.
+- `api_token` (String) Netbox API authentication token. Supports both v1 tokens (`Authorization: Token <key>`) and v2 tokens (`Authorization: Bearer nbt_<key>.<token>`). V2 tokens are auto-detected by their `nbt_` prefix. Can be set via the `NETBOX_API_TOKEN` environment variable.
 - `server_url` (String) Location of Netbox server including scheme (http or https) and optional port. Can be set via the `NETBOX_SERVER_URL` environment variable.
 
 ### Optional

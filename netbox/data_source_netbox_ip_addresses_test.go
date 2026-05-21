@@ -394,3 +394,52 @@ data "netbox_ip_addresses" "test_list" {
 		},
 	})
 }
+
+func TestAccNetboxIpAddressesDataSource_filter_customFields(t *testing.T) {
+	testSlug := "ipam_ipaddrs_ds_filter_cf"
+	testName := testAccGetTestName(testSlug)
+	testIP0 := "203.0.113.1/24"
+	testIP1 := "203.0.113.2/24"
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.ipaddress"]
+}
+resource "netbox_ip_address" "test_list_0" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "match"
+  }
+}
+resource "netbox_ip_address" "test_list_1" {
+  ip_address = "%s"
+  virtual_machine_interface_id = netbox_interface.test.id
+  status = "active"
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "skip"
+  }
+}
+data "netbox_ip_addresses" "test_list" {
+	depends_on = [netbox_ip_address.test_list_0, netbox_ip_address.test_list_1]
+
+	custom_fields = {
+		"${netbox_custom_field.test.name}" = "match"
+	}
+}`, testSlug, testIP0, testIP1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_list", "ip_addresses.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_ip_addresses.test_list", "ip_addresses.0.ip_address", "netbox_ip_address.test_list_0", "ip_address"),
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_list", fmt.Sprintf("ip_addresses.0.custom_fields.%s", testSlug), "match"),
+				),
+			},
+		},
+	})
+}

@@ -88,7 +88,7 @@ resource "netbox_device_console_port" "test" {
 	speed = 1200
   mark_connected = true
 	description = "%[1]s_description"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_console_port.test", "name", testName),

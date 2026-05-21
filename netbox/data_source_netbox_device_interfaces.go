@@ -39,8 +39,10 @@ func dataSourceNetboxDeviceInterfaces() *schema.Resource {
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          0,
 			},
 			"interfaces": {
 				Type:     schema.TypeList,
@@ -168,9 +170,10 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 
 	params := dcim.NewDcimInterfacesListParams()
 
-	if limit, ok := d.GetOk("limit"); ok {
-		limitInt := int64(limit.(int))
-		params.Limit = &limitInt
+	// Get user limit (0 = fetch all)
+	var userLimit int64 = 0
+	if limitValue, ok := d.GetOk("limit"); ok {
+		userLimit = int64(limitValue.(int))
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
@@ -194,25 +197,55 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 		}
 	}
 
-	res, err := api.Dcim.DcimInterfacesList(params, nil)
-	if err != nil {
-		return err
+	// Fetch all pages with pagination (fetch all when name_regex is used)
+	paginationHelper := NewPaginationHelper(FetchAll)
+	var allInterfaces []*models.Interface
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Dcim.DcimInterfacesList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch interfaces at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allInterfaces = append(allInterfaces, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allInterfaces)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
-	}
-
+	// Apply name_regex filter
 	var filteredInterfaces []*models.Interface
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r := regexp.MustCompile(nameRegex.(string))
-		for _, dcimInterface := range res.GetPayload().Results {
+		for _, dcimInterface := range allInterfaces {
 			if r.MatchString(*dcimInterface.Name) {
 				filteredInterfaces = append(filteredInterfaces, dcimInterface)
 			}
 		}
 	} else {
-		filteredInterfaces = res.GetPayload().Results
+		filteredInterfaces = allInterfaces
+	}
+
+	// Apply user limit to filtered results
+	if userLimit > 0 && int64(len(filteredInterfaces)) > userLimit {
+		filteredInterfaces = filteredInterfaces[:userLimit]
+	}
+
+	if len(filteredInterfaces) == 0 {
+		return errors.New("no result")
 	}
 
 	var s []map[string]interface{}

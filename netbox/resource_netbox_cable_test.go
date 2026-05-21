@@ -126,7 +126,7 @@ resource "netbox_cable" "test" {
 	length_unit = "m"
 	description = "%[1]s_description"
 	comments = "%[1]s_comments"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_cable.test", "status", "connected"),

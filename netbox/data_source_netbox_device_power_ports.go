@@ -39,8 +39,10 @@ func dataSourceNetboxDevicePowerPorts() *schema.Resource {
 				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
+				Default:          0,
 			},
 			"power_ports": {
 				Type:     schema.TypeList,
@@ -102,9 +104,10 @@ func dataSourceNetboxDevicePowerPortRead(d *schema.ResourceData, m interface{}) 
 
 	params := dcim.NewDcimPowerPortsListParams()
 
-	if limit, ok := d.GetOk("limit"); ok {
-		limitInt := int64(limit.(int))
-		params.Limit = &limitInt
+	// Get user limit (0 = fetch all)
+	var userLimit int64 = 0
+	if limitValue, ok := d.GetOk("limit"); ok {
+		userLimit = int64(limitValue.(int))
 	}
 
 	if filter, ok := d.GetOk("filter"); ok {
@@ -126,32 +129,62 @@ func dataSourceNetboxDevicePowerPortRead(d *schema.ResourceData, m interface{}) 
 		}
 	}
 
-	res, err := api.Dcim.DcimPowerPortsList(params, nil)
-	if err != nil {
-		return err
+	// Fetch all pages with pagination (fetch all when name_regex is used)
+	paginationHelper := NewPaginationHelper(FetchAll)
+	var allPowerPorts []*models.PowerPort
+
+	pageSize := paginationHelper.GetPageSize()
+	for {
+		currentOffset := paginationHelper.CurrentOffset()
+		params.Limit = &pageSize
+		params.Offset = &currentOffset
+
+		res, err := api.Dcim.DcimPowerPortsList(params, nil)
+		if err != nil {
+			return fmt.Errorf("failed to fetch power ports at offset %d: %w", currentOffset, err)
+		}
+
+		payload := res.GetPayload()
+		allPowerPorts = append(allPowerPorts, payload.Results...)
+
+		if len(payload.Results) == 0 {
+			break
+		}
+
+		if !paginationHelper.ShouldContinuePaging(int64(len(allPowerPorts)), payload.Next) {
+			break
+		}
+
+		paginationHelper.Advance(int64(len(payload.Results)))
 	}
 
-	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no result")
-	}
-
-	var filteredInterfaces []*models.PowerPort
+	// Apply name_regex filter
+	var filteredPowerPorts []*models.PowerPort
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r, err := regexp.Compile(nameRegex.(string))
 		if err != nil {
 			return fmt.Errorf("failed to compile name regex: %w", err)
 		}
-		for _, port := range res.GetPayload().Results {
+		for _, port := range allPowerPorts {
 			if r.MatchString(*port.Name) {
-				filteredInterfaces = append(filteredInterfaces, port)
+				filteredPowerPorts = append(filteredPowerPorts, port)
 			}
 		}
 	} else {
-		filteredInterfaces = res.GetPayload().Results
+		filteredPowerPorts = allPowerPorts
+	}
+
+	// Apply user limit to filtered results
+	if userLimit > 0 && int64(len(filteredPowerPorts)) > userLimit {
+		filteredPowerPorts = filteredPowerPorts[:userLimit]
+	}
+
+	if len(filteredPowerPorts) == 0 {
+		return errors.New("no result")
 	}
 
 	var s []map[string]interface{}
-	for _, v := range filteredInterfaces {
+	for _, v := range filteredPowerPorts {
 		var mapping = make(map[string]interface{})
 		mapping["id"] = v.ID
 		if v.Description != "" {
