@@ -102,6 +102,7 @@ func resourceCustomField() *schema.Resource {
 					"if_set",
 					"hidden",
 				}, false),
+			},
 			"related_object_type": {
 				Type:     schema.TypeString,
 				Optional: true,
