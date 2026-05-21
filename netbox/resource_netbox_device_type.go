@@ -52,7 +52,8 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -103,6 +104,11 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 		return err
 	}
 
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
+
 	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
 
 	res, err := api.Dcim.DcimDeviceTypesCreate(params, nil)
@@ -148,6 +154,11 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	}
 	api.readTags(d, deviceType.Tags)
 
+	cf := getCustomFields(deviceType.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+
 	return nil
 }
 
@@ -192,6 +203,11 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return err
+	}
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
 	}
 
 	params := dcim.NewDcimDeviceTypesPartialUpdateParams().WithID(id).WithData(&data)
