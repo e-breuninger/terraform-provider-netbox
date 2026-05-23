@@ -94,6 +94,15 @@ func resourceCustomField() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"ui_visibility": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"always",
+					"if_set",
+					"hidden",
+				}, false),
+			},
 			"related_object_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -126,6 +135,10 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 	choiceSet, ok := d.GetOk("choice_set_id")
 	if ok {
 		data.ChoiceSet = int64ToPtr(int64(choiceSet.(int)))
+	}
+
+	if v, ok := d.GetOk("ui_visibility"); ok {
+		data.UIVisibility = v.(string)
 	}
 
 	ctypes, ok := d.GetOk("content_types")
@@ -177,6 +190,10 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 	choiceSet, ok := d.GetOk("choice_set_id")
 	if ok {
 		data.ChoiceSet = int64ToPtr(int64(choiceSet.(int)))
+	}
+
+	if v, ok := d.GetOk("ui_visibility"); ok {
+		data.UIVisibility = v.(string)
 	}
 
 	ctypes, ok := d.GetOk("content_types")
@@ -253,6 +270,10 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("validation_maximum", customField.ValidationMaximum)
 	d.Set("validation_minimum", customField.ValidationMinimum)
 	d.Set("validation_regex", customField.ValidationRegex)
+
+	if customField.UIVisibility != nil && customField.UIVisibility.Value != nil {
+		d.Set("ui_visibility", *customField.UIVisibility.Value)
+	}
 
 	return nil
 }
