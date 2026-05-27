@@ -22,7 +22,7 @@ func dataSourceNetboxFhrpGroup() *schema.Resource {
 				Optional:     true,
 			},
 			"group_id": {
-				Type:         schema.TypeString,
+				Type:         schema.TypeInt,
 				Optional:     false,
 				Required: true,
 			},
@@ -59,8 +59,8 @@ func dataSourceNetboxFhrpGroupRead(d *schema.ResourceData, m interface{}) error 
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 
-	if group_id, ok := d.Get("group_id").(string); ok && group_id != "" {
-		params.GroupID = &group_id
+	if group_id, ok := d.Get("group_id").(int); ok && group_id != 0 {
+		params.GroupID = strToPtr(strconv.FormatInt(int64(group_id), 10))
 	}
 
 	if protocol, ok := d.Get("protocol").(string); ok && protocol != "" {
@@ -73,10 +73,10 @@ func dataSourceNetboxFhrpGroupRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if *res.GetPayload().Count > int64(1) {
-		return errors.New("more than one FHRP Group returned, specify a more narrow filter")
+		return errors.New("more than one group returned, specify a more narrow filter")
 	}
 	if *res.GetPayload().Count == int64(0) {
-		return errors.New("no asn found matching filter")
+		return errors.New("no group found matching filter")
 	}
 	result := res.GetPayload().Results[0]
 	d.Set("id", result.ID)

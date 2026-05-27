@@ -93,8 +93,8 @@ func resourceNetboxFhrpGroupAssignmentRead(d *schema.ResourceData, m interface{}
 
 	assignment := res.GetPayload()
 	
-	d.Set("group_id", assignment.Group.GroupID)
-	d.Set("interface_id", assignment.Interface)
+	d.Set("group_id", assignment.Group.ID)
+	d.Set("interface_id", assignment.InterfaceID)
 	d.Set("interface_type", assignment.InterfaceType)
 	d.Set("priority", assignment.Priority)
 
