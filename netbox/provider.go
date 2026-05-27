@@ -214,6 +214,7 @@ func Provider() *schema.Provider {
 			"netbox_vlan_groups":          dataSourceNetboxVlanGroups(),
 			"netbox_vpn_tunnel":           dataSourceNetboxVpnTunnel(),
 			"netbox_vpn_tunnel_group":     dataSourceNetboxVpnTunnelGroup(),
+			"netbox_vpn_tunnel_terminations":     dataSourceNetboxVpnTunnelTerminations(),
 			"netbox_site_group":           dataSourceNetboxSiteGroup(),
 			"netbox_racks":                dataSourceNetboxRacks(),
 			"netbox_rack_role":            dataSourceNetboxRackRole(),
