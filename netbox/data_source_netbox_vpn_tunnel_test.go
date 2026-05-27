@@ -35,7 +35,7 @@ resource "netbox_vpn_tunnel" "test" {
 
 
 const testAccNetboxVpnTunnelNoResult = `
-data "vpn_tunnel" "test" {
+data "netbox_vpn_tunnel" "test" {
   name = "iDontExist"
 }`
 
