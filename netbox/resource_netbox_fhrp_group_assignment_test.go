@@ -58,7 +58,7 @@ resource "netbox_device_interface" "test" {
   device_id = netbox_device.test.id
   type      = "1000base-t"
 }
-  
+
 resource "netbox_fhrp_group_assignment" "test" {
   group_id = netbox_fhrp_group.test.id
   interface_id = netbox_device_interface.test.id
@@ -108,4 +108,3 @@ func init() {
 		},
 	})
 }
-
