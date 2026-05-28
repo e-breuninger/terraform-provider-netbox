@@ -115,7 +115,7 @@ func resourceNetboxFhrpGroupRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	fhrpgroup := res.GetPayload()
-	
+
 	d.Set("protocol", fhrpgroup.Protocol)
 	d.Set("group_id", fhrpgroup.GroupID)
 	d.Set("auth_type", fhrpgroup.AuthType)

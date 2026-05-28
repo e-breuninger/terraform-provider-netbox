@@ -64,7 +64,7 @@ func dataSourceNetboxFhrpGroupRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if protocol, ok := d.Get("protocol").(string); ok && protocol != "" {
-		params.Protocol = &protocol 
+		params.Protocol = &protocol
 	}
 
 	res, err := api.Ipam.IpamFhrpGroupsList(params, nil)
