@@ -198,6 +198,10 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 				params.Tag = tags
 			case "status":
 				params.Status = &vString
+			case "platform":
+				params.Platform = &vString
+			case "platform_id":
+				params.PlatformID = &vString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
