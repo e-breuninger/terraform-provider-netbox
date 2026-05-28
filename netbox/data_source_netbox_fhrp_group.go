@@ -18,12 +18,12 @@ func dataSourceNetboxFhrpGroup() *schema.Resource {
 				Computed: true,
 			},
 			"protocol": {
-				Type:         schema.TypeString,
-				Optional:     true,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"group_id": {
-				Type:         schema.TypeInt,
-				Optional:     false,
+				Type:     schema.TypeInt,
+				Optional: false,
 				Required: true,
 			},
 			"auth_type": {
