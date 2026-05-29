@@ -12,8 +12,12 @@ import (
 
 func dataSourceNetboxManufacturer() *schema.Resource {
 	return &schema.Resource{
-		Read:        dataSourceNetboxManufacturerRead,
-		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):`,
+		Read: dataSourceNetboxManufacturerRead,
+		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):Fetches the list of manufacturers from netbox. Can optionally be filtered by name, slug or tag.
+
+From the [official documentation](https://netboxlabs.com/docs/netbox/models/dcim/manufacturer/):
+
+> A manufacturer represents the "make" of a device; e.g. Cisco or Dell. Each device type must be assigned to a manufacturer. (Inventory items and platforms may also be associated with manufacturers.)`,
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:     schema.TypeSet,
