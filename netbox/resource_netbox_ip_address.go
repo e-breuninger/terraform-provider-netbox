@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var resourceNetboxIPAddressObjectTypeOptions = []string{"virtualization.vminterface", "dcim.interface"}
+var resourceNetboxIPAddressObjectTypeOptions = []string{"virtualization.vminterface", "dcim.interface", "ipam.fhrpgroup"}
 var resourceNetboxIPAddressStatusOptions = []string{"active", "reserved", "deprecated", "dhcp", "slaac"}
 var resourceNetboxIPAddressRoleOptions = []string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}
 
