@@ -47,7 +47,7 @@ data "netbox_manufacturers" "none" {
 `,
 				Check: resource.ComposeTestCheckFunc(
 					// Tags and descriptions are not tested, as these cannot be assigned via terraform and therefore not automatically be created on a manufacturer
-					resource.TestMatchResourceAttr("data.netbox_manufacturers.all_manufacturers", "manufacturers.#", regexp.MustCompile("[2-9]|\\d{2,}")), // assume there are at least 2 manufacturers, exact amount depends on pre-population
+					resource.TestMatchResourceAttr("data.netbox_manufacturers.all_manufacturers", "manufacturers.#", regexp.MustCompile(`[2-9]|\d{2,}`)), // assume there are at least 2 manufacturers, exact amount depends on pre-population
 					resource.TestCheckResourceAttr("data.netbox_manufacturers.by_name", "manufacturers.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_manufacturers.by_name", "manufacturers.0.name", testName+"-0"),
 					resource.TestCheckResourceAttr("data.netbox_manufacturers.by_name", "manufacturers.0.slug", testName+"-0-slug"),
