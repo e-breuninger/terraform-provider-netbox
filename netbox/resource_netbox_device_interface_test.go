@@ -292,6 +292,69 @@ func TestAccNetboxDeviceInterface_vlans(t *testing.T) {
 	})
 }
 
+func testAccNetboxDeviceInterfaceVrfDependencies(testName string) string {
+	return testAccNetboxDeviceInterfaceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_vrf" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_vrf" "test2" {
+  name = "%[1]s_2"
+}`, testName)
+}
+
+func testAccNetboxDeviceInterfaceWithVrf(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_device_interface" "test" {
+  name      = "%[1]s"
+  device_id = netbox_device.test.id
+  type      = "1000base-t"
+  vrf_id    = netbox_vrf.test.id
+}`, testName)
+}
+
+func testAccNetboxDeviceInterfaceWithVrfUpdated(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_device_interface" "test" {
+  name      = "%[1]s"
+  device_id = netbox_device.test.id
+  type      = "1000base-t"
+  vrf_id    = netbox_vrf.test2.id
+}`, testName)
+}
+
+
+func TestAccNetboxDeviceInterface_vrf(t *testing.T) {
+	testSlug := "iface_vrf"
+	testName := testAccGetTestName(testSlug)
+	setUp := testAccNetboxDeviceInterfaceVrfDependencies(testName)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceWithVrf(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "vrf_id", "netbox_vrf.test", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxDeviceInterfaceWithVrfUpdated(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "vrf_id", "netbox_vrf.test2", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device_interface.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckDeviceInterfaceDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
 	conn := testAccProvider.Meta().(*providerState)
