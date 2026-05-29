@@ -1,9 +1,10 @@
-## 5.4.0 (May 15th, 2026)
+## 5.4.0 (May 29th, 2026)
 
 ENHANCEMENTS
 
 * **New Resource:** `netbox_virtual_machine_interface_primary_mac_address` ([#879](https://github.com/e-breuninger/terraform-provider-netbox/pull/879) by [@somniumV](https://github.com/somniumV))
 * **New Resource:** `netbox_device_interface_primary_mac_address` ([#879](https://github.com/e-breuninger/terraform-provider-netbox/pull/879) by [@somniumV](https://github.com/somniumV))
+* resource/netbox_device_interface: Add `vrf_id` attribute ([#894](https://github.com/e-breuninger/terraform-provider-netbox/pull/894) by [@mcanevet](https://github.com/mcanevet))
 
 BUG FIXES
 
