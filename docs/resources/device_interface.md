@@ -47,6 +47,7 @@ resource "netbox_device_interface" "test" {
 - `tagged_vlans` (Set of Number)
 - `tags` (Set of String)
 - `untagged_vlan` (Number)
+- `vrf_id` (Number)
 
 ### Read-Only
 
