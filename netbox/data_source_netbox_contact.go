@@ -25,8 +25,11 @@ func dataSourceNetboxContact() *schema.Resource {
 				Computed:     true,
 				AtLeastOneOf: []string{"name", "slug"},
 			},
-			"group_id": {
-				Type:     schema.TypeInt,
+			"group_ids": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 				Computed: true,
 			},
 			"description": {
@@ -62,8 +65,13 @@ func dataSourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
-	if result.Group != nil {
-		d.Set("group_id", result.Group.ID)
+	if result.Groups != nil {
+		groups := result.Groups
+		groupIDs := make([]int64, len(groups))
+		for i, group := range groups {
+			groupIDs[i] = group.ID
+		}
+		d.Set("group_ids", groupIDs)
 	}
 	return nil
 }
