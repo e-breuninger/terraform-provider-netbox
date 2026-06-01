@@ -104,6 +104,10 @@ func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) erro
 			switch k {
 			case "name":
 				params.NameIc = &vString
+			case "virtual_machine_id":
+				params.VirtualMachineID = &vString
+			case "ordering":
+				params.Ordering = &vString
 			case "tag":
 				tags = append(tags, vString)
 			default:

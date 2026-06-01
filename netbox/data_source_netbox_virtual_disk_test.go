@@ -58,6 +58,113 @@ data "netbox_virtual_disk" "test" {
 	})
 }
 
+func TestAccNetboxVirtualDiskDataSource_filterByVirtualMachineID(t *testing.T) {
+	testSlug := "virtual_disk_ds_vmid"
+	testName := testAccGetTestName(testSlug)
+	dataSourceName := "data.netbox_virtual_disk.by_vm"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_site" "test" {
+  name = "%[1]s"
+  status = "active"
+}
+resource "netbox_virtual_machine" "vm_a" {
+  name = "%[1]s_vm_a"
+  site_id = netbox_site.test.id
+}
+resource "netbox_virtual_machine" "vm_b" {
+  name = "%[1]s_vm_b"
+  site_id = netbox_site.test.id
+}
+resource "netbox_virtual_disk" "disk_a" {
+  name = "%[1]s_disk_a"
+  size_mb = 10
+  virtual_machine_id = netbox_virtual_machine.vm_a.id
+}
+resource "netbox_virtual_disk" "disk_b" {
+  name = "%[1]s_disk_b"
+  size_mb = 20
+  virtual_machine_id = netbox_virtual_machine.vm_b.id
+}
+data "netbox_virtual_disk" "by_vm" {
+  filter {
+    name = "virtual_machine_id"
+    value = netbox_virtual_machine.vm_a.id
+  }
+  depends_on = [netbox_virtual_disk.disk_a, netbox_virtual_disk.disk_b]
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.0.name", testName+"_disk_a"),
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.0.size_mb", "10"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "virtual_disks.0.virtual_machine_id", "netbox_virtual_machine.vm_a", "id"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxVirtualDiskDataSource_ordering(t *testing.T) {
+	testSlug := "virtual_disk_ds_order"
+	testName := testAccGetTestName(testSlug)
+	dataSourceName := "data.netbox_virtual_disk.ordered"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_site" "test" {
+  name = "%[1]s"
+  status = "active"
+}
+resource "netbox_virtual_machine" "test" {
+  name = "%[1]s"
+  site_id = netbox_site.test.id
+}
+resource "netbox_virtual_disk" "disk_b" {
+  name = "%[1]s_disk_b"
+  size_mb = 20
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_virtual_disk" "disk_a" {
+  name = "%[1]s_disk_a"
+  size_mb = 10
+  virtual_machine_id = netbox_virtual_machine.test.id
+  depends_on = [netbox_virtual_disk.disk_b]
+}
+data "netbox_virtual_disk" "ordered" {
+  filter {
+    name = "virtual_machine_id"
+    value = netbox_virtual_machine.test.id
+  }
+  filter {
+    name = "ordering"
+    value = "id"
+  }
+  depends_on = [netbox_virtual_disk.disk_a, netbox_virtual_disk.disk_b]
+}
+`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.#", "2"),
+					// disk_b was created first (lower ID), so it should be first when ordering by id
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.0.name", testName+"_disk_b"),
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.0.size_mb", "20"),
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.1.name", testName+"_disk_a"),
+					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.1.size_mb", "10"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccNetboxVirtualDiskDataSource_filter_and_list(t *testing.T) {
 	testSlug := "virtual_disk_ds_filter"
 	testName := testAccGetTestName(testSlug)
