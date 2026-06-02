@@ -193,6 +193,7 @@ func Provider() *schema.Provider {
 			"netbox_devices":              dataSourceNetboxDevices(),
 			"netbox_device_role":          dataSourceNetboxDeviceRole(),
 			"netbox_device_type":          dataSourceNetboxDeviceType(),
+			"netbox_manufacturers":        dataSourceNetboxManufacturer(),
 			"netbox_site":                 dataSourceNetboxSite(),
 			"netbox_location":             dataSourceNetboxLocation(),
 			"netbox_locations":            dataSourceNetboxLocations(),
