@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -42,6 +43,12 @@ func dataSourceNetboxVirtualDisk() *schema.Resource {
 				Optional:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
 				Default:          0,
+			},
+			"ordering": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "One or more fields to use for ordering the results. Prefix a field name with `-` to reverse the order. E.g. `id`, `-name`.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"virtual_disks": {
 				Type:     schema.TypeList,
@@ -94,6 +101,16 @@ func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) erro
 		userLimit = int64(limitValue.(int))
 	}
 
+	if ordering, ok := d.GetOk("ordering"); ok {
+		orderingList := ordering.([]interface{})
+		var orderingStrs []string
+		for _, o := range orderingList {
+			orderingStrs = append(orderingStrs, o.(string))
+		}
+		orderingStr := strings.Join(orderingStrs, ",")
+		params.Ordering = &orderingStr
+	}
+
 	if filter, ok := d.GetOk("filter"); ok {
 		var filterParams = filter.([]interface{})
 		var tags []string
@@ -106,8 +123,6 @@ func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) erro
 				params.NameIc = &vString
 			case "virtual_machine_id":
 				params.VirtualMachineID = &vString
-			case "ordering":
-				params.Ordering = &vString
 			case "tag":
 				tags = append(tags, vString)
 			default:

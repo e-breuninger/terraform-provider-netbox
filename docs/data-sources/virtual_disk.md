@@ -35,10 +35,7 @@ data "netbox_virtual_disk" "disk_by_vm_ordered" {
     name  = "virtual_machine_id"
     value = netbox_virtual_machine.example.id
   }
-  filter {
-    name  = "ordering"
-    value = "id"
-  }
+  ordering = ["id"]
 }
 
 # Filter by tag
@@ -76,6 +73,7 @@ data "netbox_virtual_disk" "disk_regex" {
 - `filter` (Block List) (see [below for nested schema](#nestedblock--filter))
 - `limit` (Number) Defaults to `0`.
 - `name_regex` (String)
+- `ordering` (List of String) One or more fields to use for ordering the results. Prefix a field name with `-` to reverse the order. E.g. `id`, `-name`.
 
 ### Read-Only
 

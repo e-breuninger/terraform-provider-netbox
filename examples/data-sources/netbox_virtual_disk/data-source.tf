@@ -20,10 +20,7 @@ data "netbox_virtual_disk" "disk_by_vm_ordered" {
     name  = "virtual_machine_id"
     value = netbox_virtual_machine.example.id
   }
-  filter {
-    name  = "ordering"
-    value = "id"
-  }
+  ordering = ["id"]
 }
 
 # Filter by tag

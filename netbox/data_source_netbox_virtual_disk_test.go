@@ -114,6 +114,7 @@ func TestAccNetboxVirtualDiskDataSource_ordering(t *testing.T) {
 	testSlug := "virtual_disk_ds_order"
 	testName := testAccGetTestName(testSlug)
 	dataSourceName := "data.netbox_virtual_disk.ordered"
+	dataSourceNameReverse := "data.netbox_virtual_disk.ordered_reverse"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -145,10 +146,15 @@ data "netbox_virtual_disk" "ordered" {
     name = "virtual_machine_id"
     value = netbox_virtual_machine.test.id
   }
+  ordering = ["id"]
+  depends_on = [netbox_virtual_disk.disk_a, netbox_virtual_disk.disk_b]
+}
+data "netbox_virtual_disk" "ordered_reverse" {
   filter {
-    name = "ordering"
-    value = "id"
+    name = "virtual_machine_id"
+    value = netbox_virtual_machine.test.id
   }
+  ordering = ["-id"]
   depends_on = [netbox_virtual_disk.disk_a, netbox_virtual_disk.disk_b]
 }
 `, testName),
@@ -159,6 +165,12 @@ data "netbox_virtual_disk" "ordered" {
 					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.0.size_mb", "20"),
 					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.1.name", testName+"_disk_a"),
 					resource.TestCheckResourceAttr(dataSourceName, "virtual_disks.1.size_mb", "10"),
+					// Reverse ordering: disk_a (higher ID) should be first
+					resource.TestCheckResourceAttr(dataSourceNameReverse, "virtual_disks.#", "2"),
+					resource.TestCheckResourceAttr(dataSourceNameReverse, "virtual_disks.0.name", testName+"_disk_a"),
+					resource.TestCheckResourceAttr(dataSourceNameReverse, "virtual_disks.0.size_mb", "10"),
+					resource.TestCheckResourceAttr(dataSourceNameReverse, "virtual_disks.1.name", testName+"_disk_b"),
+					resource.TestCheckResourceAttr(dataSourceNameReverse, "virtual_disks.1.size_mb", "20"),
 				),
 			},
 		},
