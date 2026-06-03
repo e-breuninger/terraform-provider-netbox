@@ -296,12 +296,12 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		mapping["device_id"] = device.ID
 		if device.DeviceType != nil {
 			mapping["device_type_id"] = device.DeviceType.ID
-		}
-		if device.DeviceType.Manufacturer != nil {
-			mapping["manufacturer_id"] = device.DeviceType.Manufacturer.ID
-		}
-		if device.DeviceType.Model != nil {
-			mapping["model"] = *device.DeviceType.Model
+			if device.DeviceType.Manufacturer != nil {
+				mapping["manufacturer_id"] = device.DeviceType.Manufacturer.ID
+			}
+			if device.DeviceType.Model != nil {
+				mapping["model"] = *device.DeviceType.Model
+			}
 		}
 		if device.Name != nil {
 			mapping["name"] = *device.Name
