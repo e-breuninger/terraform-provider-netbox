@@ -77,6 +77,44 @@ resource "netbox_device_type" "test" {
 	})
 }
 
+func TestAccNetboxDeviceType_customFields(t *testing.T) {
+	testSlug := "device_type_cf"
+	testName := testAccGetTestName(testSlug)
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_custom_field" "test" {
+  name          = "%[2]s"
+  type          = "text"
+  content_types = ["dcim.devicetype"]
+}
+
+resource "netbox_device_type" "test" {
+  model           = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+  custom_fields   = {"${netbox_custom_field.test.name}" = "81"}
+}`, testName, testField),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_type.test", "custom_fields."+testField, "81"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device_type.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_device_type", &resource.Sweeper{
 		Name:         "netbox_device_type",
