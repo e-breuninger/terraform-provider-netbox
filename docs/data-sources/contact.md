@@ -23,6 +23,7 @@ description: |-
 
 ### Read-Only
 
+- `group_id` (Number, Deprecated)
 - `group_ids` (List of Number)
 - `id` (String) The ID of this resource.
 
