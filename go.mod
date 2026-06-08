@@ -114,4 +114,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/fbreckle/go-netbox => ../go-netbox
+replace github.com/fbreckle/go-netbox => github.com/bqc0n/go-netbox v0.0.0-20260607065715-8bd5182b6636
