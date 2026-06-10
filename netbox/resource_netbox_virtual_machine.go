@@ -325,7 +325,7 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 	}
 	api.readTags(d, vm.Tags)
 
-	cf := getCustomFields(vm.CustomFields)
+	cf := flattenCustomFields(vm.CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
