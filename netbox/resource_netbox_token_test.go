@@ -73,6 +73,30 @@ resource "netbox_token" "test_without_expires" {
   allowed_ips   = ["2.4.8.16/32"]
   write_enabled = false
   description   = "Netbox Token Without Expires"
+  expires       = "2036-01-02T15:04:05.000Z"
+}`, testName, testToken),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "key", testToken),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "allowed_ips.#", "1"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "allowed_ips.0", "2.4.8.16/32"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "write_enabled", "false"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "description", "Netbox Token Without Expires"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "expires", "2036-01-02T15:04:05.000Z"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_user" "test" {
+  username = "%s"
+  password = "Abcdefghijkl1"
+}
+
+resource "netbox_token" "test_without_expires" {
+  user_id       = netbox_user.test.id
+  key           = "%s"
+  allowed_ips   = ["2.4.8.16/32"]
+  write_enabled = false
+  description   = "Netbox Token Without Expires"
 }`, testName, testToken),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "key", testToken),
