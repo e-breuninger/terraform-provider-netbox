@@ -154,6 +154,11 @@ func dataSourceNetboxDeviceInterfaces() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"lag_device_interface_id": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The ID of the LAG interface this interface is a member of, if any.",
+						},
 						"type": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -191,6 +196,8 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 				params.Tag = []string{vString} // TODO: switch schema to list?
 			case "device_id":
 				params.DeviceID = &vString
+			case "lag_id":
+				params.LagID = &vString
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -303,6 +310,10 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 		}
 
 		mapping["device_id"] = v.Device.ID
+
+		if v.Lag != nil {
+			mapping["lag_device_interface_id"] = v.Lag.ID
+		}
 
 		s = append(s, mapping)
 	}
