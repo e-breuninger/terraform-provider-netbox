@@ -1,3 +1,20 @@
+## 5.5.0 (June 12th, 2026)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_fhrp_group` ([#887](https://github.com/e-breuninger/terraform-provider-netbox/pull/887) by [@rfranks-securenet](https://github.com/rfranks-securenet))
+* **New Resource:** `netbox_fhrp_group_assignment` ([#887](https://github.com/e-breuninger/terraform-provider-netbox/pull/887) by [@rfranks-securenet](https://github.com/rfranks-securenet))
+* **New Data Source:** `netbox_fhrp_group` ([#887](https://github.com/e-breuninger/terraform-provider-netbox/pull/887) by [@rfranks-securenet](https://github.com/rfranks-securenet))
+* **New Data Source:** `netbox_manufacturers` ([#893](https://github.com/e-breuninger/terraform-provider-netbox/pull/893) by [@StopMotionCuber](https://github.com/StopMotionCuber))
+* data-source/netbox_virtual_machines: Allow filtering by `platform` and `platform_id` ([#892](https://github.com/e-breuninger/terraform-provider-netbox/pull/892) by [@sjurtf](https://github.com/sjurtf))
+* data-source/netbox_virtual_disk: Allow filtering by `virtual_machine_id` and add `ordering` attribute ([#897](https://github.com/e-breuninger/terraform-provider-netbox/pull/897) by [@sjurtf](https://github.com/sjurtf))
+* resource/netbox_device_type: Add `custom_fields` attribute ([#884](https://github.com/e-breuninger/terraform-provider-netbox/pull/884) by [@kyleprice](https://github.com/kyleprice))
+* resource/netbox_contact: Add to `group_ids` attribute ([#896](https://github.com/e-breuninger/terraform-provider-netbox/pull/896) by [@somniumV](https://github.com/somniumV))
+* data-source/netbox_device_interfaces: Allow filtering by `lag_id` and include `lag_device_interface_id` in responses ([#903](https://github.com/e-breuninger/terraform-provider-netbox/pull/903) by [@mcanevet](https://github.com/mcanevet))
+
+BUG FIXES
+* data-source/netbox_devices: Add `nil` guards for device type sub attributes ([#898](https://github.com/e-breuninger/terraform-provider-netbox/pull/898) by [@SAY-5](https://github.com/SAY-5))
+
 ## 5.4.0 (May 29th, 2026)
 
 ENHANCEMENTS
