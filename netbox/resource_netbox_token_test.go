@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"testing"
 
@@ -11,6 +12,10 @@ import (
 )
 
 func TestAccNetboxToken_basic(t *testing.T) {
+	if testAccNetboxVersionAtLeast("4.5.0") {
+		t.Skipf("Skipping token test on NetBox %s: token creation requires API_TOKEN_PEPPERS which is not configured in the test environment", os.Getenv("NETBOX_VERSION"))
+	}
+
 	testSlug := "users"
 	testName := testAccGetTestName(testSlug)
 	testToken := testAccGetTestToken()
@@ -53,6 +58,9 @@ resource "netbox_token" "test_basic" {
 }
 
 func TestAccNetboxToken_withoutExpires(t *testing.T) {
+	if testAccNetboxVersionAtLeast("4.5.0") {
+		t.Skipf("Skipping token test on NetBox %s: token creation requires API_TOKEN_PEPPERS which is not configured in the test environment", os.Getenv("NETBOX_VERSION"))
+	}
 	testSlug := "users"
 	testName := testAccGetTestName(testSlug)
 	testToken := testAccGetTestToken()

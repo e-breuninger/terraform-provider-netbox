@@ -21,14 +21,14 @@ func TestAccNetboxConfigTemplate_basic(t *testing.T) {
 resource "netbox_config_template" "test" {
 	name = "%[1]s"
 	description = "%[1]s description"
-	template_code = "hostname {{ name }}"
-	environment_params = jsonencode({"name" = "my-hostname"})
+	template_code = "hostname {{ device }}"
+	environment_params = jsonencode({"trim_blocks" = true})
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_config_template.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_config_template.test", "description", fmt.Sprintf("%s description", testName)),
-					resource.TestCheckResourceAttr("netbox_config_template.test", "template_code", "hostname {{ name }}"),
-					resource.TestCheckResourceAttr("netbox_config_template.test", "environment_params", "{\"name\":\"my-hostname\"}"),
+					resource.TestCheckResourceAttr("netbox_config_template.test", "template_code", "hostname {{ device }}"),
+					resource.TestCheckResourceAttr("netbox_config_template.test", "environment_params", "{\"trim_blocks\":true}"),
 				),
 			},
 			{
@@ -36,14 +36,14 @@ resource "netbox_config_template" "test" {
 resource "netbox_config_template" "test" {
 	name = "%[1]s"
 	description = "%[1]s description"
-	template_code = "hostname {{ new_var }}"
-	environment_params = jsonencode({"new_var" = "my-hostname-2"})
+	template_code = "hostname {{ device }}"
+	environment_params = jsonencode({"lstrip_blocks" = true})
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_config_template.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_config_template.test", "description", fmt.Sprintf("%s description", testName)),
-					resource.TestCheckResourceAttr("netbox_config_template.test", "template_code", "hostname {{ new_var }}"),
-					resource.TestCheckResourceAttr("netbox_config_template.test", "environment_params", "{\"new_var\":\"my-hostname-2\"}"),
+					resource.TestCheckResourceAttr("netbox_config_template.test", "template_code", "hostname {{ device }}"),
+					resource.TestCheckResourceAttr("netbox_config_template.test", "environment_params", "{\"lstrip_blocks\":true}"),
 				),
 			},
 			{
