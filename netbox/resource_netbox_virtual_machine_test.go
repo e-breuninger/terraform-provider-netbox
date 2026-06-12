@@ -274,6 +274,229 @@ resource "netbox_virtual_machine" "test" {
 	})
 }
 
+func TestAccNetboxVirtualMachine_removePrimaryIPAddress(t *testing.T) {
+	testSlug := "vm_removePrimaryIPAddress"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVirtualMachineDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+}
+resource "netbox_interface" "test" {
+  name               = "test"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test" {
+  ip_address                   = "10.0.0.60/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test.id
+}
+resource "netbox_primary_ip" "test" {
+  ip_address_id      = netbox_ip_address.test.id
+  virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName),
+			},
+			// A repeated second step is required, so that the resource "netbox_virtual_machine" "test" goes through a resourceNetboxVirtualMachineRead cycle
+			// This is needed because adding a netbox_primary_ip implicitly updates the netbox_virtual_machine
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+}
+resource "netbox_interface" "test" {
+  name               = "test"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test" {
+  ip_address                   = "10.0.0.60/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test.id
+}
+resource "netbox_primary_ip" "test" {
+  ip_address_id      = netbox_ip_address.test.id
+  virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "primary_ipv4", "netbox_ip_address.test", "id"),
+				),
+			},
+			// Now the netbox_primary_ip is removed AND the netbox_virtual_machine is modified
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s_modified"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "name", testName+"_modified"),
+					resource.TestCheckResourceAttr("netbox_virtual_machine.test", "primary_ipv4", "0"),
+				),
+			},
+			{
+				ResourceName:      "netbox_virtual_machine.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetboxVirtualMachine_changePrimaryIPAddress(t *testing.T) {
+	testSlug := "vm_changePrimaryIPAddress"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVirtualMachineDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+}
+resource "netbox_interface" "test1" {
+  name               = "test1"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test1" {
+  ip_address                   = "10.0.0.60/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test1.id
+}
+resource "netbox_interface" "test2" {
+  name               = "test2"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test2" {
+  ip_address                   = "10.0.0.61/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test2.id
+}
+resource "netbox_primary_ip" "test" {
+  ip_address_id      = netbox_ip_address.test1.id
+  virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName),
+			},
+			// A repeated second step is required, so that the resource "netbox_virtual_machine" "test" goes through a resourceNetboxVirtualMachineRead cycle
+			// This is needed because adding a netbox_primary_ip implicitly updates the netbox_virtual_machine
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+}
+resource "netbox_interface" "test1" {
+  name               = "test1"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test1" {
+  ip_address                   = "10.0.0.60/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test1.id
+}
+resource "netbox_interface" "test2" {
+  name               = "test2"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test2" {
+  ip_address                   = "10.0.0.61/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test2.id
+}
+resource "netbox_primary_ip" "test" {
+  ip_address_id      = netbox_ip_address.test1.id
+  virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "primary_ipv4", "netbox_ip_address.test1", "id"),
+				),
+			},
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+}
+resource "netbox_interface" "test1" {
+  name               = "test1"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test1" {
+  ip_address                   = "10.0.0.60/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test1.id
+}
+resource "netbox_interface" "test2" {
+  name               = "test2"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test2" {
+  ip_address                   = "10.0.0.61/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test2.id
+}
+resource "netbox_primary_ip" "test" {
+  ip_address_id      = netbox_ip_address.test2.id
+  virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName),
+			},
+			// Again, a repeated step is required, so that the resource "netbox_virtual_machine" "test" goes through a resourceNetboxVirtualMachineRead cycle
+			{
+				Config: testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_virtual_machine" "test" {
+  name = "%s"
+  cluster_id = netbox_cluster.test.id
+  site_id = netbox_site.test.id
+}
+resource "netbox_interface" "test1" {
+  name               = "test1"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test1" {
+  ip_address                   = "10.0.0.60/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test1.id
+}
+resource "netbox_interface" "test2" {
+  name               = "test2"
+  virtual_machine_id = netbox_virtual_machine.test.id
+}
+resource "netbox_ip_address" "test2" {
+  ip_address                   = "10.0.0.61/24"
+  status                       = "active"
+  virtual_machine_interface_id = netbox_interface.test2.id
+}
+resource "netbox_primary_ip" "test" {
+  ip_address_id      = netbox_ip_address.test2.id
+  virtual_machine_id = netbox_virtual_machine.test.id
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_virtual_machine.test", "primary_ipv4", "netbox_ip_address.test2", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_virtual_machine.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxVirtualMachine_fractionalVcpu(t *testing.T) {
 	testSlug := "vm_fracVcpu"
 	testName := testAccGetTestName(testSlug)
