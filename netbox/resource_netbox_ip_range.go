@@ -54,6 +54,14 @@ func resourceNetboxIPRange() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"mark_populated": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"mark_utilized": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"size": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -76,11 +84,15 @@ func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 	endAddress := d.Get("end_address").(string)
 	status := d.Get("status").(string)
 	description := d.Get("description").(string)
+	markPopulated := d.Get("mark_populated").(bool)
+	markUtilized := d.Get("mark_utilized").(bool)
 
 	data.StartAddress = &startAddress
 	data.EndAddress = &endAddress
 	data.Status = status
 	data.Description = description
+	data.MarkPopulated = markPopulated
+	data.MarkUtilized = markUtilized
 
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
@@ -115,6 +127,9 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 		}
 		return err
 	}
+
+	d.Set("mark_populated", res.GetPayload().MarkPopulated)
+	d.Set("mark_utilized", res.GetPayload().MarkUtilized)
 
 	if res.GetPayload().StartAddress != nil {
 		d.Set("start_address", res.GetPayload().StartAddress)
@@ -171,6 +186,9 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Status = status
 	data.Description = description
+
+	data.MarkPopulated = d.Get("mark_populated").(bool)
+	data.MarkUtilized = d.Get("mark_utilized").(bool)
 
 	if vrfID, ok := d.GetOk("vrf_id"); ok {
 		data.Vrf = int64ToPtr(int64(vrfID.(int)))
