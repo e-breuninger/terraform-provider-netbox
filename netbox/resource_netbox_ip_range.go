@@ -57,10 +57,12 @@ func resourceNetboxIPRange() *schema.Resource {
 			"mark_populated": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Computed: true,
 			},
 			"mark_utilized": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Computed: true,
 			},
 			"size": {
 				Type:        schema.TypeInt,

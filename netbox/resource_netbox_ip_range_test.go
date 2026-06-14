@@ -178,6 +178,24 @@ resource "netbox_ip_range" "test_utilized_populated" {
 					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "start_address", testStartAddress),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "end_address", testEndAddress),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "status", "active"),
+					// These 2 parameters should remain unchanged when omitted, to avoid breaking existing resources created before these params were introduced.
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_utilized", "true"),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_populated", "true"),
+				),
+			},
+			{
+				Config: testAccNetboxIPRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_utilized_populated" {
+  start_address = "%s"
+  end_address = "%s"
+  status = "active"
+  mark_utilized = false
+  mark_populated = false
+}`, testStartAddress, testEndAddress),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "start_address", testStartAddress),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "end_address", testEndAddress),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "status", "active"),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_utilized", "false"),
 					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_populated", "false"),
 				),
