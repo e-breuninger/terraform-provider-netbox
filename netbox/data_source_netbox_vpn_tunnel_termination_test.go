@@ -98,7 +98,7 @@ func TestAccNetboxTunnelTerminationsDataSource_basic(t *testing.T) {
 			{
 				Config: setUp + testAccNetboxTunnelTerminations(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_vpn_tunnel_terminations.test", "terminations.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_vpn_tunnel_terminations.test", "terminations.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_vpn_tunnel_terminations.test", "terminations.0.id", "netbox_vpn_tunnel_termination.test1", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_vpn_tunnel_terminations.test", "terminations.1.id", "netbox_vpn_tunnel_termination.test2", "id"),
 				),

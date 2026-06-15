@@ -69,7 +69,7 @@ func dataSourceNetboxVpnTunnelTerminationsRead(d *schema.ResourceData, m interfa
 	if limitValue, ok := d.GetOk("limit"); ok {
 		userLimit = int64(limitValue.(int))
 	}
-	
+
 	// Fetch all pages with pagination
 	paginationHelper := NewPaginationHelper(userLimit)
 	var allTunnelTerminations []*models.TunnelTermination
@@ -105,7 +105,7 @@ func dataSourceNetboxVpnTunnelTerminationsRead(d *schema.ResourceData, m interfa
 	if len(filteredTunnelTerminations) == 0 {
 		return errors.New("no result")
 	}
-	
+
 	var s []map[string]interface{}
 	for _, v := range filteredTunnelTerminations {
 		var mapping = make(map[string]interface{})
@@ -121,5 +121,5 @@ func dataSourceNetboxVpnTunnelTerminationsRead(d *schema.ResourceData, m interfa
 	}
 
 	d.SetId(id.UniqueId())
-	return d.Set("asns", s)
+	return d.Set("terminations", s)
 }

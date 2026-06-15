@@ -72,7 +72,7 @@ func dataSourceNetboxVpnTunnelRead(d *schema.ResourceData, m interface{}) error 
 	if encapsulation, ok := d.Get("encapsulation").(string); ok && encapsulation != "" {
 		params.Encapsulation = &encapsulation
 	}
-	
+
 	if group_id, ok := d.Get("group_id").(string); ok && group_id != "" {
 		params.GroupID = &group_id
 	}
