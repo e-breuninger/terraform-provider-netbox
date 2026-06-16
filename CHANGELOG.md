@@ -1,3 +1,12 @@
+## 5.6.0 (June 16th, 2026)
+
+ENHANCEMENTS
+
+* **New Data Source:** `netbox_vpn_tunnel` ([#888](https://github.com/e-breuninger/terraform-provider-netbox/pull/888) by [@rfranks-securenet](https://github.com/rfranks-securenet))
+* **New Data Source:** `netbox_vpn_tunnel_group` ([#888](https://github.com/e-breuninger/terraform-provider-netbox/pull/888) by [@rfranks-securenet](https://github.com/rfranks-securenet))
+* **New Data Source:** `netbox_vpn_tunnel_terminations` ([#888](https://github.com/e-breuninger/terraform-provider-netbox/pull/888) by [@rfranks-securenet](https://github.com/rfranks-securenet))
+* resource/netbox_ip_range: Add to `mark_populated` and `mark_utilized` attributes ([#902](https://github.com/e-breuninger/terraform-provider-netbox/pull/902) by [@bqc0n](https://github.com/bqc0n))
+
 ## 5.5.0 (June 12th, 2026)
 
 ENHANCEMENTS
