@@ -139,6 +139,76 @@ resource "netbox_ip_range" "test_with_dependencies" {
 	})
 }
 
+func TestAccNetboxIpRange_utilized_populated(t *testing.T) {
+	testSlug := "range_utilized_populated"
+	testName := testAccGetTestName(testSlug)
+	randomSlug := testAccGetTestName(testSlug)
+	testStartAddress := "10.0.0.1/24"
+	testEndAddress := "10.0.0.50/24"
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_utilized_populated" {
+  start_address = "%s"
+  end_address = "%s"
+  status = "active"
+  mark_utilized = true
+  mark_populated = true
+}`, testStartAddress, testEndAddress),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "start_address", testStartAddress),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "end_address", testEndAddress),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_utilized", "true"),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_populated", "true"),
+				),
+			},
+			{
+				Config: testAccNetboxIPRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_utilized_populated" {
+  start_address = "%s"
+  end_address = "%s"
+  status = "active"
+}`, testStartAddress, testEndAddress),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "start_address", testStartAddress),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "end_address", testEndAddress),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "status", "active"),
+					// These 2 parameters should remain unchanged when omitted, to avoid breaking existing resources created before these params were introduced.
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_utilized", "true"),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_populated", "true"),
+				),
+			},
+			{
+				Config: testAccNetboxIPRangeFullDependencies(testName, randomSlug) + fmt.Sprintf(`
+resource "netbox_ip_range" "test_utilized_populated" {
+  start_address = "%s"
+  end_address = "%s"
+  status = "active"
+  mark_utilized = false
+  mark_populated = false
+}`, testStartAddress, testEndAddress),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "start_address", testStartAddress),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "end_address", testEndAddress),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "status", "active"),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_utilized", "false"),
+					resource.TestCheckResourceAttr("netbox_ip_range.test_utilized_populated", "mark_populated", "false"),
+				),
+			},
+			{
+				ResourceName:      "netbox_ip_range.test_utilized_populated",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxIpRange_cf(t *testing.T) {
 	testSlug := "range_cf"
 	testStartAddress := "10.0.1.1/24"
