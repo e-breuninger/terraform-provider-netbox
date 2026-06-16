@@ -1,3 +1,12 @@
+## 5.6.1 (June 16th, 2026)
+
+This provider version adds support for NetBox versions up to 4.6.1 ([#849](https://github.com/e-breuninger/terraform-provider-netbox/pull/849) by [@mcanevet](https://github.com/mcanevet))
+
+CHANGES
+
+* resource/netbox_device_front_port: Make `rear_port_position` attribute optional ([#849](https://github.com/e-breuninger/terraform-provider-netbox/pull/849) by [@mcanevet](https://github.com/mcanevet))
+* resource/netbox_user: Deprecate `staff` attribute ([#849](https://github.com/e-breuninger/terraform-provider-netbox/pull/849) by [@mcanevet](https://github.com/mcanevet))
+
 ## 5.6.0 (June 16th, 2026)
 
 ENHANCEMENTS
