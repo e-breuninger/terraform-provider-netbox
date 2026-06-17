@@ -33,7 +33,10 @@ resource "netbox_ip_range" "cust_a_prod" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
+- `mark_populated` (Boolean)
+- `mark_utilized` (Boolean)
 - `role_id` (Number)
 - `status` (String) Valid values are `active`, `reserved` and `deprecated`. Defaults to `active`.
 - `tags` (Set of String)

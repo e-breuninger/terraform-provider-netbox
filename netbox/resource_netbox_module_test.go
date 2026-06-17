@@ -80,7 +80,7 @@ resource "netbox_module" "test" {
 	asset_tag = "%[1]s_asset"
 	description = "%[1]s_description"
   comments = "%[1]s_comments"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_module.test", "status", "active"),

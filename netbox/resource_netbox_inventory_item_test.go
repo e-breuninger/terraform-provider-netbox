@@ -112,7 +112,7 @@ resource "netbox_inventory_item" "test" {
 	description = "%[1]s_description"
 	component_type = "dcim.rearport"
 	component_id = netbox_device_rear_port.test.id
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_inventory_item.parent", "name", testName+"_parent"),

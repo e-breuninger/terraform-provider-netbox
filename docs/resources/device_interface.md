@@ -47,12 +47,14 @@ resource "netbox_device_interface" "test" {
 - `tagged_vlans` (Set of Number)
 - `tags` (Set of String)
 - `untagged_vlan` (Number)
+- `vrf_id` (Number)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `mac_address` (String) The MAC address as string from the first MAC address assigned to this interface, if any.
 - `mac_addresses` (Set of Object) (see [below for nested schema](#nestedatt--mac_addresses))
+- `primary_mac_address_id` (Number) The primary MAC address id.
 - `tags_all` (Set of String)
 
 <a id="nestedatt--mac_addresses"></a>

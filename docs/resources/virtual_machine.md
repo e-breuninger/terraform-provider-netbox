@@ -76,7 +76,7 @@ resource "netbox_virtual_machine" "full_vm" {
 - `custom_fields` (Map of String)
 - `description` (String)
 - `device_id` (Number)
-- `disk_size_mb` (Number)
+- `disk_size_mb` (Number) The disk size in MB. When virtual disks are attached to this VM, NetBox automatically computes this as the aggregate of those disks and rejects manual values. In that case, omit this field from the configuration and let it be computed.
 - `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 - `memory_mb` (Number)
 - `platform_id` (Number)

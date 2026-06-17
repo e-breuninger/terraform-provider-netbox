@@ -29,7 +29,15 @@ func resourceNetboxContact() *schema.Resource {
 			},
 			tagsKey: tagsSchema,
 			"group_id": {
-				Type:     schema.TypeInt,
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Deprecated: "This field is deprecated. Please use the new \"group_ids\" attribute instead.",
+			},
+			"group_ids": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 				Optional: true,
 			},
 			"email": {
@@ -64,6 +72,7 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 	link := d.Get("link").(string)
 	description := d.Get("description").(string)
 	groupID := int64(d.Get("group_id").(int))
+	groupIDs := d.Get("group_ids").([]interface{})
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
@@ -75,9 +84,16 @@ func resourceNetboxContactCreate(d *schema.ResourceData, m interface{}) error {
 	data.Email = strfmt.Email(email)
 	data.Link = strfmt.URI(link)
 	data.Description = description
-	if groupID != 0 {
-		data.Group = &groupID
+
+	groups := make([]int64, 0)
+	if len(groupIDs) > 0 {
+		for _, v := range groupIDs {
+			groups = append(groups, int64(v.(int)))
+		}
+	} else if groupID != 0 {
+		groups = append(groups, groupID)
 	}
+	data.Groups = groups
 
 	params := tenancy.NewTenancyContactsCreateParams().WithData(data)
 
@@ -114,8 +130,23 @@ func resourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("email", res.GetPayload().Email)
 	d.Set("link", res.GetPayload().Link)
 	d.Set("description", res.GetPayload().Description)
-	if res.GetPayload().Group != nil {
-		d.Set("group_id", res.GetPayload().Group.ID)
+
+	if res.GetPayload().Groups != nil {
+		groups := res.GetPayload().Groups
+		groupIDs := make([]int64, len(groups))
+		for i, group := range groups {
+			groupIDs[i] = group.ID
+		}
+		if _, ok := d.GetOk("group_ids"); ok {
+			d.Set("group_ids", groupIDs)
+			d.Set("group_id", nil)
+		} else if _, ok := d.GetOk("group_id"); ok && len(groups) == 1 {
+			d.Set("group_id", groupIDs[0])
+			d.Set("group_ids", nil)
+		}
+	} else {
+		d.Set("group_ids", nil)
+		d.Set("group_id", nil)
 	}
 
 	return nil
@@ -133,6 +164,7 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	link := d.Get("link").(string)
 	description := d.Get("description").(string)
 	groupID := int64(d.Get("group_id").(int))
+	groupIDs := d.Get("group_ids").([]interface{})
 
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
@@ -142,9 +174,16 @@ func resourceNetboxContactUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Email = strfmt.Email(email)
 	data.Link = strfmt.URI(link)
 	data.Description = description
-	if groupID != 0 {
-		data.Group = &groupID
+
+	groups := make([]int64, 0)
+	if len(groupIDs) > 0 {
+		for _, v := range groupIDs {
+			groups = append(groups, int64(v.(int)))
+		}
+	} else if groupID != 0 {
+		groups = append(groups, groupID)
 	}
+	data.Groups = groups
 
 	params := tenancy.NewTenancyContactsPartialUpdateParams().WithID(id).WithData(&data)
 

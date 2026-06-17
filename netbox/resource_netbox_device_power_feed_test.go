@@ -75,7 +75,7 @@ resource "netbox_power_feed" "test" {
 	mark_connected = true
 	description = "%[1]s_description"
 	comments = "%[1]s_comments"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_power_feed.test", "name", testName),

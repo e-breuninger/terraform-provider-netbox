@@ -18,7 +18,7 @@ description: |-
 ### Optional
 
 - `filter` (Block Set) (see [below for nested schema](#nestedblock--filter))
-- `limit` (Number)
+- `limit` (Number) Defaults to `0`.
 - `name_regex` (String)
 
 ### Read-Only
@@ -44,6 +44,7 @@ Read-Only:
 - `device_id` (Number)
 - `enabled` (Boolean)
 - `id` (Number)
+- `lag_device_interface_id` (Number)
 - `mac_address` (String)
 - `mac_addresses` (Set of Object) (see [below for nested schema](#nestedobjatt--interfaces--mac_addresses))
 - `mode` (Map of String)

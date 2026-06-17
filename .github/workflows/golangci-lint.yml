@@ -24,9 +24,9 @@ jobs:
           go-version-file: go.mod
           cache: false
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v9.2.0
+        uses: golangci/golangci-lint-action@v9.2.1
         with:
-          version: v2.1
+          version: v2.11
 
   doc-check:
     name: docs check

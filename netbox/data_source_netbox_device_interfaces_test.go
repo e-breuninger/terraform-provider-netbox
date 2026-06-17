@@ -65,6 +65,81 @@ data "netbox_device_interfaces" "by_tag" {
 	})
 }
 
+func TestAccNetboxDeviceInterfacesDataSource_lag(t *testing.T) {
+	testSlug := "dev_ifaces_ds_lag"
+	testName := testAccGetTestName(testSlug)
+	dependencies := testAccNetboxDeviceInterfacesDataSourceLAGDependencies(testName)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: dependencies,
+			},
+			{
+				Config: dependencies + `
+data "netbox_device_interfaces" "by_lag_id" {
+  filter {
+    name  = "device_id"
+    value = netbox_device.test.id
+  }
+  filter {
+    name  = "lag_id"
+    value = netbox_device_interface.lag.id
+  }
+}
+`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_lag_id", "interfaces.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_device_interfaces.by_lag_id", "interfaces.0.lag_device_interface_id", "netbox_device_interface.lag", "id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNetboxDeviceInterfacesDataSourceLAGDependencies(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_site" "test" {
+  name   = "%[1]s"
+  status = "active"
+}
+
+resource "netbox_device_role" "test" {
+  name      = "%[1]s"
+  color_hex = "123456"
+}
+
+resource "netbox_manufacturer" "test" {
+  name = "%[1]s"
+}
+
+resource "netbox_device_type" "test" {
+  model           = "%[1]s"
+  manufacturer_id = netbox_manufacturer.test.id
+}
+
+resource "netbox_device" "test" {
+  name           = "%[1]s"
+  device_type_id = netbox_device_type.test.id
+  role_id        = netbox_device_role.test.id
+  site_id        = netbox_site.test.id
+}
+
+resource "netbox_device_interface" "lag" {
+  name      = "%[1]s_lag"
+  device_id = netbox_device.test.id
+  type      = "lag"
+}
+
+resource "netbox_device_interface" "member" {
+  name                    = "%[1]s_member"
+  device_id               = netbox_device.test.id
+  type                    = "1000base-t"
+  lag_device_interface_id = netbox_device_interface.lag.id
+}
+`, testName)
+}
+
 func testAccNetboxDeviceInterfacesDataSourceDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_tag" "test" {

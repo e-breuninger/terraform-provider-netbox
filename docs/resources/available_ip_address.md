@@ -82,12 +82,13 @@ resource "netbox_available_ip_address" "myvm-ip" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `device_interface_id` (Number) Conflicts with `interface_id` and `virtual_machine_interface_id`.
 - `dns_name` (String)
 - `interface_id` (Number) Required when `object_type` is set.
 - `ip_range_id` (Number) Exactly one of `prefix_id` or `ip_range_id` must be given.
-- `object_type` (String) Valid values are `virtualization.vminterface` and `dcim.interface`. Required when `interface_id` is set.
+- `object_type` (String) Valid values are `virtualization.vminterface`, `dcim.interface` and `ipam.fhrpgroup`. Required when `interface_id` is set.
 - `prefix_id` (Number) Exactly one of `prefix_id` or `ip_range_id` must be given.
 - `role` (String) Valid values are `loopback`, `secondary`, `anycast`, `vip`, `vrrp`, `hsrp`, `glbp` and `carp`.
 - `status` (String) Valid values are `active`, `reserved`, `deprecated`, `dhcp` and `slaac`. Defaults to `active`.

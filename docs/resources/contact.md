@@ -37,7 +37,8 @@ resource "netbox_contact" "test" {
 
 - `description` (String)
 - `email` (String)
-- `group_id` (Number)
+- `group_id` (Number, Deprecated)
+- `group_ids` (List of Number)
 - `link` (String)
 - `phone` (String)
 - `tags` (Set of String)

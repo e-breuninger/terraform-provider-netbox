@@ -26,7 +26,15 @@ func dataSourceNetboxContact() *schema.Resource {
 				AtLeastOneOf: []string{"name", "slug"},
 			},
 			"group_id": {
-				Type:     schema.TypeInt,
+				Type:       schema.TypeInt,
+				Deprecated: "This field is deprecated. Please use the new \"group_ids\" attribute instead.",
+				Computed:   true,
+			},
+			"group_ids": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
 				Computed: true,
 			},
 			"description": {
@@ -62,8 +70,18 @@ func dataSourceNetboxContactRead(d *schema.ResourceData, m interface{}) error {
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
-	if result.Group != nil {
-		d.Set("group_id", result.Group.ID)
+
+	if result.Groups != nil {
+		groups := result.Groups
+		groupIDs := make([]int64, len(groups))
+		for i, group := range groups {
+			groupIDs[i] = group.ID
+		}
+		d.Set("group_ids", groupIDs)
+		if len(groupIDs) > 0 {
+			d.Set("group_id", groupIDs[0])
+		}
 	}
+
 	return nil
 }

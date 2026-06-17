@@ -53,6 +53,7 @@ resource "netbox_contact" "test" {
 					resource.TestCheckResourceAttr("netbox_contact.test", "phone", "123-123123"),
 					resource.TestCheckResourceAttr("netbox_contact.test", "link", "https://example.com"),
 					resource.TestCheckResourceAttr("netbox_contact.test", "description", "desc"),
+					resource.TestCheckResourceAttr("netbox_contact.test", "group_ids.#", "0"),
 				),
 			},
 			{
@@ -75,7 +76,7 @@ func TestAccNetboxContact_tags(t *testing.T) {
 				Config: testAccNetboxContactTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_contact" "test_tags" {
   name = "%[1]s"
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_contact.test_tags", "name", testName),
@@ -87,7 +88,7 @@ resource "netbox_contact" "test_tags" {
 				Config: testAccNetboxContactTagDependencies(testName) + fmt.Sprintf(`
 resource "netbox_contact" "test_tags" {
   name = "%[1]s"
-  tags = ["%[1]sa", "%[1]sb"]
+  tags = [netbox_tag.test_a.name, netbox_tag.test_b.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_contact.test_tags", "tags.#", "2"),
@@ -102,6 +103,37 @@ resource "netbox_contact" "test_tags" {
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_contact.test_tags", "tags.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxContact_groupsAssignment(t *testing.T) {
+	testSlug := "contact_groupAssingment"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_contact_group" "test_group" {
+	name = "%[1]s"
+}
+
+resource "netbox_contact_group" "test_group2" {
+	name = "%[1]s-2"
+}
+
+resource "netbox_contact" "test_contact" {
+	name = "%[1]s"
+	group_ids = [netbox_contact_group.test_group.id, netbox_contact_group.test_group2.id]
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_contact.test_contact", "name", testName),
+					resource.TestCheckResourceAttrPair("netbox_contact.test_contact", "group_ids.0", "netbox_contact_group.test_group", "id"),
+					resource.TestCheckResourceAttrPair("netbox_contact.test_contact", "group_ids.1", "netbox_contact_group.test_group2", "id"),
 				),
 			},
 		},

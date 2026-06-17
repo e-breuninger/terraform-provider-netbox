@@ -3,6 +3,7 @@ package netbox
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"testing"
 
@@ -11,6 +12,10 @@ import (
 )
 
 func TestAccNetboxToken_basic(t *testing.T) {
+	if testAccNetboxVersionAtLeast("4.5.0") {
+		t.Skipf("Skipping token test on NetBox %s: token creation requires API_TOKEN_PEPPERS which is not configured in the test environment", os.Getenv("NETBOX_VERSION"))
+	}
+
 	testSlug := "users"
 	testName := testAccGetTestName(testSlug)
 	testToken := testAccGetTestToken()
@@ -44,6 +49,50 @@ resource "netbox_token" "test_basic" {
 			},
 			{
 				ResourceName:            "netbox_token.test_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"key"},
+			},
+		},
+	})
+}
+
+func TestAccNetboxToken_withoutExpires(t *testing.T) {
+	if testAccNetboxVersionAtLeast("4.5.0") {
+		t.Skipf("Skipping token test on NetBox %s: token creation requires API_TOKEN_PEPPERS which is not configured in the test environment", os.Getenv("NETBOX_VERSION"))
+	}
+	testSlug := "users"
+	testName := testAccGetTestName(testSlug)
+	testToken := testAccGetTestToken()
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_user" "test" {
+  username = "%s"
+  password = "Abcdefghijkl1"
+}
+
+resource "netbox_token" "test_without_expires" {
+  user_id       = netbox_user.test.id
+  key           = "%s"
+  allowed_ips   = ["2.4.8.16/32"]
+  write_enabled = false
+  description   = "Netbox Token Without Expires"
+}`, testName, testToken),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "key", testToken),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "allowed_ips.#", "1"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "allowed_ips.0", "2.4.8.16/32"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "write_enabled", "false"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "description", "Netbox Token Without Expires"),
+					resource.TestCheckNoResourceAttr("netbox_token.test_without_expires", "expires"),
+				),
+			},
+			{
+				ResourceName:            "netbox_token.test_without_expires",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"key"},

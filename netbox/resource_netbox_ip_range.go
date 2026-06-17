@@ -54,12 +54,23 @@ func resourceNetboxIPRange() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"mark_populated": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"mark_utilized": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"size": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "The total member count of the IP range",
 			},
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
+			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -75,11 +86,15 @@ func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 	endAddress := d.Get("end_address").(string)
 	status := d.Get("status").(string)
 	description := d.Get("description").(string)
+	markPopulated := d.Get("mark_populated").(bool)
+	markUtilized := d.Get("mark_utilized").(bool)
 
 	data.StartAddress = &startAddress
 	data.EndAddress = &endAddress
 	data.Status = status
 	data.Description = description
+	data.MarkPopulated = markPopulated
+	data.MarkUtilized = markUtilized
 
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
@@ -115,6 +130,9 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	d.Set("mark_populated", res.GetPayload().MarkPopulated)
+	d.Set("mark_utilized", res.GetPayload().MarkUtilized)
+
 	if res.GetPayload().StartAddress != nil {
 		d.Set("start_address", res.GetPayload().StartAddress)
 	}
@@ -148,6 +166,10 @@ func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	api.readTags(d, res.GetPayload().Tags)
+	cf := getCustomFields(res.GetPayload().CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
 
 	return nil
 }
@@ -167,6 +189,9 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Status = status
 	data.Description = description
 
+	data.MarkPopulated = d.Get("mark_populated").(bool)
+	data.MarkUtilized = d.Get("mark_utilized").(bool)
+
 	if vrfID, ok := d.GetOk("vrf_id"); ok {
 		data.Vrf = int64ToPtr(int64(vrfID.(int)))
 	}
@@ -183,6 +208,9 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return err
+	}
+	if cf, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = cf
 	}
 
 	params := ipam.NewIpamIPRangesUpdateParams().WithID(id).WithData(&data)

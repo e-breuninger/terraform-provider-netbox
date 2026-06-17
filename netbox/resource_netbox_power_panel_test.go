@@ -46,7 +46,7 @@ resource "netbox_power_panel" "test" {
 
   site_id = netbox_site.test.id
   location_id = netbox_location.test.id
-  tags = ["%[1]sa"]
+  tags = [netbox_tag.test_a.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_power_panel.test", "name", testName),

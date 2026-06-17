@@ -284,6 +284,53 @@ resource "netbox_available_ip_address" "test" {
 	})
 }
 
+func TestAccNetboxAvailableIPAddress_cf(t *testing.T) {
+	testPrefix := "1.1.8.0/24"
+	testIP := "1.1.8.1/24"
+	testSlug := "av_ipa_cf"
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.ipaddress"]
+}
+
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  status = "active"
+  is_pool = false
+}
+
+resource "netbox_available_ip_address" "test" {
+  prefix_id = netbox_prefix.test.id
+  status = "active"
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "test-field"
+  }
+}`, testSlug, testPrefix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", testIP),
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", fmt.Sprintf("custom_fields.%s", testSlug), "test-field"),
+				),
+			},
+			{
+				ResourceName:      "netbox_available_ip_address.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"prefix_id",
+				},
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_available_ip_address", &resource.Sweeper{
 		Name:         "netbox_available_ip_address",

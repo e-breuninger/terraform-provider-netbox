@@ -113,11 +113,13 @@ data "netbox_prefix" "by_role_id" {
 data "netbox_prefix" "by_status" {
   depends_on = [netbox_prefix.testv4]
   status     = "active"
+  vrf_id     = netbox_vrf.test.id
 }
 
 data "netbox_prefix" "by_family" {
   depends_on = [netbox_prefix.testv6]
-	family   = 6
+  family     = 6
+  vrf_id     = netbox_vrf.test.id
 }`, testName, testv4Prefix, testv6Prefix, testVlanVid),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_prefix", "id", "netbox_prefix.testv4", "id"),
@@ -154,9 +156,14 @@ resource "netbox_custom_field" "test" {
   weight        = 100
 }
 
+resource "netbox_vrf" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_prefix" "test" {
   prefix = "%[2]s"
   status = "active"
+  vrf_id = netbox_vrf.test.id
   custom_fields = {
     "${netbox_custom_field.test.name}" = "test value"
   }
@@ -164,12 +171,22 @@ resource "netbox_prefix" "test" {
 
 data "netbox_prefix" "test_output" {
   depends_on = [netbox_prefix.test]
-  prefix = "%[2]s"
-}`, testField, testPrefix),
+  prefix     = "%[2]s"
+  vrf_id     = netbox_vrf.test.id
+}
+
+data "netbox_prefix" "by_custom_fields" {
+  depends_on = [netbox_prefix.test]
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "test value"
+  }
+}
+`, testField, testPrefix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "status", "active"),
 					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "prefix", testPrefix),
 					resource.TestCheckResourceAttr("data.netbox_prefix.test_output", "custom_fields."+testField, "test value"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefix.by_custom_fields", "id", "netbox_prefix.test", "id"),
 				),
 			},
 		},

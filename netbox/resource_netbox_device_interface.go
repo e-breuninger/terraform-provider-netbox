@@ -75,6 +75,11 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 					},
 				},
 			},
+			"primary_mac_address_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The primary MAC address id.",
+			},
 			"mgmtonly": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -112,6 +117,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				},
 			},
 			"untagged_vlan": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"vrf_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -170,6 +179,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	if untaggedVlan, ok := d.Get("untagged_vlan").(int); ok && untaggedVlan != 0 {
 		data.UntaggedVlan = int64ToPtr(int64(untaggedVlan))
 	}
+	data.Vrf = getOptionalInt(d, "vrf_id")
 
 	params := dcim.NewDcimInterfacesCreateParams().WithData(&data)
 
@@ -230,10 +240,15 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	if iface.UntaggedVlan != nil {
 		d.Set("untagged_vlan", iface.UntaggedVlan.ID)
 	}
+	if iface.Vrf != nil {
+		d.Set("vrf_id", iface.Vrf.ID)
+	} else {
+		d.Set("vrf_id", nil)
+	}
 	if iface.MacAddresses != nil {
 		var mac_addresses []map[string]interface{}
 		for i, mac := range iface.MacAddresses {
-			var mac_address = make(map[string]interface{})
+			mac_address := make(map[string]interface{})
 			// We just set the first mac address in the `mac_address` attribute
 			if i == 0 {
 				d.Set("mac_address", iface.MacAddresses[i].MacAddress)
@@ -244,6 +259,9 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 			mac_addresses = append(mac_addresses, mac_address)
 		}
 		d.Set("mac_addresses", mac_addresses)
+	}
+	if iface.PrimaryMacAddress != nil {
+		d.Set("primary_mac_address_id", iface.PrimaryMacAddress.ID)
 	}
 
 	return diags
@@ -304,6 +322,13 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	if d.HasChange("untagged_vlan") {
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))
 		data.UntaggedVlan = &untaggedvlan
+	}
+	if d.HasChange("primary_mac_address_id") {
+		primaryMac := int64(d.Get("primary_mac_address_id").(int))
+		data.PrimaryMacAddress = &primaryMac
+	}
+	if d.HasChange("vrf_id") {
+		data.Vrf = getOptionalInt(d, "vrf_id")
 	}
 
 	params := dcim.NewDcimInterfacesPartialUpdateParams().WithID(id).WithData(&data)
