@@ -1,3 +1,7 @@
+## 5.6.2 (June 19th, 2026)
+
+This provider version adds support for NetBox versions up to 4.6.3
+
 ## 5.6.1 (June 16th, 2026)
 
 This provider version adds support for NetBox versions up to 4.6.1 ([#849](https://github.com/e-breuninger/terraform-provider-netbox/pull/849) by [@mcanevet](https://github.com/mcanevet))
