@@ -178,7 +178,7 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 		api.readTags(d, tags)
 	}
 
-	cf := getCustomFields(service.CustomFields)
+	cf := flattenCustomFields(service.CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}

@@ -241,7 +241,7 @@ func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 			d.Set("region_id", scopeID)
 		}
 	}
-	cf := getCustomFields(prefix.CustomFields)
+	cf := flattenCustomFields(prefix.CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
