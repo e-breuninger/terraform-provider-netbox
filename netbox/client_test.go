@@ -4,8 +4,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/fbreckle/go-netbox/netbox/client/status"
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -124,6 +126,21 @@ func TestV2TokenUsesBearerScheme(t *testing.T) {
 
 	req := status.NewStatusListParams()
 	client.Status.StatusList(req, nil)
+}
+
+func TestRequestTimeoutAppliesToOperationTimeout(t *testing.T) {
+	original := httptransport.DefaultTimeout
+	defer func() { httptransport.DefaultTimeout = original }()
+
+	config := Config{
+		APIToken:       "07b12b765127747e4afd56cb531b7bf9c61f3c30",
+		ServerURL:      "http://localhost",
+		RequestTimeout: 90,
+	}
+
+	_, err := config.Client()
+	assert.NoError(t, err)
+	assert.Equal(t, 90*time.Second, httptransport.DefaultTimeout)
 }
 
 /* TODO
