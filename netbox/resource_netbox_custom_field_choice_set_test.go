@@ -71,3 +71,41 @@ resource "netbox_custom_field_choice_set" "test" {
 		},
 	})
 }
+
+func TestAccNetboxCustomFieldChoiceSet_orderAlphabeticallyAndImport(t *testing.T) {
+	testSlug := "cfields_choiceset_order"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	config := fmt.Sprintf(`
+resource "netbox_custom_field_choice_set" "test" {
+  name                 = "%s"
+  order_alphabetically = true
+  extra_choices = [
+    ["choice1", "label1"],
+    ["choice2", "label2"]
+  ]
+}`, testName)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field_choice_set.test", "order_alphabetically", "true"),
+					resource.TestCheckResourceAttr("netbox_custom_field_choice_set.test", "extra_choices.0.0", "choice1"),
+					resource.TestCheckResourceAttr("netbox_custom_field_choice_set.test", "extra_choices.1.0", "choice2"),
+				),
+			},
+			{
+				Config:             config,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			{
+				ResourceName:      "netbox_custom_field_choice_set.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
