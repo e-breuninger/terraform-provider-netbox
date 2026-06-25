@@ -89,7 +89,8 @@ func resourceNetboxCustomFieldChoiceSetCreate(d *schema.ResourceData, m interfac
 	name := d.Get("name").(string)
 
 	data := models.CustomFieldChoiceSet{
-		Name: &name,
+		Name:                &name,
+		OrderAlphabetically: d.Get("order_alphabetically").(bool),
 	}
 
 	data.Description = getOptionalStr(d, "description", false)
@@ -149,6 +150,20 @@ func resourceNetboxCustomFieldChoiceSetRead(d *schema.ResourceData, m interface{
 		d.Set("description", nil)
 	}
 
+	if choiceSet.ExtraChoices != nil {
+		d.Set("extra_choices", choiceSet.ExtraChoices)
+	} else {
+		d.Set("extra_choices", nil)
+	}
+
+	d.Set("order_alphabetically", choiceSet.OrderAlphabetically)
+
+	if choiceSet.BaseChoices != nil {
+		d.Set("base_choices", choiceSet.BaseChoices.Value)
+	} else {
+		d.Set("base_choices", nil)
+	}
+
 	return nil
 }
 
@@ -160,7 +175,8 @@ func resourceNetboxCustomFieldChoiceSetUpdate(d *schema.ResourceData, m interfac
 	name := d.Get("name").(string)
 
 	data := models.CustomFieldChoiceSet{
-		Name: &name,
+		Name:                &name,
+		OrderAlphabetically: d.Get("order_alphabetically").(bool),
 	}
 
 	data.Description = getOptionalStr(d, "description", true)
