@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"encoding/json"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
@@ -8,6 +9,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+// customFieldDefaultToAPI - converts the tf attribute to the json netbox expects
+func customFieldDefaultToAPI(d *schema.ResourceData) interface{} {
+	v, ok := d.GetOk("default")
+	if !ok {
+		return nil
+	}
+	s := v.(string)
+	var parsed interface{}
+	if err := json.Unmarshal([]byte(s), &parsed); err != nil {
+		return s
+	}
+	return parsed
+}
+
+// normalizeCustomFieldDefault - state/config always compare as equal,
+// strings left the same
+func normalizeCustomFieldDefault(v interface{}) string {
+	s := v.(string)
+	var parsed interface{}
+	if json.Unmarshal([]byte(s), &parsed) != nil {
+		return s
+	}
+	b, err := json.Marshal(parsed)
+	if err != nil {
+		return s
+	}
+	return string(b)
+}
 
 func resourceCustomField() *schema.Resource {
 	return &schema.Resource{
@@ -59,8 +89,9 @@ func resourceCustomField() *schema.Resource {
 				},
 			},
 			"default": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				StateFunc: normalizeCustomFieldDefault,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -113,7 +144,7 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableCustomField{
 		Name:              strToPtr(d.Get("name").(string)),
 		Type:              d.Get("type").(string),
-		Default:           d.Get("default").(string),
+		Default:           customFieldDefaultToAPI(d),
 		Description:       d.Get("description").(string),
 		GroupName:         d.Get("group_name").(string),
 		Label:             d.Get("label").(string),
@@ -164,7 +195,7 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableCustomField{
 		Name:              strToPtr(d.Get("name").(string)),
 		Type:              d.Get("type").(string),
-		Default:           d.Get("default").(string),
+		Default:           customFieldDefaultToAPI(d),
 		Description:       d.Get("description").(string),
 		GroupName:         d.Get("group_name").(string),
 		Label:             d.Get("label").(string),
@@ -241,8 +272,15 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	d.Set("weight", customField.Weight)
+	// JSON value (number, bool, list) is re-encoded to its JSON text.
 	if customField.Default != nil {
-		d.Set("default", customField.Default)
+		if s, isStr := customField.Default.(string); isStr {
+			d.Set("default", s)
+		} else if b, err := json.Marshal(customField.Default); err == nil {
+			d.Set("default", string(b))
+		}
+	} else {
+		d.Set("default", "")
 	}
 
 	d.Set("description", customField.Description)

@@ -263,3 +263,143 @@ resource "netbox_custom_field" "test" {
 		},
 	})
 }
+
+func TestAccNetboxCustomField_integerDefault(t *testing.T) {
+	testSlug := "custom_fields_int_default"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "%s"
+  type          = "integer"
+  content_types = ["dcim.device"]
+  weight        = 100
+  default       = "42"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "integer"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "42"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxCustomField_booleanDefault(t *testing.T) {
+	testSlug := "custom_fields_bool_default"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "%s"
+  type          = "boolean"
+  content_types = ["dcim.device"]
+  weight        = 100
+  default       = "true"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "type", "boolean"),
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", "true"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxCustomField_noDefault(t *testing.T) {
+	testSlug := "custom_fields_no_default"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "%s"
+  type          = "text"
+  content_types = ["dcim.device"]
+  weight        = 100
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_custom_field.test", "default", ""),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxCustomField_jsonDefault(t *testing.T) {
+	testSlug := "custom_fields_json_default"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	config := fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "%s"
+  type          = "json"
+  content_types = ["dcim.device"]
+  weight        = 100
+  default       = "{\"b\": 2, \"a\": 1}"
+}`, testName)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.TestCheckResourceAttr(
+					"netbox_custom_field.test", "default", `{"a":1,"b":2}`),
+			},
+			{
+				Config:             config,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
+func TestAccNetboxCustomField_multiselectDefault(t *testing.T) {
+	testSlug := "custom_fields_multiselect_default"
+	testName := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	config := fmt.Sprintf(`
+resource "netbox_custom_field_choice_set" "test" {
+  name = "%[1]s"
+  extra_choices = [
+    ["red", "red"],
+    ["blue", "blue"]
+  ]
+}
+
+resource "netbox_custom_field" "test" {
+  name          = "%[1]s"
+  type          = "multiselect"
+  content_types = ["dcim.device"]
+  weight        = 100
+  choice_set_id = netbox_custom_field_choice_set.test.id
+  default       = "[\"red\", \"blue\"]"
+}`, testName)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.TestCheckResourceAttr(
+					"netbox_custom_field.test", "default", `["red","blue"]`),
+			},
+			{
+				Config:             config,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
