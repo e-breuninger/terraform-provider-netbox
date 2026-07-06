@@ -48,11 +48,11 @@ services:
       - SUPERUSER_NAME=admin
       - SUPERUSER_EMAIL=admin@example.com
       - SUPERUSER_PASSWORD=admin
-      - SUPERUSER_API_TOKEN=${NETBOX_API_TOKEN}
+      - SUPERUSER_API_TOKEN=${SUPERUSER_API_TOKEN}
+      - SUPERUSER_API_KEY=${SUPERUSER_API_KEY}
+      - API_TOKEN_PEPPER_1=${API_TOKEN_PEPPER_1}
       - METRICS_ENABLED=true
       - GRANIAN_BACKPRESSURE=100
-    volumes:
-      - ./super_user.py:/opt/netbox/super_user.py:ro
     # Gate on a real readiness signal: /login/ only serves 200 once migrations
     # have run and the app is up (matches netbox-community/netbox-docker). The
     # previous /metrics check went green before Netbox was actually ready,

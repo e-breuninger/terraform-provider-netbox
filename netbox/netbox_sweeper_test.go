@@ -1,7 +1,9 @@
 package netbox
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
@@ -26,7 +28,11 @@ func sharedClientForRegion(region string) (interface{}, error) {
 	server := os.Getenv("NETBOX_SERVER")
 	apiToken := os.Getenv("NETBOX_API_TOKEN")
 	transport := httptransport.New(server, client.DefaultBasePath, []string{"http"})
-	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Token "+apiToken)
+	authScheme := "Token"
+	if strings.HasPrefix(apiToken, "nbt_") {
+		authScheme = "Bearer"
+	}
+	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", fmt.Sprintf("%s %v", authScheme, apiToken))
 	c := client.New(transport, nil)
 
 	return c, nil
