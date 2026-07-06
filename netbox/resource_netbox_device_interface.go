@@ -124,6 +124,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"module_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -180,6 +184,9 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		data.UntaggedVlan = int64ToPtr(int64(untaggedVlan))
 	}
 	data.Vrf = getOptionalInt(d, "vrf_id")
+	if moduleID, ok := d.Get("module_id").(int); ok && moduleID != 0 {
+		data.Module = int64ToPtr(int64(moduleID))
+	}
 
 	params := dcim.NewDcimInterfacesCreateParams().WithData(&data)
 
@@ -263,6 +270,9 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	if iface.PrimaryMacAddress != nil {
 		d.Set("primary_mac_address_id", iface.PrimaryMacAddress.ID)
 	}
+	if iface.Module != nil {
+		d.Set("module_id", iface.Module.ID)
+	}
 
 	return diags
 }
@@ -329,6 +339,10 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	}
 	if d.HasChange("vrf_id") {
 		data.Vrf = getOptionalInt(d, "vrf_id")
+	}
+	if d.HasChange("module_id") {
+		moduleID := int64(d.Get("module_id").(int))
+		data.Module = &moduleID
 	}
 
 	params := dcim.NewDcimInterfacesPartialUpdateParams().WithID(id).WithData(&data)
