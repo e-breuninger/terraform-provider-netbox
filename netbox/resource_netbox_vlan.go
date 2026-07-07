@@ -61,7 +61,8 @@ func resourceNetboxVlan() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
-			tagsKey: tagsSchema,
+			customFieldsKey: customFieldsSchema,
+			tagsKey:         tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -97,6 +98,9 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 
 	if roleID, ok := d.GetOk("role_id"); ok {
 		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+	if cf, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	var err error
@@ -139,6 +143,10 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("vid", vlan.Vid)
 	d.Set("description", vlan.Description)
 	api.readTags(d, vlan.Tags)
+	cf := getCustomFields(vlan.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
 
 	if vlan.Status != nil {
 		d.Set("status", vlan.Status.Value)
@@ -187,6 +195,9 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if roleID, ok := d.GetOk("role_id"); ok {
 		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+	if cf, ok := d.GetOk(customFieldsKey); ok {
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	var err error

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -106,6 +107,58 @@ resource "netbox_vlan" "test_with_dependencies" {
 			},
 		},
 	})
+}
+
+func TestAccNetboxVlan_customFields(t *testing.T) {
+	testName := testAccGetTestName("vlan_custom_fields")
+	testField := fmt.Sprintf("vlan_cf_%s", acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz"))
+	testVid := acctest.RandIntRange(1000, 4000)
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVlanWithCustomFields(testName, testField, testVid, "value1"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vlan.test_custom_fields", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vlan.test_custom_fields", "vid", fmt.Sprintf("%d", testVid)),
+					resource.TestCheckResourceAttr("netbox_vlan.test_custom_fields", fmt.Sprintf("custom_fields.%s", testField), "value1"),
+				),
+			},
+			{
+				Config: testAccNetboxVlanWithCustomFields(testName, testField, testVid, "value2"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vlan.test_custom_fields", fmt.Sprintf("custom_fields.%s", testField), "value2"),
+				),
+			},
+			{
+				ResourceName:      "netbox_vlan.test_custom_fields",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccNetboxVlanWithCustomFields(testName string, testField string, testVid int, testValue string) string {
+	return fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "%[2]s"
+	type          = "text"
+	content_types = ["ipam.vlan"]
+}
+
+resource "netbox_vlan" "test_custom_fields" {
+	name = "%[1]s"
+	vid  = %[3]d
+	tags = []
+
+	custom_fields = {
+		(netbox_custom_field.test.name) = "%[4]s"
+	}
+}
+`, testName, testField, testVid, testValue)
 }
 
 func init() {
