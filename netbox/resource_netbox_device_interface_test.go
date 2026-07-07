@@ -55,6 +55,23 @@ resource "netbox_vlan" "test2" {
   name = "%[1]s_vlan2"
   vid = 1002
   tags = []
+}
+
+resource "netbox_device_module_bay" "test" {
+  device_id = netbox_device.test.id
+  name = "%[1]s"
+}
+
+resource "netbox_module_type" "test" {
+  manufacturer_id = netbox_manufacturer.test.id
+  model = "%[1]s"
+}
+
+resource "netbox_module" "test" {
+  device_id = netbox_device.test.id
+  module_bay_id = netbox_device_module_bay.test.id
+  module_type_id = netbox_module_type.test.id
+  status = "active"
 }`, testName)
 }
 
@@ -65,6 +82,7 @@ resource "netbox_device_interface" "test" {
   device_id = netbox_device.test.id
   tags = [netbox_tag.test.name]
   type = "1000base-t"
+  module_id = netbox_module.test.id
 }`, testName)
 }
 
@@ -159,6 +177,7 @@ func TestAccNetboxDeviceInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "tags.0", testName),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "module_id", "netbox_module.test", "id"),
 				),
 			},
 			{
