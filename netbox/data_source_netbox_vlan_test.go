@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -64,6 +65,61 @@ func TestAccNetboxVlanDataSource_basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccNetboxVlanDataSource_customFields(t *testing.T) {
+	testName := testAccGetTestName("vlan_ds_custom_fields")
+	testField := fmt.Sprintf("vlan_ds_cf_%s", acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz"))
+	testVid := acctest.RandIntRange(1000, 4000)
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxVlanDataSourceWithCustomFields(testName, testField, testVid),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_vlan.by_vid", "id", "netbox_vlan.test_custom_fields", "id"),
+					resource.TestCheckResourceAttr("data.netbox_vlan.by_vid", fmt.Sprintf("custom_fields.%s", testField), "match"),
+					resource.TestCheckResourceAttrPair("data.netbox_vlan.by_custom_fields", "id", "netbox_vlan.test_custom_fields", "id"),
+					resource.TestCheckResourceAttr("data.netbox_vlan.by_custom_fields", fmt.Sprintf("custom_fields.%s", testField), "match"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNetboxVlanDataSourceWithCustomFields(testName string, testField string, testVid int) string {
+	return fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+	name          = "%[2]s"
+	type          = "text"
+	content_types = ["ipam.vlan"]
+}
+
+resource "netbox_vlan" "test_custom_fields" {
+	name = "%[1]s"
+	vid  = %[3]d
+	tags = []
+
+	custom_fields = {
+		(netbox_custom_field.test.name) = "match"
+	}
+}
+
+data "netbox_vlan" "by_vid" {
+	depends_on = [netbox_vlan.test_custom_fields]
+	vid        = netbox_vlan.test_custom_fields.vid
+}
+
+data "netbox_vlan" "by_custom_fields" {
+	depends_on = [netbox_vlan.test_custom_fields]
+
+	custom_fields = {
+		(netbox_custom_field.test.name) = "match"
+	}
+}
+`, testName, testField, testVid)
 }
 
 func testAccNetboxVlanSetUp(testVid int, testName string) string {

@@ -36,6 +36,7 @@ data "netbox_vlan" "vlan3" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `group_id` (Number)
 - `name` (String)
 - `role` (Number)

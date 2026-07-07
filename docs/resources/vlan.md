@@ -45,6 +45,7 @@ resource "netbox_vlan" "example2" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String) Defaults to `""`.
 - `group_id` (Number)
 - `role_id` (Number)

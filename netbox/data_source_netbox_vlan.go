@@ -10,6 +10,7 @@ import (
 )
 
 func dataSourceNetboxVlan() *schema.Resource {
+	customFieldsFilterSchema := *customFieldsSchema
 	return &schema.Resource{
 		Read:        dataSourceNetboxVlanRead,
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
@@ -50,6 +51,7 @@ func dataSourceNetboxVlan() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			customFieldsKey: &customFieldsFilterSchema,
 		},
 	}
 }
@@ -57,6 +59,7 @@ func dataSourceNetboxVlan() *schema.Resource {
 func dataSourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	params := ipam.NewIpamVlansListParams()
+	var opts []ipam.ClientOption
 
 	params.Limit = int64ToPtr(2)
 	if name, ok := d.Get("name").(string); ok && name != "" {
@@ -74,8 +77,11 @@ func dataSourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	if tenantID, ok := d.Get("tenant").(int); ok && tenantID != 0 {
 		params.TenantID = strToPtr(strconv.Itoa(tenantID))
 	}
+	if cfm, ok := d.Get(customFieldsKey).(map[string]interface{}); ok {
+		opts = append(opts, WithCustomFieldParamsOption(cfm))
+	}
 
-	res, err := api.Ipam.IpamVlansList(params, nil)
+	res, err := api.Ipam.IpamVlansList(params, nil, opts...)
 	if err != nil {
 		return err
 	}
@@ -105,6 +111,10 @@ func dataSourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	}
 	if vlan.Tenant != nil {
 		d.Set("tenant", vlan.Tenant.ID)
+	}
+	cf := getCustomFields(vlan.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
 	}
 
 	return nil
