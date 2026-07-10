@@ -148,6 +148,7 @@ func Provider() *schema.Provider {
 			"netbox_device_power_outlet":                           resourceNetboxDevicePowerOutlet(),
 			"netbox_device_front_port":                             resourceNetboxDeviceFrontPort(),
 			"netbox_device_rear_port":                              resourceNetboxDeviceRearPort(),
+			"netbox_rear_port_template":                            resourceNetboxRearPortTemplate(),
 			"netbox_device_module_bay":                             resourceNetboxDeviceModuleBay(),
 			"netbox_device_bay":                                    resourceNetboxDeviceBay(),
 			"netbox_device_bay_template":                           resourceNetboxDeviceBayTemplate(),
