@@ -33,6 +33,7 @@ func resourceNetboxTenantGroup() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
+			customFieldsKey: customFieldsSchema,
 			"parent_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -74,6 +75,11 @@ func resourceNetboxTenantGroupCreate(d *schema.ResourceData, m interface{}) erro
 		data.Parent = &parentID
 	}
 
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
+
 	params := tenancy.NewTenancyTenantGroupsCreateParams().WithData(data)
 
 	res, err := api.Tenancy.TenancyTenantGroupsCreate(params, nil)
@@ -105,12 +111,19 @@ func resourceNetboxTenantGroupRead(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("slug", res.GetPayload().Slug)
-	d.Set("description", res.GetPayload().Description)
-	if res.GetPayload().Parent != nil {
-		d.Set("parent", res.GetPayload().Parent.ID)
+	group := res.GetPayload()
+	d.Set("name", group.Name)
+	d.Set("slug", group.Slug)
+	d.Set("description", group.Description)
+	if group.Parent != nil {
+		d.Set("parent_id", group.Parent.ID)
 	}
+
+	cf := flattenCustomFields(group.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+
 	return nil
 }
 
@@ -141,6 +154,12 @@ func resourceNetboxTenantGroupUpdate(d *schema.ResourceData, m interface{}) erro
 	if parentID != 0 {
 		data.Parent = &parentID
 	}
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
+
 	params := tenancy.NewTenancyTenantGroupsPartialUpdateParams().WithID(id).WithData(&data)
 
 	_, err := api.Tenancy.TenancyTenantGroupsPartialUpdate(params, nil)
