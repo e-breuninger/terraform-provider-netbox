@@ -363,7 +363,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 			return nil, diag.FromErr(fmt.Errorf("error extracting netbox version. try using the `skip_version_check` provider parameter to bypass this error. original error: %w", err))
 		}
 
-		supportedVersions := []string{"4.3.0", "4.3.2", "4.3.3", "4.3.4", "4.3.5", "4.3.6", "4.3.7", "4.4.0", "4.4.1", "4.4.2", "4.4.4", "4.4.5", "4.4.6", "4.4.7", "4.4.8", "4.4.9", "4.4.10", "4.5.1", "4.5.2", "4.5.3", "4.5.4", "4.5.5", "4.5.6", "4.5.7", "4.5.8", "4.5.9", "4.5.10", "4.6.0", "4.6.1", "4.6.2", "4.6.3"}
+		supportedVersions := []string{"4.3.0", "4.3.2", "4.3.3", "4.3.4", "4.3.5", "4.3.6", "4.3.7", "4.4.0", "4.4.1", "4.4.2", "4.4.4", "4.4.5", "4.4.6", "4.4.7", "4.4.8", "4.4.9", "4.4.10", "4.5.1", "4.5.2", "4.5.3", "4.5.4", "4.5.5", "4.5.6", "4.5.7", "4.5.8", "4.5.9", "4.5.10", "4.6.0", "4.6.1", "4.6.2", "4.6.3", "4.6.4", "4.6.5"}
 
 		if !slices.Contains(supportedVersions, netboxVersion) {
 			// Currently, there is no way to test these warnings. There is an issue to track this: https://github.com/hashicorp/terraform-plugin-sdk/issues/864
