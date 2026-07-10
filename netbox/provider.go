@@ -353,7 +353,20 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		req := status.NewStatusListParams()
 		res, err := netboxClient.Status.StatusList(req, nil)
 		if err != nil {
-			return nil, diag.FromErr(err)
+			return nil, diag.Diagnostics{{
+				Severity: diag.Error,
+				Summary:  "Failed to determine Netbox version",
+				Detail: fmt.Sprintf(
+					"The provider could not get a valid JSON response from a GET request to `%s/api/status/`.\n\n"+
+						"This usually means one of the following:\n"+
+						"  - `server_url` is misconfigured (wrong scheme, host or port, or it already includes a path such as `/api`)\n"+
+						"  - Netbox (or a reverse proxy/ingress in front of it) returned a non-JSON response, such as an HTML error page, or a response missing a `Content-Type: application/json` header\n"+
+						"  - the Netbox API is temporarily unreachable or returned a server error\n\n"+
+						"You can set `skip_version_check = true` on the provider to bypass this check while troubleshooting.\n\n"+
+						"Original error: %s",
+					serverURL, err,
+				),
+			}}
 		}
 
 		netboxVersionStringFromAPI := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
