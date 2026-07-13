@@ -29,8 +29,8 @@ test:
 # Run dockerized Netbox for acceptance testing
 .PHONY: docker-up
 docker-up:
-	@echo "⌛ Startup Netbox $(NETBOX_VERSION) and wait for service to become ready"
-	$(DOCKER_COMPOSE) -f docker/docker-compose.yml up --build wait
+	@echo "⌛ Startup Netbox $(NETBOX_VERSION) and wait for it to become healthy"
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml up --build --detach --wait --wait-timeout 600 netbox
 	$(DOCKER_COMPOSE) -f docker/docker-compose.yml logs
 	@echo "🚀 Netbox is up and running!"
 
