@@ -41,8 +41,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
 github.com/emirpasic/gods v1.18.1/go.mod h1:8tpGGwCnJ5H4r6BWwaV6OrWmMoPhUl5jm/FMNAnJvWQ=
-github.com/fabiomatavelli/go-netbox v0.0.0-20260713154136-93fcff723d16 h1:9kx7Hi9NZDyp/Czssrc6NdSkq9Qd4qsm33HGESTkgdA=
-github.com/fabiomatavelli/go-netbox v0.0.0-20260713154136-93fcff723d16/go.mod h1:3U3/m/hna9Ntd3sbHBYwZ1IqbP2+coRzoXw3mCfu3kM=
+github.com/fabiomatavelli/go-netbox v0.0.0-20260713160604-c99f474114d5 h1:nTrTvrEesihZXdP4LBtvA+iotjO9ArIYVYLtpO+Wn9o=
+github.com/fabiomatavelli/go-netbox v0.0.0-20260713160604-c99f474114d5/go.mod h1:3U3/m/hna9Ntd3sbHBYwZ1IqbP2+coRzoXw3mCfu3kM=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/fatih/color v1.19.0 h1:Zp3PiM21/9Ld6FzSKyL5c/BULoe/ONr9KlbYVOfG8+w=
