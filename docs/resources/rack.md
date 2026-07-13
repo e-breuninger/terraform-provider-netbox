@@ -53,21 +53,22 @@ resource "netbox_rack" "test" {
 - `desc_units` (Boolean) If rack units are descending. Defaults to `false`.
 - `description` (String)
 - `facility_id` (String)
-- `form_factor` (String) Valid values are `2-post-frame`, `4-post-frame`, `4-post-cabinet`, `wall-frame`, `wall-frame-vertical`, `wall-cabinet` and `wall-cabinet-vertical`.
+- `form_factor` (String) Valid values are `2-post-frame`, `4-post-frame`, `4-post-cabinet`, `wall-frame`, `wall-frame-vertical`, `wall-cabinet` and `wall-cabinet-vertical`. Conflicts with `rack_type_id`.
 - `location_id` (Number)
 - `max_weight` (Number)
 - `mounting_depth` (Number)
 - `outer_depth` (Number)
 - `outer_unit` (String) Valid values are `mm` and `in`. Required when `outer_width` and `outer_depth` is set.
 - `outer_width` (Number)
+- `rack_type_id` (Number) Reference to a `netbox_rack_type`. When set, the rack's physical dimensions (such as `width`, `u_height` and `form_factor`) are inherited from the rack type. Conflicts with `width`, `u_height` and `form_factor`.
 - `role_id` (Number)
 - `serial` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
-- `u_height` (Number)
+- `u_height` (Number) Conflicts with `rack_type_id`.
 - `weight` (Number)
 - `weight_unit` (String) Valid values are `kg`, `g`, `lb` and `oz`. Required when `weight` and `max_weight` is set.
-- `width` (Number) Valid values are `10`, `19`, `21` and `23`.
+- `width` (Number) Valid values are `10`, `19`, `21` and `23`. Inherited from `rack_type_id` when set. Conflicts with `rack_type_id`.
 
 ### Read-Only
 

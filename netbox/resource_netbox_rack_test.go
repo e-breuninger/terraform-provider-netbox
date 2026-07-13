@@ -139,7 +139,10 @@ resource "netbox_rack" "test" {
 					resource.TestCheckResourceAttr("netbox_rack.test", "mounting_depth", "0"),
 					resource.TestCheckResourceAttr("netbox_rack.test", "description", ""),
 					resource.TestCheckResourceAttr("netbox_rack.test", "comments", ""),
-					resource.TestCheckResourceAttr("netbox_rack.test", "form_factor", ""),
+					// form_factor is now Optional+Computed (so it can be inherited
+					// from rack_type_id without drift); omitting it therefore
+					// retains the previously set value rather than clearing it.
+					resource.TestCheckResourceAttr("netbox_rack.test", "form_factor", "2-post-frame"),
 				),
 			},
 			{

@@ -46,17 +46,25 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Description:  buildValidValueDescription(resourceNetboxRackStatusOptions),
 			},
 			"width": {
-				Type: schema.TypeInt,
-				//Required:     true,
-				Optional:     true,
-				ValidateFunc: validation.IntInSlice(resourceNetboxRackWidthOptions),
-				Description:  "Valid values are `10`, `19`, `21` and `23`",
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"rack_type_id"},
+				ValidateFunc:  validation.IntInSlice(resourceNetboxRackWidthOptions),
+				Description:   "Valid values are `10`, `19`, `21` and `23`. Inherited from `rack_type_id` when set.",
 			},
 			"u_height": {
-				Type: schema.TypeInt,
-				//Required:     true,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(1, 100),
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"rack_type_id"},
+				ValidateFunc:  validation.IntBetween(1, 100),
+			},
+			"rack_type_id": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ConflictsWith: []string{"width", "u_height", "form_factor"},
+				Description:   "Reference to a `netbox_rack_type`. When set, the rack's physical dimensions (such as `width`, `u_height` and `form_factor`) are inherited from the rack type.",
 			},
 			tagsKey: tagsSchema,
 			"tenant_id": {
@@ -140,10 +148,12 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 			},
 			customFieldsKey: customFieldsSchema,
 			"form_factor": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxRackFormFactorOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxRackFormFactorOptions),
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"rack_type_id"},
+				ValidateFunc:  validation.StringInSlice(resourceNetboxRackFormFactorOptions, false),
+				Description:   buildValidValueDescription(resourceNetboxRackFormFactorOptions),
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -194,6 +204,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 	data.Description = getOptionalStr(d, "description", false)
 	data.Comments = getOptionalStr(d, "comments", false)
 	data.FormFactor = getOptionalStr(d, "form_factor", false)
+	data.RackType = getOptionalInt(d, "rack_type_id")
 
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
@@ -313,6 +324,12 @@ func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("form_factor", nil)
 	}
 
+	if rack.RackType != nil {
+		d.Set("rack_type_id", rack.RackType.ID)
+	} else {
+		d.Set("rack_type_id", nil)
+	}
+
 	cf := getCustomFields(res.GetPayload().CustomFields)
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
@@ -368,6 +385,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Description = getOptionalStr(d, "description", true)
 	data.Comments = getOptionalStr(d, "comments", true)
 	data.FormFactor = getOptionalStr(d, "form_factor", false)
+	data.RackType = getOptionalInt(d, "rack_type_id")
 
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
