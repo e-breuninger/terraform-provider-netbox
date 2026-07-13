@@ -6,13 +6,28 @@ services:
       - POSTGRES_USER=netbox
       - POSTGRES_PASSWORD=netbox
       - POSTGRES_DB=netbox
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -q -t 2 -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
   redis:
     image: docker.io/valkey/valkey:9.0-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
   netbox:
     image: netboxcommunity/netbox:${NETBOX_VERSION}
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - 8001:8080
     environment:
@@ -38,17 +53,18 @@ services:
       - GRANIAN_BACKPRESSURE=100
     volumes:
       - ./super_user.py:/opt/netbox/super_user.py:ro
+    # Gate on a real readiness signal: /login/ only serves 200 once migrations
+    # have run and the app is up (matches netbox-community/netbox-docker). The
+    # previous /metrics check went green before Netbox was actually ready,
+    # racing the acceptance tests.
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/metrics"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 5s
-
-  wait:
-    build:
-      context: .
-      dockerfile: Dockerfile-wait
-    depends_on:
-      - netbox
-    command: wait-for netbox:8080 --timeout 240 -- echo "Netbox is up and running"
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login/"]
+      interval: 15s
+      timeout: 5s
+      # Generous headroom: migrations on a cold/slow CI runner can take well
+      # over a minute. A successful check during start_period still marks the
+      # container healthy immediately, so a large value never delays readiness
+      # detection -- it only widens the grace window before giving up.
+      # start_period (180s) + retries*interval (20*15s) => up to ~8min tolerance.
+      retries: 20
+      start_period: 180s

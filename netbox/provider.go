@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
@@ -175,59 +176,59 @@ func Provider() *schema.Provider {
 			"netbox_wireless_lan":                                  resourceNetboxWirelessLAN(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"netbox_asn":                  dataSourceNetboxAsn(),
-			"netbox_asns":                 dataSourceNetboxAsns(),
-			"netbox_available_prefix":     dataSourceNetboxAvailablePrefix(),
-			"netbox_cluster":              dataSourceNetboxCluster(),
-			"netbox_clusters":             dataSourceNetboxClusters(),
-			"netbox_cluster_group":        dataSourceNetboxClusterGroup(),
-			"netbox_cluster_type":         dataSourceNetboxClusterType(),
-			"netbox_contact":              dataSourceNetboxContact(),
-			"netbox_contact_role":         dataSourceNetboxContactRole(),
-			"netbox_contact_group":        dataSourceNetboxContactGroup(),
-			"netbox_tenant":               dataSourceNetboxTenant(),
-			"netbox_tenants":              dataSourceNetboxTenants(),
-			"netbox_tenant_group":         dataSourceNetboxTenantGroup(),
-			"netbox_vrf":                  dataSourceNetboxVrf(),
-			"netbox_vrfs":                 dataSourceNetboxVrfs(),
-			"netbox_platform":             dataSourceNetboxPlatform(),
-			"netbox_prefix":               dataSourceNetboxPrefix(),
-			"netbox_prefixes":             dataSourceNetboxPrefixes(),
-			"netbox_devices":              dataSourceNetboxDevices(),
-			"netbox_device_role":          dataSourceNetboxDeviceRole(),
-			"netbox_device_type":          dataSourceNetboxDeviceType(),
-			"netbox_manufacturers":        dataSourceNetboxManufacturer(),
-			"netbox_site":                 dataSourceNetboxSite(),
-			"netbox_location":             dataSourceNetboxLocation(),
-			"netbox_locations":            dataSourceNetboxLocations(),
-			"netbox_tag":                  dataSourceNetboxTag(),
-			"netbox_tags":                 dataSourceNetboxTags(),
-			"netbox_virtual_machines":     dataSourceNetboxVirtualMachine(),
-			"netbox_interfaces":           dataSourceNetboxInterfaces(),
-			"netbox_device_interfaces":    dataSourceNetboxDeviceInterfaces(),
-			"netbox_device_power_ports":   dataSourceNetboxDevicePowerPorts(),
-			"netbox_ipam_role":            dataSourceNetboxIPAMRole(),
-			"netbox_fhrp_group":           dataSourceNetboxFhrpGroup(),
-			"netbox_route_target":         dataSourceNetboxRouteTarget(),
-			"netbox_ip_address":           dataSourceNetboxIPAddress(),
-			"netbox_ip_addresses":         dataSourceNetboxIPAddresses(),
-			"netbox_ip_range":             dataSourceNetboxIPRange(),
-			"netbox_ip_ranges":            dataSourceNetboxIPRanges(),
-			"netbox_region":               dataSourceNetboxRegion(),
-			"netbox_rir":                  dataSourceNetboxRir(),
-			"netbox_vlan":                 dataSourceNetboxVlan(),
-			"netbox_vlans":                dataSourceNetboxVlans(),
-			"netbox_vlan_group":           dataSourceNetboxVlanGroup(),
-			"netbox_vlan_groups":          dataSourceNetboxVlanGroups(),
-			"netbox_vpn_tunnel":           dataSourceNetboxVpnTunnel(),
-			"netbox_vpn_tunnel_group":     dataSourceNetboxVpnTunnelGroup(),
-			"netbox_vpn_tunnel_terminations":     dataSourceNetboxVpnTunnelTerminations(),
-			"netbox_site_group":           dataSourceNetboxSiteGroup(),
-			"netbox_racks":                dataSourceNetboxRacks(),
-			"netbox_rack_role":            dataSourceNetboxRackRole(),
-			"netbox_config_context":       dataSourceNetboxConfigContext(),
-			"netbox_virtual_disk":         dataSourceNetboxVirtualDisk(),
-			"netbox_device_render_config": dataSourceNetboxDeviceRenderConfig(),
+			"netbox_asn":                     dataSourceNetboxAsn(),
+			"netbox_asns":                    dataSourceNetboxAsns(),
+			"netbox_available_prefix":        dataSourceNetboxAvailablePrefix(),
+			"netbox_cluster":                 dataSourceNetboxCluster(),
+			"netbox_clusters":                dataSourceNetboxClusters(),
+			"netbox_cluster_group":           dataSourceNetboxClusterGroup(),
+			"netbox_cluster_type":            dataSourceNetboxClusterType(),
+			"netbox_contact":                 dataSourceNetboxContact(),
+			"netbox_contact_role":            dataSourceNetboxContactRole(),
+			"netbox_contact_group":           dataSourceNetboxContactGroup(),
+			"netbox_tenant":                  dataSourceNetboxTenant(),
+			"netbox_tenants":                 dataSourceNetboxTenants(),
+			"netbox_tenant_group":            dataSourceNetboxTenantGroup(),
+			"netbox_vrf":                     dataSourceNetboxVrf(),
+			"netbox_vrfs":                    dataSourceNetboxVrfs(),
+			"netbox_platform":                dataSourceNetboxPlatform(),
+			"netbox_prefix":                  dataSourceNetboxPrefix(),
+			"netbox_prefixes":                dataSourceNetboxPrefixes(),
+			"netbox_devices":                 dataSourceNetboxDevices(),
+			"netbox_device_role":             dataSourceNetboxDeviceRole(),
+			"netbox_device_type":             dataSourceNetboxDeviceType(),
+			"netbox_manufacturers":           dataSourceNetboxManufacturer(),
+			"netbox_site":                    dataSourceNetboxSite(),
+			"netbox_location":                dataSourceNetboxLocation(),
+			"netbox_locations":               dataSourceNetboxLocations(),
+			"netbox_tag":                     dataSourceNetboxTag(),
+			"netbox_tags":                    dataSourceNetboxTags(),
+			"netbox_virtual_machines":        dataSourceNetboxVirtualMachine(),
+			"netbox_interfaces":              dataSourceNetboxInterfaces(),
+			"netbox_device_interfaces":       dataSourceNetboxDeviceInterfaces(),
+			"netbox_device_power_ports":      dataSourceNetboxDevicePowerPorts(),
+			"netbox_ipam_role":               dataSourceNetboxIPAMRole(),
+			"netbox_fhrp_group":              dataSourceNetboxFhrpGroup(),
+			"netbox_route_target":            dataSourceNetboxRouteTarget(),
+			"netbox_ip_address":              dataSourceNetboxIPAddress(),
+			"netbox_ip_addresses":            dataSourceNetboxIPAddresses(),
+			"netbox_ip_range":                dataSourceNetboxIPRange(),
+			"netbox_ip_ranges":               dataSourceNetboxIPRanges(),
+			"netbox_region":                  dataSourceNetboxRegion(),
+			"netbox_rir":                     dataSourceNetboxRir(),
+			"netbox_vlan":                    dataSourceNetboxVlan(),
+			"netbox_vlans":                   dataSourceNetboxVlans(),
+			"netbox_vlan_group":              dataSourceNetboxVlanGroup(),
+			"netbox_vlan_groups":             dataSourceNetboxVlanGroups(),
+			"netbox_vpn_tunnel":              dataSourceNetboxVpnTunnel(),
+			"netbox_vpn_tunnel_group":        dataSourceNetboxVpnTunnelGroup(),
+			"netbox_vpn_tunnel_terminations": dataSourceNetboxVpnTunnelTerminations(),
+			"netbox_site_group":              dataSourceNetboxSiteGroup(),
+			"netbox_racks":                   dataSourceNetboxRacks(),
+			"netbox_rack_role":               dataSourceNetboxRackRole(),
+			"netbox_config_context":          dataSourceNetboxConfigContext(),
+			"netbox_virtual_disk":            dataSourceNetboxVirtualDisk(),
+			"netbox_device_render_config":    dataSourceNetboxDeviceRenderConfig(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
@@ -353,8 +354,23 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	skipVersionCheck := data.Get("skip_version_check").(bool)
 
 	if !skipVersionCheck {
-		req := status.NewStatusListParams()
-		res, err := netboxClient.Status.StatusList(req, nil)
+		// The status endpoint can be transiently unavailable (e.g. Netbox still
+		// starting, a worker restart, or a flaky proxy), which would otherwise
+		// fail provider configuration outright. Retry a few times with a linear
+		// backoff before giving up.
+		const versionCheckAttempts = 5
+		var res *status.StatusListOK
+		var err error
+		for attempt := 1; attempt <= versionCheckAttempts; attempt++ {
+			req := status.NewStatusListParams()
+			res, err = netboxClient.Status.StatusList(req, nil)
+			if err == nil {
+				break
+			}
+			if attempt < versionCheckAttempts {
+				time.Sleep(time.Duration(attempt) * time.Second)
+			}
+		}
 		if err != nil {
 			return nil, diag.Diagnostics{{
 				Severity: diag.Error,
