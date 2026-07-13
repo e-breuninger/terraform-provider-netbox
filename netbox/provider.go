@@ -111,6 +111,7 @@ func Provider() *schema.Provider {
 			"netbox_available_prefix":                              resourceNetboxAvailablePrefix(),
 			"netbox_primary_ip":                                    resourceNetboxPrimaryIP(),
 			"netbox_device_primary_ip":                             resourceNetboxDevicePrimaryIP(),
+			"netbox_device_oob_ip":                                 resourceNetboxDeviceOobIP(),
 			"netbox_device_role":                                   resourceNetboxDeviceRole(),
 			"netbox_tag":                                           resourceNetboxTag(),
 			"netbox_cluster_group":                                 resourceNetboxClusterGroup(),

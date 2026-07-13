@@ -1,0 +1,19 @@
+# Note that some terraform code is not included in the example for brevity
+
+resource "netbox_device" "test" {
+  name           = "%[1]s"
+  device_type_id = netbox_device_type.test.id
+  role_id        = netbox_device_role.test.id
+  site_id        = netbox_site.test.id
+}
+
+resource "netbox_ip_address" "oob" {
+  ip_address          = "10.0.0.5/24"
+  status              = "active"
+  device_interface_id = netbox_device_interface.test.id
+}
+
+resource "netbox_device_oob_ip" "test" {
+  device_id     = netbox_device.test.id
+  ip_address_id = netbox_ip_address.oob.id
+}
