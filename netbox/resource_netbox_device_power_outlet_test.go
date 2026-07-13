@@ -140,6 +140,79 @@ resource "netbox_device_power_outlet" "test" {
 	})
 }
 
+// TestAccNetboxDevicePowerOutlet_cabledPowerPort is a regression test for the
+// NestedPowerPort.cable unmarshal bug: reading a power outlet whose parent
+// power port is cabled used to fail with
+//
+//	json: cannot unmarshal object into Go struct field
+//	NestedPowerPort.power_port.cable of type int64
+//
+// because NetBox 4.x returns the nested power_port's `cable` as an object. The
+// second step re-reads (refreshes) the outlet while the cable exists, which is
+// exactly the read path that previously errored.
+func TestAccNetboxDevicePowerOutlet_cabledPowerPort(t *testing.T) {
+	testSlug := "power_outlet_cabled_port"
+	testName := testAccGetTestName(testSlug)
+
+	cabledConfig := testAccNetboxDevicePowerOutletFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_power_panel" "test" {
+  name    = "%[1]s"
+  site_id = netbox_site.test.id
+}
+
+resource "netbox_power_feed" "test" {
+  power_panel_id          = netbox_power_panel.test.id
+  name                    = "%[1]s"
+  status                  = "active"
+  type                    = "primary"
+  supply                  = "ac"
+  phase                   = "single-phase"
+  voltage                 = 230
+  amperage                = 16
+  max_percent_utilization = 80
+}
+
+resource "netbox_device_power_outlet" "test" {
+  device_id     = netbox_device.test.id
+  name          = "%[1]s"
+  power_port_id = netbox_device_power_port.test.id
+}
+
+resource "netbox_cable" "test" {
+  a_termination {
+    object_type = "dcim.powerfeed"
+    object_id   = netbox_power_feed.test.id
+  }
+  b_termination {
+    object_type = "dcim.powerport"
+    object_id   = netbox_device_power_port.test.id
+  }
+  status = "connected"
+}`, testName)
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers:    testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckDevicePowerOutletDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: cabledConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_device_power_outlet.test", "power_port_id", "netbox_device_power_port.test", "id"),
+				),
+			},
+			{
+				// Re-reading the outlet while its power port is cabled is what
+				// used to trip the unmarshal error.
+				Config: cabledConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_device_power_outlet.test", "power_port_id", "netbox_device_power_port.test", "id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDevicePowerOutletDestroy(s *terraform.State) error {
 	// retrieve the connection established in Provider configuration
 	conn := testAccProvider.Meta().(*providerState)
