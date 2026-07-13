@@ -4,7 +4,7 @@ go 1.25.8
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
-	github.com/fbreckle/go-netbox v0.0.0-20260615100513-e55bea5bec39
+	github.com/fbreckle/go-netbox v0.0.0-20260714120540-5bc14f351d09
 	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3
 	github.com/go-openapi/runtime v0.32.4
 	github.com/go-openapi/strfmt v0.26.4
