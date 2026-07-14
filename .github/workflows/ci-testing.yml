@@ -22,9 +22,15 @@ jobs:
 
   testacc:
     runs-on: ubuntu-22.04
+    env:
+      # Split each Netbox version's acceptance suite across this many parallel
+      # jobs, each with its own Netbox. Cuts wall-clock without raising the
+      # per-Netbox concurrency (which is what causes test-isolation flakiness).
+      SHARD_TOTAL: "4"
     strategy:
       fail-fast: false
       matrix:
+        shard: [1, 2, 3, 4]
         netbox-version:
           - v4.3.0
           # - v4.3.1 # with this version, we get {"scope":["Please select a site."]} for prefixes
@@ -66,6 +72,22 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+      - name: Compute test shard
+        id: shard
+        # List every test, keep this shard's slice (round-robin by index), and
+        # build an anchored -run regexp for it. Round-robin spreads related
+        # tests across shards so each shard stays well balanced.
+        run: |
+          mapfile -t tests < <(go test ./netbox/ -list 'Test.*' | grep -E '^Test' | sort)
+          selected=()
+          for i in "${!tests[@]}"; do
+            if [ $(( i % SHARD_TOTAL )) -eq $(( ${{ matrix.shard }} - 1 )) ]; then
+              selected+=("${tests[$i]}")
+            fi
+          done
+          IFS='|'; regex="^(${selected[*]})\$"; unset IFS
+          echo "Shard ${{ matrix.shard }}/${SHARD_TOTAL}: ${#selected[@]} of ${#tests[@]} tests"
+          echo "run=${regex}" >> "$GITHUB_OUTPUT"
       - name: testacc
         # Retry once on failure. Netbox itself is occasionally flaky at startup
         # or hits transient server-side bugs on a specific patch version; a
@@ -73,12 +95,13 @@ jobs:
         # masking real, reproducible failures.
         run: |
           for attempt in 1 2; do
-            echo "::group::testacc attempt $attempt (Netbox ${NETBOX_VERSION})"
+            echo "::group::testacc attempt $attempt (Netbox ${NETBOX_VERSION}, shard ${{ matrix.shard }}/${SHARD_TOTAL})"
             if make -e testacc; then exit 0; fi
             echo "::endgroup::"
-            echo "::warning::testacc attempt $attempt failed on ${NETBOX_VERSION}; tearing down and retrying"
+            echo "::warning::testacc attempt $attempt failed on ${NETBOX_VERSION} shard ${{ matrix.shard }}; tearing down and retrying"
             make docker-down || true
           done
           exit 1
         env:
           NETBOX_VERSION: ${{ matrix.netbox-version }}
+          TESTACC_RUN: ${{ steps.shard.outputs.run }}

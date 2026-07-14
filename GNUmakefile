@@ -3,9 +3,13 @@ TEST_FUNC?=TestAccNetboxMACAddr*
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
 DOCKER_COMPOSE=docker compose
 # Number of acceptance tests to run concurrently. The suite is I/O-bound on the
-# Netbox API, so this can safely exceed the CPU count. Override with e.g.
-# `make testacc TESTACC_PARALLELISM=4` if the Netbox instance is resource-constrained.
-TESTACC_PARALLELISM?=16
+# Netbox API, so this can exceed the CPU count. Kept conservative because CI
+# parallelises across shards (see ci-testing.yml) rather than cranking this;
+# override with e.g. `make testacc TESTACC_PARALLELISM=8`.
+TESTACC_PARALLELISM?=4
+# Optional regexp passed to `go test -run`, used to shard the suite across CI
+# jobs. Defaults to everything.
+TESTACC_RUN?=.
 
 export NETBOX_VERSION=v4.4.10
 export NETBOX_SERVER_URL=http://localhost:8001
@@ -18,7 +22,7 @@ default: testacc
 .PHONY: testacc
 testacc: docker-up
 	@echo "⌛ Startup acceptance tests on $(NETBOX_SERVER_URL) with version $(NETBOX_VERSION)"
-	TF_ACC=1 go test -timeout 20m -parallel $(TESTACC_PARALLELISM) -v -cover $(TEST)
+	TF_ACC=1 go test -timeout 20m -parallel $(TESTACC_PARALLELISM) -run '$(TESTACC_RUN)' -v -cover $(TEST)
 
 .PHONY: testacc-specific-test
 testacc-specific-test: # docker-up
