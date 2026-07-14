@@ -67,6 +67,18 @@ jobs:
         with:
           go-version-file: go.mod
       - name: testacc
-        run: make -e testacc
+        # Retry once on failure. Netbox itself is occasionally flaky at startup
+        # or hits transient server-side bugs on a specific patch version; a
+        # single retry (with a clean teardown in between) clears those without
+        # masking real, reproducible failures.
+        run: |
+          for attempt in 1 2; do
+            echo "::group::testacc attempt $attempt (Netbox ${NETBOX_VERSION})"
+            if make -e testacc; then exit 0; fi
+            echo "::endgroup::"
+            echo "::warning::testacc attempt $attempt failed on ${NETBOX_VERSION}; tearing down and retrying"
+            make docker-down || true
+          done
+          exit 1
         env:
           NETBOX_VERSION: ${{ matrix.netbox-version }}
