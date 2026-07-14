@@ -87,18 +87,19 @@ func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
 				),
 			},
 			{
+				// asn__n (and the range below) are global queries the asns data
+				// source can't scope by tag/rir, so assert our ASN is present
+				// rather than a global count that concurrent tests would inflate.
 				Config: setUp + testAccNetboxAsnsByAsnN(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_asns.test", "asns.#", "1"),
-					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.0.id", "netbox_asn.test_2", "id"),
+					testAccCheckIDInList("data.netbox_asns.test", "asns", "netbox_asn.test_2"),
 				),
 			},
 			{
 				Config: setUp + testAccNetboxAsnsByRange(testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_asns.test", "asns.#", "2"),
-					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.0.id", "netbox_asn.test_1", "id"),
-					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.1.id", "netbox_asn.test_2", "id"),
+					testAccCheckIDInList("data.netbox_asns.test", "asns", "netbox_asn.test_1"),
+					testAccCheckIDInList("data.netbox_asns.test", "asns", "netbox_asn.test_2"),
 				),
 			},
 		},

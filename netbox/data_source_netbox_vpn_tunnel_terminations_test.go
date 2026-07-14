@@ -2,10 +2,37 @@ package netbox
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+// testAccCheckIDInList verifies that the ID of resource resName appears somewhere
+// in the "<listAttr>.N.id" attributes of data source dsName. This keeps list
+// data-source tests parallel-safe: they assert their own objects are present
+// rather than asserting a global count/ordering that concurrent tests change.
+func testAccCheckIDInList(dsName, listAttr, resName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ds, ok := s.RootModule().Resources[dsName]
+		if !ok {
+			return fmt.Errorf("data source not found: %s", dsName)
+		}
+		res, ok := s.RootModule().Resources[resName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resName)
+		}
+		want := res.Primary.ID
+		count, _ := strconv.Atoi(ds.Primary.Attributes[listAttr+".#"])
+		for i := 0; i < count; i++ {
+			if ds.Primary.Attributes[fmt.Sprintf("%s.%d.id", listAttr, i)] == want {
+				return nil
+			}
+		}
+		return fmt.Errorf("%s (id %s) not found in %s.%s", resName, want, dsName, listAttr)
+	}
+}
 
 func testAccNetboxTunnelTerminationsSetUp(testName string) string {
 	return fmt.Sprintf(`
@@ -97,10 +124,12 @@ func TestAccNetboxTunnelTerminationsDataSource_basic(t *testing.T) {
 			},
 			{
 				Config: setUp + testAccNetboxTunnelTerminations(),
+				// The data source has no filter, so it returns every termination
+				// in Netbox. Assert our two are present (order/count-independent)
+				// rather than a global count that concurrent tests would change.
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.netbox_vpn_tunnel_terminations.test", "terminations.#", "2"),
-					resource.TestCheckResourceAttrPair("data.netbox_vpn_tunnel_terminations.test", "terminations.0.id", "netbox_vpn_tunnel_termination.test1", "id"),
-					resource.TestCheckResourceAttrPair("data.netbox_vpn_tunnel_terminations.test", "terminations.1.id", "netbox_vpn_tunnel_termination.test2", "id"),
+					testAccCheckIDInList("data.netbox_vpn_tunnel_terminations.test", "terminations", "netbox_vpn_tunnel_termination.test1"),
+					testAccCheckIDInList("data.netbox_vpn_tunnel_terminations.test", "terminations", "netbox_vpn_tunnel_termination.test2"),
 				),
 			},
 		},

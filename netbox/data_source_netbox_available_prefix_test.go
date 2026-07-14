@@ -57,7 +57,10 @@ data "netbox_available_prefix" "test_available_prefix" {
 }
 
 func TestAccNetboxAvailablePrefixesDataSource_without_vrf(t *testing.T) {
-	testPrefix := "10.10.10.0/24"
+	// Use a parent CIDR distinct from the other tests in this file so that
+	// concurrent runs don't allocate into the same range and change the
+	// computed availability.
+	testPrefix := "10.20.10.0/24"
 	testSlug := "available_prefixes_ds_without_vrf"
 
 	testName := testAccGetTestName(testSlug)
@@ -87,9 +90,9 @@ data "netbox_available_prefix" "test_available_prefix" {
 
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_available_prefix.test_available_prefix", "prefixes_available.#", "3"),
-					resource.TestCheckResourceAttr("data.netbox_available_prefix.test_available_prefix", "prefixes_available.0.prefix", "10.10.10.32/27"),
-					resource.TestCheckResourceAttr("data.netbox_available_prefix.test_available_prefix", "prefixes_available.1.prefix", "10.10.10.64/26"),
-					resource.TestCheckResourceAttr("data.netbox_available_prefix.test_available_prefix", "prefixes_available.2.prefix", "10.10.10.128/25"),
+					resource.TestCheckResourceAttr("data.netbox_available_prefix.test_available_prefix", "prefixes_available.0.prefix", "10.20.10.32/27"),
+					resource.TestCheckResourceAttr("data.netbox_available_prefix.test_available_prefix", "prefixes_available.1.prefix", "10.20.10.64/26"),
+					resource.TestCheckResourceAttr("data.netbox_available_prefix.test_available_prefix", "prefixes_available.2.prefix", "10.20.10.128/25"),
 					resource.TestCheckResourceAttr("data.netbox_available_prefix.test_available_prefix", "prefixes_available.2.vrf_id", "0"),
 					resource.TestCheckResourceAttrPair("data.netbox_available_prefix.test_available_prefix", "prefix_id", "netbox_prefix.test_with_vrf", "id"),
 				),
@@ -99,7 +102,9 @@ data "netbox_available_prefix" "test_available_prefix" {
 }
 
 func TestAccNetboxAvailablePrefixesDataSource_none_available(t *testing.T) {
-	testPrefix := "10.10.10.0/24"
+	// Distinct parent CIDR (see _without_vrf) so a concurrent test can't
+	// allocate into this range and leave a prefix "available".
+	testPrefix := "10.30.10.0/24"
 	testSlug := "available_prefixes_ds_none_available"
 
 	testName := testAccGetTestName(testSlug)

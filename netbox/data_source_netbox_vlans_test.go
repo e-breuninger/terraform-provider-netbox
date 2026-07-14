@@ -8,22 +8,29 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func testAccNetboxVlansSetUp() string {
-	return `
+func testAccNetboxVlansSetUp(testName string) string {
+	return fmt.Sprintf(`
+resource "netbox_tag" "test" {
+  name = "%[1]s"
+}
+
 resource "netbox_vlan" "test_1" {
   name = "VLAN1234"
   vid  = 1234
+  tags = [netbox_tag.test.name]
 }
 
 resource "netbox_vlan" "test_2" {
   name = "VLAN1235"
   vid  = 1235
+  tags = [netbox_tag.test.name]
 }
 
 resource "netbox_vlan" "test_3" {
   name = "VLAN1236"
   vid  = 1236
-}`
+  tags = [netbox_tag.test.name]
+}`, testName)
 }
 
 func testAccNetboxVlansByVid() string {
@@ -32,6 +39,11 @@ data "netbox_vlans" "test" {
   filter {
 	name  = "vid"
 	value = "1234"
+  }
+
+  filter {
+	name  = "tag"
+	value = netbox_tag.test.slug
   }
 }`
 }
@@ -42,6 +54,11 @@ data "netbox_vlans" "test" {
   filter {
 	name = "vid__n"
 	value = "1234"
+  }
+
+  filter {
+	name  = "tag"
+	value = netbox_tag.test.slug
   }
 }`
 }
@@ -58,13 +75,20 @@ data "netbox_vlans" "test" {
 	name = "vid__lte"
 	value = "1236"
   }
+
+  filter {
+	name  = "tag"
+	value = netbox_tag.test.slug
+  }
 }`
 }
 
 func TestAccNetboxVlansDataSource_basic(t *testing.T) {
-	setUp := testAccNetboxVlansSetUp()
-	// This test cannot be run in parallel with other tests, because other tests create also Vlans
-	// These Vlans then interfere with the __n filter test
+	testName := testAccGetTestName("vlans_ds_basic")
+	setUp := testAccNetboxVlansSetUp(testName)
+	// The VLANs are tagged with a unique per-test tag and every query filters on
+	// that tag, so concurrently-created VLANs from other tests no longer affect
+	// the vid__n / range counts.
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

@@ -43,7 +43,7 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: dependencies + testAccNetboxInterfacesDataSourceNameRegex,
+				Config: dependencies + testAccNetboxInterfacesDataSourceNameRegex(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(testResource, "interfaces.#", "1"),
 					resource.TestCheckResourceAttr(testResource, "interfaces.0.name", testName+"_2_regex"),
@@ -118,7 +118,9 @@ data "netbox_interfaces" "test" {
 }`, testName)
 }
 
-const testAccNetboxInterfacesDataSourceNameRegex = `
+func testAccNetboxInterfacesDataSourceNameRegex(testName string) string {
+	return fmt.Sprintf(`
 data "netbox_interfaces" "test" {
-  name_regex = "test.*_regex"
-}`
+  name_regex = "%[1]s.*_regex"
+}`, testName)
+}

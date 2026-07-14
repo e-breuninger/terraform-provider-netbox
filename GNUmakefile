@@ -5,7 +5,7 @@ DOCKER_COMPOSE=docker compose
 # Number of acceptance tests to run concurrently. The suite is I/O-bound on the
 # Netbox API, so this can safely exceed the CPU count. Override with e.g.
 # `make testacc TESTACC_PARALLELISM=4` if the Netbox instance is resource-constrained.
-TESTACC_PARALLELISM?=8
+TESTACC_PARALLELISM?=16
 
 export NETBOX_VERSION=v4.4.10
 export NETBOX_SERVER_URL=http://localhost:8001

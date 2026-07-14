@@ -55,7 +55,7 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: dependencies + testAccNetboxVirtualMachineDataSourceNameRegex,
+				Config: dependencies + testAccNetboxVirtualMachineDataSourceNameRegex(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.name", "netbox_virtual_machine.test2", "name"),
@@ -227,10 +227,12 @@ data "netbox_virtual_machines" "test" {
 }`, testName)
 }
 
-const testAccNetboxVirtualMachineDataSourceNameRegex = `
+func testAccNetboxVirtualMachineDataSourceNameRegex(testName string) string {
+	return fmt.Sprintf(`
 data "netbox_virtual_machines" "test" {
-  name_regex = "test.*_regex"
-}`
+  name_regex = "%[1]s.*_regex"
+}`, testName)
+}
 
 const testAccNetboxVirtualMachineDataSourceLimit = `
 data "netbox_virtual_machines" "test" {

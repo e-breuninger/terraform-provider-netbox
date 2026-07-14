@@ -125,8 +125,8 @@ resource "netbox_site" "test_site" {
 }
 
 resource "netbox_vlan_group" "group2" {
-  name        = "Group Two"
-  slug        = "group-two"
+  name        = "Group Two Serial"
+  slug        = "group-two-serial"
   scope_id    = netbox_site.test_site.id
   scope_type  = "dcim.site"
   vid_ranges  = [[30, 32]]
@@ -177,8 +177,8 @@ resource "netbox_site" "test_site" {
 }
 
 resource "netbox_vlan_group" "group2" {
-  name        = "Group Two"
-  slug        = "group-two"
+  name        = "Group Two Serial Range"
+  slug        = "group-two-serial-range"
   scope_id    = netbox_site.test_site.id
   scope_type  = "dcim.site"
   vid_ranges  = [[%d, %d], [%d,%d]]
@@ -242,12 +242,12 @@ func TestAccNetboxAvailableVLAN_multipleParallel(t *testing.T) {
 				Config: `
 resource "netbox_site" "test_site" {
   name = "Parallel Test Site"
-  slug = "Parallel-test-site"
+  slug = "parallel-test-site"
 }
 
 resource "netbox_vlan_group" "group2" {
-  name        = "Group Two"
-  slug        = "group-two"
+  name        = "Group Two Parallel"
+  slug        = "group-two-parallel"
   scope_id    = netbox_site.test_site.id
   scope_type  = "dcim.site"
   vid_ranges  = [[30, 32]]

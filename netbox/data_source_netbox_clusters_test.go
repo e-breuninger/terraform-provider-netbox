@@ -58,7 +58,7 @@ func TestAccNetboxClustersDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: dependencies + testAccNetboxClustersDataSourceNameRegex,
+				Config: dependencies + testAccNetboxClustersDataSourceNameRegex(testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_clusters.test", "clusters.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_clusters.test", "clusters.0.name", "netbox_cluster.test2", "name"),
@@ -219,10 +219,12 @@ data "netbox_clusters" "test" {
   }
 }`
 
-const testAccNetboxClustersDataSourceNameRegex = `
+func testAccNetboxClustersDataSourceNameRegex(testName string) string {
+	return fmt.Sprintf(`
 data "netbox_clusters" "test" {
-  name_regex = "test.*_regex"
-}`
+  name_regex = "%[1]s.*_regex"
+}`, testName)
+}
 
 const testAccNetboxClustersDataSourceLimit = `
 data "netbox_clusters" "test" {
