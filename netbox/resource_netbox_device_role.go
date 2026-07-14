@@ -32,9 +32,10 @@ func resourceNetboxDeviceRole() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"vm_role": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Virtual machines may be assigned to this role.",
 			},
 			"color_hex": {
 				Type:     schema.TypeString,
@@ -78,7 +79,7 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 			Slug:        &slug,
 			Color:       color,
 			Description: description,
-			VMRole:      vmRole,
+			VMRole:      &vmRole,
 			Tags:        tags,
 		},
 	)
@@ -144,7 +145,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 
 	data.Slug = &slug
 	data.Name = &name
-	data.VMRole = vmRole
+	data.VMRole = &vmRole
 	data.Color = color
 	data.Description = description
 
