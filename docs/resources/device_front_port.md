@@ -5,6 +5,7 @@ subcategory: "Data Center Inventory Management (DCIM)"
 description: |-
   From the official documentation https://docs.netbox.dev/en/stable/models/dcim/frontport/:
   Front ports are pass-through ports which represent physical cable connections that comprise part of a longer path. For example, the ports on the front face of a UTP patch panel would be modeled in NetBox as front ports. Each port is assigned a physical type, and must be mapped to a specific rear port on the same device. A single rear port may be mapped to multiple front ports, using numeric positions to annotate the specific alignment of each.
+  This resource manages a single rear port mapping per front port (the common case for patch panels); a front port with multiple mappings created outside Terraform is read as its first mapping.
 ---
 
 # netbox_device_front_port (Resource)
@@ -12,6 +13,8 @@ description: |-
 From the [official documentation](https://docs.netbox.dev/en/stable/models/dcim/frontport/):
 
 > Front ports are pass-through ports which represent physical cable connections that comprise part of a longer path. For example, the ports on the front face of a UTP patch panel would be modeled in NetBox as front ports. Each port is assigned a physical type, and must be mapped to a specific rear port on the same device. A single rear port may be mapped to multiple front ports, using numeric positions to annotate the specific alignment of each.
+
+This resource manages a single rear port mapping per front port (the common case for patch panels); a front port with multiple mappings created outside Terraform is read as its first mapping.
 
 ## Example Usage
 

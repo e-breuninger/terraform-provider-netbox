@@ -17,7 +17,9 @@ func resourceNetboxDeviceFrontPort() *schema.Resource {
 
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):From the [official documentation](https://docs.netbox.dev/en/stable/models/dcim/frontport/):
 
-> Front ports are pass-through ports which represent physical cable connections that comprise part of a longer path. For example, the ports on the front face of a UTP patch panel would be modeled in NetBox as front ports. Each port is assigned a physical type, and must be mapped to a specific rear port on the same device. A single rear port may be mapped to multiple front ports, using numeric positions to annotate the specific alignment of each.`,
+> Front ports are pass-through ports which represent physical cable connections that comprise part of a longer path. For example, the ports on the front face of a UTP patch panel would be modeled in NetBox as front ports. Each port is assigned a physical type, and must be mapped to a specific rear port on the same device. A single rear port may be mapped to multiple front ports, using numeric positions to annotate the specific alignment of each.
+
+This resource manages a single rear port mapping per front port (the common case for patch panels); a front port with multiple mappings created outside Terraform is read as its first mapping.`,
 
 		Schema: map[string]*schema.Schema{
 			"device_id": {
@@ -75,17 +77,29 @@ func resourceNetboxDeviceFrontPort() *schema.Resource {
 func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
+	rearPortID := int64(d.Get("rear_port_id").(int))
+	rearPortPosition := int64(d.Get("rear_port_position").(int))
+
 	data := models.WritableFrontPort{
-		Device:           int64ToPtr(int64(d.Get("device_id").(int))),
-		Name:             strToPtr(d.Get("name").(string)),
-		Type:             strToPtr(d.Get("type").(string)),
-		RearPort:         int64ToPtr(int64(d.Get("rear_port_id").(int))),
-		RearPortPosition: int64(d.Get("rear_port_position").(int)),
-		Module:           getOptionalInt(d, "module_id"),
-		Label:            getOptionalStr(d, "label", false),
-		Color:            getOptionalStr(d, "color_hex", false),
-		Description:      getOptionalStr(d, "description", false),
-		MarkConnected:    d.Get("mark_connected").(bool),
+		Device: int64ToPtr(int64(d.Get("device_id").(int))),
+		Name:   strToPtr(d.Get("name").(string)),
+		Type:   strToPtr(d.Get("type").(string)),
+		// NetBox <= 4.4 requires the legacy singular rear_port field and ignores
+		// rear_ports; NetBox >= 4.5 ignores the legacy field and expects the
+		// rear_ports mapping array instead. Sending both keeps a single request
+		// shape working across all supported NetBox versions.
+		RearPort:         rearPortID,
+		RearPortPosition: rearPortPosition,
+		RearPorts: []*models.FrontPortMapping{{
+			Position:         int64ToPtr(1),
+			RearPort:         &rearPortID,
+			RearPortPosition: rearPortPosition,
+		}},
+		Module:        getOptionalInt(d, "module_id"),
+		Label:         getOptionalStr(d, "label", false),
+		Color:         getOptionalStr(d, "color_hex", false),
+		Description:   getOptionalStr(d, "description", false),
+		MarkConnected: d.Get("mark_connected").(bool),
 	}
 
 	var err error
@@ -145,13 +159,22 @@ func resourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) er
 		d.Set("type", nil)
 	}
 
-	if frontPort.RearPort != nil {
+	// NetBox >= 4.5 returns rear port mappings in the rear_ports array and no
+	// longer returns the legacy singular rear_port field; NetBox <= 4.4 does the
+	// opposite. This resource manages a single mapping; a front port with
+	// multiple mappings (created outside Terraform) is read as its first one.
+	if len(frontPort.RearPorts) > 0 {
+		if frontPort.RearPorts[0].RearPort != nil {
+			d.Set("rear_port_id", *frontPort.RearPorts[0].RearPort)
+		}
+		d.Set("rear_port_position", frontPort.RearPorts[0].RearPortPosition)
+	} else if frontPort.RearPort != nil {
 		d.Set("rear_port_id", frontPort.RearPort.ID)
+		d.Set("rear_port_position", frontPort.RearPortPosition)
 	} else {
 		d.Set("rear_port_id", nil)
+		d.Set("rear_port_position", frontPort.RearPortPosition)
 	}
-
-	d.Set("rear_port_position", frontPort.RearPortPosition)
 
 	if frontPort.Module != nil {
 		d.Set("module_id", frontPort.Module.ID)
@@ -178,12 +201,15 @@ func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) 
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
+	rearPortID := int64(d.Get("rear_port_id").(int))
+	rearPortPosition := int64(d.Get("rear_port_position").(int))
+
 	data := models.WritableFrontPort{
 		Device:           int64ToPtr(int64(d.Get("device_id").(int))),
 		Name:             strToPtr(d.Get("name").(string)),
 		Type:             strToPtr(d.Get("type").(string)),
-		RearPort:         int64ToPtr(int64(d.Get("rear_port_id").(int))),
-		RearPortPosition: int64(d.Get("rear_port_position").(int)),
+		RearPort:         rearPortID,
+		RearPortPosition: rearPortPosition,
 		Module:           getOptionalInt(d, "module_id"),
 		Label:            getOptionalStr(d, "label", true),
 		Color:            getOptionalStr(d, "color_hex", false),
@@ -202,8 +228,20 @@ func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) 
 		data.CustomFields = ct
 	}
 
+	// NetBox >= 4.5 rejects re-sending a mapping that already exists (its
+	// uniqueness validator does not exclude the object's own rows) but
+	// replaces the mapping set atomically when it differs, and preserves it
+	// when rear_ports is omitted. So the mapping is only sent when it
+	// actually changed. NetBox <= 4.4 ignores rear_ports entirely and
+	// applies the legacy fields above.
+	if d.HasChange("rear_port_id") || d.HasChange("rear_port_position") {
+		data.RearPorts = []*models.FrontPortMapping{{
+			Position:         int64ToPtr(1),
+			RearPort:         &rearPortID,
+			RearPortPosition: rearPortPosition,
+		}}
+	}
 	params := dcim.NewDcimFrontPortsPartialUpdateParams().WithID(id).WithData(&data)
-
 	_, err = api.Dcim.DcimFrontPortsPartialUpdate(params, nil)
 	if err != nil {
 		return err
