@@ -32,6 +32,10 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"module_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -180,6 +184,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		data.UntaggedVlan = int64ToPtr(int64(untaggedVlan))
 	}
 	data.Vrf = getOptionalInt(d, "vrf_id")
+	data.Module = getOptionalInt(d, "module_id")
 
 	params := dcim.NewDcimInterfacesCreateParams().WithData(&data)
 
@@ -227,6 +232,12 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	api.readTags(d, iface.Tags)
 	d.Set("tagged_vlans", getIDsFromNestedVLANDevice(iface.TaggedVlans))
 	d.Set("device_id", iface.Device.ID)
+
+	if iface.Module != nil {
+		d.Set("module_id", iface.Module.ID)
+	} else {
+		d.Set("module_id", nil)
+	}
 
 	if iface.Lag != nil {
 		d.Set("lag_device_interface_id", iface.Lag.ID)
@@ -302,6 +313,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		WirelessLans: []int64{},
 		Vdcs:         []int64{},
 	}
+	data.Module = getOptionalInt(d, "module_id")
 
 	if d.HasChange("lag_device_interface_id") {
 		lag := int64(d.Get("lag_device_interface_id").(int))

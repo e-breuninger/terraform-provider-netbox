@@ -41,6 +41,7 @@ resource "netbox_device_interface" "test" {
 - `lag_device_interface_id` (Number) If this device is a member of a LAG group, you can reference the LAG interface here.
 - `mgmtonly` (Boolean)
 - `mode` (String) Valid values are `access`, `tagged`, `tagged-all` and `q-in-q`.
+- `module_id` (Number)
 - `mtu` (Number)
 - `parent_device_interface_id` (Number) The netbox_device_interface id of the parent interface. Useful if this interface is a logical interface.
 - `speed` (Number)
