@@ -1,3 +1,23 @@
+# 5.7.0 (July 15th, 2026)
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_module_bay_template` ([#926](https://github.com/e-breuninger/terraform-provider-netbox/pull/926) by [@Topherr](https://github.com/Topherr))
+* **New Resource:** `netbox_power_port_template` ([#927](https://github.com/e-breuninger/terraform-provider-netbox/pull/927) by [@Topherr](https://github.com/Topherr))
+* **New Resource:** `netbox_power_outlet_template` ([#927](https://github.com/e-breuninger/terraform-provider-netbox/pull/927) by [@Topherr](https://github.com/Topherr))
+* **New Resource:** `netbox_device_oob_ip` ([#936](https://github.com/e-breuninger/terraform-provider-netbox/pull/936) by [@Topherr](https://github.com/Topherr))
+* **New Data Source:** `netbox_device_power_outlets` ([#935](https://github.com/e-breuninger/terraform-provider-netbox/pull/935) by [@FlxPeters](https://github.com/FlxPeters))
+* **New Data Source:** `netbox_rack_type` ([#933](https://github.com/e-breuninger/terraform-provider-netbox/pull/933) by [@FlxPeters](https://github.com/FlxPeters))
+* provider: Properly apply `request_timeout` to all operations ([#913](https://github.com/e-breuninger/terraform-provider-netbox/pull/913) by [@telekom-theinze](https://github.com/telekom-theinze))
+* provider: Surface a clear error when the Netbox version check gets a non-JSON response ([#929](https://github.com/e-breuninger/terraform-provider-netbox/pull/929) by [@fabiomatavelli](https://github.com/fabiomatavelli))
+* resource/netbox_custom_field: Properly handle `default` values ([#914](https://github.com/e-breuninger/terraform-provider-netbox/pull/914) by [@anherrera](https://github.com/anherrera))
+* resource/netbox_custom_field_choice_set: Correctly persist and read many attributes ([#914](https://github.com/e-breuninger/terraform-provider-netbox/pull/914) by [@anherrera](https://github.com/anherrera))
+* resource/netbox_vlan: Add `custom_field` attribute ([#924](https://github.com/e-breuninger/terraform-provider-netbox/pull/924) by [@robinvalk](https://github.com/robinvalk))
+* data-source/netbox_vlan: Include `custom_field` attribute in output ([#924](https://github.com/e-breuninger/terraform-provider-netbox/pull/924) by [@robinvalk](https://github.com/robinvalk))
+* data-source/netbox_vlans: Include `custom_field` attribute in output ([#924](https://github.com/e-breuninger/terraform-provider-netbox/pull/924) by [@robinvalk](https://github.com/robinvalk))
+* resource/netbox_rack: Add `rack_type_id` attribute ([#937](https://github.com/e-breuninger/terraform-provider-netbox/pull/937) by [@FlxPeters](https://github.com/FlxPeters))
+* resource/netbox_device_interface: Add `module_id` attribute ([#944](https://github.com/e-breuninger/terraform-provider-netbox/pull/944) by [@FlxPeters](https://github.com/FlxPeters))
+
 ## 5.6.2 (June 19th, 2026)
 
 This provider version adds support for NetBox versions up to 4.6.3
