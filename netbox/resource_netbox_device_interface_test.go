@@ -60,11 +60,29 @@ resource "netbox_vlan" "test2" {
 
 func testAccNetboxDeviceInterfaceBasic(testName string) string {
 	return fmt.Sprintf(`
-resource "netbox_device_interface" "test" {
-  name = "%s"
+resource "netbox_device_module_bay" "test" {
   device_id = netbox_device.test.id
-  tags = [netbox_tag.test.name]
-  type = "1000base-t"
+  name      = "%[1]s"
+}
+
+resource "netbox_module_type" "test" {
+  manufacturer_id = netbox_manufacturer.test.id
+  model           = "%[1]s"
+}
+
+resource "netbox_module" "test" {
+  device_id      = netbox_device.test.id
+  module_bay_id  = netbox_device_module_bay.test.id
+  module_type_id = netbox_module_type.test.id
+  status         = "active"
+}
+
+resource "netbox_device_interface" "test" {
+  name      = "%[1]s"
+  device_id = netbox_device.test.id
+  module_id = netbox_module.test.id
+  tags      = [netbox_tag.test.name]
+  type      = "1000base-t"
 }`, testName)
 }
 
@@ -157,6 +175,7 @@ func TestAccNetboxDeviceInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "type", "1000base-t"),
 					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "device_id", "netbox_device.test", "id"),
+					resource.TestCheckResourceAttrPair("netbox_device_interface.test", "module_id", "netbox_module.test", "id"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_device_interface.test", "tags.0", testName),
 				),
@@ -322,7 +341,6 @@ resource "netbox_device_interface" "test" {
   vrf_id    = netbox_vrf.test2.id
 }`, testName)
 }
-
 
 func TestAccNetboxDeviceInterface_vrf(t *testing.T) {
 	testSlug := "iface_vrf"
