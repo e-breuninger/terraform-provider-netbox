@@ -2,7 +2,6 @@ package netbox
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -78,12 +77,6 @@ resource "netbox_device_rear_port" "test" {
 }
 
 func TestAccNetboxDeviceFrontPort_basic(t *testing.T) {
-	// NetBox v4.5 changed the front port API (migration dcim.0223_frontport_positions):
-	// the rear_port field is no longer returned as a nested object by the go-netbox
-	// client, causing rear_port_id to always read as 0. Skip until go-netbox is updated.
-	if testAccNetboxVersionAtLeast("4.5.0") {
-		t.Skipf("Skipping front port test on NetBox %s: rear_port response format incompatible with current go-netbox client", os.Getenv("NETBOX_VERSION"))
-	}
 	testSlug := "device_front_port_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
@@ -121,7 +114,6 @@ resource "netbox_device_front_port" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "rear_port_id", "netbox_device_rear_port.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "module_id", "netbox_module.test", "id"),
 				),
-
 			},
 			{
 				Config: testAccNetboxDeviceFrontPortFullDependencies(testName) + fmt.Sprintf(`
@@ -145,13 +137,33 @@ resource "netbox_device_front_port" "test" {
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "rear_port_id", "netbox_device_rear_port.test", "id"),
 				),
-
 			},
 			{
-				ResourceName:            "netbox_device_front_port.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"rear_port_position"},
+				Config: testAccNetboxDeviceFrontPortFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_device_rear_port" "test2" {
+  device_id = netbox_device.test.id
+  name = "%[1]s_rear2"
+  type = "8p8c"
+  positions = 4
+  mark_connected = true
+}
+
+resource "netbox_device_front_port" "test" {
+  device_id = netbox_device.test.id
+  name = "%[1]s"
+  type = "8p8c"
+  rear_port_id = netbox_device_rear_port.test2.id
+  rear_port_position = 3
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device_front_port.test", "rear_port_position", "3"),
+					resource.TestCheckResourceAttrPair("netbox_device_front_port.test", "rear_port_id", "netbox_device_rear_port.test2", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device_front_port.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
