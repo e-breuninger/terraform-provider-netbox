@@ -211,6 +211,8 @@ func Provider() *schema.Provider {
 			"netbox_device_interfaces":       dataSourceNetboxDeviceInterfaces(),
 			"netbox_device_power_ports":      dataSourceNetboxDevicePowerPorts(),
 			"netbox_device_power_outlets":    dataSourceNetboxDevicePowerOutlets(),
+			"netbox_device_front_ports":      dataSourceNetboxDeviceFrontPorts(),
+			"netbox_device_rear_ports":       dataSourceNetboxDeviceRearPorts(),
 			"netbox_ipam_role":               dataSourceNetboxIPAMRole(),
 			"netbox_fhrp_group":              dataSourceNetboxFhrpGroup(),
 			"netbox_route_target":            dataSourceNetboxRouteTarget(),
