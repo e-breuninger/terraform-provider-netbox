@@ -30,7 +30,7 @@ description: |-
 
 Required:
 
-- `name` (String) The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `tenant_id`, `site_id`, `description` & `tag`.
+- `name` (String) The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `tenant_id`, `site_id`, `role_id`, `region_id`, `description` & `tag`.
 - `value` (String) The value to pass to the specified filter.
 
 
@@ -45,6 +45,7 @@ Read-Only:
 - `location_id` (Number)
 - `prefix` (String)
 - `region_id` (Number)
+- `role_id` (Number)
 - `site_group_id` (Number)
 - `site_id` (Number)
 - `status` (String)

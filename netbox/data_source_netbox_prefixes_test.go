@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccNetboxPrefixesDataSource_basic(t *testing.T) {
-	testPrefixes := []string{"10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24", "10.0.7.0/24", "10.0.8.0/24", "10.0.9.0/24"}
+	testPrefixes := []string{"10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24", "10.0.7.0/24", "10.0.8.0/24", "10.0.9.0/24", "10.0.10.0/24", "10.0.11.0/24"}
 	testSlug := "prefixes_ds_basic"
 	testVlanVids := []int{4093, 4094}
 	testName := testAccGetTestName(testSlug)
@@ -68,6 +68,26 @@ resource "netbox_prefix" "with_container" {
   prefix  = "%[9]s"
   status  = "container"
   site_id    = netbox_site.test2.id
+}
+
+resource "netbox_ipam_role" "test" {
+  name = "%[1]s_role"
+}
+
+resource "netbox_prefix" "with_role_id" {
+  prefix  = "%[10]s"
+  status  = "container"
+  role_id = netbox_ipam_role.test.id
+}
+
+resource "netbox_region" "test" {
+  name = "%[1]s_region"
+}
+
+resource "netbox_prefix" "with_region_id" {
+  prefix    = "%[11]s"
+  status    = "container"
+  region_id = netbox_region.test.id
 }
 
 resource "netbox_vrf" "test_vrf" {
@@ -160,6 +180,22 @@ data "netbox_prefixes" "find_prefix_with_site_id" {
   }
 }
 
+data "netbox_prefixes" "find_prefix_with_role_id" {
+  depends_on = [netbox_prefix.with_role_id]
+  filter {
+    name  = "role_id"
+    value = netbox_ipam_role.test.id
+  }
+}
+
+data "netbox_prefixes" "find_prefix_with_region_id" {
+  depends_on = [netbox_prefix.with_region_id]
+  filter {
+    name  = "region_id"
+    value = netbox_region.test.id
+  }
+}
+
 data "netbox_prefixes" "find_prefix_with_contains" {
   depends_on = [netbox_prefix.with_container]
   filter {
@@ -177,7 +213,7 @@ data "netbox_prefixes" "find_prefix_with_description" {
 }
 
 
-`, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testPrefixes[4], testVlanVids[0], testVlanVids[1], testPrefixes[5]),
+`, testName, testPrefixes[0], testPrefixes[1], testPrefixes[2], testPrefixes[3], testPrefixes[4], testVlanVids[0], testVlanVids[1], testPrefixes[5], testPrefixes[6], testPrefixes[7]),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_vrf", "prefixes.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_prefixes.by_vrf", "prefixes.1.vlan_vid", "netbox_vlan.test_vlan2", "vid"),
@@ -195,6 +231,12 @@ data "netbox_prefixes" "find_prefix_with_description" {
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_contains", "prefixes.0.prefix", "10.0.9.0/24"),
 					resource.TestCheckResourceAttrSet("data.netbox_prefixes.find_prefix_with_contains", "prefixes.0.site_id"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_description", "prefixes.0.description", "my-description"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_role_id", "prefixes.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_role_id", "prefixes.0.prefix", "10.0.10.0/24"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefixes.find_prefix_with_role_id", "prefixes.0.role_id", "netbox_ipam_role.test", "id"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_region_id", "prefixes.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_region_id", "prefixes.0.prefix", "10.0.11.0/24"),
+					resource.TestCheckResourceAttrPair("data.netbox_prefixes.find_prefix_with_region_id", "prefixes.0.region_id", "netbox_region.test", "id"),
 				),
 			},
 		},

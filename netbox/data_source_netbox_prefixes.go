@@ -25,7 +25,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `tenant_id`, `site_id`, `description` & `tag`.",
+							Description: "The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `tenant_id`, `site_id`, `role_id`, `region_id`, `description` & `tag`.",
 						},
 						"value": {
 							Type:        schema.TypeString,
@@ -76,6 +76,10 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 							Computed: true,
 						},
 						"region_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"role_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -148,6 +152,10 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 				params.TenantID = &vString
 			case "site_id":
 				params.SiteID = &vString
+			case "role_id":
+				params.RoleID = &vString
+			case "region_id":
+				params.RegionID = &vString
 			case "description":
 				params.Description = &vString
 			case "tag":
@@ -207,6 +215,9 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if v.Tenant != nil {
 			mapping["tenant_id"] = v.Tenant.ID
+		}
+		if v.Role != nil {
+			mapping["role_id"] = v.Role.ID
 		}
 		if v.ScopeType != nil && v.ScopeID != nil {
 			scopeID := v.ScopeID
