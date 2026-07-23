@@ -35,7 +35,7 @@ func TestAccNetboxCircuitProviderNetwork_basic(t *testing.T) {
 resource "netbox_circuit_provider_network" "test" {
 	comments 		= "Circuit Provider Comments"
 	description		= "This is my circuit provider"
-	name 			= "%[1]s" 
+	name 			= "%[1]s"
 	provider_id 	= netbox_circuit_provider.test.id
 	service_id 		= "This is my Service ID"
 	tags			= [netbox_tag.test.name]
