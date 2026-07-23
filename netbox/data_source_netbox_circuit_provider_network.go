@@ -71,10 +71,10 @@ func dataSourceNetboxCircuitProviderNetworkRead(d *schema.ResourceData, m interf
 	}
 
 	if *res.GetPayload().Count > int64(1) {
-		return errors.New("More than one result, specify a more narrow filter")
+		return errors.New("more than one result, specify a more narrow filter")
 	}
 	if *res.GetPayload().Count == int64(0) {
-		return errors.New("No Provider Network found")
+		return errors.New("no Provider Network found")
 	}
 	result := res.GetPayload().Results[0]
 	d.Set("comments", result.Comments)

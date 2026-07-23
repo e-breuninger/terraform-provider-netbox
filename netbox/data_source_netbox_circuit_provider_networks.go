@@ -128,7 +128,7 @@ func dataSourceNetboxCircuitProviderNetworksRead(d *schema.ResourceData, m inter
 
 		res, err := api.Circuits.CircuitsProviderNetworksList(params, nil)
 		if err != nil {
-			return fmt.Errorf("Failed to fetch Provider Networks at offset %d: %w", currentOffset, err)
+			return fmt.Errorf("failed to fetch Provider Networks at offset %d: %w", currentOffset, err)
 		}
 
 		payload := res.GetPayload()
