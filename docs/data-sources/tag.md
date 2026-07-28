@@ -32,6 +32,8 @@ data "netbox_tag" "dmz" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `object_types` (Set of String) The NetBox object types to which this tag can be applied.
 - `slug` (String)
+- `weight` (Number) The tag's display ordering weight.
 
 

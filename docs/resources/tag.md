@@ -36,8 +36,10 @@ resource "netbox_tag" "dmz" {
 
 - `color_hex` (String) Defaults to `9e9e9e`.
 - `description` (String)
+- `object_types` (Set of String) The NetBox object types to which this tag can be applied. An empty set allows all object types.
 - `slug` (String)
 - `tags` (Set of String)
+- `weight` (Number) The tag's display ordering weight. Defaults to `1000`.
 
 ### Read-Only
 

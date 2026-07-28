@@ -63,6 +63,17 @@ func dataSourceNetboxTags() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"object_types": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"weight": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -131,6 +142,7 @@ func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
 	// Fetch all pages with pagination
 	paginationHelper := NewPaginationHelper(userLimit)
 	var allTags []*models.Tag
+	fieldsByID := make(map[int64]tagAPIFields)
 
 	pageSize := paginationHelper.GetPageSize()
 	for {
@@ -138,7 +150,11 @@ func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
 		params.Limit = &pageSize
 		params.Offset = &currentOffset
 
-		res, err := api.Extras.ExtrasTagsList(params, nil)
+		res, err := api.Extras.ExtrasTagsList(
+			params,
+			nil,
+			captureTagListAPIFields(fieldsByID),
+		)
 		if err != nil {
 			return fmt.Errorf("failed to fetch tags at offset %d: %w", currentOffset, err)
 		}
@@ -174,6 +190,8 @@ func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
 		mapping["slug"] = v.Slug
 		mapping["description"] = v.Description
 		mapping["color"] = v.Color
+		mapping["object_types"] = fieldsByID[v.ID].ObjectTypes
+		mapping["weight"] = fieldsByID[v.ID].Weight
 
 		s = append(s, mapping)
 	}
