@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/fbreckle/go-netbox v0.0.0-20260715070837-bf00e79b42dc
 	github.com/fbreckle/terraform-plugin-docs v0.0.0-20220812121758-a828466500d3
-	github.com/go-openapi/runtime v0.32.6
+	github.com/go-openapi/runtime v0.33.0
 	github.com/go-openapi/strfmt v0.27.0
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/goware/urlx v0.3.2
