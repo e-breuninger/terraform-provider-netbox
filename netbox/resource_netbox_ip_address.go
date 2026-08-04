@@ -1,6 +1,8 @@
 package netbox
 
 import (
+	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -13,6 +15,28 @@ import (
 var resourceNetboxIPAddressObjectTypeOptions = []string{"virtualization.vminterface", "dcim.interface", "ipam.fhrpgroup"}
 var resourceNetboxIPAddressStatusOptions = []string{"active", "reserved", "deprecated", "dhcp", "slaac"}
 var resourceNetboxIPAddressRoleOptions = []string{"loopback", "secondary", "anycast", "vip", "vrrp", "hsrp", "glbp", "carp"}
+var resourceNetboxIPAddressAllocationSources = []string{"ip_address", "prefix_id", "ip_range_id"}
+
+// forceNewOnIPAddressAllocationSourceMove replaces the address only when
+// prefix_id/ip_range_id really moves from one prefix or range to another.
+//
+// Netbox does not report which prefix or range an address was allocated from,
+// so an imported address has 0 in state for both. An old value of 0 therefore
+// means "source unknown", not "moved", and neither does a new value that is not
+// known until apply. See forceNewOnAllocationSourceMove on
+// netbox_available_ip_address, which this mirrors.
+func forceNewOnIPAddressAllocationSourceMove(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	for _, key := range []string{"prefix_id", "ip_range_id"} {
+		oldValue, newValue := d.GetChange(key)
+		if !d.NewValueKnown(key) || oldValue.(int) == 0 || oldValue.(int) == newValue.(int) {
+			continue
+		}
+		if err := d.ForceNew(key); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 func resourceNetboxIPAddress() *schema.Resource {
 	return &schema.Resource{
@@ -21,17 +45,38 @@ func resourceNetboxIPAddress() *schema.Resource {
 		Update: resourceNetboxIPAddressUpdate,
 		Delete: resourceNetboxIPAddressDelete,
 
+		CustomizeDiff: forceNewOnIPAddressAllocationSourceMove,
+
 		Description: `:meta:subcategory:IP Address Management (IPAM):From the [official documentation](https://docs.netbox.dev/en/stable/features/ipam/#ip-addresses):
 
 > An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
 >
-> Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchy.`,
+> Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchy.
+
+Either set ` + "`ip_address`" + ` directly, or set ` + "`prefix_id`" + `/` + "`ip_range_id`" + ` to have Netbox allocate the next free address from that prefix or range (mirrors ` + "`netbox_available_ip_address`" + `).`,
 
 		Schema: map[string]*schema.Schema{
 			"ip_address": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IsCIDR,
+				ExactlyOneOf: resourceNetboxIPAddressAllocationSources,
+			},
+			// Not ForceNew: replacement is conditional, see
+			// forceNewOnIPAddressAllocationSourceMove. Write-only allocation
+			// instructions, not attributes of the result - Netbox cannot report
+			// which prefix or range an address came from, so Read never sets
+			// these.
+			"prefix_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: resourceNetboxIPAddressAllocationSources,
+			},
+			"ip_range_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ExactlyOneOf: resourceNetboxIPAddressAllocationSources,
 			},
 			"interface_id": {
 				Type:         schema.TypeInt,
@@ -120,7 +165,53 @@ func resourceNetboxIPAddress() *schema.Resource {
 	}
 }
 
+// allocateIPAddress takes the next free address from prefix_id/ip_range_id via
+// Netbox's available-ips endpoint - the same call netbox_available_ip_address's
+// Create makes - and seeds d.Id()/ip_address from it. The caller still has to
+// apply every other attribute with an Update.
+func allocateIPAddress(d *schema.ResourceData, m interface{}) error {
+	api := m.(*providerState)
+
+	data := models.AvailableIP{
+		Vrf: &models.NestedVRF{ID: int64(d.Get("vrf_id").(int))},
+	}
+
+	if prefixID := int64(d.Get("prefix_id").(int)); prefixID != 0 {
+		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
+		res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+		if err != nil {
+			return err
+		}
+		if len(res.Payload) == 0 {
+			return fmt.Errorf("no available IP addresses in prefix %d", prefixID)
+		}
+		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
+		d.Set("ip_address", *res.Payload[0].Address)
+		return nil
+	}
+
+	rangeID := int64(d.Get("ip_range_id").(int))
+	params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
+	res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+	if err != nil {
+		return err
+	}
+	if len(res.Payload) == 0 {
+		return fmt.Errorf("no available IP addresses in IP range %d", rangeID)
+	}
+	d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
+	d.Set("ip_address", *res.Payload[0].Address)
+	return nil
+}
+
 func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error {
+	if d.Get("ip_address").(string) == "" {
+		if err := allocateIPAddress(d, m); err != nil {
+			return err
+		}
+		return resourceNetboxIPAddressUpdate(d, m)
+	}
+
 	api := m.(*providerState)
 
 	data := models.WritableIPAddress{}
