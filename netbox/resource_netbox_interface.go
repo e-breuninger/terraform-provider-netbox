@@ -227,10 +227,9 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))
 		data.UntaggedVlan = &untaggedvlan
 	}
-	if d.HasChange("primary_mac_address_id") {
-		primaryMac := int64(d.Get("primary_mac_address_id").(int))
-		data.PrimaryMacAddress = &primaryMac
-	}
+	// primary_mac_address is deliberately absent: it is managed by
+	// netbox_virtual_machine_interface_primary_mac_address and dropped from the
+	// body below, see hackOmitFields.
 
 	// About the `nullFields` hack
 	//
@@ -273,7 +272,9 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	params := virtualization.NewVirtualizationInterfacesPartialUpdateParams().WithID(id).WithData(&data)
-	_, err = api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil, hackSerializeAsNull(nullFields...))
+	_, err = api.Virtualization.VirtualizationInterfacesPartialUpdate(params, nil,
+		hackSerializeAsNull(nullFields...),
+		virtualization.ClientOption(hackOmitFields("primary_mac_address")))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -311,6 +312,7 @@ func getIDsFromNestedVLAN(nestedvlans []*models.NestedVLAN) []int64 {
 type interceptWriter struct {
 	runtime.ClientRequest
 	fields []string
+	omit   []string
 }
 
 func (iw interceptWriter) SetBodyParam(p any) error {
@@ -331,18 +333,41 @@ func (iw interceptWriter) SetBodyParam(p any) error {
 			out[fieldName] = nil
 		}
 	}
+	for _, fieldName := range iw.omit {
+		delete(out, fieldName)
+	}
 	return iw.ClientRequest.SetBodyParam(out)
 }
 
 type interceptParams struct {
 	inner  runtime.ClientRequestWriter
 	fields []string
+	omit   []string
 }
 
 // WriteToRequest implements [runtime.ClientRequestWriter].
 func (ip interceptParams) WriteToRequest(req runtime.ClientRequest, reg strfmt.Registry) error {
-	writer := interceptWriter{ClientRequest: req, fields: ip.fields}
+	writer := interceptWriter{ClientRequest: req, fields: ip.fields, omit: ip.omit}
 	return ip.inner.WriteToRequest(writer, reg)
+}
+
+// hackOmitFields is the counterpart of hackSerializeAsNull: it drops the given
+// fields from the request body entirely, so a partial update leaves them
+// untouched.
+//
+// It is needed for fields the generated models declare *without* `omitempty`,
+// which a resource does not manage: a nil pointer there serializes as
+// `"field": null` and an empty slice as `"field": []`, and Netbox reads both as
+// "clear this". Whatever such a field holds was set out of band, so a PATCH that
+// is not about it must not mention it.
+//
+// The result is a plain func so that it converts to any of the generated
+// per-package ClientOption types, e.g.
+// dcim.ClientOption(hackOmitFields("tags")).
+func hackOmitFields(fields ...string) func(*runtime.ClientOperation) {
+	return func(co *runtime.ClientOperation) {
+		co.Params = interceptParams{inner: co.Params, omit: fields}
+	}
 }
 
 // hackSerializeAsNull is a serialization middleware of sorts that will
