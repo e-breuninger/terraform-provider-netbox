@@ -272,6 +272,34 @@ func TestGetCustomFields(t *testing.T) {
 			},
 			expected: nil,
 		},
+		{
+			name: "map with empty string values excluded",
+			input: map[string]interface{}{
+				"set_field":   "value1",
+				"unset_field": "",
+			},
+			expected: map[string]interface{}{
+				"set_field": "value1",
+			},
+		},
+		{
+			name: "map with only empty string values returns nil",
+			input: map[string]interface{}{
+				"ticket": "",
+			},
+			expected: nil,
+		},
+		{
+			name: "zero-valued non-string fields are preserved",
+			input: map[string]interface{}{
+				"count":   0,
+				"enabled": false,
+			},
+			expected: map[string]interface{}{
+				"count":   0,
+				"enabled": false,
+			},
+		},
 	}
 
 	for _, tt := range tests {

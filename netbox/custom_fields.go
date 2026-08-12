@@ -30,9 +30,15 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 
 	result := make(map[string]interface{})
 	for key, value := range cfm {
-		if value != nil {
-			result[key] = value
+		// Netbox reports an unset custom field as null or as an empty string,
+		// depending on its type. Both mean "not set", but writing either one to
+		// state creates a permanent diff: the config does not declare the field,
+		// so the plan shows "" -> null, and the update path drops empty maps via
+		// GetOk, so nothing is ever sent to reconcile it.
+		if value == nil || value == "" {
+			continue
 		}
+		result[key] = value
 	}
 
 	if len(result) == 0 {
