@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -90,15 +91,30 @@ func resourceNetboxAvailableVLANCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	params := ipam.NewIpamVlanGroupsAvailableVlansCreateParams().WithID(groupID).WithData(data)
-	resp, err := api.Ipam.IpamVlanGroupsAvailableVlansCreate(params, nil)
+
+	// Only the allocation itself is serialized and retried. Everything after it
+	// operates on the VLAN we just got, which nothing else is competing for.
+	unlock, err := api.lockAllocation(ctx, allocationLockKeyVLANGroup(groupID))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	var vlan *models.VLAN
+	err = retryAllocation(ctx, func() error {
+		resp, err := api.Ipam.IpamVlanGroupsAvailableVlansCreate(params, nil)
+		if err != nil {
+			return err
+		}
+		if resp.Payload == nil {
+			return fmt.Errorf("no available VLAN in group %d", groupID)
+		}
+		vlan = resp.Payload
+		return nil
+	})
+	unlock()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	vlan := resp.Payload
-	if vlan == nil {
-		return diag.Errorf("no available VLAN in group %d", groupID)
-	}
 	d.SetId(strconv.FormatInt(vlan.ID, 10))
 	d.Set("vid", vlan.Vid)
 	d.Set("name", vlan.Name)

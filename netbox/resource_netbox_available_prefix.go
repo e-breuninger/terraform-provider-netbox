@@ -144,14 +144,31 @@ func resourceNetboxAvailablePrefixCreate(ctx context.Context, d *schema.Resource
 	}
 	params := ipam.NewIpamPrefixesAvailablePrefixesCreateParams().WithID(parentPrefixID).WithData(&data)
 
-	res, err := api.Ipam.IpamPrefixesAvailablePrefixesCreate(params, nil)
+	// Only the allocation itself is serialized and retried. Everything after it
+	// operates on the prefix we just got, which nothing else is competing for.
+	unlock, err := api.lockAllocation(ctx, allocationLockKeyPrefix(parentPrefixID))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	var prefixID int64
+	var prefix *string
+	err = retryAllocation(ctx, func() error {
+		res, err := api.Ipam.IpamPrefixesAvailablePrefixesCreate(params, nil)
+		if err != nil {
+			return err
+		}
+		payload := res.GetPayload()
+		prefixID = payload.ID
+		prefix = payload.Prefix
+		return nil
+	})
+	unlock()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	payload := res.GetPayload()
-	d.SetId(strconv.FormatInt(payload.ID, 10))
-	d.Set("prefix", payload.Prefix)
+	d.SetId(strconv.FormatInt(prefixID, 10))
+	d.Set("prefix", prefix)
 
 	return diag.FromErr(resourceNetboxPrefixUpdate(d, m))
 }

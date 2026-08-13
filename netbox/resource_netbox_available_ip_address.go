@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -125,31 +126,65 @@ func resourceNetboxAvailableIPAddressCreate(ctx context.Context, d *schema.Resou
 	data := models.AvailableIP{
 		Vrf: &nestedvrf,
 	}
+	// Only the allocation itself is serialized and retried. Everything after it
+	// operates on the address we just got, which nothing else is competing for.
 	if prefixID != 0 {
 		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
-		res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+
+		unlock, err := api.lockAllocation(ctx, allocationLockKeyPrefix(prefixID))
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		if len(res.Payload) == 0 {
-			return diag.Errorf("no available IP addresses in prefix %d", prefixID)
+		var addressID int64
+		var address *string
+		err = retryAllocation(ctx, func() error {
+			res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+			if err != nil {
+				return err
+			}
+			if len(res.Payload) == 0 {
+				return fmt.Errorf("no available IP addresses in prefix %d", prefixID)
+			}
+			addressID = res.Payload[0].ID
+			address = res.Payload[0].Address
+			return nil
+		})
+		unlock()
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		// Since we generated the ip_address, set that now
-		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
-		d.Set("ip_address", *res.Payload[0].Address)
+		d.SetId(strconv.FormatInt(addressID, 10))
+		d.Set("ip_address", *address)
 	}
 	if rangeID != 0 {
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
-		res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+
+		unlock, err := api.lockAllocation(ctx, allocationLockKeyIPRange(rangeID))
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		if len(res.Payload) == 0 {
-			return diag.Errorf("no available IP addresses in IP range %d", rangeID)
+		var addressID int64
+		var address *string
+		err = retryAllocation(ctx, func() error {
+			res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+			if err != nil {
+				return err
+			}
+			if len(res.Payload) == 0 {
+				return fmt.Errorf("no available IP addresses in IP range %d", rangeID)
+			}
+			addressID = res.Payload[0].ID
+			address = res.Payload[0].Address
+			return nil
+		})
+		unlock()
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		// Since we generated the ip_address, set that now
-		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
-		d.Set("ip_address", *res.Payload[0].Address)
+		d.SetId(strconv.FormatInt(addressID, 10))
+		d.Set("ip_address", *address)
 	}
 	return diag.FromErr(resourceNetboxAvailableIPAddressUpdate(d, m))
 }
