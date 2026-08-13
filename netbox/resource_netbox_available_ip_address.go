@@ -1,22 +1,23 @@
 package netbox
 
 import (
-	"fmt"
+	"context"
 	"strconv"
 	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxAvailableIPAddress() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxAvailableIPAddressCreate,
-		Read:   resourceNetboxAvailableIPAddressRead,
-		Update: resourceNetboxAvailableIPAddressUpdate,
-		Delete: resourceNetboxAvailableIPAddressDelete,
+		CreateContext: resourceNetboxAvailableIPAddressCreate,
+		Read:          resourceNetboxAvailableIPAddressRead,
+		Update:        resourceNetboxAvailableIPAddressUpdate,
+		Delete:        resourceNetboxAvailableIPAddressDelete,
 
 		Description: `:meta:subcategory:IP Address Management (IPAM):Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/ipaddress/):
 
@@ -113,7 +114,7 @@ This resource will retrieve the next available IP address from a given prefix or
 	}
 }
 
-func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxAvailableIPAddressCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	prefixID := int64(d.Get("prefix_id").(int))
 	vrfID := int64(int64(d.Get("vrf_id").(int)))
@@ -128,10 +129,10 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
 		res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		if len(res.Payload) == 0 {
-			return fmt.Errorf("no available IP addresses in prefix %d", prefixID)
+			return diag.Errorf("no available IP addresses in prefix %d", prefixID)
 		}
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
@@ -141,16 +142,16 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
 		res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		if len(res.Payload) == 0 {
-			return fmt.Errorf("no available IP addresses in IP range %d", rangeID)
+			return diag.Errorf("no available IP addresses in IP range %d", rangeID)
 		}
 		// Since we generated the ip_address, set that now
 		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
 		d.Set("ip_address", *res.Payload[0].Address)
 	}
-	return resourceNetboxAvailableIPAddressUpdate(d, m)
+	return diag.FromErr(resourceNetboxAvailableIPAddressUpdate(d, m))
 }
 
 func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{}) error {

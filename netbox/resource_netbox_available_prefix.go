@@ -8,16 +8,17 @@ import (
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxAvailablePrefix() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxAvailablePrefixCreate,
-		Read:   resourceNetboxPrefixRead,
-		Update: resourceNetboxPrefixUpdate,
-		Delete: resourceNetboxPrefixDelete,
+		CreateContext: resourceNetboxAvailablePrefixCreate,
+		Read:          resourceNetboxPrefixRead,
+		Update:        resourceNetboxPrefixUpdate,
+		Delete:        resourceNetboxPrefixDelete,
 
 		Description: `:meta:subcategory:IP Address Management (IPAM):`,
 
@@ -130,7 +131,7 @@ func resourceNetboxAvailablePrefixParseImport(importStr string) (int, string, in
 	return parentID, parts[1], prefixLength, nil
 }
 
-func resourceNetboxAvailablePrefixCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxAvailablePrefixCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 
 	parentPrefixID := int64(d.Get("parent_prefix_id").(int))
@@ -145,12 +146,12 @@ func resourceNetboxAvailablePrefixCreate(d *schema.ResourceData, m interface{}) 
 
 	res, err := api.Ipam.IpamPrefixesAvailablePrefixesCreate(params, nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	payload := res.GetPayload()
 	d.SetId(strconv.FormatInt(payload.ID, 10))
 	d.Set("prefix", payload.Prefix)
 
-	return resourceNetboxPrefixUpdate(d, m)
+	return diag.FromErr(resourceNetboxPrefixUpdate(d, m))
 }
