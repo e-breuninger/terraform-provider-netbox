@@ -308,6 +308,70 @@ resource "netbox_available_prefix" "with_site_group_id" {
 	})
 }
 
+// TestAccNetboxAvailablePrefix_parallel allocates several prefixes out of one
+// parent without any depends_on between them, so terraform creates them in
+// parallel and they all race for the same pool. Unlike
+// TestAccNetboxAvailablePrefix_multiplePrefixesSerial, which chains the
+// resources deliberately, this is the case that used to return conflicts from
+// Netbox and hand out overlapping prefixes.
+//
+// The prefixes themselves are allocated in whatever order the requests land,
+// so the test checks that every prefix is distinct rather than checking for
+// specific values.
+func TestAccNetboxAvailablePrefix_parallel(t *testing.T) {
+	testParentPrefix := "17.1.0.0/24"
+	testPrefixLength := 28
+	testSlug := "prefix-parallel"
+	testName := testAccGetTestName(testSlug)
+
+	// A /24 split into /28s leaves plenty of room for these.
+	const count = 10
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxAvailablePrefixFullDependencies(testName, testParentPrefix) + fmt.Sprintf(`
+resource "netbox_available_prefix" "test" {
+  count = %d
+  parent_prefix_id = netbox_prefix.parent.id
+  prefix_length = %d
+  status = "active"
+  tags = [netbox_tag.test.name]
+}`, count, testPrefixLength),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPrefixesAreDistinct("netbox_available_prefix.test", count),
+				),
+			},
+		},
+	})
+}
+
+// testAccCheckPrefixesAreDistinct fails if any two of the given resources ended
+// up with the same prefix, which is what an unserialized allocation produces.
+func testAccCheckPrefixesAreDistinct(resourcePrefix string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		seen := make(map[string]string, count)
+		for i := 0; i < count; i++ {
+			name := fmt.Sprintf("%s.%d", resourcePrefix, i)
+			rs, ok := s.RootModule().Resources[name]
+			if !ok {
+				return fmt.Errorf("resource %s not found in state", name)
+			}
+
+			prefix := rs.Primary.Attributes["prefix"]
+			if prefix == "" {
+				return fmt.Errorf("resource %s has no prefix set", name)
+			}
+			if previous, duplicate := seen[prefix]; duplicate {
+				return fmt.Errorf("%s and %s were both allocated %s", previous, name, prefix)
+			}
+			seen[prefix] = name
+		}
+		return nil
+	}
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_available_prefix", &resource.Sweeper{
 		Name:         "netbox_available_prefix",

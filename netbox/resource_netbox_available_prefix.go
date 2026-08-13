@@ -20,7 +20,9 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 		Update:        resourceNetboxPrefixUpdate,
 		Delete:        resourceNetboxPrefixDelete,
 
-		Description: `:meta:subcategory:IP Address Management (IPAM):`,
+		Description: `:meta:subcategory:IP Address Management (IPAM):This resource allocates the next available prefix from a parent prefix.
+
+Allocations from the same parent prefix are serialized inside the provider, so several of these resources can be created in the same apply without racing each other. Conflicts caused by anything outside the current provider process, such as a second ` + "`terraform apply`" + ` or somebody working in the Netbox UI, are retried for a short while but can still fail if contention keeps up.`,
 
 		Schema: map[string]*schema.Schema{
 			"parent_prefix_id": {

@@ -32,7 +32,9 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 > * DHCP
 > * SLAAC (IPv6 Stateless Address Autoconfiguration)
 
-This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)`,
+This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)
+
+Allocations from the same prefix or IP range are serialized inside the provider, so several of these resources can be created in the same apply without racing each other. Conflicts caused by anything outside the current provider process are retried for a short while but can still fail if contention keeps up.`,
 
 		Schema: map[string]*schema.Schema{
 			"prefix_id": {
