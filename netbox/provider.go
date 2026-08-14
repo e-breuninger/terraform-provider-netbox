@@ -167,6 +167,7 @@ func Provider() *schema.Provider {
 			"netbox_power_outlet_template":                         resourceNetboxPowerOutletTemplate(),
 			"netbox_inventory_item_role":                           resourceNetboxInventoryItemRole(),
 			"netbox_inventory_item":                                resourceNetboxInventoryItem(),
+			"netbox_inventory_item_template":                       resourceNetboxInventoryItemTemplate(),
 			"netbox_webhook":                                       resourceNetboxWebhook(),
 			"netbox_custom_field_choice_set":                       resourceNetboxCustomFieldChoiceSet(),
 			"netbox_virtual_chassis":                               resourceNetboxVirtualChassis(),
