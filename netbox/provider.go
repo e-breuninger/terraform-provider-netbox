@@ -236,6 +236,7 @@ func Provider() *schema.Provider {
 			"netbox_site_group":                dataSourceNetboxSiteGroup(),
 			"netbox_racks":                     dataSourceNetboxRacks(),
 			"netbox_rack_role":                 dataSourceNetboxRackRole(),
+			"netbox_rack_group":                dataSourceNetboxRackGroup(),
 			"netbox_config_context":            dataSourceNetboxConfigContext(),
 			"netbox_virtual_disk":              dataSourceNetboxVirtualDisk(),
 			"netbox_device_render_config":      dataSourceNetboxDeviceRenderConfig(),
