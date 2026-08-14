@@ -145,6 +145,7 @@ func Provider() *schema.Provider {
 			"netbox_rack_role":                                     resourceNetboxRackRole(),
 			"netbox_rack_reservation":                              resourceNetboxRackReservation(),
 			"netbox_cable":                                         resourceNetboxCable(),
+			"netbox_cable_bundle":                                  resourceNetboxCableBundle(),
 			"netbox_device_console_port":                           resourceNetboxDeviceConsolePort(),
 			"netbox_device_console_server_port":                    resourceNetboxDeviceConsoleServerPort(),
 			"netbox_device_power_port":                             resourceNetboxDevicePowerPort(),
