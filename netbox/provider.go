@@ -218,6 +218,7 @@ func Provider() *schema.Provider {
 			"netbox_device_interfaces":         dataSourceNetboxDeviceInterfaces(),
 			"netbox_device_power_ports":        dataSourceNetboxDevicePowerPorts(),
 			"netbox_device_power_outlets":      dataSourceNetboxDevicePowerOutlets(),
+			"netbox_ike_policy":                dataSourceNetboxIkePolicy(),
 			"netbox_ike_proposal":              dataSourceNetboxIkeProposal(),
 			"netbox_ipam_role":                 dataSourceNetboxIPAMRole(),
 			"netbox_fhrp_group":                dataSourceNetboxFhrpGroup(),
