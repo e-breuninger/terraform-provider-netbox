@@ -106,6 +106,7 @@ func Provider() *schema.Provider {
 			"netbox_interface_template":                            resourceNetboxInterfaceTemplate(),
 			"netbox_interface":                                     resourceNetboxInterface(),
 			"netbox_service":                                       resourceNetboxService(),
+			"netbox_service_template":                              resourceNetboxServiceTemplate(),
 			"netbox_platform":                                      resourceNetboxPlatform(),
 			"netbox_prefix":                                        resourceNetboxPrefix(),
 			"netbox_available_prefix":                              resourceNetboxAvailablePrefix(),
