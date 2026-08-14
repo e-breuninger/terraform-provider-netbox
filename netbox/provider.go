@@ -128,6 +128,7 @@ func Provider() *schema.Provider {
 			"netbox_rir":                                           resourceNetboxRir(),
 			"netbox_route_target":                                  resourceNetboxRouteTarget(),
 			"netbox_l2vpn":                                         resourceNetboxL2VPN(),
+			"netbox_l2vpn_termination":                             resourceNetboxL2VPNTermination(),
 			"netbox_circuit":                                       resourceNetboxCircuit(),
 			"netbox_circuit_type":                                  resourceNetboxCircuitType(),
 			"netbox_circuit_provider_network":                      resourceNetboxCircuitProviderNetwork(),
