@@ -187,6 +187,7 @@ func Provider() *schema.Provider {
 			"netbox_asn":                       dataSourceNetboxAsn(),
 			"netbox_asns":                      dataSourceNetboxAsns(),
 			"netbox_available_prefix":          dataSourceNetboxAvailablePrefix(),
+			"netbox_cable_bundle":              dataSourceNetboxCableBundle(),
 			"netbox_circuit_provider_network":  dataSourceNetboxCircuitProviderNetwork(),
 			"netbox_circuit_provider_networks": dataSourceNetboxCircuitProviderNetworks(),
 			"netbox_cluster":                   dataSourceNetboxCluster(),
