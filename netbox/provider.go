@@ -120,6 +120,7 @@ func Provider() *schema.Provider {
 			"netbox_vlan":                                          resourceNetboxVlan(),
 			"netbox_vlan_group":                                    resourceNetboxVlanGroup(),
 			"netbox_vlan_translation_policy":                       resourceNetboxVlanTranslationPolicy(),
+			"netbox_vlan_translation_rule":                         resourceNetboxVlanTranslationRule(),
 			"netbox_available_vlan":                                resourceNetboxAvailableVLAN(),
 			"netbox_ipam_role":                                     resourceNetboxIpamRole(),
 			"netbox_fhrp_group":                                    resourceNetboxFhrpGroup(),
