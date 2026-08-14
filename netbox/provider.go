@@ -216,6 +216,7 @@ func Provider() *schema.Provider {
 			"netbox_tags":                      dataSourceNetboxTags(),
 			"netbox_custom_link":               dataSourceNetboxCustomLink(),
 			"netbox_export_template":           dataSourceNetboxExportTemplate(),
+			"netbox_notification_group":        dataSourceNetboxNotificationGroup(),
 			"netbox_virtual_machines":          dataSourceNetboxVirtualMachine(),
 			"netbox_interfaces":                dataSourceNetboxInterfaces(),
 			"netbox_device_interfaces":         dataSourceNetboxDeviceInterfaces(),
