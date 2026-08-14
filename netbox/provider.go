@@ -243,6 +243,7 @@ func Provider() *schema.Provider {
 			"netbox_virtual_disk":              dataSourceNetboxVirtualDisk(),
 			"netbox_device_render_config":      dataSourceNetboxDeviceRenderConfig(),
 			"netbox_module_type_profile":       dataSourceNetboxModuleTypeProfile(),
+			"netbox_virtual_device_context":    dataSourceNetboxVirtualDeviceContext(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
