@@ -182,6 +182,7 @@ func Provider() *schema.Provider {
 			"netbox_ike_proposal":                                  resourceNetboxIkeProposal(),
 			"netbox_ike_policy":                                    resourceNetboxIkePolicy(),
 			"netbox_ipsec_proposal":                                resourceNetboxIpsecProposal(),
+			"netbox_ipsec_policy":                                  resourceNetboxIpsecPolicy(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":                       dataSourceNetboxAsn(),
