@@ -143,6 +143,7 @@ func Provider() *schema.Provider {
 			"netbox_rack":                                          resourceNetboxRack(),
 			"netbox_rack_type":                                     resourceNetboxRackType(),
 			"netbox_rack_role":                                     resourceNetboxRackRole(),
+			"netbox_rack_group":                                    resourceNetboxRackGroup(),
 			"netbox_rack_reservation":                              resourceNetboxRackReservation(),
 			"netbox_cable":                                         resourceNetboxCable(),
 			"netbox_device_console_port":                           resourceNetboxDeviceConsolePort(),
