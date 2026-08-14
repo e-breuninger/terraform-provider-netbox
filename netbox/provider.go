@@ -133,6 +133,7 @@ func Provider() *schema.Provider {
 			"netbox_circuit_provider":                              resourceNetboxCircuitProvider(),
 			"netbox_circuit_termination":                           resourceNetboxCircuitTermination(),
 			"netbox_provider_account":                              resourceNetboxProviderAccount(),
+			"netbox_circuit_group":                                 resourceNetboxCircuitGroup(),
 			"netbox_user":                                          resourceNetboxUser(),
 			"netbox_group":                                         resourceNetboxGroup(),
 			"netbox_permission":                                    resourceNetboxPermission(),
