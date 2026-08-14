@@ -220,6 +220,7 @@ func Provider() *schema.Provider {
 			"netbox_ipam_role":                 dataSourceNetboxIPAMRole(),
 			"netbox_fhrp_group":                dataSourceNetboxFhrpGroup(),
 			"netbox_route_target":              dataSourceNetboxRouteTarget(),
+			"netbox_asn_range":                 dataSourceNetboxAsnRange(),
 			"netbox_ip_address":                dataSourceNetboxIPAddress(),
 			"netbox_ip_addresses":              dataSourceNetboxIPAddresses(),
 			"netbox_ip_range":                  dataSourceNetboxIPRange(),
