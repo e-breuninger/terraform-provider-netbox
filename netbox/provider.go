@@ -160,6 +160,7 @@ func Provider() *schema.Provider {
 			"netbox_console_server_port_template":                  resourceNetboxConsoleServerPortTemplate(),
 			"netbox_module":                                        resourceNetboxModule(),
 			"netbox_module_type":                                   resourceNetboxModuleType(),
+			"netbox_module_type_profile":                           resourceNetboxModuleTypeProfile(),
 			"netbox_module_bay_template":                           resourceNetboxModuleBayTemplate(),
 			"netbox_power_feed":                                    resourceNetboxPowerFeed(),
 			"netbox_power_panel":                                   resourceNetboxPowerPanel(),
