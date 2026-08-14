@@ -61,7 +61,8 @@ resource "netbox_ike_policy" "test" {
 
 func init() {
 	resource.AddTestSweepers("netbox_ike_policy", &resource.Sweeper{
-		Name: "netbox_ike_policy",
+		Name:         "netbox_ike_policy",
+		Dependencies: []string{"netbox_ipsec_profile"},
 		F: func(region string) error {
 			m, err := sharedClientForRegion(region)
 			if err != nil {
