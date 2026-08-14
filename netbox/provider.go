@@ -187,6 +187,7 @@ func Provider() *schema.Provider {
 			"netbox_available_prefix":          dataSourceNetboxAvailablePrefix(),
 			"netbox_circuit_provider_network":  dataSourceNetboxCircuitProviderNetwork(),
 			"netbox_circuit_provider_networks": dataSourceNetboxCircuitProviderNetworks(),
+			"netbox_provider_account":          dataSourceNetboxProviderAccount(),
 			"netbox_cluster":                   dataSourceNetboxCluster(),
 			"netbox_clusters":                  dataSourceNetboxClusters(),
 			"netbox_cluster_group":             dataSourceNetboxClusterGroup(),
