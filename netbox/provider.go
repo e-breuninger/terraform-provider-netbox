@@ -221,6 +221,7 @@ func Provider() *schema.Provider {
 			"netbox_device_power_outlets":      dataSourceNetboxDevicePowerOutlets(),
 			"netbox_ike_policy":                dataSourceNetboxIkePolicy(),
 			"netbox_ike_proposal":              dataSourceNetboxIkeProposal(),
+			"netbox_ipsec_proposal":            dataSourceNetboxIpsecProposal(),
 			"netbox_ipam_role":                 dataSourceNetboxIPAMRole(),
 			"netbox_fhrp_group":                dataSourceNetboxFhrpGroup(),
 			"netbox_route_target":              dataSourceNetboxRouteTarget(),
