@@ -182,8 +182,8 @@ func resourceNetboxIkeProposalUpdate(d *schema.ResourceData, m interface{}) erro
 	data.EncryptionAlgorithm = strToPtr(d.Get("encryption_algorithm").(string))
 	data.Group = int64ToPtr(int64(d.Get("group").(int)))
 
-	data.Description = getOptionalStr(d, "description", true)
-	data.Comments = getOptionalStr(d, "comments", true)
+	data.Description = getOptionalStr(d, "description", false)
+	data.Comments = getOptionalStr(d, "comments", false)
 	data.SaLifetime = getOptionalInt(d, "sa_lifetime")
 
 	if authAlg, ok := d.GetOk("authentication_algorithm"); ok {
