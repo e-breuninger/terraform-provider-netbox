@@ -181,6 +181,7 @@ func Provider() *schema.Provider {
 			"netbox_wireless_lan":                                  resourceNetboxWirelessLAN(),
 			"netbox_custom_link":                                   resourceNetboxCustomLink(),
 			"netbox_export_template":                               resourceNetboxExportTemplate(),
+			"netbox_notification_group":                            resourceNetboxNotificationGroup(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":                       dataSourceNetboxAsn(),
