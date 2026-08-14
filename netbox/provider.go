@@ -127,6 +127,7 @@ func Provider() *schema.Provider {
 			"netbox_aggregate":                                     resourceNetboxAggregate(),
 			"netbox_rir":                                           resourceNetboxRir(),
 			"netbox_route_target":                                  resourceNetboxRouteTarget(),
+			"netbox_asn_range":                                     resourceNetboxAsnRange(),
 			"netbox_circuit":                                       resourceNetboxCircuit(),
 			"netbox_circuit_type":                                  resourceNetboxCircuitType(),
 			"netbox_circuit_provider_network":                      resourceNetboxCircuitProviderNetwork(),
