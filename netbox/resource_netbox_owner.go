@@ -152,11 +152,3 @@ func resourceNetboxOwnerDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 	return nil
 }
-
-func getIDsFromNestedUser(nestedUsers []*models.NestedUser) []int64 {
-	var userIDs []int64
-	for _, user := range nestedUsers {
-		userIDs = append(userIDs, user.ID)
-	}
-	return userIDs
-}
