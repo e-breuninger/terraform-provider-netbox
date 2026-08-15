@@ -90,6 +90,7 @@ func Provider() *schema.Provider {
 			"netbox_virtual_machine_interface_primary_mac_address": resourceNetboxVirtualMachineInterfacePrimaryMACAddress(),
 			"netbox_cluster_type":                                  resourceNetboxClusterType(),
 			"netbox_cluster":                                       resourceNetboxCluster(),
+			"netbox_virtual_machine_type":                          resourceNetboxVirtualMachineType(),
 			"netbox_contact":                                       resourceNetboxContact(),
 			"netbox_contact_group":                                 resourceNetboxContactGroup(),
 			"netbox_contact_assignment":                            resourceNetboxContactAssignment(),
@@ -147,6 +148,8 @@ func Provider() *schema.Provider {
 			"netbox_user":                                          resourceNetboxUser(),
 			"netbox_group":                                         resourceNetboxGroup(),
 			"netbox_permission":                                    resourceNetboxPermission(),
+			"netbox_owner_group":                                   resourceNetboxOwnerGroup(),
+			"netbox_owner":                                         resourceNetboxOwner(),
 			"netbox_token":                                         resourceNetboxToken(),
 			"netbox_custom_field":                                  resourceCustomField(),
 			"netbox_asn":                                           resourceNetboxAsn(),
@@ -201,6 +204,7 @@ func Provider() *schema.Provider {
 			"netbox_export_template":                               resourceNetboxExportTemplate(),
 			"netbox_notification_group":                            resourceNetboxNotificationGroup(),
 			"netbox_wireless_link":                                 resourceNetboxWirelessLink(),
+			"netbox_data_source":                                   resourceNetboxDataSource(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_custom_link":                 dataSourceNetboxCustomLink(),
@@ -280,6 +284,10 @@ func Provider() *schema.Provider {
 			"netbox_rack_group":                  dataSourceNetboxRackGroup(),
 			"netbox_module_type_profile":         dataSourceNetboxModuleTypeProfile(),
 			"netbox_virtual_device_context":      dataSourceNetboxVirtualDeviceContext(),
+			"netbox_virtual_machine_type":        dataSourceNetboxVirtualMachineType(),
+			"netbox_owner_group":                 dataSourceNetboxOwnerGroup(),
+			"netbox_owner":                       dataSourceNetboxOwner(),
+			"netbox_data_source":                 dataSourceNetboxDataSource(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
