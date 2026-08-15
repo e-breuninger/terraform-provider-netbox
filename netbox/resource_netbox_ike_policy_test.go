@@ -33,7 +33,7 @@ func TestAccNetboxIkePolicy_basic(t *testing.T) {
 resource "netbox_ike_policy" "test" {
   name           = "%[1]s"
   description    = "This is a description."
-  version        = 2
+  version        = 1
   mode           = "main"
   proposal_ids   = [netbox_ike_proposal.test.id]
   preshared_key  = "supersecret"
@@ -42,7 +42,7 @@ resource "netbox_ike_policy" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_ike_policy.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_ike_policy.test", "description", "This is a description."),
-					resource.TestCheckResourceAttr("netbox_ike_policy.test", "version", "2"),
+					resource.TestCheckResourceAttr("netbox_ike_policy.test", "version", "1"),
 					resource.TestCheckResourceAttr("netbox_ike_policy.test", "mode", "main"),
 					resource.TestCheckResourceAttr("netbox_ike_policy.test", "proposal_ids.#", "1"),
 					resource.TestCheckResourceAttr("netbox_ike_policy.test", "preshared_key", "supersecret"),

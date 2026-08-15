@@ -8,7 +8,7 @@ resource "netbox_ike_proposal" "test" {
 resource "netbox_ike_policy" "test" {
   name          = "my-ike-policy"
   description   = "This is a description."
-  version       = 2
+  version       = 1
   mode          = "main"
   proposal_ids  = [netbox_ike_proposal.test.id]
   preshared_key = "supersecret"
