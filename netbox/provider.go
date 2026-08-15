@@ -200,6 +200,11 @@ func Provider() *schema.Provider {
 			"netbox_mac_address":                                   resourceNetboxMACAddress(),
 			"netbox_wireless_lan_group":                            resourceNetboxWirelessLANGroup(),
 			"netbox_wireless_lan":                                  resourceNetboxWirelessLAN(),
+			"netbox_ike_proposal":                                  resourceNetboxIkeProposal(),
+			"netbox_ike_policy":                                    resourceNetboxIkePolicy(),
+			"netbox_ipsec_proposal":                                resourceNetboxIpsecProposal(),
+			"netbox_ipsec_policy":                                  resourceNetboxIpsecPolicy(),
+			"netbox_ipsec_profile":                                 resourceNetboxIpsecProfile(),
 			"netbox_custom_link":                                   resourceNetboxCustomLink(),
 			"netbox_export_template":                               resourceNetboxExportTemplate(),
 			"netbox_notification_group":                            resourceNetboxNotificationGroup(),
@@ -288,6 +293,11 @@ func Provider() *schema.Provider {
 			"netbox_owner_group":                 dataSourceNetboxOwnerGroup(),
 			"netbox_owner":                       dataSourceNetboxOwner(),
 			"netbox_data_source":                 dataSourceNetboxDataSource(),
+			"netbox_ike_policy":                  dataSourceNetboxIkePolicy(),
+			"netbox_ike_proposal":                dataSourceNetboxIkeProposal(),
+			"netbox_ipsec_proposal":              dataSourceNetboxIpsecProposal(),
+			"netbox_ipsec_policy":                dataSourceNetboxIpsecPolicy(),
+			"netbox_ipsec_profile":               dataSourceNetboxIpsecProfile(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
