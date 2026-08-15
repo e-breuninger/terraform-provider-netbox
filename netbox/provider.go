@@ -251,6 +251,7 @@ func Provider() *schema.Provider {
 			"netbox_device_render_config":      dataSourceNetboxDeviceRenderConfig(),
 			"netbox_owner_group":               dataSourceNetboxOwnerGroup(),
 			"netbox_owner":                     dataSourceNetboxOwner(),
+			"netbox_data_source":               dataSourceNetboxDataSource(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
