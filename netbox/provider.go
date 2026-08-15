@@ -90,6 +90,7 @@ func Provider() *schema.Provider {
 			"netbox_virtual_machine_interface_primary_mac_address": resourceNetboxVirtualMachineInterfacePrimaryMACAddress(),
 			"netbox_cluster_type":                                  resourceNetboxClusterType(),
 			"netbox_cluster":                                       resourceNetboxCluster(),
+			"netbox_virtual_machine_type":                          resourceNetboxVirtualMachineType(),
 			"netbox_contact":                                       resourceNetboxContact(),
 			"netbox_contact_group":                                 resourceNetboxContactGroup(),
 			"netbox_contact_assignment":                            resourceNetboxContactAssignment(),
