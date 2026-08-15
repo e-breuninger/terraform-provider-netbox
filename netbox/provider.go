@@ -199,6 +199,7 @@ func Provider() *schema.Provider {
 			"netbox_clusters":                  dataSourceNetboxClusters(),
 			"netbox_cluster_group":             dataSourceNetboxClusterGroup(),
 			"netbox_cluster_type":              dataSourceNetboxClusterType(),
+			"netbox_virtual_machine_type":      dataSourceNetboxVirtualMachineType(),
 			"netbox_contact":                   dataSourceNetboxContact(),
 			"netbox_contact_role":              dataSourceNetboxContactRole(),
 			"netbox_contact_group":             dataSourceNetboxContactGroup(),
