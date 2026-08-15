@@ -85,15 +85,22 @@ func resourceNetboxFrontPortTemplateCreate(ctx context.Context, d *schema.Resour
 	name := d.Get("name").(string)
 	portType := d.Get("type").(string)
 	rearPortID := int64(d.Get("rear_port_id").(int))
+	rearPortPosition := int64(d.Get("rear_port_position").(int))
+	mappingPosition := int64(1)
 
 	data := models.WritableFrontPortTemplate{
-		Name:             &name,
-		Description:      d.Get("description").(string),
-		Label:            d.Get("label").(string),
-		Type:             &portType,
-		RearPort:         &rearPortID,
-		RearPortPosition: int64(d.Get("rear_port_position").(int)),
-		Color:            d.Get("color_hex").(string),
+		Name:        &name,
+		Description: d.Get("description").(string),
+		Label:       d.Get("label").(string),
+		Type:        &portType,
+		RearPorts: []*models.FrontPortTemplateMapping{
+			{
+				Position:         &mappingPosition,
+				RearPort:         &rearPortID,
+				RearPortPosition: &rearPortPosition,
+			},
+		},
+		Color: d.Get("color_hex").(string),
 	}
 
 	if deviceTypeID, ok := d.Get("device_type_id").(int); ok && deviceTypeID != 0 {
@@ -140,14 +147,14 @@ func resourceNetboxFrontPortTemplateRead(ctx context.Context, d *schema.Resource
 	d.Set("name", tmpl.Name)
 	d.Set("description", tmpl.Description)
 	d.Set("label", tmpl.Label)
-	d.Set("rear_port_position", tmpl.RearPortPosition)
 	d.Set("color_hex", tmpl.Color)
 
 	if tmpl.Type != nil {
 		d.Set("type", tmpl.Type.Value)
 	}
-	if tmpl.RearPort != nil {
-		d.Set("rear_port_id", tmpl.RearPort.ID)
+	if len(tmpl.RearPorts) > 0 && tmpl.RearPorts[0] != nil {
+		d.Set("rear_port_id", tmpl.RearPorts[0].RearPort)
+		d.Set("rear_port_position", tmpl.RearPorts[0].RearPortPosition)
 	}
 	if tmpl.DeviceType != nil {
 		d.Set("device_type_id", tmpl.DeviceType.ID)
@@ -169,15 +176,22 @@ func resourceNetboxFrontPortTemplateUpdate(ctx context.Context, d *schema.Resour
 	name := d.Get("name").(string)
 	portType := d.Get("type").(string)
 	rearPortID := int64(d.Get("rear_port_id").(int))
+	rearPortPosition := int64(d.Get("rear_port_position").(int))
+	mappingPosition := int64(1)
 
 	data := models.WritableFrontPortTemplate{
-		Name:             &name,
-		Description:      d.Get("description").(string),
-		Label:            d.Get("label").(string),
-		Type:             &portType,
-		RearPort:         &rearPortID,
-		RearPortPosition: int64(d.Get("rear_port_position").(int)),
-		Color:            d.Get("color_hex").(string),
+		Name:        &name,
+		Description: d.Get("description").(string),
+		Label:       d.Get("label").(string),
+		Type:        &portType,
+		RearPorts: []*models.FrontPortTemplateMapping{
+			{
+				Position:         &mappingPosition,
+				RearPort:         &rearPortID,
+				RearPortPosition: &rearPortPosition,
+			},
+		},
+		Color: d.Get("color_hex").(string),
 	}
 
 	if d.HasChange("device_type_id") {
