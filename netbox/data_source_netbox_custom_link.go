@@ -91,7 +91,7 @@ func dataSourceNetboxCustomLinkRead(d *schema.ResourceData, m interface{}) error
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
-	d.Set("content_types", result.ContentTypes)
+	d.Set("content_types", result.ObjectTypes)
 	d.Set("enabled", result.Enabled)
 	d.Set("link_text", result.LinkText)
 	d.Set("link_url", result.LinkURL)

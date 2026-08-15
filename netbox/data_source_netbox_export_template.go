@@ -83,7 +83,7 @@ func dataSourceNetboxExportTemplateRead(d *schema.ResourceData, m interface{}) e
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
-	d.Set("content_types", result.ContentTypes)
+	d.Set("content_types", result.ObjectTypes)
 	d.Set("description", result.Description)
 	d.Set("template_code", result.TemplateCode)
 	d.Set("mime_type", result.MimeType)

@@ -75,7 +75,7 @@ func resourceNetboxExportTemplateCreate(d *schema.ResourceData, m interface{}) e
 
 	name := d.Get("name").(string)
 	data.Name = &name
-	data.ContentTypes = toStringList(d.Get("content_types"))
+	data.ObjectTypes = toStringList(d.Get("content_types"))
 	data.Description = getOptionalStr(d, "description", false)
 	templateCode := d.Get("template_code").(string)
 	data.TemplateCode = &templateCode
@@ -114,7 +114,7 @@ func resourceNetboxExportTemplateRead(d *schema.ResourceData, m interface{}) err
 
 	exportTemplate := res.GetPayload()
 	d.Set("name", exportTemplate.Name)
-	d.Set("content_types", exportTemplate.ContentTypes)
+	d.Set("content_types", exportTemplate.ObjectTypes)
 	d.Set("description", exportTemplate.Description)
 	d.Set("template_code", exportTemplate.TemplateCode)
 	d.Set("mime_type", exportTemplate.MimeType)
@@ -132,7 +132,7 @@ func resourceNetboxExportTemplateUpdate(d *schema.ResourceData, m interface{}) e
 
 	name := d.Get("name").(string)
 	data.Name = &name
-	data.ContentTypes = toStringList(d.Get("content_types"))
+	data.ObjectTypes = toStringList(d.Get("content_types"))
 	data.Description = getOptionalStr(d, "description", true)
 	templateCode := d.Get("template_code").(string)
 	data.TemplateCode = &templateCode

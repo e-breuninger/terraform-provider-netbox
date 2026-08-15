@@ -88,7 +88,7 @@ func resourceNetboxCustomLinkCreate(d *schema.ResourceData, m interface{}) error
 
 	name := d.Get("name").(string)
 	data.Name = &name
-	data.ContentTypes = toStringList(d.Get("content_types"))
+	data.ObjectTypes = toStringList(d.Get("content_types"))
 	linkText := d.Get("link_text").(string)
 	data.LinkText = &linkText
 	linkURL := d.Get("link_url").(string)
@@ -132,7 +132,7 @@ func resourceNetboxCustomLinkRead(d *schema.ResourceData, m interface{}) error {
 
 	customLink := res.GetPayload()
 	d.Set("name", customLink.Name)
-	d.Set("content_types", customLink.ContentTypes)
+	d.Set("content_types", customLink.ObjectTypes)
 	d.Set("link_text", customLink.LinkText)
 	d.Set("link_url", customLink.LinkURL)
 	d.Set("enabled", customLink.Enabled)
@@ -152,7 +152,7 @@ func resourceNetboxCustomLinkUpdate(d *schema.ResourceData, m interface{}) error
 
 	name := d.Get("name").(string)
 	data.Name = &name
-	data.ContentTypes = toStringList(d.Get("content_types"))
+	data.ObjectTypes = toStringList(d.Get("content_types"))
 	linkText := d.Get("link_text").(string)
 	data.LinkText = &linkText
 	linkURL := d.Get("link_url").(string)
