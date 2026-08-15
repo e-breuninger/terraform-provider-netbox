@@ -185,6 +185,7 @@ func Provider() *schema.Provider {
 			"netbox_mac_address":                                   resourceNetboxMACAddress(),
 			"netbox_wireless_lan_group":                            resourceNetboxWirelessLANGroup(),
 			"netbox_wireless_lan":                                  resourceNetboxWirelessLAN(),
+			"netbox_data_source":                                   resourceNetboxDataSource(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":                       dataSourceNetboxAsn(),
