@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
-	"sync"
 	"time"
 )
 
@@ -56,25 +55,41 @@ func allocationLockKeyVLANGroup(groupID int64) string {
 // an ID do not block each other. Allocations from different parents are
 // unaffected and still run in parallel.
 //
-// It returns the unlock function, so callers can write:
+// It returns the unlock function. Callers release it as soon as the allocation
+// call returns rather than deferring to the end of Create, so the follow-up
+// update, which targets the object we just got and races nobody, does not hold
+// up the queue:
 //
 //	unlock, err := api.lockAllocation(ctx, key)
 //	if err != nil {
 //		return diag.FromErr(err)
 //	}
-//	defer unlock()
+//	err = retryAllocation(ctx, func() error { ... })
+//	unlock()
 //
 // Waiting for the lock respects ctx, so a cancelled apply does not sit in the
 // queue. The returned error is non-nil only when ctx is done before the lock
-// was taken, in which case unlock is a no-op and must still not be called.
+// was taken; the unlock function is safe to call in that case and is a no-op.
 func (s *providerState) lockAllocation(ctx context.Context, key string) (func(), error) {
-	value, _ := s.allocationLocks.LoadOrStore(key, make(chan struct{}, 1))
+	value, ok := s.allocationLocks.Load(key)
+	if !ok {
+		// Only pay for a channel when this parent is seen for the first time.
+		value, _ = s.allocationLocks.LoadOrStore(key, make(chan struct{}, 1))
+	}
 	lock := value.(chan struct{})
 
 	select {
 	case lock <- struct{}{}:
-		var once sync.Once
-		return func() { once.Do(func() { <-lock }) }, nil
+		var released bool
+		return func() {
+			// Guard against a caller unlocking twice, which would otherwise
+			// release the lock for whoever holds it next.
+			if released {
+				return
+			}
+			released = true
+			<-lock
+		}, nil
 	case <-ctx.Done():
 		return func() {}, ctx.Err()
 	}

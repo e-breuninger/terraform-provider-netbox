@@ -138,6 +138,32 @@ func TestLockAllocationRespectsCancelledContext(t *testing.T) {
 	}
 }
 
+// Unlocking twice must not hand the lock to a second holder.
+func TestLockAllocationUnlockIsIdempotent(t *testing.T) {
+	state := &providerState{}
+	ctx := context.Background()
+
+	unlock, err := state.lockAllocation(ctx, allocationLockKeyPrefix(1))
+	if err != nil {
+		t.Fatalf("unexpected error taking lock: %s", err)
+	}
+	unlock()
+	unlock()
+
+	// The lock must still be usable, and held exclusively, afterwards.
+	second, err := state.lockAllocation(ctx, allocationLockKeyPrefix(1))
+	if err != nil {
+		t.Fatalf("unexpected error retaking lock: %s", err)
+	}
+	defer second()
+
+	cancelled, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	if _, err := state.lockAllocation(cancelled, allocationLockKeyPrefix(1)); err == nil {
+		t.Error("lock was handed out twice after a double unlock")
+	}
+}
+
 func TestIsRetryableAllocationError(t *testing.T) {
 	tests := []struct {
 		name string
