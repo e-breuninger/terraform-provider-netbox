@@ -152,6 +152,7 @@ func resourceNetboxAvailablePrefixCreate(ctx context.Context, d *schema.Resource
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	defer unlock()
 	var prefixID int64
 	var prefix *string
 	err = retryAllocation(ctx, func() error {
@@ -160,6 +161,9 @@ func resourceNetboxAvailablePrefixCreate(ctx context.Context, d *schema.Resource
 			return err
 		}
 		payload := res.GetPayload()
+		if payload == nil {
+			return fmt.Errorf("no available prefix in parent prefix %d", parentPrefixID)
+		}
 		prefixID = payload.ID
 		prefix = payload.Prefix
 		return nil

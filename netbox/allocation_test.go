@@ -164,6 +164,49 @@ func TestLockAllocationUnlockIsIdempotent(t *testing.T) {
 	}
 }
 
+// Callers pair a deferred unlock with an explicit one so that a panic between
+// them cannot strand the lock and wedge every later allocation from the same
+// parent. This checks that pairing actually releases the lock.
+func TestLockAllocationSurvivesPanic(t *testing.T) {
+	state := &providerState{}
+	ctx := context.Background()
+
+	func() {
+		defer func() {
+			if recovered := recover(); recovered == nil {
+				t.Error("expected the panic to propagate out of the allocation")
+			}
+		}()
+
+		unlock, err := state.lockAllocation(ctx, allocationLockKeyPrefix(1))
+		if err != nil {
+			t.Errorf("unexpected error taking lock: %s", err)
+			return
+		}
+		defer unlock()
+
+		panic("allocation blew up")
+	}()
+
+	// The pool must not be wedged for everybody who comes after.
+	done := make(chan struct{})
+	go func() {
+		unlock, err := state.lockAllocation(ctx, allocationLockKeyPrefix(1))
+		if err != nil {
+			t.Errorf("unexpected error retaking lock: %s", err)
+		} else {
+			unlock()
+		}
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("lock was never released after a panic")
+	}
+}
+
 func TestIsRetryableAllocationError(t *testing.T) {
 	tests := []struct {
 		name string

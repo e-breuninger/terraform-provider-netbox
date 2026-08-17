@@ -100,6 +100,7 @@ func resourceNetboxAvailableVLANCreate(ctx context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	defer unlock()
 	var vlan *models.VLAN
 	err = retryAllocation(ctx, func() error {
 		resp, err := api.Ipam.IpamVlanGroupsAvailableVlansCreate(params, nil)

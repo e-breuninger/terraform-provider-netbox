@@ -58,14 +58,18 @@ func allocationLockKeyVLANGroup(groupID int64) string {
 // It returns the unlock function. Callers release it as soon as the allocation
 // call returns rather than deferring to the end of Create, so the follow-up
 // update, which targets the object we just got and races nobody, does not hold
-// up the queue:
+// up the queue. Defer it as well, so a panic in between cannot strand the lock
+// and wedge every later allocation from the same parent:
 //
 //	unlock, err := api.lockAllocation(ctx, key)
 //	if err != nil {
 //		return diag.FromErr(err)
 //	}
+//	defer unlock()
 //	err = retryAllocation(ctx, func() error { ... })
 //	unlock()
+//
+// Calling unlock twice is safe, which is what makes that pairing work.
 //
 // Waiting for the lock respects ctx, so a cancelled apply does not sit in the
 // queue. The returned error is non-nil only when ctx is done before the lock

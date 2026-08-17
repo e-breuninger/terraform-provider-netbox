@@ -137,6 +137,7 @@ func resourceNetboxAvailableIPAddressCreate(ctx context.Context, d *schema.Resou
 		if err != nil {
 			return diag.FromErr(err)
 		}
+		defer unlock()
 		var addressID int64
 		var address *string
 		err = retryAllocation(ctx, func() error {
@@ -166,6 +167,7 @@ func resourceNetboxAvailableIPAddressCreate(ctx context.Context, d *schema.Resou
 		if err != nil {
 			return diag.FromErr(err)
 		}
+		defer unlock()
 		var addressID int64
 		var address *string
 		err = retryAllocation(ctx, func() error {
