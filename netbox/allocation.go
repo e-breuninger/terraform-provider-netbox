@@ -110,15 +110,22 @@ func retryAllocation(ctx context.Context, fn func() error) error {
 	started := time.Now()
 	delay := allocationRetryMinDelay
 	var lastErr error
+
+	// gaveUp reports the last error from Netbox rather than the bare deadline,
+	// since that is what the user needs to act on.
+	gaveUp := func(ctxErr error) error {
+		if lastErr == nil {
+			return ctxErr
+		}
+		return fmt.Errorf("gave up allocating after %s: %w", time.Since(started).Round(time.Second), lastErr)
+	}
+
 	for {
 		// Check before every attempt, including the first. Waiting for the pool
 		// lock can eat most of the deadline, and an allocation fired after the
 		// apply was cancelled would create an object terraform never records.
 		if err := ctx.Err(); err != nil {
-			if lastErr != nil {
-				return fmt.Errorf("gave up allocating after %s: %w", time.Since(started).Round(time.Second), lastErr)
-			}
-			return err
+			return gaveUp(err)
 		}
 
 		err := fn()
@@ -136,9 +143,7 @@ func retryAllocation(ctx context.Context, fn func() error) error {
 		case <-timer.C:
 		case <-ctx.Done():
 			timer.Stop()
-			// Report the last error from Netbox rather than the bare deadline,
-			// since that is what the user needs to act on.
-			return fmt.Errorf("gave up allocating after %s: %w", time.Since(started).Round(time.Second), err)
+			return gaveUp(ctx.Err())
 		}
 
 		if delay < allocationRetryMaxDelay {
