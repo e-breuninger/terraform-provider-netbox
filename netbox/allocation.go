@@ -105,11 +105,23 @@ func retryAllocation(ctx context.Context, fn func() error) error {
 
 	started := time.Now()
 	delay := allocationRetryMinDelay
+	var lastErr error
 	for {
+		// Check before every attempt, including the first. Waiting for the pool
+		// lock can eat most of the deadline, and an allocation fired after the
+		// apply was cancelled would create an object terraform never records.
+		if err := ctx.Err(); err != nil {
+			if lastErr != nil {
+				return fmt.Errorf("gave up allocating after %s: %w", time.Since(started).Round(time.Second), lastErr)
+			}
+			return err
+		}
+
 		err := fn()
 		if err == nil || !isRetryableAllocationError(err) {
 			return err
 		}
+		lastErr = err
 
 		// Jitter keeps callers released by the same conflict from retrying in
 		// lockstep and colliding all over again.

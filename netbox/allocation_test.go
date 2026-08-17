@@ -276,6 +276,32 @@ func TestRetryAllocationGivesUp(t *testing.T) {
 	if attempts < 2 {
 		t.Errorf("expected several attempts before giving up, got %d", attempts)
 	}
+	// The conflict from Netbox is what the user needs to see, not a bare
+	// deadline from our own retry budget.
+	if !errors.Is(err, codeError{409}) {
+		t.Errorf("expected the netbox error to be wrapped, got %v", err)
+	}
+}
+
+// An already cancelled context must not fire an allocation. Waiting on the pool
+// lock can use up the deadline, and a request sent after that point creates an
+// object that terraform never records.
+func TestRetryAllocationDoesNotStartWhenContextIsDone(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	attempts := 0
+	err := retryAllocation(ctx, func() error {
+		attempts++
+		return nil
+	})
+
+	if attempts != 0 {
+		t.Errorf("expected no allocation attempt, got %d", attempts)
+	}
+	if err == nil {
+		t.Error("expected an error for a cancelled context")
+	}
 }
 
 // Guard against the interface assertion in isRetryableAllocationError silently
