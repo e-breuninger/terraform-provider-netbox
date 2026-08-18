@@ -52,6 +52,14 @@ func resourceNetboxDeviceType() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"comments": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			tagsKey:         tagsSchema,
 			customFieldsKey: customFieldsSchema,
 		},
@@ -97,6 +105,10 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
 		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
+
+	data.Description = d.Get("description").(string)
+
+	data.Comments = d.Get("comments").(string)
 
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
@@ -152,6 +164,8 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("subdevice_role", "")
 	}
+	d.Set("description", deviceType.Description)
+	d.Set("comments", deviceType.Comments)
 	api.readTags(d, deviceType.Tags)
 
 	cf := getCustomFields(deviceType.CustomFields)
@@ -198,6 +212,10 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
 		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
+
+	data.Description = d.Get("description").(string)
+
+	data.Comments = d.Get("comments").(string)
 
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
