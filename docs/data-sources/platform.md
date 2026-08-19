@@ -31,7 +31,9 @@ data "netbox_platform" "PANOS" {
 
 ### Read-Only
 
+- `description` (String)
 - `id` (String) The ID of this resource.
 - `slug` (String)
+- `tags` (Set of String)
 
 
