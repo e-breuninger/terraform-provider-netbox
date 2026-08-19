@@ -83,7 +83,10 @@ func providerInvalidConfigure() schema.ConfigureContextFunc {
 			return nil, diag.FromErr(clientError)
 		}
 
-		return &providerState{NetBoxAPI: netboxClient}, diags
+		return &providerState{
+			NetBoxAPI:   netboxClient,
+			defaultTags: schema.NewSet(schema.HashString, nil),
+		}, diags
 	}
 }
 

@@ -31,11 +31,14 @@ resource "netbox_platform" "PANOS" {
 
 ### Optional
 
+- `description` (String)
 - `manufacturer_id` (Number)
 - `slug` (String)
+- `tags` (Set of String)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `tags_all` (Set of String)
 
 
