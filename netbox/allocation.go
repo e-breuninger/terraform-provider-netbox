@@ -186,6 +186,12 @@ func isRetryableAllocationError(err error) bool {
 
 	switch coder.Code() {
 	case 409, 429:
+		// Netbox itself reported contention on the pool.
+		return true
+	case 502, 503, 504:
+		// A gateway/proxy in front of Netbox couldn't reach it or gave up
+		// waiting, e.g. during a rolling deploy. The request never reached
+		// Netbox's own allocation lock, so nothing was committed.
 		return true
 	default:
 		return false
