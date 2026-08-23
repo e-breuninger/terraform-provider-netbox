@@ -1,13 +1,17 @@
 package netbox
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-log/tflogtest"
 )
 
 // codeError stands in for the go-netbox "Default" error types, which all
@@ -286,6 +290,43 @@ func TestRetryAllocationRetriesConflictThenSucceeds(t *testing.T) {
 	}
 	if attempts != 3 {
 		t.Errorf("expected 3 attempts, got %d", attempts)
+	}
+}
+
+// The acceptance tests call retryAllocation directly with context.Background(),
+// which never reaches tflog.Debug's output since that context carries no
+// logger. This test builds a context the way the real Create path receives
+// one from the SDK, so it actually proves the log line fires on a retry.
+func TestRetryAllocationLogsEachRetry(t *testing.T) {
+	var buf bytes.Buffer
+	ctx := tflogtest.RootLogger(context.Background(), &buf)
+
+	attempts := 0
+	err := retryAllocation(ctx, func() error {
+		attempts++
+		if attempts < 3 {
+			return codeError{409}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	entries, err := tflogtest.MultilineJSONDecode(&buf)
+	if err != nil {
+		t.Fatalf("decoding log output: %s", err)
+	}
+
+	retries := 0
+	for _, entry := range entries {
+		msg, _ := entry["@message"].(string)
+		if strings.Contains(msg, "retrying netbox allocation") {
+			retries++
+		}
+	}
+	if retries != 2 {
+		t.Errorf("expected 2 retry log entries (one per failed attempt before success), got %d in %v", retries, entries)
 	}
 }
 

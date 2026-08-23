@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"net"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Netbox hands out "next available" objects (prefixes, IPs, VLANs) from a
@@ -26,6 +28,15 @@ const (
 	// allocation. Requests are cut off by the provider's request_timeout
 	// (10 seconds by default), so this is a budget for several attempts
 	// rather than one long wait.
+	//
+	// This budget is not coordinated with any deadline outside this process,
+	// e.g. Terraform's own operation timeout or a CI job's timeout. If one of
+	// those fires while a retry is in flight and Netbox happens to accept that
+	// attempt right after, the object gets created but the apply that was
+	// waiting for it is already gone, leaving Netbox with an object Terraform
+	// never records in state. There is no clean fix for this from inside the
+	// provider; keeping this budget well under any reasonable outer timeout is
+	// the only mitigation.
 	allocationRetryTimeout = 2 * time.Minute
 
 	// allocationRetryMinDelay and allocationRetryMaxDelay bound the backoff
@@ -74,6 +85,14 @@ func allocationLockKeyVLANGroup(groupID int64) string {
 // Waiting for the lock respects ctx, so a cancelled apply does not sit in the
 // queue. The returned error is non-nil only when ctx is done before the lock
 // was taken; the unlock function is safe to call in that case and is a no-op.
+//
+// The lock lives on this providerState, so it only coordinates allocations
+// made through this one provider instance. Two aliased netbox provider blocks
+// pointing at the same Netbox server each get their own providerState and so
+// their own lock: they do not serialize against each other, and fall back
+// entirely on retryAllocation (and Netbox's own server side locking) to stay
+// correct. That is a real gap in the "avoid piling up requests" benefit this
+// lock exists for, just not in correctness.
 func (s *providerState) lockAllocation(ctx context.Context, key string) (func(), error) {
 	value, ok := s.allocationLocks.Load(key)
 	if !ok {
@@ -138,6 +157,11 @@ func retryAllocation(ctx context.Context, fn func() error) error {
 		// lockstep and colliding all over again.
 		wait := time.Duration(rand.Int63n(int64(delay)) + int64(delay)/2)
 
+		tflog.Debug(ctx, "retrying netbox allocation after a conflict", map[string]interface{}{
+			"error": err.Error(),
+			"wait":  wait.String(),
+		})
+
 		timer := time.NewTimer(wait)
 		select {
 		case <-timer.C:
@@ -161,6 +185,13 @@ func retryAllocation(ctx context.Context, fn func() error) error {
 // Only the HTTP status is used. Netbox runs behind different application
 // servers depending on version and deployment, so no assumption is made about
 // server side timeouts or error bodies.
+//
+// A 429 response's Retry-After header, if Netbox sends one, is not read: the
+// generated go-netbox error types only expose the status code, not response
+// headers, so honoring it would need a custom http.RoundTripper wrapped around
+// the client just to capture headers before go-swagger discards them. Retries
+// use our own backoff instead, which can be shorter than Netbox actually
+// wants and retry more aggressively than ideal under real rate limiting.
 func isRetryableAllocationError(err error) bool {
 	if err == nil {
 		return false
