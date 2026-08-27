@@ -11,7 +11,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/goware/urlx v0.3.2
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.1
-	github.com/sirupsen/logrus v1.10.0
+	github.com/sirupsen/logrus v1.10.1
 	github.com/stretchr/testify v1.12.1
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90
 )
