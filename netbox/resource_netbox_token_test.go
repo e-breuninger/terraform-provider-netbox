@@ -112,7 +112,7 @@ resource "netbox_token" "test_without_expires" {
 					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "allowed_ips.0", "2.4.8.16/32"),
 					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "write_enabled", "false"),
 					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "description", "Netbox Token Without Expires"),
-					resource.TestCheckNoResourceAttr("netbox_token.test_without_expires", "expires"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "expires", ""),
 				),
 			},
 			{
