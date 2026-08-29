@@ -90,7 +90,6 @@ func resourceNetboxVirtualMachineInterfacePrimaryMACAddressUpdate(d *schema.Reso
 		Description:    iface.Description,
 		Enabled:        iface.Enabled,
 		ID:             iface.ID,
-		MacAddress:     iface.MacAddress,
 		Mtu:            iface.Mtu,
 		Tags:           iface.Tags,
 		URL:            iface.URL,
