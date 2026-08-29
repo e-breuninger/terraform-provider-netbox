@@ -2,8 +2,8 @@ package netbox
 
 import (
 	"fmt"
-	"testing"
 	"regexp"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -15,7 +15,6 @@ resource "netbox_vpn_tunnel_group" "test" {
   description = "%[1]s"
 }`, testName)
 }
-
 
 const testAccNetboxVpnTunnelGroupNoResult = `
 data "netbox_vpn_tunnel_group" "test" {
