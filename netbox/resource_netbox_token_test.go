@@ -32,16 +32,13 @@ resource "netbox_user" "test" {
 
 resource "netbox_token" "test_basic" {
   user_id       = netbox_user.test.id
-  key           = "%s"
-  allowed_ips   = ["2.4.8.16/32"]
+  token         = "%s"
   write_enabled = false
   description   = "Netbox Test Basic Token"
   expires       = "2036-01-02T15:04:05.000Z"
 }`, testName, testToken),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_token.test_basic", "key", testToken),
-					resource.TestCheckResourceAttr("netbox_token.test_basic", "allowed_ips.#", "1"),
-					resource.TestCheckResourceAttr("netbox_token.test_basic", "allowed_ips.0", "2.4.8.16/32"),
+					resource.TestCheckResourceAttr("netbox_token.test_basic", "token", testToken),
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "write_enabled", "false"),
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "description", "Netbox Test Basic Token"),
 					resource.TestCheckResourceAttr("netbox_token.test_basic", "expires", "2036-01-02T15:04:05.000Z"),
@@ -51,7 +48,7 @@ resource "netbox_token" "test_basic" {
 				ResourceName:            "netbox_token.test_basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"key"},
+				ImportStateVerifyIgnore: []string{"key", "token"},
 			},
 		},
 	})
@@ -77,15 +74,12 @@ resource "netbox_user" "test" {
 
 resource "netbox_token" "test_without_expires" {
   user_id       = netbox_user.test.id
-  key           = "%s"
-  allowed_ips   = ["2.4.8.16/32"]
+  token         = "%s"
   write_enabled = false
   description   = "Netbox Token Without Expires"
 }`, testName, testToken),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "key", testToken),
-					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "allowed_ips.#", "1"),
-					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "allowed_ips.0", "2.4.8.16/32"),
+					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "token", testToken),
 					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "write_enabled", "false"),
 					resource.TestCheckResourceAttr("netbox_token.test_without_expires", "description", "Netbox Token Without Expires"),
 					resource.TestCheckNoResourceAttr("netbox_token.test_without_expires", "expires"),
@@ -95,7 +89,7 @@ resource "netbox_token" "test_without_expires" {
 				ResourceName:            "netbox_token.test_without_expires",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"key"},
+				ImportStateVerifyIgnore: []string{"key", "token"},
 			},
 		},
 	})

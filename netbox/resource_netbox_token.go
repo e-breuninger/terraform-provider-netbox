@@ -32,7 +32,21 @@ func resourceNetboxToken() *schema.Resource {
 				Type:         schema.TypeString,
 				Sensitive:    true,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(40, 256),
+				Deprecated:   "NetBox 4.6 made `key` read-only. Set `token` instead; this value is no longer sent.",
+			},
+			"token": {
+				Type:         schema.TypeString,
+				Sensitive:    true,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringLenBetween(40, 256),
+			},
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 			"allowed_ips": {
 				Type:     schema.TypeList,
@@ -41,6 +55,7 @@ func resourceNetboxToken() *schema.Resource {
 					Type:         schema.TypeString,
 					ValidateFunc: validation.IsCIDR,
 				},
+				Deprecated: "NetBox 4.6 removed `allowed_ips` from the API. This value is no longer sent and has no effect.",
 			},
 			"write_enabled": {
 				Type:     schema.TypeBool,
@@ -72,17 +87,15 @@ func resourceNetboxTokenCreate(ctx context.Context, d *schema.ResourceData, m in
 
 	userid := int64(d.Get("user_id").(int))
 
-	key := d.Get("key").(string)
-	allowedIps := d.Get("allowed_ips").([]interface{})
-
 	data.User = &userid
-	data.Key = key
 
-	data.AllowedIps = make([]models.IPNetwork, len(allowedIps))
-	for i, v := range allowedIps {
-		data.AllowedIps[i] = v
+	// NetBox 4.6 made `key` read-only and dropped `allowed_ips`; `token` is
+	// the write field. `key` is still read back for pre-4.6 servers.
+	if token, ok := d.GetOk("token"); ok {
+		data.Token = token.(string)
 	}
 
+	data.Enabled = d.Get("enabled").(bool)
 	data.WriteEnabled = d.Get("write_enabled").(bool)
 	data.Description = d.Get("description").(string)
 
@@ -129,14 +142,17 @@ func resourceNetboxTokenRead(ctx context.Context, d *schema.ResourceData, m inte
 
 	// Since NetBox 4.3.0, ALLOW_TOKEN_RETRIEVAL is disabled by default
 	// This means we will usually not get a Key value from the API
-	if token.Key != "" {
-		d.Set("key", token.Key)
+	if token.Key != nil && *token.Key != "" {
+		d.Set("key", *token.Key)
 	}
+	if token.Token != "" {
+		d.Set("token", token.Token)
+	}
+	d.Set("enabled", token.Enabled)
 	d.Set("last_used", token.LastUsed)
 	if token.Expires != nil {
 		d.Set("expires", token.Expires.String())
 	}
-	d.Set("allowed_ips", token.AllowedIps)
 	d.Set("write_enabled", token.WriteEnabled)
 	d.Set("description", token.Description)
 
@@ -149,17 +165,14 @@ func resourceNetboxTokenUpdate(ctx context.Context, d *schema.ResourceData, m in
 	data := models.WritableToken{}
 
 	userid := int64(d.Get("user_id").(int))
-	key := d.Get("key").(string)
-	allowedIps := d.Get("allowed_ips").([]interface{})
 
 	data.User = &userid
-	data.Key = key
 
-	data.AllowedIps = make([]models.IPNetwork, len(allowedIps))
-	for i, v := range allowedIps {
-		data.AllowedIps[i] = v
+	if token, ok := d.GetOk("token"); ok {
+		data.Token = token.(string)
 	}
 
+	data.Enabled = d.Get("enabled").(bool)
 	data.WriteEnabled = d.Get("write_enabled").(bool)
 	data.Description = d.Get("description").(string)
 
