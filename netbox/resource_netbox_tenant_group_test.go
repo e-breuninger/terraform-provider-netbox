@@ -59,6 +59,39 @@ resource "netbox_tenant_group" "test" {
 	})
 }
 
+func TestAccNetboxTenantGroup_customFields(t *testing.T) {
+	testSlug := "t_grp_cf"
+	testName := testAccGetTestName(testSlug)
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "%[2]s"
+  type          = "text"
+  content_types = ["tenancy.tenantgroup"]
+}
+
+resource "netbox_tenant_group" "test" {
+  name          = "%[1]s"
+  custom_fields = {"${netbox_custom_field.test.name}" = "testvalue"}
+}`, testName, testField),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_tenant_group.test", "custom_fields."+testField, "testvalue"),
+				),
+			},
+			{
+				ResourceName:      "netbox_tenant_group.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_tenant_group", &resource.Sweeper{
 		Name:         "netbox_tenant_group",
