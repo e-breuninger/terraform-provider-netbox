@@ -48,6 +48,14 @@ func resourceNetboxVlanGroup() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
+			"comments": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tenant_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"vid_ranges": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
@@ -88,6 +96,11 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 	data.Name = &name
 	data.Slug = &slug
 	data.Description = description
+	data.Comments = d.Get("comments").(string)
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
 
 	if scopeType, ok := d.GetOk("scope_type"); ok {
 		data.ScopeType = strToPtr(scopeType.(string))
@@ -136,6 +149,13 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", vlanGroup.Name)
 	d.Set("slug", vlanGroup.Slug)
 	d.Set("description", vlanGroup.Description)
+	d.Set("comments", vlanGroup.Comments)
+
+	if vlanGroup.Tenant != nil {
+		d.Set("tenant_id", vlanGroup.Tenant)
+	} else {
+		d.Set("tenant_id", nil)
+	}
 	d.Set("vid_ranges", vlanGroup.VidRanges)
 	api.readTags(d, vlanGroup.Tags)
 
@@ -174,6 +194,11 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Name = &name
 	data.Slug = &slug
 	data.Description = description
+	data.Comments = d.Get("comments").(string)
+
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		data.Tenant = int64ToPtr(int64(tenantID.(int)))
+	}
 
 	if scopeType, ok := d.GetOk("scope_type"); ok {
 		data.ScopeType = strToPtr(scopeType.(string))
