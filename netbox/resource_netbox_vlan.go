@@ -51,6 +51,17 @@ func resourceNetboxVlan() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"qinq_role": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"svlan", "cvlan"}, false),
+				Description:  "Q-in-Q role of this VLAN. Valid values are `svlan` and `cvlan`.",
+			},
+			"qinq_svlan_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "ID of the service VLAN this customer VLAN belongs to.",
+			},
 
 			"site_id": {
 				Type:     schema.TypeInt,
@@ -98,6 +109,14 @@ func resourceNetboxVlanCreate(d *schema.ResourceData, m interface{}) error {
 
 	if roleID, ok := d.GetOk("role_id"); ok {
 		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	if qinqRole, ok := d.GetOk("qinq_role"); ok {
+		data.QinqRole = strToPtr(qinqRole.(string))
+	}
+
+	if qinqSvlanID, ok := d.GetOk("qinq_svlan_id"); ok {
+		data.QinqSvlan = int64ToPtr(int64(qinqSvlanID.(int)))
 	}
 	if cf, ok := d.GetOk(customFieldsKey); ok {
 		data.CustomFields = getCustomFields(cf)
@@ -163,6 +182,12 @@ func resourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 	if vlan.Role != nil {
 		d.Set("role_id", vlan.Role.ID)
 	}
+	if vlan.QinqRole != nil {
+		d.Set("qinq_role", vlan.QinqRole.Value)
+	}
+	if vlan.QinqSvlan != nil {
+		d.Set("qinq_svlan_id", vlan.QinqSvlan.ID)
+	}
 
 	return nil
 }
@@ -195,6 +220,14 @@ func resourceNetboxVlanUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if roleID, ok := d.GetOk("role_id"); ok {
 		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	if qinqRole, ok := d.GetOk("qinq_role"); ok {
+		data.QinqRole = strToPtr(qinqRole.(string))
+	}
+
+	if qinqSvlanID, ok := d.GetOk("qinq_svlan_id"); ok {
+		data.QinqSvlan = int64ToPtr(int64(qinqSvlanID.(int)))
 	}
 	if cf, ok := d.GetOk(customFieldsKey); ok {
 		data.CustomFields = getCustomFields(cf)
