@@ -182,6 +182,7 @@ func Provider() *schema.Provider {
 			"netbox_wireless_lan":                                  resourceNetboxWirelessLAN(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
+			"netbox_aggregate":                 dataSourceNetboxAggregate(),
 			"netbox_asn":                       dataSourceNetboxAsn(),
 			"netbox_asns":                      dataSourceNetboxAsns(),
 			"netbox_available_prefix":          dataSourceNetboxAvailablePrefix(),
