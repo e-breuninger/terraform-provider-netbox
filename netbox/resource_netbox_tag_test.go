@@ -25,12 +25,35 @@ resource "netbox_tag" "test" {
   slug = "%s"
   color_hex = "112233"
   description = "This is a test"
+  object_types = ["dcim.device", "virtualization.virtualmachine"]
+  weight = 2000
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tag.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_tag.test", "slug", randomSlug),
 					resource.TestCheckResourceAttr("netbox_tag.test", "color_hex", "112233"),
 					resource.TestCheckResourceAttr("netbox_tag.test", "description", "This is a test"),
+					resource.TestCheckResourceAttr("netbox_tag.test", "object_types.#", "2"),
+					resource.TestCheckTypeSetElemAttr("netbox_tag.test", "object_types.*", "dcim.device"),
+					resource.TestCheckTypeSetElemAttr("netbox_tag.test", "object_types.*", "virtualization.virtualmachine"),
+					resource.TestCheckResourceAttr("netbox_tag.test", "weight", "2000"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_tag" "test" {
+  name = "%s"
+  slug = "%s"
+  color_hex = "112233"
+  description = "This is an updated test"
+  object_types = ["dcim.interface"]
+  weight = 3000
+}`, testName, randomSlug),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_tag.test", "description", "This is an updated test"),
+					resource.TestCheckResourceAttr("netbox_tag.test", "object_types.#", "1"),
+					resource.TestCheckTypeSetElemAttr("netbox_tag.test", "object_types.*", "dcim.interface"),
+					resource.TestCheckResourceAttr("netbox_tag.test", "weight", "3000"),
 				),
 			},
 			{
@@ -57,6 +80,8 @@ resource "netbox_tag" "test" {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_tag.test", "name", testName),
 					resource.TestCheckResourceAttr("netbox_tag.test", "slug", getSlug(testName)),
+					resource.TestCheckResourceAttr("netbox_tag.test", "object_types.#", "0"),
+					resource.TestCheckResourceAttr("netbox_tag.test", "weight", "1000"),
 				),
 			},
 		},

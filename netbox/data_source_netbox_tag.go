@@ -25,6 +25,19 @@ func dataSourceNetboxTag() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"object_types": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "The NetBox object types to which this tag can be applied.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"weight": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The tag's display ordering weight.",
+			},
 		},
 	}
 }
@@ -37,8 +50,13 @@ func dataSourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	params.Name = &name
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
+	fieldsByID := make(map[int64]tagAPIFields)
 
-	res, err := api.Extras.ExtrasTagsList(params, nil)
+	res, err := api.Extras.ExtrasTagsList(
+		params,
+		nil,
+		captureTagListAPIFields(fieldsByID),
+	)
 	if err != nil {
 		return err
 	}
@@ -55,5 +73,7 @@ func dataSourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
 	d.Set("description", result.Description)
+	d.Set("object_types", fieldsByID[result.ID].ObjectTypes)
+	d.Set("weight", fieldsByID[result.ID].Weight)
 	return nil
 }

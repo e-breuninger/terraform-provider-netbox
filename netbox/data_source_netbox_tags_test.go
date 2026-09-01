@@ -11,6 +11,8 @@ func testAccNetboxTagsSetUp() string {
 resource "netbox_tag" "test_1" {
   name = "Tag1234"
   slug = "tag1234"
+  object_types = ["dcim.device"]
+  weight = 2000
 }
 
 resource "netbox_tag" "test_2" {
@@ -44,6 +46,13 @@ data "netbox_tags" "test" {
 }`
 }
 
+func testAccNetboxTagByName() string {
+	return `
+data "netbox_tag" "test" {
+  name = "Tag1234"
+}`
+}
+
 // func testAccNetboxTagsAll() string {
 // 	return `
 // data "netbox_tags" "test" {
@@ -66,6 +75,9 @@ func TestAccNetboxTagsDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_tags.test", "tags.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.0.tag_id", "netbox_tag.test_1", "id"),
+					resource.TestCheckResourceAttr("data.netbox_tags.test", "tags.0.object_types.#", "1"),
+					resource.TestCheckTypeSetElemAttr("data.netbox_tags.test", "tags.0.object_types.*", "dcim.device"),
+					resource.TestCheckResourceAttr("data.netbox_tags.test", "tags.0.weight", "2000"),
 				),
 			},
 			{
@@ -73,6 +85,15 @@ func TestAccNetboxTagsDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_tags.test", "tags.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.0.tag_id", "netbox_tag.test_3", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxTagByName(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("data.netbox_tag.test", "id", "netbox_tag.test_1", "id"),
+					resource.TestCheckResourceAttr("data.netbox_tag.test", "object_types.#", "1"),
+					resource.TestCheckTypeSetElemAttr("data.netbox_tag.test", "object_types.*", "dcim.device"),
+					resource.TestCheckResourceAttr("data.netbox_tag.test", "weight", "2000"),
 				),
 			},
 			// {

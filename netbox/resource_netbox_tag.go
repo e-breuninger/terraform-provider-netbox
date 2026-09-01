@@ -43,6 +43,21 @@ func resourceNetboxTag() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"object_types": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "The NetBox object types to which this tag can be applied. An empty set allows all object types.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"weight": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      defaultTagWeight,
+				Description:  "The tag's display ordering weight.",
+				ValidateFunc: validation.IntBetween(0, 32767),
+			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -76,7 +91,11 @@ func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 		},
 	)
 
-	res, err := api.Extras.ExtrasTagsCreate(params, nil)
+	res, err := api.Extras.ExtrasTagsCreate(
+		params,
+		nil,
+		serializeTagAPIFields(tagAPIFieldsFromResourceData(d)),
+	)
 	if err != nil {
 		//return errors.New(getTextFromError(err))
 		return err
@@ -91,8 +110,13 @@ func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 	params := extras.NewExtrasTagsReadParams().WithID(id)
+	apiFields := tagAPIFields{}
 
-	res, err := api.Extras.ExtrasTagsRead(params, nil)
+	res, err := api.Extras.ExtrasTagsRead(
+		params,
+		nil,
+		captureTagReadAPIFields(&apiFields),
+	)
 	if err != nil {
 		if errresp, ok := err.(*extras.ExtrasTagsReadDefault); ok {
 			errorcode := errresp.Code()
@@ -109,6 +133,8 @@ func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("slug", res.GetPayload().Slug)
 	d.Set("color_hex", res.GetPayload().Color)
 	d.Set("description", res.GetPayload().Description)
+	d.Set("object_types", apiFields.ObjectTypes)
+	d.Set("weight", apiFields.Weight)
 	return nil
 }
 
@@ -138,7 +164,11 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 
 	params := extras.NewExtrasTagsUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Extras.ExtrasTagsUpdate(params, nil)
+	_, err := api.Extras.ExtrasTagsUpdate(
+		params,
+		nil,
+		serializeTagAPIFields(tagAPIFieldsFromResourceData(d)),
+	)
 	if err != nil {
 		return err
 	}
@@ -163,4 +193,11 @@ func resourceNetboxTagDelete(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func tagAPIFieldsFromResourceData(d *schema.ResourceData) tagAPIFields {
+	return tagAPIFields{
+		ObjectTypes: toStringList(d.Get("object_types")),
+		Weight:      int64(d.Get("weight").(int)),
+	}
 }

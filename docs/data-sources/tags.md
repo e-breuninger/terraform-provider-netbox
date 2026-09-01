@@ -61,7 +61,9 @@ Read-Only:
 - `color` (String)
 - `description` (String)
 - `name` (String)
+- `object_types` (Set of String)
 - `slug` (String)
 - `tag_id` (Number)
+- `weight` (Number)
 
 
