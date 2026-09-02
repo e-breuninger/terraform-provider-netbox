@@ -14,6 +14,7 @@ import (
 )
 
 func dataSourceNetboxVirtualMachine() *schema.Resource {
+	customFieldsFilterSchema := *customFieldsSchema
 	return &schema.Resource{
 		Read:        dataSourceNetboxVirtualMachineRead,
 		Description: `:meta:subcategory:Virtualization:`,
@@ -45,6 +46,7 @@ func dataSourceNetboxVirtualMachine() *schema.Resource {
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(1)),
 				Default:          0,
 			},
+			customFieldsKey: &customFieldsFilterSchema,
 			"vms": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -160,6 +162,7 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 	api := m.(*providerState)
 
 	params := virtualization.NewVirtualizationVirtualMachinesListParams()
+	var opts []virtualization.ClientOption
 
 	// Get user limit (0 = fetch all)
 	var userLimit int64 = 0
@@ -212,13 +215,17 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 	paginationHelper := NewPaginationHelper(FetchAll)
 	var allVms []*models.VirtualMachineWithConfigContext
 
+	if cfm, ok := d.Get(customFieldsKey).(map[string]interface{}); ok {
+		opts = append(opts, WithCustomFieldParamsOption(cfm))
+	}
+
 	pageSize := paginationHelper.GetPageSize()
 	for {
 		currentOffset := paginationHelper.CurrentOffset()
 		params.Limit = &pageSize
 		params.Offset = &currentOffset
 
-		res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil)
+		res, err := api.Virtualization.VirtualizationVirtualMachinesList(params, nil, opts...)
 		if err != nil {
 			return fmt.Errorf("failed to fetch virtual machines at offset %d: %w", currentOffset, err)
 		}

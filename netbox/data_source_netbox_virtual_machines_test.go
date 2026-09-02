@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -112,6 +113,37 @@ func TestAccNetboxVirtualMachinesDataSource_status(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test_decommissioning", "vms.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test_active", "vms.0.status", "netbox_virtual_machine.test0", "status"),
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test_decommissioning", "vms.0.status", "netbox_virtual_machine.test1", "status"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetboxVirtualMachinesDataSource_customFields(t *testing.T) {
+	testSlug := "vm_ds_filter_cf"
+	testName := testAccGetTestName(testSlug)
+	// Custom field names can only contain alphanumeric characters and underscores
+	testField := strings.ReplaceAll(testAccGetTestName(testSlug), "-", "_")
+	dependencies := testAccNetboxVirtualMachineDataSourceDependenciesWithCustomFields(testName, testField)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: dependencies,
+			},
+			{
+				Config: dependencies + fmt.Sprintf(`
+data "netbox_virtual_machines" "test" {
+  depends_on = [netbox_virtual_machine.test0, netbox_virtual_machine.test1]
+
+  custom_fields = {
+    "%s" = "match"
+  }
+}`, testField),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.name", "netbox_virtual_machine.test0", "name"),
+					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", fmt.Sprintf("vms.0.custom_fields.%s", testField), "match"),
 				),
 			},
 		},
@@ -394,4 +426,32 @@ resource "netbox_virtual_machine" "test1" {
     netbox_tag.servicea.name,
   ]
 }`, testName)
+}
+
+func testAccNetboxVirtualMachineDataSourceDependenciesWithCustomFields(testName string, customFieldName string) string {
+	return testAccNetboxVirtualMachineFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "%[2]s"
+  type          = "text"
+  weight        = 100
+  content_types = ["virtualization.virtualmachine"]
+}
+
+resource "netbox_virtual_machine" "test0" {
+  name       = "%[1]s_0"
+  cluster_id = netbox_cluster.test.id
+  site_id    = netbox_site.test.id
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "match"
+  }
+}
+
+resource "netbox_virtual_machine" "test1" {
+  name       = "%[1]s_1"
+  cluster_id = netbox_cluster.test.id
+  site_id    = netbox_site.test.id
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "skip"
+  }
+}`, testName, customFieldName)
 }
