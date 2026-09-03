@@ -23,7 +23,7 @@ resource "netbox_prefix" "test_prefix1" {
   description = "my-description"
   vrf_id      = netbox_vrf.test_vrf.id
   vlan_id     = netbox_vlan.test_vlan1.id
-  tags        = [netbox_tag.test_tag1.slug]
+  tags        = [netbox_tag.test_tag1.slug, netbox_tag.test_tag3.slug]
 }
 
 resource "netbox_prefix" "test_prefix2" {
@@ -112,6 +112,10 @@ resource "netbox_tag" "test_tag2" {
   name = "tag-with-no-associations"
 }
 
+resource "netbox_tag" "test_tag3" {
+  name = "%[1]s_tag3"
+}
+
 data "netbox_prefixes" "by_vrf" {
   depends_on = [netbox_prefix.test_prefix1, netbox_prefix.test_prefix2]
   filter {
@@ -153,6 +157,37 @@ data "netbox_prefixes" "no_results" {
   filter {
     name  = "tag"
     value = netbox_tag.test_tag2.name
+  }
+}
+
+# test_prefix1 carries both test_tag1 and test_tag3, so requiring both tags
+# (repeated "tag" filter blocks) should still match it: NetBox ANDs repeated
+# tag filters together, and the provider must forward every value, not just
+# the last one seen.
+data "netbox_prefixes" "by_multiple_tags_and" {
+  depends_on = [netbox_prefix.test_prefix1]
+  filter {
+    name  = "tag"
+    value = netbox_tag.test_tag1.slug
+  }
+  filter {
+    name  = "tag"
+    value = netbox_tag.test_tag3.slug
+  }
+}
+
+# test_prefix1 does not carry test_tag2, so ANDing it with test_tag1 must
+# yield no matches. If the provider only forwarded one of the two "tag"
+# filters (the historical bug), this would incorrectly return test_prefix1.
+data "netbox_prefixes" "by_tag_and_unrelated_tag" {
+  depends_on = [netbox_prefix.test_prefix1]
+  filter {
+    name  = "tag"
+    value = netbox_tag.test_tag1.slug
+  }
+  filter {
+    name  = "tag"
+    value = netbox_tag.test_tag2.slug
   }
 }
 
@@ -223,6 +258,9 @@ data "netbox_prefixes" "find_prefix_with_description" {
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_status", "prefixes.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.by_status", "prefixes.0.description", "my-description"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.no_results", "prefixes.#", "0"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.by_multiple_tags_and", "prefixes.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.by_multiple_tags_and", "prefixes.0.description", "my-description"),
+					resource.TestCheckResourceAttr("data.netbox_prefixes.by_tag_and_unrelated_tag", "prefixes.#", "0"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_tenant_id", "prefixes.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_tenant_id", "prefixes.0.prefix", "10.0.7.0/24"),
 					resource.TestCheckResourceAttr("data.netbox_prefixes.find_prefix_with_site_id", "prefixes.#", "1"),
