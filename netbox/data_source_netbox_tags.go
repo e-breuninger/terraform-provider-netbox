@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
@@ -160,10 +159,6 @@ func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
 	// Trim to user limit if specified
 	trimmedCount := paginationHelper.TrimToLimit(len(allTags))
 	results := allTags[:trimmedCount]
-
-	if len(results) == 0 {
-		return errors.New("no result")
-	}
 
 	var s []map[string]interface{}
 	for _, v := range results {

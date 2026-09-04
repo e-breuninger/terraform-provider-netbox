@@ -46,6 +46,17 @@ data "netbox_device_interfaces" "by_tag" {
     value  = netbox_tag.test.name
   }
 }
+
+data "netbox_device_interfaces" "empty" {
+  filter {
+    name  = "device_id"
+    value = netbox_device.test.id
+  }
+  filter {
+    name  = "name"
+    value = "does-not-exist"
+  }
+}
 `,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_name", "interfaces.#", "1"),
@@ -59,6 +70,7 @@ data "netbox_device_interfaces" "by_tag" {
 					resource.TestCheckResourceAttrSet("data.netbox_device_interfaces.by_mac_address", "interfaces.0.mac_addresses.0.mac_address"),
 					resource.TestCheckResourceAttrSet("data.netbox_device_interfaces.by_mac_address", "interfaces.0.mac_addresses.0.description"),
 					resource.TestCheckResourceAttr("data.netbox_device_interfaces.by_tag", "interfaces.#", "2"),
+					resource.TestCheckResourceAttr("data.netbox_device_interfaces.empty", "interfaces.#", "0"),
 				),
 			},
 		},

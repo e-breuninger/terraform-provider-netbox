@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -300,10 +299,6 @@ func dataSourceNetboxVlanGroupsRead(d *schema.ResourceData, m interface{}) error
 	// Trim to user limit if specified
 	trimmedCount := paginationHelper.TrimToLimit(len(allVlanGroups))
 	filteredVlanGroups := allVlanGroups[:trimmedCount]
-
-	if len(filteredVlanGroups) == 0 {
-		return errors.New("no result")
-	}
 
 	var s []map[string]interface{}
 	for _, vg := range filteredVlanGroups {

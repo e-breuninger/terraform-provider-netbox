@@ -69,6 +69,12 @@ func TestAccNetboxVirtualMachinesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair("data.netbox_virtual_machines.test", "vms.0.cluster_id", "netbox_cluster.test", "id"),
 				),
 			},
+			{
+				Config: dependencies + testAccNetboxVirtualMachineDataSourceFilterEmpty(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_virtual_machines.test", "vms.#", "0"),
+				),
+			},
 		},
 	})
 }
@@ -231,6 +237,20 @@ const testAccNetboxVirtualMachineDataSourceNameRegex = `
 data "netbox_virtual_machines" "test" {
   name_regex = "test.*_regex"
 }`
+
+func testAccNetboxVirtualMachineDataSourceFilterEmpty(testName string) string {
+	return fmt.Sprintf(`
+data "netbox_virtual_machines" "test" {
+  filter {
+    name  = "cluster_id"
+    value = netbox_cluster.test.id
+  }
+  filter {
+    name  = "name"
+    value = "%[1]s_does_not_exist"
+  }
+}`, testName)
+}
 
 const testAccNetboxVirtualMachineDataSourceLimit = `
 data "netbox_virtual_machines" "test" {

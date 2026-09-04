@@ -60,10 +60,19 @@ data "netbox_ip_ranges" "test_list" {
 		name = "start_address"
 		value = "%[1]s"
 	}
+}
+data "netbox_ip_ranges" "empty" {
+	depends_on = [netbox_ip_range.test_range_0, netbox_ip_range.test_range_1]
+
+	filter {
+		name = "start_address"
+		value = "203.0.113.1/24"
+	}
 }`, testStartIP0, testEndIP0, testStartIP1, testEndIP1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_ip_ranges.test_list", "ip_ranges.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_ip_ranges.test_list", "ip_ranges.0.start_address", "netbox_ip_range.test_range_0", "start_address"),
+					resource.TestCheckResourceAttr("data.netbox_ip_ranges.empty", "ip_ranges.#", "0"),
 				),
 			},
 		},
