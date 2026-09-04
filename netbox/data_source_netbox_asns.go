@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -127,10 +126,6 @@ func dataSourceNetboxAsnsRead(d *schema.ResourceData, m interface{}) error {
 	// Trim to user limit if specified
 	trimmedCount := paginationHelper.TrimToLimit(len(allAsns))
 	filteredAsns := allAsns[:trimmedCount]
-
-	if len(filteredAsns) == 0 {
-		return errors.New("no result")
-	}
 
 	var s []map[string]interface{}
 	for _, v := range filteredAsns {

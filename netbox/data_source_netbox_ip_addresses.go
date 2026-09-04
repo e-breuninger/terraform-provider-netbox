@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -225,10 +224,10 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 	trimmedCount := paginationHelper.TrimToLimit(len(allIPAddresses))
 	filteredIPAddresses := allIPAddresses[:trimmedCount]
 
-	if len(filteredIPAddresses) == 0 {
-		return errors.New("no result")
-	}
-
+	// No error on zero matches: a caller filtering by e.g. interface_id needs to
+	// tell "nothing has this IP yet" apart from a real failure, which erroring
+	// here made impossible - every filtered read had to assume at least one
+	// match exists.
 	var s []map[string]interface{}
 	for _, v := range filteredIPAddresses {
 		var mapping = make(map[string]interface{})

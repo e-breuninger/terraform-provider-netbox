@@ -68,10 +68,23 @@ data "netbox_racks" "by_status" {
     value = netbox_site.test.id
   }
 }
+
+data "netbox_racks" "empty" {
+  depends_on = [netbox_rack.test_rack1, netbox_rack.test_rack2, netbox_rack.test_rack3]
+  filter {
+    name  = "name"
+    value = "%[1]s-does-not-exist"
+  }
+  filter {
+    name = "site_id"
+    value = netbox_site.test.id
+  }
+}
 `, testName, testRacks[0], testRacks[1], testRacks[2]),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_racks.by_name", "racks.#", "1"),
 					resource.TestCheckResourceAttr("data.netbox_racks.by_status", "racks.#", "2"),
+					resource.TestCheckResourceAttr("data.netbox_racks.empty", "racks.#", "0"),
 				),
 			},
 		},

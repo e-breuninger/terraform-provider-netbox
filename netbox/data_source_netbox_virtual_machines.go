@@ -2,7 +2,6 @@ package netbox
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -253,10 +252,6 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 	// Apply user limit to filtered results
 	if userLimit > 0 && int64(len(filteredVms)) > userLimit {
 		filteredVms = filteredVms[:userLimit]
-	}
-
-	if len(filteredVms) == 0 {
-		return errors.New("no result")
 	}
 
 	var s []map[string]interface{}

@@ -65,6 +65,21 @@ data "netbox_asns" "test" {
 }`
 }
 
+func testAccNetboxAsnsEmpty() string {
+	return `
+data "netbox_asns" "test" {
+  filter {
+	name = "asn__gte"
+	value = "999888000"
+  }
+
+  filter {
+	name = "asn__lte"
+	value = "999888999"
+  }
+}`
+}
+
 func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
 	testName := testAccGetTestName("asns_ds_basic")
 	setUp := testAccNetboxAsnsSetUp(testName)
@@ -99,6 +114,12 @@ func TestAccNetboxAsnsDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_asns.test", "asns.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.0.id", "netbox_asn.test_1", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_asns.test", "asns.1.id", "netbox_asn.test_2", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxAsnsEmpty(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_asns.test", "asns.#", "0"),
 				),
 			},
 		},

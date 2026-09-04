@@ -54,6 +54,22 @@ data "netbox_device_power_ports" "by_tag" {
     value  = netbox_tag.test.name
   }
 }
+
+data "netbox_device_power_ports" "empty" {
+  depends_on = [
+    netbox_device_power_port.test,
+    netbox_device_power_port.test2,
+  ]
+
+  filter {
+    name  = "device_id"
+    value = netbox_device.test.id
+  }
+  filter {
+    name  = "name"
+    value = "does-not-exist"
+  }
+}
 `, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_device_power_ports.by_name", "power_ports.#", "1"),
@@ -62,6 +78,7 @@ data "netbox_device_power_ports" "by_tag" {
 					resource.TestCheckResourceAttrPair("data.netbox_device_power_ports.by_name", "power_ports.0.device_id", "netbox_device.test", "id"),
 					resource.TestCheckResourceAttr("data.netbox_device_power_ports.by_device_id", "power_ports.#", "2"),
 					resource.TestCheckResourceAttr("data.netbox_device_power_ports.by_tag", "power_ports.#", "2"),
+					resource.TestCheckResourceAttr("data.netbox_device_power_ports.empty", "power_ports.#", "0"),
 				),
 			},
 		},

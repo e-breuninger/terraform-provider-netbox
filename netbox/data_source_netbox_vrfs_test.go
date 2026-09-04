@@ -46,6 +46,16 @@ data "netbox_vrfs" "test" {
 }`
 }
 
+func testAccNetboxVrfsEmpty() string {
+	return `
+data "netbox_vrfs" "test" {
+  filter {
+	name  = "name"
+	value = "VRF-does-not-exist"
+  }
+}`
+}
+
 func TestAccNetboxVrfsDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxVrfsSetUp()
 	resource.Test(t, resource.TestCase{
@@ -71,6 +81,12 @@ func TestAccNetboxVrfsDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_vrfs.test", "vrfs.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_vrfs.test", "vrfs.0.name", "netbox_vrf.test_2", "name"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxVrfsEmpty(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_vrfs.test", "vrfs.#", "0"),
 				),
 			},
 		},

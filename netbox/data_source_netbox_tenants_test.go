@@ -67,6 +67,28 @@ data "netbox_tenants" "test" {
 	})
 }
 
+func TestAccNetboxTenantsDataSource_empty(t *testing.T) {
+	testSlug := "tnts_ds_empty"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+data "netbox_tenants" "test" {
+  filter {
+    name  = "name"
+    value = "%[1]s_does_not_exist"
+  }
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_tenants.test", "tenants.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccNetboxTenantsDataSource_tenantgroups(t *testing.T) {
 	testSlug := "tnts_ds_tenant_group_filter"
 	testName := testAccGetTestName(testSlug)

@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -177,10 +176,6 @@ func dataSourceNetboxDevicePowerOutletRead(d *schema.ResourceData, m interface{}
 	// Apply user limit to filtered results
 	if userLimit > 0 && int64(len(filteredPowerOutlets)) > userLimit {
 		filteredPowerOutlets = filteredPowerOutlets[:userLimit]
-	}
-
-	if len(filteredPowerOutlets) == 0 {
-		return errors.New("no result")
 	}
 
 	var s []map[string]interface{}

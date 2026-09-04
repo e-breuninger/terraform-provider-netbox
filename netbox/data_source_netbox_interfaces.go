@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -220,10 +219,6 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 	// Apply user limit to filtered results
 	if userLimit > 0 && int64(len(filteredInterfaces)) > userLimit {
 		filteredInterfaces = filteredInterfaces[:userLimit]
-	}
-
-	if len(filteredInterfaces) == 0 {
-		return errors.New("no result")
 	}
 
 	var s []map[string]interface{}
