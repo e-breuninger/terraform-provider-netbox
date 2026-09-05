@@ -11,6 +11,7 @@ description: |-
   * Reserved
   * Deprecated
   This resource will retrieve the next available VLAN ID from a given VLAN group (specified by ID).
+  Allocations from the same VLAN group are serialized inside the provider, so several of these resources can be created in the same apply without racing each other. Conflicts caused by anything outside the current provider process are retried for a short while but can still fail if contention keeps up.
 ---
 
 # netbox_available_vlan (Resource)
@@ -26,6 +27,8 @@ Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/vlan/):
 > * Deprecated
 
 This resource will retrieve the next available VLAN ID from a given VLAN group (specified by ID).
+
+Allocations from the same VLAN group are serialized inside the provider, so several of these resources can be created in the same apply without racing each other. Conflicts caused by anything outside the current provider process are retried for a short while but can still fail if contention keeps up.
 
 
 
