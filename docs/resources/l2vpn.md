@@ -58,3 +58,5 @@ resource "netbox_l2vpn" "example" {
 
 - `id` (String) The ID of this resource.
 - `tags_all` (Set of String)
+
+

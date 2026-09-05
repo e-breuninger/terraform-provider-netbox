@@ -8,6 +8,8 @@ description: |-
 
 # netbox_l2vpn (Data Source)
 
+
+
 ## Example Usage
 
 ```terraform
@@ -42,3 +44,5 @@ data "netbox_l2vpn" "by_id" {
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `type` (String)
+
+
