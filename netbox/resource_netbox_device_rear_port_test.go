@@ -150,15 +150,15 @@ func testAccCheckDeviceRearPortDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimRearPortsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimRearPortsRead(params, nil)
+		params := dcim.NewDcimRearPortsRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimRearPortsRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_rear_port (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimRearPortsReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimRearPortsRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -187,8 +187,8 @@ func init() {
 			}
 			for _, rearPort := range res.GetPayload().Results {
 				if strings.HasPrefix(*rearPort.Name, testPrefix) {
-					deleteParams := dcim.NewDcimRearPortsDeleteParams().WithID(rearPort.ID)
-					_, err := api.Dcim.DcimRearPortsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimRearPortsDestroyParams().WithID(rearPort.ID)
+					_, err := api.Dcim.DcimRearPortsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

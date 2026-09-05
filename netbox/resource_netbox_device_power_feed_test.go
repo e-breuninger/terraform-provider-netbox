@@ -149,15 +149,15 @@ func testAccCheckDevicePowerFeedDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimPowerFeedsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimPowerFeedsRead(params, nil)
+		params := dcim.NewDcimPowerFeedsRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimPowerFeedsRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_power_feed (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimPowerFeedsReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimPowerFeedsRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -186,8 +186,8 @@ func init() {
 			}
 			for _, powerFeed := range res.GetPayload().Results {
 				if strings.HasPrefix(*powerFeed.Name, testPrefix) {
-					deleteParams := dcim.NewDcimPowerFeedsDeleteParams().WithID(powerFeed.ID)
-					_, err := api.Dcim.DcimPowerFeedsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimPowerFeedsDestroyParams().WithID(powerFeed.ID)
+					_, err := api.Dcim.DcimPowerFeedsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

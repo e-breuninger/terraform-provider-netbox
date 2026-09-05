@@ -254,15 +254,15 @@ func testAccCheckInterfaceDestroy(s *terraform.State) error {
 
 		// Retrieve our interface by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := virtualization.NewVirtualizationInterfacesReadParams().WithID(stateID)
-		_, err := conn.Virtualization.VirtualizationInterfacesRead(params, nil)
+		params := virtualization.NewVirtualizationInterfacesRetrieveParams().WithID(stateID)
+		_, err := conn.Virtualization.VirtualizationInterfacesRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("interface (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*virtualization.VirtualizationInterfacesReadDefault); ok {
+			if errresp, ok := err.(*virtualization.VirtualizationInterfacesRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -291,8 +291,8 @@ func init() {
 			}
 			for _, intrface := range res.GetPayload().Results {
 				if strings.HasPrefix(*intrface.Name, testPrefix) {
-					deleteParams := virtualization.NewVirtualizationInterfacesDeleteParams().WithID(intrface.ID)
-					_, err := api.Virtualization.VirtualizationInterfacesDelete(deleteParams, nil)
+					deleteParams := virtualization.NewVirtualizationInterfacesDestroyParams().WithID(intrface.ID)
+					_, err := api.Virtualization.VirtualizationInterfacesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

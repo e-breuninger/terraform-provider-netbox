@@ -165,8 +165,8 @@ func init() {
 				return err
 			}
 			for _, vpnTunnelTermination := range res.GetPayload().Results {
-				deleteParams := vpn.NewVpnTunnelTerminationsDeleteParams().WithID(vpnTunnelTermination.ID)
-				_, err := api.Vpn.VpnTunnelTerminationsDelete(deleteParams, nil)
+				deleteParams := vpn.NewVpnTunnelTerminationsDestroyParams().WithID(vpnTunnelTermination.ID)
+				_, err := api.Vpn.VpnTunnelTerminationsDestroy(deleteParams, nil)
 				if err != nil {
 					return err
 				}

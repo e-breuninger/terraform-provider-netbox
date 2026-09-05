@@ -118,8 +118,8 @@ func init() {
 			}
 			for _, tmpl := range res.GetPayload().Results {
 				if strings.HasPrefix(*tmpl.Name, testPrefix) {
-					deleteParams := extras.NewExtrasConfigTemplatesDeleteParams().WithID(tmpl.ID)
-					_, err := api.Extras.ExtrasConfigTemplatesDelete(deleteParams, nil)
+					deleteParams := extras.NewExtrasConfigTemplatesDestroyParams().WithID(tmpl.ID)
+					_, err := api.Extras.ExtrasConfigTemplatesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

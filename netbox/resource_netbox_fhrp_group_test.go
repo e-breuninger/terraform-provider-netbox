@@ -71,8 +71,8 @@ func init() {
 				return err
 			}
 			for _, asn := range res.GetPayload().Results {
-				deleteParams := ipam.NewIpamFhrpGroupsDeleteParams().WithID(asn.ID)
-				_, err := api.Ipam.IpamFhrpGroupsDelete(deleteParams, nil)
+				deleteParams := ipam.NewIpamFhrpGroupsDestroyParams().WithID(asn.ID)
+				_, err := api.Ipam.IpamFhrpGroupsDestroy(deleteParams, nil)
 				if err != nil {
 					return err
 				}

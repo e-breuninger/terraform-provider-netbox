@@ -140,8 +140,8 @@ func init() {
 			}
 			for _, devicetype := range res.GetPayload().Results {
 				if strings.HasPrefix(*devicetype.Model, testPrefix) {
-					deleteParams := dcim.NewDcimDeviceTypesDeleteParams().WithID(devicetype.ID)
-					_, err := api.Dcim.DcimDeviceTypesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimDeviceTypesDestroyParams().WithID(devicetype.ID)
+					_, err := api.Dcim.DcimDeviceTypesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

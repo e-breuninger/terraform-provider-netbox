@@ -165,8 +165,8 @@ func init() {
 			}
 			for _, site := range res.GetPayload().Results {
 				if strings.HasPrefix(*site.Name, testPrefix) {
-					deleteParams := dcim.NewDcimSitesDeleteParams().WithID(site.ID)
-					_, err := api.Dcim.DcimSitesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimSitesDestroyParams().WithID(site.ID)
+					_, err := api.Dcim.DcimSitesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

@@ -55,8 +55,8 @@ func init() {
 			}
 			for _, manufacturer := range res.GetPayload().Results {
 				if strings.HasPrefix(*manufacturer.Name, testPrefix) {
-					deleteParams := dcim.NewDcimManufacturersDeleteParams().WithID(manufacturer.ID)
-					_, err := api.Dcim.DcimManufacturersDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimManufacturersDestroyParams().WithID(manufacturer.ID)
+					_, err := api.Dcim.DcimManufacturersDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

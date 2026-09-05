@@ -84,15 +84,15 @@ func testAccCheckInventoryItemRoleDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimInventoryItemRolesReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimInventoryItemRolesRead(params, nil)
+		params := dcim.NewDcimInventoryItemRolesRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimInventoryItemRolesRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("inventory item role (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimInventoryItemRolesReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimInventoryItemRolesRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -121,8 +121,8 @@ func init() {
 			}
 			for _, role := range res.GetPayload().Results {
 				if strings.HasPrefix(*role.Name, testPrefix) {
-					deleteParams := dcim.NewDcimInventoryItemRolesDeleteParams().WithID(role.ID)
-					_, err := api.Dcim.DcimInventoryItemRolesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimInventoryItemRolesDestroyParams().WithID(role.ID)
+					_, err := api.Dcim.DcimInventoryItemRolesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

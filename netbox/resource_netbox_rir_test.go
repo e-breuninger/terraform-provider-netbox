@@ -108,8 +108,8 @@ func init() {
 			}
 			for _, role := range res.GetPayload().Results {
 				if strings.HasPrefix(*role.Name, testPrefix) {
-					deleteParams := ipam.NewIpamRirsDeleteParams().WithID(role.ID)
-					_, err := api.Ipam.IpamRirsDelete(deleteParams, nil)
+					deleteParams := ipam.NewIpamRirsDestroyParams().WithID(role.ID)
+					_, err := api.Ipam.IpamRirsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

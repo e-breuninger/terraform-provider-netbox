@@ -96,8 +96,8 @@ func init() {
 			}
 			for _, role := range res.GetPayload().Results {
 				if strings.HasPrefix(*role.Name, testPrefix) {
-					deleteParams := ipam.NewIpamRouteTargetsDeleteParams().WithID(role.ID)
-					_, err := api.Ipam.IpamRouteTargetsDelete(deleteParams, nil)
+					deleteParams := ipam.NewIpamRouteTargetsDestroyParams().WithID(role.ID)
+					_, err := api.Ipam.IpamRouteTargetsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

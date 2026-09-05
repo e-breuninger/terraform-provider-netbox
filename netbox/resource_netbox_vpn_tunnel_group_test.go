@@ -56,8 +56,8 @@ func init() {
 			}
 			for _, clusterGroup := range res.GetPayload().Results {
 				if strings.HasPrefix(*clusterGroup.Name, testPrefix) {
-					deleteParams := vpn.NewVpnTunnelGroupsDeleteParams().WithID(clusterGroup.ID)
-					_, err := api.Vpn.VpnTunnelGroupsDelete(deleteParams, nil)
+					deleteParams := vpn.NewVpnTunnelGroupsDestroyParams().WithID(clusterGroup.ID)
+					_, err := api.Vpn.VpnTunnelGroupsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

@@ -174,8 +174,8 @@ func init() {
 			}
 			for _, platform := range res.GetPayload().Results {
 				if strings.HasPrefix(*platform.Name, testPrefix) {
-					deleteParams := dcim.NewDcimPlatformsDeleteParams().WithID(platform.ID)
-					_, err := api.Dcim.DcimPlatformsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimPlatformsDestroyParams().WithID(platform.ID)
+					_, err := api.Dcim.DcimPlatformsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

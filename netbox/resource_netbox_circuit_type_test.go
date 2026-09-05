@@ -57,8 +57,8 @@ func init() {
 			}
 			for _, CircuitType := range res.GetPayload().Results {
 				if strings.HasPrefix(*CircuitType.Name, testPrefix) {
-					deleteParams := circuits.NewCircuitsCircuitTypesDeleteParams().WithID(CircuitType.ID)
-					_, err := api.Circuits.CircuitsCircuitTypesDelete(deleteParams, nil)
+					deleteParams := circuits.NewCircuitsCircuitTypesDestroyParams().WithID(CircuitType.ID)
+					_, err := api.Circuits.CircuitsCircuitTypesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

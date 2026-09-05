@@ -117,15 +117,15 @@ func testAccCheckServiceDestroy(s *terraform.State) error {
 
 		// Retrieve our service by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := ipam.NewIpamServicesReadParams().WithID(stateID)
-		_, err := conn.Ipam.IpamServicesRead(params, nil)
+		params := ipam.NewIpamServicesRetrieveParams().WithID(stateID)
+		_, err := conn.Ipam.IpamServicesRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("service (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*ipam.IpamServicesReadDefault); ok {
+			if errresp, ok := err.(*ipam.IpamServicesRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -267,8 +267,8 @@ func init() {
 			}
 			for _, intrface := range res.GetPayload().Results {
 				if strings.HasPrefix(*intrface.Name, testPrefix) {
-					deleteParams := ipam.NewIpamServicesDeleteParams().WithID(intrface.ID)
-					_, err := api.Ipam.IpamServicesDelete(deleteParams, nil)
+					deleteParams := ipam.NewIpamServicesDestroyParams().WithID(intrface.ID)
+					_, err := api.Ipam.IpamServicesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

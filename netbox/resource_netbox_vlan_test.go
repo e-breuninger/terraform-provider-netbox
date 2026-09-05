@@ -178,8 +178,8 @@ func init() {
 			}
 			for _, vlan := range res.GetPayload().Results {
 				if strings.HasPrefix(*vlan.Name, testPrefix) {
-					deleteParams := ipam.NewIpamVlansDeleteParams().WithID(vlan.ID)
-					_, err := api.Ipam.IpamVlansDelete(deleteParams, nil)
+					deleteParams := ipam.NewIpamVlansDestroyParams().WithID(vlan.ID)
+					_, err := api.Ipam.IpamVlansDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

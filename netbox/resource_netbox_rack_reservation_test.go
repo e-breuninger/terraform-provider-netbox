@@ -80,8 +80,8 @@ func init() {
 			}
 			for _, rackRes := range res.GetPayload().Results {
 				if strings.HasPrefix(*rackRes.Description, testPrefix) {
-					deleteParams := dcim.NewDcimRackReservationsDeleteParams().WithID(rackRes.ID)
-					_, err := api.Dcim.DcimRackReservationsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimRackReservationsDestroyParams().WithID(rackRes.ID)
+					_, err := api.Dcim.DcimRackReservationsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

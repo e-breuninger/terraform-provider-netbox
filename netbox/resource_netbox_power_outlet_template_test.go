@@ -142,8 +142,8 @@ func init() {
 			}
 			for _, tmpl := range res.GetPayload().Results {
 				if strings.HasPrefix(*tmpl.Name, testPrefix) {
-					deleteParams := dcim.NewDcimPowerOutletTemplatesDeleteParams().WithID(tmpl.ID)
-					_, err := api.Dcim.DcimPowerOutletTemplatesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimPowerOutletTemplatesDestroyParams().WithID(tmpl.ID)
+					_, err := api.Dcim.DcimPowerOutletTemplatesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

@@ -74,12 +74,12 @@ func resourceNetboxMACAddress() *schema.Resource {
 func resourceNetboxMACAddressCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.MACAddress{}
+	data := models.WritableMACAddress{}
 
 	data.MacAddress = strToPtr(d.Get("mac_address").(string))
 
-	data.Description = strToPtr(getOptionalStr(d, "description", false))
-	data.Comments = strToPtr(getOptionalStr(d, "comments", false))
+	data.Description = getOptionalStr(d, "description", false)
+	data.Comments = getOptionalStr(d, "comments", false)
 
 	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
 	deviceInterfaceID := getOptionalInt(d, "device_interface_id")
@@ -183,12 +183,12 @@ func resourceNetboxMACAddressUpdate(d *schema.ResourceData, m interface{}) error
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	data := models.MACAddress{}
+	data := models.WritableMACAddress{}
 
 	data.MacAddress = strToPtr(d.Get("mac_address").(string))
 
-	data.Description = strToPtr(getOptionalStr(d, "description", false))
-	data.Comments = strToPtr(getOptionalStr(d, "comments", false))
+	data.Description = getOptionalStr(d, "description", false)
+	data.Comments = getOptionalStr(d, "comments", false)
 
 	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
 	deviceInterfaceID := getOptionalInt(d, "device_interface_id")

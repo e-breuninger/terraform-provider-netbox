@@ -170,15 +170,15 @@ func testAccCheckDeviceFrontPortDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimFrontPortsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimFrontPortsRead(params, nil)
+		params := dcim.NewDcimFrontPortsRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimFrontPortsRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_front_port (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimFrontPortsReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimFrontPortsRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -207,8 +207,8 @@ func init() {
 			}
 			for _, frontPort := range res.GetPayload().Results {
 				if strings.HasPrefix(*frontPort.Name, testPrefix) {
-					deleteParams := dcim.NewDcimFrontPortsDeleteParams().WithID(frontPort.ID)
-					_, err := api.Dcim.DcimFrontPortsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimFrontPortsDestroyParams().WithID(frontPort.ID)
+					_, err := api.Dcim.DcimFrontPortsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

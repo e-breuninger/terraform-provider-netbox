@@ -386,15 +386,15 @@ func testAccCheckDeviceInterfaceDestroy(s *terraform.State) error {
 
 		// Retrieve our interface by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimInterfacesReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimInterfacesRead(params, nil)
+		params := dcim.NewDcimInterfacesRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimInterfacesRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device interface (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimInterfacesReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimInterfacesRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -423,8 +423,8 @@ func init() {
 			}
 			for _, intrface := range res.GetPayload().Results {
 				if strings.HasPrefix(*intrface.Name, testPrefix) {
-					deleteParams := dcim.NewDcimInterfacesDeleteParams().WithID(intrface.ID)
-					_, err := api.Dcim.DcimInterfacesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimInterfacesDestroyParams().WithID(intrface.ID)
+					_, err := api.Dcim.DcimInterfacesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

@@ -214,8 +214,8 @@ func init() {
 			}
 			for _, vrf := range res.GetPayload().Results {
 				if strings.HasPrefix(*vrf.Name, testPrefix) {
-					deleteParams := ipam.NewIpamVrfsDeleteParams().WithID(vrf.ID)
-					_, err := api.Ipam.IpamVrfsDelete(deleteParams, nil)
+					deleteParams := ipam.NewIpamVrfsDestroyParams().WithID(vrf.ID)
+					_, err := api.Ipam.IpamVrfsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

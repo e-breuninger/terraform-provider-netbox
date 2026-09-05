@@ -55,8 +55,8 @@ func init() {
 			}
 			for _, contactrole := range res.GetPayload().Results {
 				if strings.HasPrefix(*contactrole.Name, testPrefix) {
-					deleteParams := tenancy.NewTenancyContactRolesDeleteParams().WithID(contactrole.ID)
-					_, err := api.Tenancy.TenancyContactRolesDelete(deleteParams, nil)
+					deleteParams := tenancy.NewTenancyContactRolesDestroyParams().WithID(contactrole.ID)
+					_, err := api.Tenancy.TenancyContactRolesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

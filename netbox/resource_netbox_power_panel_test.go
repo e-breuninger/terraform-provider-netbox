@@ -97,15 +97,15 @@ func testAccCheckPowerPanelDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimPowerPanelsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimPowerPanelsRead(params, nil)
+		params := dcim.NewDcimPowerPanelsRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimPowerPanelsRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("power panel (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimPowerPanelsReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimPowerPanelsRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -134,8 +134,8 @@ func init() {
 			}
 			for _, powerPanel := range res.GetPayload().Results {
 				if strings.HasPrefix(*powerPanel.Name, testPrefix) {
-					deleteParams := dcim.NewDcimPowerPanelsDeleteParams().WithID(powerPanel.ID)
-					_, err := api.Dcim.DcimPowerPanelsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimPowerPanelsDestroyParams().WithID(powerPanel.ID)
+					_, err := api.Dcim.DcimPowerPanelsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

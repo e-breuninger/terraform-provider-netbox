@@ -321,8 +321,8 @@ func init() {
 			}
 			for _, macAddress := range res.GetPayload().Results {
 				if len(macAddress.Tags) > 0 && (macAddress.Tags[0] == &models.NestedTag{Name: strToPtr("acctest"), Slug: strToPtr("acctest")}) {
-					deleteParams := dcim.NewDcimMacAddressesDeleteParams().WithID(macAddress.ID)
-					_, err := api.Dcim.DcimMacAddressesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimMacAddressesDestroyParams().WithID(macAddress.ID)
+					_, err := api.Dcim.DcimMacAddressesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

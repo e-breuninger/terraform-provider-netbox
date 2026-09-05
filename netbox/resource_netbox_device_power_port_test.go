@@ -145,15 +145,15 @@ func testAccCheckDevicePowerPortDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimPowerPortsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimPowerPortsRead(params, nil)
+		params := dcim.NewDcimPowerPortsRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimPowerPortsRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_power_port (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimPowerPortsReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimPowerPortsRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -182,8 +182,8 @@ func init() {
 			}
 			for _, powerPort := range res.GetPayload().Results {
 				if strings.HasPrefix(*powerPort.Name, testPrefix) {
-					deleteParams := dcim.NewDcimPowerPortsDeleteParams().WithID(powerPort.ID)
-					_, err := api.Dcim.DcimPowerPortsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimPowerPortsDestroyParams().WithID(powerPort.ID)
+					_, err := api.Dcim.DcimPowerPortsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}
