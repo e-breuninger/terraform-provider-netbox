@@ -41,6 +41,22 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 	return result
 }
 
+// getCustomFieldsForUpdate returns custom fields only when the configuration
+// changed them. NetBox treats custom_fields as a full replacement, so sending
+// values from state during an unrelated partial update can fail validation
+// when the provider's string-based schema does not match NetBox's field type.
+func getCustomFieldsForUpdate(d *schema.ResourceData) interface{} {
+	if !d.HasChange(customFieldsKey) {
+		return nil
+	}
+
+	cf, ok := d.GetOk(customFieldsKey)
+	if !ok {
+		return nil
+	}
+	return cf
+}
+
 // flattenCustomFields converts custom fields to a map where all values are strings.
 // Complex nested objects (like IP address references) are converted to JSON strings.
 func flattenCustomFields(cf interface{}) map[string]interface{} {
