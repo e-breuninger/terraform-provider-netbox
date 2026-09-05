@@ -15,7 +15,7 @@ echo "🔍 Checking for documentation changes..."
 # Get status of all changes (modified, added, deleted, untracked)
 changes=$(git status --porcelain)
 
-if [[ -n "$changes" ]]; then
+if [[ -n $changes ]]; then
     echo -e "${RED}❌ Documentation changes detected${NC}"
     echo "::error title=Documentation out of date::Please run 'make docs' and commit the changes"
 
@@ -24,17 +24,17 @@ if [[ -n "$changes" ]]; then
     added=$(echo "$changes" | grep '^??' | sed 's/^?? //' || true)
     deleted=$(echo "$changes" | grep '^ D' | sed 's/^ D //' || true)
 
-    if [[ -n "$modified" ]]; then
+    if [[ -n $modified ]]; then
         echo "Modified files:"
         echo "$modified"
     fi
 
-    if [[ -n "$added" ]]; then
+    if [[ -n $added ]]; then
         echo "New files:"
         echo "$added"
     fi
 
-    if [[ -n "$deleted" ]]; then
+    if [[ -n $deleted ]]; then
         echo "Deleted files:"
         echo "$deleted"
     fi
