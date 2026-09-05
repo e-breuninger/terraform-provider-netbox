@@ -88,7 +88,7 @@ func resourceNetboxCustomFieldChoiceSetCreate(d *schema.ResourceData, m interfac
 
 	name := d.Get("name").(string)
 
-	data := models.CustomFieldChoiceSet{
+	data := models.WritableCustomFieldChoiceSet{
 		Name:                &name,
 		OrderAlphabetically: d.Get("order_alphabetically").(bool),
 	}
@@ -174,7 +174,7 @@ func resourceNetboxCustomFieldChoiceSetUpdate(d *schema.ResourceData, m interfac
 
 	name := d.Get("name").(string)
 
-	data := models.CustomFieldChoiceSet{
+	data := models.WritableCustomFieldChoiceSet{
 		Name:                &name,
 		OrderAlphabetically: d.Get("order_alphabetically").(bool),
 	}

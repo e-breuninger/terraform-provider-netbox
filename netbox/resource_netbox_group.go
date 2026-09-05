@@ -35,7 +35,7 @@ func resourceNetboxGroup() *schema.Resource {
 }
 func resourceNetboxGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.Group{}
+	data := models.WritableGroup{}
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
@@ -82,7 +82,7 @@ func resourceNetboxGroupRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxGroupUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.Group{}
+	data := models.WritableGroup{}
 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)

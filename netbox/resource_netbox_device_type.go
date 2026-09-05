@@ -103,7 +103,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 	}
 
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
-		data.SubdeviceRole = subdeviceRoleValue.(string)
+		data.SubdeviceRole = strToPtr(subdeviceRoleValue.(string))
 	}
 
 	data.Description = d.Get("description").(string)
@@ -210,7 +210,7 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
-		data.SubdeviceRole = subdeviceRoleValue.(string)
+		data.SubdeviceRole = strToPtr(subdeviceRoleValue.(string))
 	}
 
 	data.Description = d.Get("description").(string)

@@ -129,7 +129,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 	data.Status = d.Get("status").(string)
 
 	data.Description = getOptionalStr(d, "description", false)
-	data.Role = getOptionalStr(d, "role", false)
+	data.Role = getOptionalStrPtr(d, "role")
 	data.DNSName = getOptionalStr(d, "dns_name", false)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")
@@ -296,7 +296,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	data.Status = d.Get("status").(string)
 
 	data.Description = getOptionalStr(d, "description", true)
-	data.Role = getOptionalStr(d, "role", false)
+	data.Role = getOptionalStrPtr(d, "role")
 	data.DNSName = getOptionalStr(d, "dns_name", true)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")

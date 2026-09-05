@@ -43,7 +43,7 @@ func resourceNetboxContactRoleCreate(d *schema.ResourceData, m interface{}) erro
 
 	name := d.Get("name").(string)
 
-	data := &models.ContactRole{}
+	data := &models.WritableContactRole{}
 
 	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to generated slug if not given
@@ -98,7 +98,7 @@ func resourceNetboxContactRoleUpdate(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.ContactRole{}
+	data := models.WritableContactRole{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")

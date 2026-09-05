@@ -49,7 +49,7 @@ func resourceNetboxInventoryItemRole() *schema.Resource {
 
 func resourceNetboxInventoryItemRoleCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.InventoryItemRole{
+	data := models.WritableInventoryItemRole{
 		Name:        strToPtr(d.Get("name").(string)),
 		Slug:        strToPtr(d.Get("slug").(string)),
 		Description: getOptionalStr(d, "description", false),
@@ -117,7 +117,7 @@ func resourceNetboxInventoryItemRoleUpdate(d *schema.ResourceData, m interface{}
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	data := models.InventoryItemRole{
+	data := models.WritableInventoryItemRole{
 		Name:        strToPtr(d.Get("name").(string)),
 		Slug:        strToPtr(d.Get("slug").(string)),
 		Description: getOptionalStr(d, "description", true),

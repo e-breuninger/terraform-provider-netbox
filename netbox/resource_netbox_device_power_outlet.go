@@ -80,9 +80,9 @@ func resourceNetboxDevicePowerOutletCreate(d *schema.ResourceData, m interface{}
 		Module:        getOptionalInt(d, "module_id"),
 		Name:          strToPtr(d.Get("name").(string)),
 		Label:         getOptionalStr(d, "label", false),
-		Type:          getOptionalStr(d, "type", false),
+		Type:          getOptionalStrPtr(d, "type"),
 		PowerPort:     getOptionalInt(d, "power_port_id"),
-		FeedLeg:       getOptionalStr(d, "feed_leg", false),
+		FeedLeg:       getOptionalStrPtr(d, "feed_leg"),
 		Description:   getOptionalStr(d, "description", false),
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
@@ -186,9 +186,9 @@ func resourceNetboxDevicePowerOutletUpdate(d *schema.ResourceData, m interface{}
 		Module:        getOptionalInt(d, "module_id"),
 		Name:          strToPtr(d.Get("name").(string)),
 		Label:         getOptionalStr(d, "label", true),
-		Type:          getOptionalStr(d, "type", false),
+		Type:          getOptionalStrPtr(d, "type"),
 		PowerPort:     getOptionalInt(d, "power_port_id"),
-		FeedLeg:       getOptionalStr(d, "feed_leg", false),
+		FeedLeg:       getOptionalStrPtr(d, "feed_leg"),
 		Description:   getOptionalStr(d, "description", true),
 		MarkConnected: d.Get("mark_connected").(bool),
 	}

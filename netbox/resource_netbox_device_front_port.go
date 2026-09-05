@@ -76,16 +76,29 @@ func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) 
 	api := m.(*providerState)
 
 	data := models.WritableFrontPort{
-		Device:           int64ToPtr(int64(d.Get("device_id").(int))),
-		Name:             strToPtr(d.Get("name").(string)),
-		Type:             strToPtr(d.Get("type").(string)),
-		RearPort:         int64ToPtr(int64(d.Get("rear_port_id").(int))),
-		RearPortPosition: int64(d.Get("rear_port_position").(int)),
-		Module:           getOptionalInt(d, "module_id"),
-		Label:            getOptionalStr(d, "label", false),
-		Color:            getOptionalStr(d, "color_hex", false),
-		Description:      getOptionalStr(d, "description", false),
-		MarkConnected:    d.Get("mark_connected").(bool),
+		Device:        int64ToPtr(int64(d.Get("device_id").(int))),
+		Name:          strToPtr(d.Get("name").(string)),
+		Type:          strToPtr(d.Get("type").(string)),
+		Module:        getOptionalInt(d, "module_id"),
+		Label:         getOptionalStr(d, "label", false),
+		Color:         getOptionalStr(d, "color_hex", false),
+		Description:   getOptionalStr(d, "description", false),
+		MarkConnected: d.Get("mark_connected").(bool),
+	}
+
+	// TODO(v3-migration): go-netbox v3 replaced the single RearPort/RearPortPosition
+	// fields on WritableFrontPort with a RearPorts []*FrontPortMapping list, allowing a
+	// front port to map to multiple rear port positions. This resource's schema only
+	// exposes a single rear_port_id/rear_port_position pair, so we build one mapping
+	// entry (Position: 1) to preserve existing behavior. Needs human review to confirm
+	// Position semantics and whether the schema should be extended to support multiple
+	// mappings.
+	data.RearPorts = []*models.FrontPortMapping{
+		{
+			Position:         int64ToPtr(1),
+			RearPort:         int64ToPtr(int64(d.Get("rear_port_id").(int))),
+			RearPortPosition: int64(d.Get("rear_port_position").(int)),
+		},
 	}
 
 	var err error
@@ -145,13 +158,13 @@ func resourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) er
 		d.Set("type", nil)
 	}
 
-	if frontPort.RearPort != nil {
-		d.Set("rear_port_id", frontPort.RearPort.ID)
+	if len(frontPort.RearPorts) > 0 && frontPort.RearPorts[0].RearPort != nil {
+		d.Set("rear_port_id", *frontPort.RearPorts[0].RearPort)
+		d.Set("rear_port_position", frontPort.RearPorts[0].RearPortPosition)
 	} else {
 		d.Set("rear_port_id", nil)
+		d.Set("rear_port_position", nil)
 	}
-
-	d.Set("rear_port_position", frontPort.RearPortPosition)
 
 	if frontPort.Module != nil {
 		d.Set("module_id", frontPort.Module.ID)
@@ -178,17 +191,26 @@ func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) 
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
+	rearPortID := int64(d.Get("rear_port_id").(int))
+	rearPortPosition := int64(d.Get("rear_port_position").(int))
+	position := int64(1)
+
 	data := models.WritableFrontPort{
-		Device:           int64ToPtr(int64(d.Get("device_id").(int))),
-		Name:             strToPtr(d.Get("name").(string)),
-		Type:             strToPtr(d.Get("type").(string)),
-		RearPort:         int64ToPtr(int64(d.Get("rear_port_id").(int))),
-		RearPortPosition: int64(d.Get("rear_port_position").(int)),
-		Module:           getOptionalInt(d, "module_id"),
-		Label:            getOptionalStr(d, "label", true),
-		Color:            getOptionalStr(d, "color_hex", false),
-		Description:      getOptionalStr(d, "description", true),
-		MarkConnected:    d.Get("mark_connected").(bool),
+		Device:        int64ToPtr(int64(d.Get("device_id").(int))),
+		Name:          strToPtr(d.Get("name").(string)),
+		Type:          strToPtr(d.Get("type").(string)),
+		Module:        getOptionalInt(d, "module_id"),
+		Label:         getOptionalStr(d, "label", true),
+		Color:         getOptionalStr(d, "color_hex", false),
+		Description:   getOptionalStr(d, "description", true),
+		MarkConnected: d.Get("mark_connected").(bool),
+		RearPorts: []*models.FrontPortMapping{
+			{
+				Position:         &position,
+				RearPort:         &rearPortID,
+				RearPortPosition: rearPortPosition,
+			},
+		},
 	}
 
 	var err error

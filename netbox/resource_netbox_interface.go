@@ -101,7 +101,7 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
-	mode := d.Get("mode").(string)
+	mode := getOptionalStrPtr(d, "mode")
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
@@ -197,7 +197,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
-	mode := d.Get("mode").(string)
+	mode := getOptionalStrPtr(d, "mode")
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
@@ -215,10 +215,13 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 		VirtualMachine: &virtualMachineID,
 	}
 
-	if d.HasChange("mac_address") {
-		macAddress := d.Get("mac_address").(string)
-		data.MacAddress = &macAddress
-	}
+	// TODO(v3-migration): go-netbox v3 removed MacAddress from WritableVMInterface —
+	// NetBox now models MAC addresses as first-class MACAddress objects linked to an
+	// interface via primary_mac_address, rather than a plain string on the interface
+	// itself. Setting mac_address on this resource is a no-op until this is redesigned
+	// to create/link a MACAddress object; the "mac_address" schema attribute still
+	// reads back the interface's current MAC (via VMInterface.MacAddress) but no longer
+	// round-trips a user-supplied value on write. Needs human review.
 	if d.HasChange("mtu") {
 		mtu := int64(d.Get("mtu").(int))
 		data.Mtu = &mtu
@@ -300,7 +303,7 @@ func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func getIDsFromNestedVLAN(nestedvlans []*models.NestedVLAN) []int64 {
+func getIDsFromNestedVLAN(nestedvlans []*models.VLAN) []int64 {
 	var vlans []int64
 	for _, vlan := range nestedvlans {
 		vlans = append(vlans, vlan.ID)

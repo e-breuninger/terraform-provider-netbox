@@ -64,7 +64,7 @@ func resourceNetboxFhrpGroup() *schema.Resource {
 func resourceNetboxFhrpGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.FHRPGroup{}
+	data := models.WritableFHRPGroup{}
 
 	protocol := d.Get("protocol").(string)
 	data.Protocol = &protocol
@@ -72,7 +72,7 @@ func resourceNetboxFhrpGroupCreate(d *schema.ResourceData, m interface{}) error 
 	group_id := int64(d.Get("group_id").(int))
 	data.GroupID = &group_id
 
-	data.AuthType = d.Get("auth_type").(string)
+	data.AuthType = getOptionalStrPtr(d, "auth_type")
 	data.AuthKey = d.Get("auth_key").(string)
 	data.Name = d.Get("name").(string)
 	data.Description = d.Get("description").(string)
@@ -132,7 +132,7 @@ func resourceNetboxFhrpGroupUpdate(d *schema.ResourceData, m interface{}) error 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.FHRPGroup{}
+	data := models.WritableFHRPGroup{}
 
 	protocol := d.Get("protocol").(string)
 	data.Protocol = &protocol
@@ -140,7 +140,7 @@ func resourceNetboxFhrpGroupUpdate(d *schema.ResourceData, m interface{}) error 
 	group_id := int64(d.Get("group_id").(int))
 	data.GroupID = &group_id
 
-	data.AuthType = d.Get("auth_type").(string)
+	data.AuthType = getOptionalStrPtr(d, "auth_type")
 	data.AuthKey = d.Get("auth_key").(string)
 	data.Name = d.Get("name").(string)
 	data.Description = d.Get("description").(string)

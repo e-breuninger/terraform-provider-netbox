@@ -48,7 +48,7 @@ func resourceNetboxIpamRole() *schema.Resource {
 }
 func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.Role{}
+	data := models.WritableRole{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -119,7 +119,7 @@ func resourceNetboxIpamRoleRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.Role{}
+	data := models.WritableRole{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")

@@ -74,12 +74,16 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimDeviceRolesCreateParams().WithData(
-		&models.DeviceRole{
+		// TODO(v3-migration): go-netbox v3 reverted VMRole from *bool back to plain bool
+		// with omitempty, which reintroduces the bug fixed upstream in bf00e79b ("make
+		// DeviceRole.vm_role nullable so false can be sent") — an explicit `vm_role = false`
+		// in Terraform config is no longer distinguishable from "unset" and won't be sent.
+		&models.WritableDeviceRole{
 			Name:        &name,
 			Slug:        &slug,
 			Color:       color,
 			Description: description,
-			VMRole:      &vmRole,
+			VMRole:      vmRole,
 			Tags:        tags,
 		},
 	)
@@ -126,7 +130,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.DeviceRole{}
+	data := models.WritableDeviceRole{}
 
 	name := d.Get("name").(string)
 	color := d.Get("color_hex").(string)
@@ -145,7 +149,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 
 	data.Slug = &slug
 	data.Name = &name
-	data.VMRole = &vmRole
+	data.VMRole = vmRole
 	data.Color = color
 	data.Description = description
 

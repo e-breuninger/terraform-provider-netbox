@@ -212,7 +212,7 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	data.Rack = getOptionalInt(d, "rack_id")
-	data.Face = getOptionalStr(d, "rack_face", false)
+	data.Face = strToPtr(getOptionalStr(d, "rack_face", false))
 
 	rackPosition, ok := d.GetOk("rack_position")
 	if ok && rackPosition.(float64) > 0 {
@@ -468,7 +468,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	data.Rack = getOptionalInt(d, "rack_id")
-	data.Face = getOptionalStr(d, "rack_face", false)
+	data.Face = strToPtr(getOptionalStr(d, "rack_face", false))
 	data.Position = getOptionalFloat(d, "rack_position")
 
 	data.VirtualChassis = getOptionalInt(d, "virtual_chassis_id")

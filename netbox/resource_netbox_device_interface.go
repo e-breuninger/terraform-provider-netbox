@@ -146,7 +146,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
-	mode := d.Get("mode").(string)
+	mode := getOptionalStrPtr(d, "mode")
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
@@ -291,7 +291,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
-	mode := d.Get("mode").(string)
+	mode := getOptionalStrPtr(d, "mode")
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
@@ -371,7 +371,7 @@ func resourceNetboxDeviceInterfaceDelete(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func getIDsFromNestedVLANDevice(nestedvlans []*models.NestedVLAN) []int64 {
+func getIDsFromNestedVLANDevice(nestedvlans []*models.VLAN) []int64 {
 	var vlans []int64
 	for _, vlan := range nestedvlans {
 		vlans = append(vlans, vlan.ID)

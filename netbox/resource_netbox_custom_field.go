@@ -150,7 +150,7 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 		Label:             d.Get("label").(string),
 		Required:          d.Get("required").(bool),
 		ValidationRegex:   d.Get("validation_regex").(string),
-		RelatedObjectType: d.Get("related_object_type").(string),
+		RelatedObjectType: strToPtr(d.Get("related_object_type").(string)),
 		Weight:            int64ToPtr(int64(d.Get("weight").(int))),
 	}
 
@@ -201,7 +201,7 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 		Label:             d.Get("label").(string),
 		Required:          d.Get("required").(bool),
 		ValidationRegex:   d.Get("validation_regex").(string),
-		RelatedObjectType: d.Get("related_object_type").(string),
+		RelatedObjectType: strToPtr(d.Get("related_object_type").(string)),
 		Weight:            int64ToPtr(int64(d.Get("weight").(int))),
 	}
 
@@ -262,7 +262,7 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 
 	customField := res.GetPayload()
 	d.Set("name", customField.Name)
-	d.Set("type", *customField.Type.Value)
+	d.Set("type", customField.Type.Value)
 
 	d.Set("content_types", customField.ObjectTypes)
 

@@ -86,7 +86,7 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 	data := &models.WritableInterface{
 		Device:             &iface.Device.ID, // Allowed to set directly as field is required
 		Name:               iface.Name,
-		Type:               iface.Type.Value,
+		Type:               &iface.Type.Value,
 		CustomFields:       iface.CustomFields,
 		Description:        iface.Description,
 		Enabled:            iface.Enabled,
@@ -129,11 +129,7 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 	}
 
 	if iface.Mode != nil {
-		data.Mode = *iface.Mode.Value
-	}
-
-	if iface.L2vpnTermination != nil {
-		data.L2vpnTermination = strconv.FormatInt(iface.L2vpnTermination.ID, 10)
+		data.Mode = &iface.Mode.Value
 	}
 
 	if iface.Lag != nil {
@@ -145,27 +141,23 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 	}
 
 	if iface.PoeMode != nil {
-		data.PoeMode = *iface.PoeMode.Value
+		data.PoeMode = &iface.PoeMode.Value
 	}
 
 	if iface.PoeType != nil {
-		data.PoeType = *iface.PoeType.Value
+		data.PoeType = &iface.PoeType.Value
 	}
 
 	if iface.RfChannel != nil {
-		data.RfChannel = *iface.RfChannel.Value
+		data.RfChannel = &iface.RfChannel.Value
 	}
 
 	if iface.RfRole != nil {
-		data.RfRole = *iface.RfRole.Value
+		data.RfRole = &iface.RfRole.Value
 	}
 
 	if iface.Vrf != nil {
 		data.Vrf = &iface.Vrf.ID
-	}
-
-	if iface.WirelessLink != nil {
-		data.WirelessLink = &iface.WirelessLink.ID
 	}
 
 	for _, vdc := range iface.Vdcs {
