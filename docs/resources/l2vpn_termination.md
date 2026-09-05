@@ -46,3 +46,5 @@ resource "netbox_l2vpn_termination" "example" {
 
 - `id` (String) The ID of this resource.
 - `tags_all` (Set of String)
+
+
