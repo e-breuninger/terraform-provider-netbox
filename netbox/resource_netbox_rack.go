@@ -375,8 +375,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 
