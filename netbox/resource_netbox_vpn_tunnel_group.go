@@ -45,7 +45,7 @@ func resourceNetboxVpnTunnelGroup() *schema.Resource {
 func resourceNetboxVpnTunnelGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.TunnelGroup{}
+	data := models.WritableTunnelGroup{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
@@ -106,7 +106,7 @@ func resourceNetboxVpnTunnelGroupUpdate(d *schema.ResourceData, m interface{}) e
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.TunnelGroup{}
+	data := models.WritableTunnelGroup{}
 
 	name := d.Get("name").(string)
 	data.Name = &name

@@ -67,7 +67,7 @@ func resourceNetboxRackRoleCreate(d *schema.ResourceData, m interface{}) error {
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimRackRolesCreateParams().WithData(
-		&models.RackRole{
+		&models.WritableRackRole{
 			Name:        &name,
 			Slug:        &slug,
 			Color:       color,
@@ -118,7 +118,7 @@ func resourceNetboxRackRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.RackRole{}
+	data := models.WritableRackRole{}
 
 	name := d.Get("name").(string)
 	color := d.Get("color_hex").(string)

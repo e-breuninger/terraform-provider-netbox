@@ -68,7 +68,7 @@ func resourceNetboxVpnTunnelCreate(d *schema.ResourceData, m interface{}) error 
 
 	data.Name = strToPtr(d.Get("name").(string))
 	data.Encapsulation = strToPtr(d.Get("encapsulation").(string))
-	data.Status = strToPtr(d.Get("status").(string))
+	data.Status = d.Get("status").(string)
 	data.Group = int64ToPtr(int64(d.Get("tunnel_group_id").(int)))
 
 	data.Description = getOptionalStr(d, "description", false)
@@ -142,7 +142,7 @@ func resourceNetboxVpnTunnelUpdate(d *schema.ResourceData, m interface{}) error 
 
 	data.Name = strToPtr(d.Get("name").(string))
 	data.Encapsulation = strToPtr(d.Get("encapsulation").(string))
-	data.Status = strToPtr(d.Get("status").(string))
+	data.Status = d.Get("status").(string)
 	data.Group = int64ToPtr(int64(d.Get("tunnel_group_id").(int)))
 
 	data.Description = getOptionalStr(d, "description", false)

@@ -78,7 +78,6 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	firstName := d.Get("first_name").(string)
 	lastName := d.Get("last_name").(string)
 	active := d.Get("active").(bool)
-	staff := d.Get("staff").(bool)
 	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
@@ -87,7 +86,9 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	data.FirstName = firstName
 	data.LastName = lastName
 	data.IsActive = active
-	data.IsStaff = staff
+	// "staff" is deprecated and ignored: IsStaff was removed from the User model in
+	// NetBox 4.5 (migration users.0013_user_remove_is_staff) and no longer exists on
+	// WritableUser.
 	data.Groups = groupIDs
 	data.DateJoined = strfmt.DateTime(time.Now())
 
@@ -127,7 +128,7 @@ func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("first_name", res.GetPayload().FirstName)
 	d.Set("last_name", res.GetPayload().LastName)
 
-	d.Set("staff", res.GetPayload().IsStaff)
+	d.Set("staff", false) // deprecated and ignored, see the schema attribute's Deprecated note
 	d.Set("active", res.GetPayload().IsActive)
 	d.Set("group_ids", getIDsFromNestedGroup(res.GetPayload().Groups))
 
@@ -147,7 +148,6 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	firstName := d.Get("first_name").(string)
 	lastName := d.Get("last_name").(string)
 	active := d.Get("active").(bool)
-	staff := d.Get("staff").(bool)
 	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
@@ -156,7 +156,6 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	data.FirstName = firstName
 	data.LastName = lastName
 	data.IsActive = active
-	data.IsStaff = staff
 	data.Groups = groupIDs
 	data.DateJoined = strfmt.DateTime(time.Now())
 
@@ -186,7 +185,7 @@ func resourceNetboxUserDelete(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func getIDsFromNestedGroup(nestedGroups []*models.NestedGroup) []int64 {
+func getIDsFromNestedGroup(nestedGroups []*models.Group) []int64 {
 	var groupIDs []int64
 	for _, group := range nestedGroups {
 		groupIDs = append(groupIDs, group.ID)

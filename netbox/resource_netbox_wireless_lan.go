@@ -93,8 +93,8 @@ func resourceNetboxWirelessLANCreate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableWirelessLAN{
 		Ssid:        &ssid,
 		Status:      status,
-		AuthType:    d.Get("auth_type").(string),
-		AuthCipher:  d.Get("auth_cipher").(string),
+		AuthType:    getOptionalStrPtr(d, "auth_type"),
+		AuthCipher:  getOptionalStrPtr(d, "auth_cipher"),
 		AuthPsk:     d.Get("auth_psk").(string),
 		Description: d.Get("description").(string),
 		Comments:    d.Get("comments").(string),
@@ -234,13 +234,13 @@ func resourceNetboxWirelessLANUpdate(d *schema.ResourceData, m interface{}) erro
 	}
 
 	if authType, ok := d.GetOk("auth_type"); ok {
-		data.AuthType = authType.(string)
+		data.AuthType = strToPtr(authType.(string))
 	} else {
 		overrideFields["auth_type"] = nil
 	}
 
 	if authCipher, ok := d.GetOk("auth_cipher"); ok {
-		data.AuthCipher = authCipher.(string)
+		data.AuthCipher = strToPtr(authCipher.(string))
 	} else {
 		overrideFields["auth_cipher"] = nil
 	}

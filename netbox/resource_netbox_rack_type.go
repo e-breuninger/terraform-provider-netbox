@@ -204,7 +204,7 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 	width := int64(d.Get("width").(int))
 	uHeight := int64(d.Get("u_height").(int))
 
-	data := models.WritableRackTypeRequest{
+	data := models.WritableRackType{
 		Model:         &model,
 		FormFactor:    &formFactor,
 		Slug:          &slug,
@@ -214,11 +214,11 @@ func resourceNetboxRackTypeCreate(d *schema.ResourceData, m interface{}) error {
 		Description:   getOptionalStr(d, "description", false),
 		OuterWidth:    getOptionalInt(d, "outer_width"),
 		OuterDepth:    getOptionalInt(d, "outer_depth"),
-		OuterUnit:     getOptionalStr(d, "outer_unit", false),
+		OuterUnit:     strToPtr(getOptionalStr(d, "outer_unit", false)),
 		Comments:      getOptionalStr(d, "comments", false),
 		Weight:        getOptionalFloat(d, "weight"),
 		MaxWeight:     getOptionalInt(d, "max_weight"),
-		WeightUnit:    getOptionalStr(d, "weight_unit", false),
+		WeightUnit:    strToPtr(getOptionalStr(d, "weight_unit", false)),
 		MountingDepth: getOptionalInt(d, "mounting_depth_mm"),
 	}
 
@@ -319,7 +319,7 @@ func resourceNetboxRackTypeUpdate(d *schema.ResourceData, m interface{}) error {
 	width := int64(d.Get("width").(int))
 	uHeight := int64(d.Get("u_height").(int))
 
-	data := models.WritableRackTypeRequest{
+	data := models.WritableRackType{
 		Model:         &model,
 		Slug:          &slug,
 		Manufacturer:  &manufacturerID,
@@ -328,11 +328,11 @@ func resourceNetboxRackTypeUpdate(d *schema.ResourceData, m interface{}) error {
 		Description:   getOptionalStr(d, "description", true),
 		OuterWidth:    getOptionalInt(d, "outer_width"),
 		OuterDepth:    getOptionalInt(d, "outer_depth"),
-		OuterUnit:     getOptionalStr(d, "outer_unit", true),
+		OuterUnit:     strToPtr(getOptionalStr(d, "outer_unit", true)),
 		Comments:      getOptionalStr(d, "comments", true),
 		Weight:        getOptionalFloat(d, "weight"),
 		MaxWeight:     getOptionalInt(d, "max_weight"),
-		WeightUnit:    getOptionalStr(d, "weight_unit", true),
+		WeightUnit:    strToPtr(getOptionalStr(d, "weight_unit", true)),
 		MountingDepth: getOptionalInt(d, "mounting_depth_mm"),
 	}
 

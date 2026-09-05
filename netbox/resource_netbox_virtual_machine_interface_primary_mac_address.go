@@ -89,11 +89,8 @@ func resourceNetboxVirtualMachineInterfacePrimaryMACAddressUpdate(d *schema.Reso
 		CustomFields:   iface.CustomFields,
 		Description:    iface.Description,
 		Enabled:        iface.Enabled,
-		ID:             iface.ID,
-		MacAddress:     iface.MacAddress,
 		Mtu:            iface.Mtu,
 		Tags:           iface.Tags,
-		URL:            iface.URL,
 	}
 
 	// the netbox API sends the URL property as part of NestedTag, but it does not accept the URL property when we send it back
@@ -121,11 +118,7 @@ func resourceNetboxVirtualMachineInterfacePrimaryMACAddressUpdate(d *schema.Reso
 	}
 
 	if iface.Mode != nil {
-		data.Mode = *iface.Mode.Value
-	}
-
-	if iface.L2vpnTermination != nil {
-		data.L2vpnTermination = strconv.FormatInt(iface.L2vpnTermination.ID, 10)
+		data.Mode = &iface.Mode.Value
 	}
 
 	if iface.TaggedVlans != nil {

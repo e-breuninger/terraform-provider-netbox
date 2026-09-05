@@ -80,7 +80,7 @@ func resourceNetboxPowerPortTemplateCreate(ctx context.Context, d *schema.Resour
 		Name:          &name,
 		Description:   d.Get("description").(string),
 		Label:         d.Get("label").(string),
-		Type:          d.Get("type").(string),
+		Type:          strToPtr(d.Get("type").(string)),
 		MaximumDraw:   getOptionalInt(d, "maximum_draw"),
 		AllocatedDraw: getOptionalInt(d, "allocated_draw"),
 	}
@@ -162,7 +162,7 @@ func resourceNetboxPowerPortTemplateUpdate(ctx context.Context, d *schema.Resour
 		Name:          &name,
 		Description:   d.Get("description").(string),
 		Label:         d.Get("label").(string),
-		Type:          d.Get("type").(string),
+		Type:          strToPtr(d.Get("type").(string)),
 		MaximumDraw:   getOptionalInt(d, "maximum_draw"),
 		AllocatedDraw: getOptionalInt(d, "allocated_draw"),
 	}

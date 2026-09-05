@@ -69,7 +69,7 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 		Model:        strToPtr(d.Get("model").(string)),
 		PartNumber:   getOptionalStr(d, "part_number", false),
 		Weight:       getOptionalFloat(d, "weight"),
-		WeightUnit:   getOptionalStr(d, "weight_unit", false),
+		WeightUnit:   strToPtr(getOptionalStr(d, "weight_unit", false)),
 		Description:  getOptionalStr(d, "description", false),
 		Comments:     getOptionalStr(d, "comments", false),
 	}
@@ -155,7 +155,7 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 		Model:        strToPtr(d.Get("model").(string)),
 		PartNumber:   getOptionalStr(d, "part_number", true),
 		Weight:       getOptionalFloat(d, "weight"),
-		WeightUnit:   getOptionalStr(d, "weight_unit", false),
+		WeightUnit:   strToPtr(getOptionalStr(d, "weight_unit", false)),
 		Description:  getOptionalStr(d, "description", true),
 		Comments:     getOptionalStr(d, "comments", true),
 	}

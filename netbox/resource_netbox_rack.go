@@ -175,7 +175,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 		Name:    &name,
 		Site:    &siteID,
 		Status:  status,
-		Width:   width,
+		Width:   &width,
 		UHeight: uHeight,
 	}
 
@@ -191,7 +191,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	data.Weight = getOptionalFloat(d, "weight")
 	data.MaxWeight = getOptionalInt(d, "max_weight")
-	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
+	data.WeightUnit = strToPtr(getOptionalStr(d, "weight_unit", false))
 
 	if descUnits, ok := d.GetOk("desc_units"); ok {
 		data.DescUnits = descUnits.(bool)
@@ -199,11 +199,11 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.OuterWidth = getOptionalInt(d, "outer_width")
 	data.OuterDepth = getOptionalInt(d, "outer_depth")
-	data.OuterUnit = getOptionalStr(d, "outer_unit", false)
+	data.OuterUnit = strToPtr(getOptionalStr(d, "outer_unit", false))
 	data.MountingDepth = getOptionalInt(d, "mounting_depth")
 	data.Description = getOptionalStr(d, "description", false)
 	data.Comments = getOptionalStr(d, "comments", false)
-	data.FormFactor = getOptionalStr(d, "form_factor", false)
+	data.FormFactor = strToPtr(getOptionalStr(d, "form_factor", false))
 	data.RackType = getOptionalInt(d, "rack_type_id")
 
 	var err error
@@ -354,7 +354,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 		Name:    &name,
 		Site:    &siteID,
 		Status:  status,
-		Width:   width,
+		Width:   &width,
 		UHeight: uHeight,
 	}
 
@@ -372,7 +372,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	data.Weight = getOptionalFloat(d, "weight")
 	data.MaxWeight = getOptionalInt(d, "max_weight")
-	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
+	data.WeightUnit = strToPtr(getOptionalStr(d, "weight_unit", false))
 
 	if descUnits, ok := d.GetOk("desc_units"); ok {
 		data.DescUnits = descUnits.(bool)
@@ -380,11 +380,11 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.OuterWidth = getOptionalInt(d, "outer_width")
 	data.OuterDepth = getOptionalInt(d, "outer_depth")
-	data.OuterUnit = getOptionalStr(d, "outer_unit", false)
+	data.OuterUnit = strToPtr(getOptionalStr(d, "outer_unit", false))
 	data.MountingDepth = getOptionalInt(d, "mounting_depth")
 	data.Description = getOptionalStr(d, "description", true)
 	data.Comments = getOptionalStr(d, "comments", true)
-	data.FormFactor = getOptionalStr(d, "form_factor", false)
+	data.FormFactor = strToPtr(getOptionalStr(d, "form_factor", false))
 	data.RackType = getOptionalInt(d, "rack_type_id")
 
 	var err error

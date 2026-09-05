@@ -69,10 +69,10 @@ func resourceNetboxVpnTunnelTerminationCreate(d *schema.ResourceData, m interfac
 	switch {
 	case vmInterfaceID != nil:
 		data.TerminationType = strToPtr("virtualization.vminterface")
-		data.TerminationID = *vmInterfaceID
+		data.TerminationID = vmInterfaceID
 	case deviceInterfaceID != nil:
 		data.TerminationType = strToPtr("dcim.interface")
-		data.TerminationID = *deviceInterfaceID
+		data.TerminationID = deviceInterfaceID
 	}
 
 	data.OutsideIP = getOptionalInt(d, "outside_ip_address_id")
@@ -149,10 +149,10 @@ func resourceNetboxVpnTunnelTerminationUpdate(d *schema.ResourceData, m interfac
 	switch {
 	case vmInterfaceID != nil:
 		data.TerminationType = strToPtr("virtualization.vminterface")
-		data.TerminationID = *vmInterfaceID
+		data.TerminationID = vmInterfaceID
 	case deviceInterfaceID != nil:
 		data.TerminationType = strToPtr("dcim.interface")
-		data.TerminationID = *deviceInterfaceID
+		data.TerminationID = deviceInterfaceID
 	}
 
 	data.OutsideIP = getOptionalInt(d, "outside_ip_address_id")

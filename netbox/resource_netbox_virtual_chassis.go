@@ -225,7 +225,6 @@ func virtualChassisUpdateMaster(api *providerState, id int64, master *int64) err
 	// Need to manually copy data because there is no automatic method to convert
 	// from VirtualChassis to WritableVirtualChassis
 	vcUpdateData := models.WritableVirtualChassis{
-		ID:          vcData.ID,
 		Description: vcData.Description,
 		Domain:      vcData.Domain,
 		Name:        vcData.Name,

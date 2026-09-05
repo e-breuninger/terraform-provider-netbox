@@ -81,9 +81,9 @@ func resourceNetboxPowerOutletTemplateCreate(ctx context.Context, d *schema.Reso
 		Name:        &name,
 		Description: d.Get("description").(string),
 		Label:       d.Get("label").(string),
-		Type:        d.Get("type").(string),
+		Type:        strToPtr(d.Get("type").(string)),
 		PowerPort:   getOptionalInt(d, "power_port_id"),
-		FeedLeg:     d.Get("feed_leg").(string),
+		FeedLeg:     strToPtr(d.Get("feed_leg").(string)),
 	}
 
 	if deviceTypeID, ok := d.Get("device_type_id").(int); ok && deviceTypeID != 0 {
@@ -163,9 +163,9 @@ func resourceNetboxPowerOutletTemplateUpdate(ctx context.Context, d *schema.Reso
 		Name:        &name,
 		Description: d.Get("description").(string),
 		Label:       d.Get("label").(string),
-		Type:        d.Get("type").(string),
+		Type:        strToPtr(d.Get("type").(string)),
 		PowerPort:   getOptionalInt(d, "power_port_id"),
-		FeedLeg:     d.Get("feed_leg").(string),
+		FeedLeg:     strToPtr(d.Get("feed_leg").(string)),
 	}
 
 	if d.HasChange("device_type_id") {

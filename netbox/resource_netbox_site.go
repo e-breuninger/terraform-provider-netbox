@@ -391,7 +391,7 @@ func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func getIDsFromNestedASNList(nestedASNs []*models.NestedASN) []int64 {
+func getIDsFromNestedASNList(nestedASNs []*models.ASN) []int64 {
 	var asns []int64
 	for _, asn := range nestedASNs {
 		asns = append(asns, asn.ID)

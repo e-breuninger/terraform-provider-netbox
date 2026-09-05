@@ -63,7 +63,7 @@ func getNestedTagListFromResourceDataSet(state *providerState, d interface{}) ([
 
 func findTag(client *client.NetBoxAPI, name string) (*models.NestedTag, error) {
 	params := extras.NewExtrasTagsListParams()
-	params.Name = &name
+	params.Name = []string{name}
 
 	limit := int64(2) // We search for a unique tag. Having two hits suffices to know its not unique.
 	params.Limit = &limit

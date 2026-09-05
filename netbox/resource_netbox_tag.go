@@ -68,7 +68,7 @@ func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 	color := d.Get("color_hex").(string)
 	description := d.Get("description").(string)
 	params := extras.NewExtrasTagsCreateParams().WithData(
-		&models.Tag{
+		&models.WritableTag{
 			Name:        &name,
 			Slug:        &slug,
 			Color:       color,
@@ -116,7 +116,7 @@ func resourceNetboxTagUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.Tag{}
+	data := models.WritableTag{}
 
 	name := d.Get("name").(string)
 	color := d.Get("color_hex").(string)

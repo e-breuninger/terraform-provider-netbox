@@ -68,7 +68,7 @@ func resourceNetboxVlanGroup() *schema.Resource {
 
 func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.VLANGroup{}
+	data := models.WritableVLANGroup{}
 
 	name := d.Get("name").(string)
 	slug := d.Get("slug").(string)
@@ -153,7 +153,7 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.VLANGroup{}
+	data := models.WritableVLANGroup{}
 
 	name := d.Get("name").(string)
 	slug := d.Get("slug").(string)

@@ -166,7 +166,10 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ports", service.Ports)
 	d.Set("description", service.Description)
 
-	parentObjectType := service.ParentObjectType
+	var parentObjectType string
+	if service.ParentObjectType != nil {
+		parentObjectType = *service.ParentObjectType
+	}
 	switch parentObjectType {
 	case "virtualization.virtualmachine":
 		d.Set("virtual_machine_id", service.ParentObjectID)

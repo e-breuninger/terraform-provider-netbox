@@ -49,7 +49,7 @@ func resourceNetboxRir() *schema.Resource {
 
 func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.RIR{}
+	data := models.WritableRIR{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -108,7 +108,7 @@ func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.RIR{}
+	data := models.WritableRIR{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
