@@ -116,16 +116,13 @@ This resource will retrieve the next available IP address from a given prefix or
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	prefixID := int64(d.Get("prefix_id").(int))
-	vrfID := int64(int64(d.Get("vrf_id").(int)))
 	rangeID := int64(d.Get("ip_range_id").(int))
-	nestedvrf := models.NestedVRF{
-		ID: vrfID,
-	}
-	data := models.AvailableIP{
-		Vrf: &nestedvrf,
-	}
+	// NOTE(v3-migration): models.AvailableIPRequest no longer carries a Vrf
+	// field, so the VRF can't be supplied at creation time. It is still set
+	// on the immediately-following Update call below via WritableIPAddress.Vrf.
+	data := models.AvailableIPRequest{}
 	if prefixID != 0 {
-		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
+		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIPRequest{&data})
 		res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
 		if err != nil {
 			return err
@@ -138,7 +135,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		d.Set("ip_address", *res.Payload[0].Address)
 	}
 	if rangeID != 0 {
-		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
+		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIPRequest{&data})
 		res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
 		if err != nil {
 			return err
@@ -229,7 +226,7 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	data.Status = d.Get("status").(string)
 
 	data.Description = getOptionalStr(d, "description", false)
-	data.Role = getOptionalStr(d, "role", false)
+	data.Role = strToPtr(getOptionalStr(d, "role", false))
 	data.DNSName = getOptionalStr(d, "dns_name", false)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")

@@ -63,19 +63,27 @@ func dataSourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error 
 	params.Limit = int64ToPtr(2)
 
 	if id, ok := d.Get("id").(string); ok && id != "" {
-		params.ID = strToPtr(id)
+		n, perr := int64FromFilterString(id)
+		if perr != nil {
+			return perr
+		}
+		params.ID = n
 	}
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.Name = strToPtr(name)
+		params.Name = []string{name}
 	}
 	if slug, ok := d.Get("slug").(string); ok && slug != "" {
-		params.Slug = strToPtr(slug)
+		params.Slug = []string{slug}
 	}
 	if scopeType, ok := d.Get("scope_type").(string); ok && scopeType != "" {
-		params.ScopeType = strToPtr(scopeType)
+		params.ScopeType = []string{scopeType}
 	}
 	if scopeID, ok := d.Get("scope_id").(string); ok && scopeID != "" {
-		params.ScopeID = strToPtr(scopeID)
+		n, perr := int64FromFilterString(scopeID)
+		if perr != nil {
+			return perr
+		}
+		params.ScopeID = n
 	}
 
 	res, err := api.Ipam.IpamVlanGroupsList(params, nil)

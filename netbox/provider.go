@@ -369,11 +369,11 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 		// fail provider configuration outright. Retry a few times with a linear
 		// backoff before giving up.
 		const versionCheckAttempts = 5
-		var res *status.StatusListOK
+		var res *status.StatusRetrieveOK
 		var err error
 		for attempt := 1; attempt <= versionCheckAttempts; attempt++ {
-			req := status.NewStatusListParams()
-			res, err = netboxClient.Status.StatusList(req, nil)
+			req := status.NewStatusRetrieveParams()
+			res, err = netboxClient.Status.StatusRetrieve(req, nil)
 			if err == nil {
 				break
 			}
@@ -398,7 +398,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 			}}
 		}
 
-		netboxVersionStringFromAPI := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
+		netboxVersionStringFromAPI := res.GetPayload()["netbox-version"].(string)
 
 		netboxVersion, err := extractSemanticVersionFromString(netboxVersionStringFromAPI)
 		if err != nil {

@@ -165,9 +165,9 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "slug":
-				params.Slug = &vString
+				params.Slug = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -239,13 +239,17 @@ func dataSourceNetboxTenantsRead(d *schema.ResourceData, m interface{}) error {
 	return d.Set("tenants", s)
 }
 
-func flattenTenantGroup(group *models.NestedTenantGroup) []map[string]interface{} {
+func flattenTenantGroup(group *models.BriefTenantGroup) []map[string]interface{} {
 	var s []map[string]interface{}
 	if group != nil {
 		var mapping = make(map[string]interface{})
 		mapping["id"] = group.ID
-		mapping["name"] = group.Name
-		mapping["slug"] = group.Slug
+		if group.Name != nil {
+			mapping["name"] = *group.Name
+		}
+		if group.Slug != nil {
+			mapping["slug"] = *group.Slug
+		}
 		mapping["tenant_count"] = group.TenantCount
 		s = append(s, mapping)
 	}

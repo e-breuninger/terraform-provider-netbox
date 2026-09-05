@@ -70,7 +70,7 @@ func resourceNetboxConsoleServerPortTemplateCreate(ctx context.Context, d *schem
 		Name:        &name,
 		Description: d.Get("description").(string),
 		Label:       d.Get("label").(string),
-		Type:        d.Get("type").(string),
+		Type:        getOptionalStrPtr(d, "type"),
 	}
 
 	if deviceTypeID, ok := d.Get("device_type_id").(int); ok && deviceTypeID != 0 {
@@ -144,7 +144,7 @@ func resourceNetboxConsoleServerPortTemplateUpdate(ctx context.Context, d *schem
 		Name:        &name,
 		Description: d.Get("description").(string),
 		Label:       d.Get("label").(string),
-		Type:        d.Get("type").(string),
+		Type:        getOptionalStrPtr(d, "type"),
 	}
 
 	if d.HasChange("device_type_id") {

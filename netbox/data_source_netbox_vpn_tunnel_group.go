@@ -47,10 +47,10 @@ func dataSourceNetboxVpnTunnelGroupRead(d *schema.ResourceData, m interface{}) e
 	params.Limit = &limit
 
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.Name = &name
+		params.Name = []string{name}
 	}
 	if slug, ok := d.Get("slug").(string); ok && slug != "" {
-		params.Slug = &slug
+		params.Slug = []string{slug}
 	}
 
 	if tag, ok := d.Get("tag").(string); ok && tag != "" {

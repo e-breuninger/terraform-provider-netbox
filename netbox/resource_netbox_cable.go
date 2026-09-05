@@ -93,12 +93,12 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 
 	data := models.WritableCable{
 		Status:      d.Get("status").(string),
-		Type:        getOptionalStr(d, "type", false),
+		Type:        getOptionalStrPtr(d, "type"),
 		Tenant:      getOptionalInt(d, "tenant_id"),
 		Label:       getOptionalStr(d, "label", false),
 		Color:       getOptionalStr(d, "color_hex", false),
 		Length:      getOptionalFloat(d, "length"),
-		LengthUnit:  getOptionalStr(d, "length_unit", false),
+		LengthUnit:  getOptionalStrPtr(d, "length_unit"),
 		Description: getOptionalStr(d, "description", false),
 		Comments:    getOptionalStr(d, "comments", false),
 	}
@@ -198,12 +198,12 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data := models.WritableCable{
 		Status:      d.Get("status").(string),
-		Type:        getOptionalStr(d, "type", false),
+		Type:        getOptionalStrPtr(d, "type"),
 		Tenant:      getOptionalInt(d, "tenant_id"),
 		Label:       getOptionalStr(d, "label", true),
 		Color:       getOptionalStr(d, "color_hex", false),
 		Length:      getOptionalFloat(d, "length"),
-		LengthUnit:  getOptionalStr(d, "length_unit", false),
+		LengthUnit:  getOptionalStrPtr(d, "length_unit"),
 		Description: getOptionalStr(d, "description", true),
 		Comments:    getOptionalStr(d, "comments", true),
 	}

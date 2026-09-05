@@ -116,6 +116,18 @@ func getOptionalStr(d *schema.ResourceData, key string, useSpace bool) string {
 	return strVal
 }
 
+// getOptionalStrPtr is like getOptionalStr but returns nil when the key is unset,
+// for API fields that are now *string with omitempty: unlike a plain string field,
+// omitempty on a *string only omits a nil pointer, so a pointer-to-"" would still be sent.
+func getOptionalStrPtr(d *schema.ResourceData, key string) *string {
+	strVal, ok := d.GetOk(key)
+	if !ok {
+		return nil
+	}
+	s := strVal.(string)
+	return &s
+}
+
 func getOptionalVal[SchemaT int | float64, ApiT int64 | float64](d *schema.ResourceData, key string) *ApiT {
 	var apiPtr *ApiT
 	schemaValIf, ok := d.GetOk(key)

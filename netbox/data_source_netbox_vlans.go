@@ -122,50 +122,98 @@ func dataSourceNetboxVlansRead(d *schema.ResourceData, m interface{}) error {
 			vString := v.(string)
 			switch k {
 			case "vid":
-				params.Vid = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.Vid = n
 			case "vid__gt":
-				params.VidGt = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VidGt = n
 			case "vid__gte":
-				params.VidGte = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VidGte = n
 			case "vid__lt":
-				params.VidLt = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VidLt = n
 			case "vid__lte":
-				params.VidLte = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VidLte = n
 			case "vid__n":
-				params.Vidn = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.Vidn = n
 			case "group":
-				params.Group = &vString
+				params.Group = []string{vString}
 			case "group__n":
-				params.Groupn = &vString
+				params.Groupn = []string{vString}
 			case "group_id":
-				params.GroupID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.GroupID = n
 			case "group_id__n":
-				params.GroupIDn = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.GroupIDn = n
 			case "tag":
 				tags = append(tags, vString)
 				params.Tag = tags
 			case "tenant":
-				params.Tenant = &vString
+				params.Tenant = []string{vString}
 			case "tenant__n":
-				params.Tenantn = &vString
+				params.Tenantn = []string{vString}
 			case "tenant_group":
-				params.TenantGroup = &vString
+				params.TenantGroup = []string{vString}
 			case "tenant_group__n":
-				params.TenantGroupn = &vString
+				params.TenantGroupn = []string{vString}
 			case "tenant_group_id":
-				params.TenantGroupID = &vString
+				params.TenantGroupID = []string{vString}
 			case "tenant_group_id__n":
-				params.TenantGroupIDn = &vString
+				params.TenantGroupIDn = []string{vString}
 			case "tenant_id":
-				params.TenantID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantID = n
 			case "tenant_id__n":
-				params.TenantIDn = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantIDn = n
 			case "site_id":
-				params.SiteID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.SiteID = n
 			case "site_id__n":
-				params.SiteIDn = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.SiteIDn = n
 			case "status":
-				params.Status = &vString
+				params.Status = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

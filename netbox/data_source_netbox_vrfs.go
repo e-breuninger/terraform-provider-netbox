@@ -89,29 +89,41 @@ func dataSourceNetboxVrfsRead(d *schema.ResourceData, m interface{}) error {
 			vString := v.(string)
 			switch k {
 			case "id":
-				params.ID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ID = n
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "description":
-				params.Description = &vString
+				params.Description = []string{vString}
 			case "rd":
-				params.Rd = &vString
+				params.Rd = []string{vString}
 			case "tenant":
-				params.Tenant = &vString
+				params.Tenant = []string{vString}
 			case "tenant__n":
-				params.Tenantn = &vString
+				params.Tenantn = []string{vString}
 			case "tenant_group":
-				params.TenantGroup = &vString
+				params.TenantGroup = []string{vString}
 			case "tenant_group__n":
-				params.TenantGroupn = &vString
+				params.TenantGroupn = []string{vString}
 			case "tenant_group_id":
-				params.TenantGroupID = &vString
+				params.TenantGroupID = []string{vString}
 			case "tenant_group_id__n":
-				params.TenantGroupIDn = &vString
+				params.TenantGroupIDn = []string{vString}
 			case "tenant_id":
-				params.TenantID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantID = n
 			case "tenant_id__n":
-				params.TenantIDn = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantIDn = n
 			case "tag":
 				tags = append(tags, vString)
 				params.Tag = tags

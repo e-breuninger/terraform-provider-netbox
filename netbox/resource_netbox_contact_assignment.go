@@ -63,11 +63,11 @@ func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}
 
 	data := &models.WritableContactAssignment{}
 
-	data.ObjectType = contentType
+	data.ObjectType = &contentType
 	data.ObjectID = &objectID
 	data.Contact = &contactID
 	data.Role = &roleID
-	data.Priority = priority
+	data.Priority = &priority
 
 	params := tenancy.NewTenancyContactAssignmentsCreateParams().WithData(data)
 
@@ -129,7 +129,7 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	roleID := int64(d.Get("role_id").(int))
 	priority := d.Get("priority").(string)
 
-	data.ObjectType = contentType
+	data.ObjectType = &contentType
 	if objectID != 0 {
 		data.ObjectID = &objectID
 	}
@@ -139,7 +139,7 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	if roleID != 0 {
 		data.Role = &roleID
 	}
-	data.Priority = priority
+	data.Priority = &priority
 
 	params := tenancy.NewTenancyContactAssignmentsPartialUpdateParams().WithID(id).WithData(&data)
 

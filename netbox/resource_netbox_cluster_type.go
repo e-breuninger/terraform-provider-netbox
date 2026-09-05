@@ -53,7 +53,7 @@ func resourceNetboxClusterTypeCreate(d *schema.ResourceData, m interface{}) erro
 	}
 
 	params := virtualization.NewVirtualizationClusterTypesCreateParams().WithData(
-		&models.ClusterType{
+		&models.WritableClusterType{
 			Name: &name,
 			Slug: &slug,
 			Tags: []*models.NestedTag{},
@@ -98,7 +98,7 @@ func resourceNetboxClusterTypeUpdate(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.ClusterType{}
+	data := models.WritableClusterType{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")

@@ -64,23 +64,35 @@ func dataSourceNetboxVpnTunnelRead(d *schema.ResourceData, m interface{}) error 
 	params.Limit = &limit
 
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.Name = &name
+		params.Name = []string{name}
 	}
 	if status, ok := d.Get("status").(string); ok && status != "" {
-		params.Status = &status
+		params.Status = []string{status}
 	}
 	if encapsulation, ok := d.Get("encapsulation").(string); ok && encapsulation != "" {
-		params.Encapsulation = &encapsulation
+		params.Encapsulation = []string{encapsulation}
 	}
 
 	if group_id, ok := d.Get("group_id").(string); ok && group_id != "" {
-		params.GroupID = &group_id
+		n, perr := int64FromFilterString(group_id)
+		if perr != nil {
+			return perr
+		}
+		params.GroupID = n
 	}
 	if tunnel_id, ok := d.Get("tunnel_id").(string); ok && tunnel_id != "" {
-		params.TunnelID = &tunnel_id
+		n, perr := int64FromFilterString(tunnel_id)
+		if perr != nil {
+			return perr
+		}
+		params.TunnelID = n
 	}
 	if tenant_id, ok := d.Get("tenant_id").(string); ok && tenant_id != "" {
-		params.TenantID = &tenant_id
+		n, perr := int64FromFilterString(tenant_id)
+		if perr != nil {
+			return perr
+		}
+		params.TenantID = n
 	}
 
 	if tag, ok := d.Get("tag").(string); ok && tag != "" {

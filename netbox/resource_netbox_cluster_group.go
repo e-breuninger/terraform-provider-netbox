@@ -45,7 +45,7 @@ func resourceNetboxClusterGroup() *schema.Resource {
 func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.ClusterGroup{}
+	data := models.WritableClusterGroup{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
@@ -106,7 +106,7 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.ClusterGroup{}
+	data := models.WritableClusterGroup{}
 
 	name := d.Get("name").(string)
 	data.Name = &name

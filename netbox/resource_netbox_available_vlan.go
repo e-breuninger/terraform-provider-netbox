@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -77,7 +78,7 @@ func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) er
 	if err != nil {
 		return err
 	}
-	data := &models.WritableCreateAvailableVLAN{
+	data := &models.CreateAvailableVLAN{
 		Name:        strToPtr(d.Get("name").(string)),
 		Description: getOptionalStr(d, "description", false),
 		Tenant:      getOptionalInt(d, "tenant_id"),
@@ -87,17 +88,27 @@ func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) er
 		Tags:        tags,
 	}
 
-	params := ipam.NewIpamVlanGroupsAvailableVlansCreateParams().WithID(groupID).WithData(data)
+	params := ipam.NewIpamVlanGroupsAvailableVlansCreateParams().WithID(groupID).WithData([]*models.CreateAvailableVLAN{data})
 	resp, err := api.Ipam.IpamVlanGroupsAvailableVlansCreate(params, nil)
 	if err != nil {
 		return err
 	}
 
-	vlan := resp.Payload
+	payload := resp.GetPayload()
+	if len(payload) == 0 {
+		return fmt.Errorf("no available VLAN was returned")
+	}
+	vlan := payload[0]
 	d.SetId(strconv.FormatInt(vlan.ID, 10))
-	d.Set("vid", vlan.Vid)
-	d.Set("name", vlan.Name)
-	d.Set("group_id", vlan.Group.ID)
+	if vlan.Vid != nil {
+		d.Set("vid", *vlan.Vid)
+	}
+	if vlan.Name != nil {
+		d.Set("name", *vlan.Name)
+	}
+	if vlan.Group != nil {
+		d.Set("group_id", vlan.Group.ID)
+	}
 	return resourceNetboxAvailableVLANRead(d, m)
 }
 
@@ -128,8 +139,8 @@ func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("description", vlan.Description)
 	d.Set("comments", vlan.Comments)
 
-	if vlan.Status != nil && vlan.Status.Value != nil {
-		d.Set("status", *vlan.Status.Value)
+	if vlan.Status != nil && vlan.Status.Value != "" {
+		d.Set("status", vlan.Status.Value)
 	} else {
 		d.Set("status", "")
 	}

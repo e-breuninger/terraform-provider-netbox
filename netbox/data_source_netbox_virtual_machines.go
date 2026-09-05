@@ -175,32 +175,40 @@ func dataSourceNetboxVirtualMachineRead(d *schema.ResourceData, m interface{}) e
 			vString := v.(string)
 			switch k {
 			case "cluster_id":
-				params.ClusterID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ClusterID = n
 			case "cluster_group":
-				params.ClusterGroup = &vString
+				params.ClusterGroup = []string{vString}
 			case "device_id":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "device":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "region":
-				params.Region = &vString
+				params.Region = []string{vString}
 			case "role":
-				params.Role = &vString
+				params.Role = []string{vString}
 			case "site":
-				params.Site = &vString
+				params.Site = []string{vString}
 			case "tenant_id":
-				params.TenantID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantID = n
 			case "tag":
 				tags = append(tags, vString)
 				params.Tag = tags
 			case "status":
-				params.Status = &vString
+				params.Status = []string{vString}
 			case "platform":
-				params.Platform = &vString
+				params.Platform = []string{vString}
 			case "platform_id":
-				params.PlatformID = &vString
+				params.PlatformID = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

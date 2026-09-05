@@ -45,7 +45,7 @@ func resourceNetboxCircuitType() *schema.Resource {
 func resourceNetboxCircuitTypeCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.CircuitType{}
+	data := models.WritableCircuitType{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
@@ -103,7 +103,7 @@ func resourceNetboxCircuitTypeUpdate(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.CircuitType{}
+	data := models.WritableCircuitType{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
