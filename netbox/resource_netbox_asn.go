@@ -41,6 +41,17 @@ func resourceNetboxAsn() *schema.Resource {
 				Optional:    true,
 				Description: "Comments field for the AS Number record",
 			},
+			"role_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "ID of the role assigned to the AS Number record",
+			},
+			"site_ids": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeInt},
+				Description: "IDs of the sites the AS Number record is assigned to",
+			},
 			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -62,6 +73,13 @@ func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Description = d.Get("description").(string)
 	data.Comments = d.Get("comments").(string)
+
+	if roleID, ok := d.GetOk("role_id"); ok {
+		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	data.Sites = toInt64List(d.Get("site_ids"))
+
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
@@ -104,6 +122,18 @@ func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("rir_id", asn.Rir.ID)
 	d.Set("description", asn.Description)
 	d.Set("comments", asn.Comments)
+
+	if asn.Role != nil {
+		d.Set("role_id", asn.Role.ID)
+	} else {
+		d.Set("role_id", nil)
+	}
+
+	siteIDs := make([]int64, len(asn.Sites))
+	for i, site := range asn.Sites {
+		siteIDs[i] = site.ID
+	}
+	d.Set("site_ids", siteIDs)
 	api.readTags(d, asn.Tags)
 
 	return nil
@@ -123,6 +153,13 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Description = d.Get("description").(string)
 	data.Comments = d.Get("comments").(string)
+
+	if roleID, ok := d.GetOk("role_id"); ok {
+		data.Role = int64ToPtr(int64(roleID.(int)))
+	}
+
+	data.Sites = toInt64List(d.Get("site_ids"))
+
 	var err error
 	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
