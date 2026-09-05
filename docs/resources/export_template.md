@@ -4,7 +4,7 @@ page_title: "netbox_export_template Resource - terraform-provider-netbox"
 subcategory: "Extras"
 description: |-
   From the official documentation https://docs.netbox.dev/en/stable/customization/export-templates/:
-  NetBox allows users to define custom templates that can be used when exporting objects. Each export template is associated with a certain type of object and has a name. Optionally, a MIME type and file extension can be defined; these will be used when the template is rendered for a client for the file download. If a MIME type is not defined, NetBox will fall back to using text/plain.
+  NetBox allows users to define custom templates that can be used when exporting objects. To create an export template, connect to the Django shell and create a new ExportTemplate instance. Each export template is associated with a certain type of object and has a name. Optionally, a MIME type and file extension can be defined; these will be used when the template is rendered for a client for the file download. If a MIME type is not defined, NetBox will fall back to using text/plain.
   Export templates must be written in Jinja2. The list of objects returned from the database when the template is rendered is passed in as a context variable named queryset.
 ---
 
@@ -12,9 +12,9 @@ description: |-
 
 From the [official documentation](https://docs.netbox.dev/en/stable/customization/export-templates/):
 
-> NetBox allows users to define custom templates that can be used when exporting objects. Each export template is associated with a certain type of object and has a name. Optionally, a MIME type and file extension can be defined; these will be used when the template is rendered for a client for the file download. If a MIME type is not defined, NetBox will fall back to using text/plain.
+> NetBox allows users to define custom templates that can be used when exporting objects. To create an export template, connect to the Django shell and create a new ExportTemplate instance. Each export template is associated with a certain type of object and has a name. Optionally, a MIME type and file extension can be defined; these will be used when the template is rendered for a client for the file download. If a MIME type is not defined, NetBox will fall back to using text/plain.
 
-> Export templates must be written in Jinja2. The list of objects returned from the database when the template is rendered is passed in as a context variable named `queryset`.
+> Export templates must be written in Jinja2. The list of objects returned from the database when the template is rendered is passed in as a context variable named queryset.
 
 ## Example Usage
 
@@ -43,8 +43,8 @@ resource "netbox_export_template" "site_names" {
 
 - `as_attachment` (Boolean) Download file as attachment. Defaults to `true`.
 - `description` (String)
-- `file_extension` (String) Extension to append to the rendered filename
-- `mime_type` (String) Defaults to `text/plain`
+- `file_extension` (String) Extension to append to the rendered filename.
+- `mime_type` (String) Defaults to `text/plain`.
 
 ### Read-Only
 
