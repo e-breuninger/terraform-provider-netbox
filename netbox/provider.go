@@ -180,6 +180,7 @@ func Provider() *schema.Provider {
 			"netbox_mac_address":                                   resourceNetboxMACAddress(),
 			"netbox_wireless_lan_group":                            resourceNetboxWirelessLANGroup(),
 			"netbox_wireless_lan":                                  resourceNetboxWirelessLAN(),
+			"netbox_l2vpn":                                         resourceNetboxL2VPN(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":                       dataSourceNetboxAsn(),
@@ -239,6 +240,7 @@ func Provider() *schema.Provider {
 			"netbox_config_context":            dataSourceNetboxConfigContext(),
 			"netbox_virtual_disk":              dataSourceNetboxVirtualDisk(),
 			"netbox_device_render_config":      dataSourceNetboxDeviceRenderConfig(),
+			"netbox_l2vpn":                     dataSourceNetboxL2VPN(),
 		},
 		Schema: map[string]*schema.Schema{
 			"server_url": {
