@@ -114,32 +114,30 @@ func dataSourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if vrfID, ok := d.Get("vrf_id").(int); ok && vrfID != 0 {
-		// Note that vrf_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.VrfID = strToPtr(strconv.Itoa(vrfID))
+		params.VrfID = []int64{int64(vrfID)}
 	}
 
 	if tenantID, ok := d.Get("tenant_id").(int); ok && tenantID != 0 {
-		// Note that tenant_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.TenantID = strToPtr(strconv.Itoa(tenantID))
+		params.TenantID = []int64{int64(tenantID)}
 	}
 
 	if status, ok := d.Get("status").(string); ok && status != "" {
-		params.Status = &status
+		params.Status = []string{status}
 	}
 
 	if roleID, ok := d.Get("role_id").(int); ok && roleID != 0 {
-		params.RoleID = strToPtr(strconv.Itoa(roleID))
+		params.RoleID = []int64{int64(roleID)}
 	}
 
 	if description, ok := d.Get("description").(string); ok && description != "" {
-		params.Description = &description
+		params.Description = []string{description}
 	}
 
 	if tag, ok := d.Get("tag").(string); ok && tag != "" {
 		params.Tag = []string{tag} //TODO: switch schema to list
 	}
 	if tagn, ok := d.Get("tag__n").(string); ok && tagn != "" {
-		params.Tagn = &tagn
+		params.Tagn = []string{tagn}
 	}
 
 	res, err := api.Ipam.IpamIPRangesList(params, nil)
@@ -160,7 +158,7 @@ func dataSourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("end_address", result.EndAddress)
 	d.Set("status", result.Status.Value)
 	d.Set("description", result.Description)
-	d.Set("family", int(*result.Family.Value))
+	d.Set("family", int(result.Family.Value))
 	d.Set("tags", getTagListFromNestedTagList(result.Tags))
 
 	if result.Role != nil {

@@ -39,7 +39,7 @@ func dataSourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	params := dcim.NewDcimPlatformsListParams()
-	params.Name = &name
+	params.Name = []string{name}
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 

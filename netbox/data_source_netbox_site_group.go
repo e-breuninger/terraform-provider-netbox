@@ -38,11 +38,11 @@ func dataSourceNetboxSiteGroupRead(d *schema.ResourceData, m interface{}) error 
 	params := dcim.NewDcimSiteGroupsListParams()
 
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.Name = &name
+		params.Name = []string{name}
 	}
 
 	if slug, ok := d.Get("slug").(string); ok && slug != "" {
-		params.Slug = &slug
+		params.Slug = []string{slug}
 	}
 
 	limit := int64(2) // Limit of 2 is enough

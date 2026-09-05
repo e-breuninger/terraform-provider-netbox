@@ -86,16 +86,20 @@ func dataSourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 
 	params.Limit = int64ToPtr(2)
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.SetName(&name)
+		params.SetName([]string{name})
 	}
 	if slug, ok := d.Get("slug").(string); ok && slug != "" {
-		params.SetSlug(&slug)
+		params.SetSlug([]string{slug})
 	}
 	if id, ok := d.Get("id").(string); ok && id != "0" {
-		params.SetID(&id)
+		n, perr := int64FromFilterString(id)
+		if perr != nil {
+			return perr
+		}
+		params.SetID(n)
 	}
 	if facility, ok := d.Get("facility").(string); ok && facility != "" {
-		params.SetFacility(&facility)
+		params.SetFacility([]string{facility})
 	}
 
 	res, err := api.Dcim.DcimSitesList(params, nil)

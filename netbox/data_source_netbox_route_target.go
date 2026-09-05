@@ -38,7 +38,7 @@ func dataSourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) erro
 	name := d.Get("name").(string)
 
 	params := ipam.NewIpamRouteTargetsListParams()
-	params.Name = &name
+	params.Name = []string{name}
 
 	limit := int64(2)
 	params.Limit = &limit

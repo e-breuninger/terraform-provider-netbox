@@ -70,18 +70,22 @@ func dataSourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
 				vID := id.(int)
 				if vID != 0 {
 					vIDString := strconv.Itoa(vID)
-					params.ID = &vIDString
+					n, perr := int64FromFilterString(vIDString)
+					if perr != nil {
+						return perr
+					}
+					params.ID = n
 				}
 			}
 			name := f.(map[string]interface{})["name"]
 			if name != nil {
 				vName := name.(string)
-				params.Name = &vName
+				params.Name = []string{vName}
 			}
 			slug := f.(map[string]interface{})["slug"]
 			if slug != nil {
 				vSlug := slug.(string)
-				params.Slug = &vSlug
+				params.Slug = []string{vSlug}
 			}
 		}
 	}

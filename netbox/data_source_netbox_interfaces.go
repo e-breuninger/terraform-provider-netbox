@@ -159,15 +159,23 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 			vString := v.(string)
 			switch k {
 			case "cluster_id":
-				params.ClusterID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ClusterID = n
 			case "mac_address":
-				params.MacAddress = &vString
+				params.MacAddress = []string{vString}
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "tag":
 				params.Tag = []string{vString} //TODO: switch schema to list?
 			case "vm_id":
-				params.VirtualMachineID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VirtualMachineID = n
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -234,8 +242,8 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 		}
 		if v.Mode != nil {
 			mapping["mode"] = map[string]string{
-				"label": *v.Mode.Label,
-				"value": *v.Mode.Value,
+				"label": v.Mode.Label,
+				"value": v.Mode.Value,
 			}
 		}
 		if v.Mtu != nil {
@@ -255,8 +263,8 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 			mapping["tag_ids"] = tags
 		}
 		if v.UntaggedVlan != nil {
-			vlanSlice := []*models.NestedVLAN{v.UntaggedVlan}
-			mapping["untagged_vlan"] = flattenVlanAttributes(vlanSlice)
+			vlanSlice := []*models.BriefVLAN{v.UntaggedVlan}
+			mapping["untagged_vlan"] = flattenBriefVlanAttributes(vlanSlice)
 		}
 
 		mapping["vm_id"] = v.VirtualMachine.ID
@@ -268,16 +276,31 @@ func dataSourceNetboxInterfaceRead(d *schema.ResourceData, m interface{}) error 
 	return d.Set("interfaces", s)
 }
 
-func flattenVlanAttributes(vlans []*models.NestedVLAN) []map[string]interface{} {
+func flattenVlanAttribute(id int64, vid *int64, name *string) map[string]interface{} {
+	mappedVlan := map[string]interface{}{
+		"id": id,
+	}
+	if vid != nil {
+		mappedVlan["vid"] = *vid
+	}
+	if name != nil {
+		mappedVlan["name"] = *name
+	}
+	return mappedVlan
+}
+
+func flattenVlanAttributes(vlans []*models.VLAN) []map[string]interface{} {
 	var mappedVlans []map[string]interface{}
 	for _, vlan := range vlans {
-		v := *vlan
-		mappedVlan := map[string]interface{}{
-			"id":   v.ID,
-			"vid":  *v.Vid,
-			"name": *v.Name,
-		}
-		mappedVlans = append(mappedVlans, mappedVlan)
+		mappedVlans = append(mappedVlans, flattenVlanAttribute(vlan.ID, vlan.Vid, vlan.Name))
+	}
+	return mappedVlans
+}
+
+func flattenBriefVlanAttributes(vlans []*models.BriefVLAN) []map[string]interface{} {
+	var mappedVlans []map[string]interface{}
+	for _, vlan := range vlans {
+		mappedVlans = append(mappedVlans, flattenVlanAttribute(vlan.ID, vlan.Vid, vlan.Name))
 	}
 	return mappedVlans
 }
