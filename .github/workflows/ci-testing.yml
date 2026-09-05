@@ -62,6 +62,7 @@ jobs:
           - v4.6.3
           - v4.6.4
           - v4.6.5
+          - v4.6.8
     steps:
       - uses: actions/checkout@v7
       - name: Set up Go
