@@ -68,7 +68,7 @@ func resourceNetboxDeviceBayCreate(d *schema.ResourceData, m interface{}) error 
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimDeviceBaysCreateParams().WithData(&data)
@@ -86,12 +86,12 @@ func resourceNetboxDeviceBayCreate(d *schema.ResourceData, m interface{}) error 
 func resourceNetboxDeviceBayRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimDeviceBaysReadParams().WithID(id)
+	params := dcim.NewDcimDeviceBaysRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimDeviceBaysRead(params, nil)
+	res, err := api.Dcim.DcimDeviceBaysRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDeviceBaysReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDeviceBaysRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -146,7 +146,7 @@ func resourceNetboxDeviceBayUpdate(d *schema.ResourceData, m interface{}) error 
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimDeviceBaysPartialUpdateParams().WithID(id).WithData(&data)
@@ -163,9 +163,9 @@ func resourceNetboxDeviceBayDelete(d *schema.ResourceData, m interface{}) error 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimDeviceBaysDeleteParams().WithID(id)
+	params := dcim.NewDcimDeviceBaysDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimDeviceBaysDelete(params, nil)
+	_, err := api.Dcim.DcimDeviceBaysDestroy(params, nil)
 	if err != nil {
 		return err
 	}

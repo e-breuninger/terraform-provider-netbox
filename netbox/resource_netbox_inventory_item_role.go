@@ -49,7 +49,7 @@ func resourceNetboxInventoryItemRole() *schema.Resource {
 
 func resourceNetboxInventoryItemRoleCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.InventoryItemRole{
+	data := models.WritableInventoryItemRole{
 		Name:        strToPtr(d.Get("name").(string)),
 		Slug:        strToPtr(d.Get("slug").(string)),
 		Description: getOptionalStr(d, "description", false),
@@ -64,7 +64,7 @@ func resourceNetboxInventoryItemRoleCreate(d *schema.ResourceData, m interface{}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimInventoryItemRolesCreateParams().WithData(&data)
@@ -82,12 +82,12 @@ func resourceNetboxInventoryItemRoleCreate(d *schema.ResourceData, m interface{}
 func resourceNetboxInventoryItemRoleRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimInventoryItemRolesReadParams().WithID(id)
+	params := dcim.NewDcimInventoryItemRolesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimInventoryItemRolesRead(params, nil)
+	res, err := api.Dcim.DcimInventoryItemRolesRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimInventoryItemRolesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimInventoryItemRolesRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -117,7 +117,7 @@ func resourceNetboxInventoryItemRoleUpdate(d *schema.ResourceData, m interface{}
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	data := models.InventoryItemRole{
+	data := models.WritableInventoryItemRole{
 		Name:        strToPtr(d.Get("name").(string)),
 		Slug:        strToPtr(d.Get("slug").(string)),
 		Description: getOptionalStr(d, "description", true),
@@ -132,7 +132,7 @@ func resourceNetboxInventoryItemRoleUpdate(d *schema.ResourceData, m interface{}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimInventoryItemRolesPartialUpdateParams().WithID(id).WithData(&data)
@@ -149,9 +149,9 @@ func resourceNetboxInventoryItemRoleDelete(d *schema.ResourceData, m interface{}
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimInventoryItemRolesDeleteParams().WithID(id)
+	params := dcim.NewDcimInventoryItemRolesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimInventoryItemRolesDelete(params, nil)
+	_, err := api.Dcim.DcimInventoryItemRolesDestroy(params, nil)
 	if err != nil {
 		return err
 	}

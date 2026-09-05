@@ -34,7 +34,7 @@ func dataSourceNetboxContactRoleRead(d *schema.ResourceData, m interface{}) erro
 	params := tenancy.NewTenancyContactRolesListParams()
 
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.Name = &name
+		params.Name = []string{name}
 	}
 
 	limit := int64(2) // Limit of 2 is enough

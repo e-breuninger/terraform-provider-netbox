@@ -143,7 +143,7 @@ func dataSourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) er
 
 	name := d.Get("name").(string)
 	params := extras.NewExtrasConfigContextsListParams()
-	params.Name = &name
+	params.Name = []string{name}
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 

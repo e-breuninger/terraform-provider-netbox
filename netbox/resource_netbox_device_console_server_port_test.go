@@ -145,15 +145,15 @@ func testAccCheckDeviceConsoleServerPortDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimConsoleServerPortsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimConsoleServerPortsRead(params, nil)
+		params := dcim.NewDcimConsoleServerPortsRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimConsoleServerPortsRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_console_server_port (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimConsoleServerPortsReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimConsoleServerPortsRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -182,8 +182,8 @@ func init() {
 			}
 			for _, csPort := range res.GetPayload().Results {
 				if strings.HasPrefix(*csPort.Name, testPrefix) {
-					deleteParams := dcim.NewDcimConsoleServerPortsDeleteParams().WithID(csPort.ID)
-					_, err := api.Dcim.DcimConsoleServerPortsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimConsoleServerPortsDestroyParams().WithID(csPort.ID)
+					_, err := api.Dcim.DcimConsoleServerPortsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

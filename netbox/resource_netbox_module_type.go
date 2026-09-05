@@ -69,7 +69,7 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 		Model:        strToPtr(d.Get("model").(string)),
 		PartNumber:   getOptionalStr(d, "part_number", false),
 		Weight:       getOptionalFloat(d, "weight"),
-		WeightUnit:   getOptionalStr(d, "weight_unit", false),
+		WeightUnit:   strToPtr(getOptionalStr(d, "weight_unit", false)),
 		Description:  getOptionalStr(d, "description", false),
 		Comments:     getOptionalStr(d, "comments", false),
 	}
@@ -82,7 +82,7 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimModuleTypesCreateParams().WithData(&data)
@@ -100,12 +100,12 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 func resourceNetboxModuleTypeRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimModuleTypesReadParams().WithID(id)
+	params := dcim.NewDcimModuleTypesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimModuleTypesRead(params, nil)
+	res, err := api.Dcim.DcimModuleTypesRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimModuleTypesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimModuleTypesRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -155,7 +155,7 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 		Model:        strToPtr(d.Get("model").(string)),
 		PartNumber:   getOptionalStr(d, "part_number", true),
 		Weight:       getOptionalFloat(d, "weight"),
-		WeightUnit:   getOptionalStr(d, "weight_unit", false),
+		WeightUnit:   strToPtr(getOptionalStr(d, "weight_unit", false)),
 		Description:  getOptionalStr(d, "description", true),
 		Comments:     getOptionalStr(d, "comments", true),
 	}
@@ -168,7 +168,7 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimModuleTypesPartialUpdateParams().WithID(id).WithData(&data)
@@ -185,9 +185,9 @@ func resourceNetboxModuleTypeDelete(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimModuleTypesDeleteParams().WithID(id)
+	params := dcim.NewDcimModuleTypesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimModuleTypesDelete(params, nil)
+	_, err := api.Dcim.DcimModuleTypesDestroy(params, nil)
 	if err != nil {
 		return err
 	}

@@ -136,7 +136,7 @@ func testAccCheckNetBoxWebhookDestroy(s *terraform.State) error {
 		// Fetch the webhook by ID
 		// Retrieve our interface by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		webhook, err := client.Extras.ExtrasWebhooksRead(extras.NewExtrasWebhooksReadParams().WithID(stateID), nil)
+		webhook, err := client.Extras.ExtrasWebhooksRetrieve(extras.NewExtrasWebhooksRetrieveParams().WithID(stateID), nil)
 		if err == nil && webhook != nil {
 			return fmt.Errorf("Webhook %s still exists", rs.Primary.ID)
 		}
@@ -162,8 +162,8 @@ func init() {
 			}
 			for _, webhook := range res.GetPayload().Results {
 				if strings.HasPrefix(*webhook.Name, testPrefix) {
-					deleteParams := extras.NewExtrasWebhooksDeleteParams().WithID(webhook.ID)
-					_, err := api.Extras.ExtrasWebhooksDelete(deleteParams, nil)
+					deleteParams := extras.NewExtrasWebhooksDestroyParams().WithID(webhook.ID)
+					_, err := api.Extras.ExtrasWebhooksDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

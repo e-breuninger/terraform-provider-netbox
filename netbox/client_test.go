@@ -85,8 +85,8 @@ func TestAdditionalHeadersSet(t *testing.T) {
 	client, err := config.Client()
 	assert.NoError(t, err)
 
-	req := status.NewStatusListParams()
-	client.Status.StatusList(req, nil)
+	req := status.NewStatusRetrieveParams()
+	client.Status.StatusRetrieve(req, nil)
 }
 
 func TestV1TokenUsesTokenScheme(t *testing.T) {
@@ -104,8 +104,8 @@ func TestV1TokenUsesTokenScheme(t *testing.T) {
 	client, err := config.Client()
 	assert.NoError(t, err)
 
-	req := status.NewStatusListParams()
-	client.Status.StatusList(req, nil)
+	req := status.NewStatusRetrieveParams()
+	client.Status.StatusRetrieve(req, nil)
 }
 
 func TestV2TokenUsesBearerScheme(t *testing.T) {
@@ -124,8 +124,8 @@ func TestV2TokenUsesBearerScheme(t *testing.T) {
 	client, err := config.Client()
 	assert.NoError(t, err)
 
-	req := status.NewStatusListParams()
-	client.Status.StatusList(req, nil)
+	req := status.NewStatusRetrieveParams()
+	client.Status.StatusRetrieve(req, nil)
 }
 
 func TestRequestTimeoutAppliesToOperationTimeout(t *testing.T) {

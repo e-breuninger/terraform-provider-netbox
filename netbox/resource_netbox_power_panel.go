@@ -68,7 +68,7 @@ func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimPowerPanelsCreateParams().WithData(&data)
@@ -86,12 +86,12 @@ func resourceNetboxPowerPanelCreate(d *schema.ResourceData, m interface{}) error
 func resourceNetboxPowerPanelRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimPowerPanelsReadParams().WithID(id)
+	params := dcim.NewDcimPowerPanelsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimPowerPanelsRead(params, nil)
+	res, err := api.Dcim.DcimPowerPanelsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimPowerPanelsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimPowerPanelsRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -150,7 +150,7 @@ func resourceNetboxPowerPanelUpdate(d *schema.ResourceData, m interface{}) error
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimPowerPanelsPartialUpdateParams().WithID(id).WithData(&data)
@@ -167,9 +167,9 @@ func resourceNetboxPowerPanelDelete(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimPowerPanelsDeleteParams().WithID(id)
+	params := dcim.NewDcimPowerPanelsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimPowerPanelsDelete(params, nil)
+	_, err := api.Dcim.DcimPowerPanelsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

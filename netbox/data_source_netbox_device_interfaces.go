@@ -188,15 +188,23 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 			vString := v.(string)
 			switch k {
 			case "mac_address":
-				params.MacAddress = &vString
+				params.MacAddress = []string{vString}
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "tag":
 				params.Tag = []string{vString} // TODO: switch schema to list?
 			case "device_id":
-				params.DeviceID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.DeviceID = n
 			case "lag_id":
-				params.LagID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.LagID = n
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -275,8 +283,8 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 		}
 		if v.Mode != nil {
 			mapping["mode"] = map[string]string{
-				"label": *v.Mode.Label,
-				"value": *v.Mode.Value,
+				"label": v.Mode.Label,
+				"value": v.Mode.Value,
 			}
 		}
 		if v.Mtu != nil {
@@ -286,7 +294,15 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 			mapping["name"] = *v.Name
 		}
 		if v.TaggedVlans != nil {
-			mapping["tagged_vlans"] = flattenVlanAttributes(v.TaggedVlans)
+			var taggedVlans []map[string]interface{}
+			for _, vlan := range v.TaggedVlans {
+				taggedVlans = append(taggedVlans, map[string]interface{}{
+					"id":   vlan.ID,
+					"vid":  *vlan.Vid,
+					"name": *vlan.Name,
+				})
+			}
+			mapping["tagged_vlans"] = taggedVlans
 		}
 		if v.Tags != nil {
 			var tags []int64
@@ -296,12 +312,17 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 			mapping["tag_ids"] = tags
 		}
 		if v.UntaggedVlan != nil {
-			vlanSlice := []*models.NestedVLAN{v.UntaggedVlan}
-			mapping["untagged_vlan"] = flattenVlanAttributes(vlanSlice)
+			mapping["untagged_vlan"] = []map[string]interface{}{
+				{
+					"id":   v.UntaggedVlan.ID,
+					"vid":  *v.UntaggedVlan.Vid,
+					"name": *v.UntaggedVlan.Name,
+				},
+			}
 		}
 
-		if v.Type != nil && v.Type.Value != nil {
-			mapping["type"] = *v.Type.Value
+		if v.Type != nil && v.Type.Value != "" {
+			mapping["type"] = v.Type.Value
 		}
 
 		mapping["device_id"] = v.Device.ID

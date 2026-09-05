@@ -118,8 +118,8 @@ func init() {
 			}
 			for _, user := range res.GetPayload().Results {
 				if strings.HasPrefix(*user.Username, testPrefix) {
-					deleteParams := users.NewUsersUsersDeleteParams().WithID(user.ID)
-					_, err := api.Users.UsersUsersDelete(deleteParams, nil)
+					deleteParams := users.NewUsersUsersDestroyParams().WithID(user.ID)
+					_, err := api.Users.UsersUsersDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

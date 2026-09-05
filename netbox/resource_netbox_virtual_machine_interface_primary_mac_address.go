@@ -42,11 +42,11 @@ func resourceNetboxVirtualMachineInterfacePrimaryMACAddressCreate(d *schema.Reso
 func resourceNetboxVirtualMachineInterfacePrimaryMACAddressRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationInterfacesReadParams().WithID(id)
+	params := virtualization.NewVirtualizationInterfacesRetrieveParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationInterfacesRead(params, nil)
+	res, err := api.Virtualization.VirtualizationInterfacesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationInterfacesReadDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationInterfacesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -75,8 +75,8 @@ func resourceNetboxVirtualMachineInterfacePrimaryMACAddressUpdate(d *schema.Reso
 	// because the go-netbox library does not have patch support atm, we have to get the whole object and re-put it
 
 	// get the interface
-	readParams := virtualization.NewVirtualizationInterfacesReadParams().WithID(interfaceID)
-	res, err := api.Virtualization.VirtualizationInterfacesRead(readParams, nil)
+	readParams := virtualization.NewVirtualizationInterfacesRetrieveParams().WithID(interfaceID)
+	res, err := api.Virtualization.VirtualizationInterfacesRetrieve(readParams, nil)
 	if err != nil {
 		return err
 	}
@@ -89,11 +89,8 @@ func resourceNetboxVirtualMachineInterfacePrimaryMACAddressUpdate(d *schema.Reso
 		CustomFields:   iface.CustomFields,
 		Description:    iface.Description,
 		Enabled:        iface.Enabled,
-		ID:             iface.ID,
-		MacAddress:     iface.MacAddress,
 		Mtu:            iface.Mtu,
 		Tags:           iface.Tags,
-		URL:            iface.URL,
 	}
 
 	// the netbox API sends the URL property as part of NestedTag, but it does not accept the URL property when we send it back
@@ -121,11 +118,7 @@ func resourceNetboxVirtualMachineInterfacePrimaryMACAddressUpdate(d *schema.Reso
 	}
 
 	if iface.Mode != nil {
-		data.Mode = *iface.Mode.Value
-	}
-
-	if iface.L2vpnTermination != nil {
-		data.L2vpnTermination = strconv.FormatInt(iface.L2vpnTermination.ID, 10)
+		data.Mode = &iface.Mode.Value
 	}
 
 	if iface.TaggedVlans != nil {

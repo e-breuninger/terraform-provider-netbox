@@ -80,8 +80,8 @@ func init() {
 			}
 			for _, tag := range res.GetPayload().Results {
 				if strings.HasPrefix(*tag.Name, testPrefix) {
-					deleteParams := extras.NewExtrasTagsDeleteParams().WithID(tag.ID)
-					_, err := api.Extras.ExtrasTagsDelete(deleteParams, nil)
+					deleteParams := extras.NewExtrasTagsDestroyParams().WithID(tag.ID)
+					_, err := api.Extras.ExtrasTagsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

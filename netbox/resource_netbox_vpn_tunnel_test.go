@@ -76,8 +76,8 @@ func init() {
 			}
 			for _, vpnTunnel := range res.GetPayload().Results {
 				if strings.HasPrefix(*vpnTunnel.Name, testPrefix) {
-					deleteParams := vpn.NewVpnTunnelsDeleteParams().WithID(vpnTunnel.ID)
-					_, err := api.Vpn.VpnTunnelsDelete(deleteParams, nil)
+					deleteParams := vpn.NewVpnTunnelsDestroyParams().WithID(vpnTunnel.ID)
+					_, err := api.Vpn.VpnTunnelsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

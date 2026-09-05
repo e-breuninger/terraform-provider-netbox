@@ -128,7 +128,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := ipam.NewIpamServicesCreateParams().WithData(&data)
@@ -144,11 +144,11 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamServicesReadParams().WithID(id)
+	params := ipam.NewIpamServicesRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamServicesRead(params, nil)
+	res, err := api.Ipam.IpamServicesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamServicesReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamServicesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -166,7 +166,10 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ports", service.Ports)
 	d.Set("description", service.Description)
 
-	parentObjectType := service.ParentObjectType
+	var parentObjectType string
+	if service.ParentObjectType != nil {
+		parentObjectType = *service.ParentObjectType
+	}
 	switch parentObjectType {
 	case "virtualization.virtualmachine":
 		d.Set("virtual_machine_id", service.ParentObjectID)
@@ -234,7 +237,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := ipam.NewIpamServicesUpdateParams().WithID(id).WithData(&data)
@@ -248,10 +251,10 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxServiceDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamServicesDeleteParams().WithID(id)
-	_, err := api.Ipam.IpamServicesDelete(params, nil)
+	params := ipam.NewIpamServicesDestroyParams().WithID(id)
+	_, err := api.Ipam.IpamServicesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamServicesDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamServicesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

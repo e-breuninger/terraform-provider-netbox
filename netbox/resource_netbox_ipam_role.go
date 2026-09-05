@@ -48,7 +48,7 @@ func resourceNetboxIpamRole() *schema.Resource {
 }
 func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.Role{}
+	data := models.WritableRole{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -82,11 +82,11 @@ func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxIpamRoleRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamRolesReadParams().WithID(id)
+	params := ipam.NewIpamRolesRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamRolesRead(params, nil)
+	res, err := api.Ipam.IpamRolesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamRolesReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamRolesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -119,7 +119,7 @@ func resourceNetboxIpamRoleRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.Role{}
+	data := models.WritableRole{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -151,10 +151,10 @@ func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxIpamRoleDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamRolesDeleteParams().WithID(id)
-	_, err := api.Ipam.IpamRolesDelete(params, nil)
+	params := ipam.NewIpamRolesDestroyParams().WithID(id)
+	_, err := api.Ipam.IpamRolesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamRolesDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamRolesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

@@ -539,8 +539,8 @@ func init() {
 			}
 			for _, ipAddress := range res.GetPayload().Results {
 				if len(ipAddress.Tags) > 0 && (ipAddress.Tags[0] == &models.NestedTag{Name: strToPtr("acctest"), Slug: strToPtr("acctest")}) {
-					deleteParams := ipam.NewIpamIPAddressesDeleteParams().WithID(ipAddress.ID)
-					_, err := api.Ipam.IpamIPAddressesDelete(deleteParams, nil)
+					deleteParams := ipam.NewIpamIPAddressesDestroyParams().WithID(ipAddress.ID)
+					_, err := api.Ipam.IpamIPAddressesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

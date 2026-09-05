@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -77,7 +78,7 @@ func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) er
 	if err != nil {
 		return err
 	}
-	data := &models.WritableCreateAvailableVLAN{
+	data := &models.CreateAvailableVLAN{
 		Name:        strToPtr(d.Get("name").(string)),
 		Description: getOptionalStr(d, "description", false),
 		Tenant:      getOptionalInt(d, "tenant_id"),
@@ -87,28 +88,38 @@ func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) er
 		Tags:        tags,
 	}
 
-	params := ipam.NewIpamVlanGroupsAvailableVlansCreateParams().WithID(groupID).WithData(data)
+	params := ipam.NewIpamVlanGroupsAvailableVlansCreateParams().WithID(groupID).WithData([]*models.CreateAvailableVLAN{data})
 	resp, err := api.Ipam.IpamVlanGroupsAvailableVlansCreate(params, nil)
 	if err != nil {
 		return err
 	}
 
-	vlan := resp.Payload
+	payload := resp.GetPayload()
+	if len(payload) == 0 {
+		return fmt.Errorf("no available VLAN was returned")
+	}
+	vlan := payload[0]
 	d.SetId(strconv.FormatInt(vlan.ID, 10))
-	d.Set("vid", vlan.Vid)
-	d.Set("name", vlan.Name)
-	d.Set("group_id", vlan.Group.ID)
+	if vlan.Vid != nil {
+		d.Set("vid", *vlan.Vid)
+	}
+	if vlan.Name != nil {
+		d.Set("name", *vlan.Name)
+	}
+	if vlan.Group != nil {
+		d.Set("group_id", vlan.Group.ID)
+	}
 	return resourceNetboxAvailableVLANRead(d, m)
 }
 
 func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamVlansReadParams().WithID(id)
+	params := ipam.NewIpamVlansRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamVlansRead(params, nil)
+	res, err := api.Ipam.IpamVlansRetrieve(params, nil)
 	if err != nil {
-		if erresp, ok := err.(*ipam.IpamVlansReadDefault); ok {
+		if erresp, ok := err.(*ipam.IpamVlansRetrieveDefault); ok {
 			errorcode := erresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -128,8 +139,8 @@ func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("description", vlan.Description)
 	d.Set("comments", vlan.Comments)
 
-	if vlan.Status != nil && vlan.Status.Value != nil {
-		d.Set("status", *vlan.Status.Value)
+	if vlan.Status != nil && vlan.Status.Value != "" {
+		d.Set("status", vlan.Status.Value)
 	} else {
 		d.Set("status", "")
 	}
@@ -199,11 +210,11 @@ func resourceNetboxAvailableVLANDelete(d *schema.ResourceData, m interface{}) er
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := ipam.NewIpamVlansDeleteParams().WithID(id)
-	_, err := api.Ipam.IpamVlansDelete(params, nil)
+	params := ipam.NewIpamVlansDestroyParams().WithID(id)
+	_, err := api.Ipam.IpamVlansDestroy(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamVlansDeleteDefault); ok && errresp.Code() == 404 {
+		if errresp, ok := err.(*ipam.IpamVlansDestroyDefault); ok && errresp.Code() == 404 {
 			d.SetId("")
 			return nil
 		}

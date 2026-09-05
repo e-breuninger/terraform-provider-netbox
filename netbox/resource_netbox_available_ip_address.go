@@ -116,16 +116,13 @@ This resource will retrieve the next available IP address from a given prefix or
 func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	prefixID := int64(d.Get("prefix_id").(int))
-	vrfID := int64(int64(d.Get("vrf_id").(int)))
 	rangeID := int64(d.Get("ip_range_id").(int))
-	nestedvrf := models.NestedVRF{
-		ID: vrfID,
-	}
-	data := models.AvailableIP{
-		Vrf: &nestedvrf,
-	}
+	// NOTE(v3-migration): models.AvailableIPRequest no longer carries a Vrf
+	// field, so the VRF can't be supplied at creation time. It is still set
+	// on the immediately-following Update call below via WritableIPAddress.Vrf.
+	data := models.AvailableIPRequest{}
 	if prefixID != 0 {
-		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
+		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIPRequest{&data})
 		res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
 		if err != nil {
 			return err
@@ -138,7 +135,7 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 		d.Set("ip_address", *res.Payload[0].Address)
 	}
 	if rangeID != 0 {
-		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
+		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIPRequest{&data})
 		res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
 		if err != nil {
 			return err
@@ -156,11 +153,11 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
+	params := ipam.NewIpamIPAddressesRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamIPAddressesRead(params, nil)
+	res, err := api.Ipam.IpamIPAddressesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamIPAddressesReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamIPAddressesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -229,12 +226,12 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	data.Status = d.Get("status").(string)
 
 	data.Description = getOptionalStr(d, "description", false)
-	data.Role = getOptionalStr(d, "role", false)
+	data.Role = strToPtr(getOptionalStr(d, "role", false))
 	data.DNSName = getOptionalStr(d, "dns_name", false)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	if interfaceID, ok := d.GetOk("interface_id"); ok {
@@ -283,11 +280,11 @@ func resourceNetboxAvailableIPAddressDelete(d *schema.ResourceData, m interface{
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamIPAddressesDeleteParams().WithID(id)
+	params := ipam.NewIpamIPAddressesDestroyParams().WithID(id)
 
-	_, err := api.Ipam.IpamIPAddressesDelete(params, nil)
+	_, err := api.Ipam.IpamIPAddressesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamIPAddressesDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamIPAddressesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

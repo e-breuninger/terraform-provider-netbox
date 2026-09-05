@@ -114,8 +114,8 @@ func init() {
 			}
 			for _, deviceRole := range res.GetPayload().Results {
 				if strings.HasPrefix(*deviceRole.Name, testPrefix) {
-					deleteParams := dcim.NewDcimDeviceRolesDeleteParams().WithID(deviceRole.ID)
-					_, err := api.Dcim.DcimDeviceRolesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimDeviceRolesDestroyParams().WithID(deviceRole.ID)
+					_, err := api.Dcim.DcimDeviceRolesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

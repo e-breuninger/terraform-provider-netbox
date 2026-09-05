@@ -2,6 +2,7 @@ package netbox
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -165,55 +166,109 @@ func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
 			vString := v.(string)
 			switch k {
 			case "asset_tag":
-				params.AssetTag = &vString
+				params.AssetTag = []string{vString}
 			case "contact":
-				params.Contact = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.Contact = n
 			case "contact_group":
-				params.ContactGroup = &vString
+				params.ContactGroup = []string{vString}
 			case "contact_role":
-				params.ContactRole = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ContactRole = n
 			case "desc_units":
-				params.DescUnits = &vString
+				b, perr := boolFromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.DescUnits = b
 			case "facility_id":
-				params.FacilityID = &vString
+				params.FacilityID = []string{vString}
 			case "id":
-				params.ID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ID = n
 			case "location_id":
-				params.LocationID = &vString
+				params.LocationID = []string{vString}
 			case "max_weight":
-				params.MaxWeight = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.MaxWeight = n
 			case "mounting_depth":
-				params.MountingDepth = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.MountingDepth = n
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "outer_depth":
-				params.OuterDepth = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.OuterDepth = n
 			case "outer_unit":
 				params.OuterUnit = &vString
 			case "outer_width":
-				params.OuterWidth = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.OuterWidth = n
 			case "region_id":
-				params.RegionID = &vString
+				params.RegionID = []string{vString}
 			case "role_id":
-				params.RoleID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.RoleID = n
 			case "serial":
-				params.Serial = &vString
+				params.Serial = []string{vString}
 			case "site_id":
-				params.SiteID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.SiteID = n
 			case "status":
-				params.Status = &vString
+				params.Status = []string{vString}
 			case "tenant_id":
-				params.TenantID = &vString
-			case "type_id":
-				params.Type = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantID = n
 			case "u_height":
-				params.UHeight = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.UHeight = n
 			case "weight":
-				params.Weight = &vString
+				f, perr := strconv.ParseFloat(vString, 64)
+				if perr != nil {
+					return perr
+				}
+				params.Weight = []float64{f}
 			case "weight_unit":
 				params.WeightUnit = &vString
 			case "width":
-				params.Width = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.Width = n
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -282,7 +337,9 @@ func dataSourceNetboxRacksRead(d *schema.ResourceData, m interface{}) error {
 		}
 		mapping["serial"] = v.Serial
 		mapping["asset_tag"] = v.AssetTag
-		mapping["type_id"] = v.Type
+		if v.RackType != nil {
+			mapping["type_id"] = v.RackType.ID
+		}
 		mapping["weight"] = v.Weight
 		mapping["max_weight"] = v.MaxWeight
 		mapping["desc_units"] = v.DescUnits

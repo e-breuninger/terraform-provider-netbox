@@ -60,11 +60,11 @@ func dataSourceNetboxFhrpGroupRead(d *schema.ResourceData, m interface{}) error 
 	params.Limit = &limit
 
 	if group_id, ok := d.Get("group_id").(int); ok && group_id != 0 {
-		params.GroupID = strToPtr(strconv.FormatInt(int64(group_id), 10))
+		params.GroupID = []int64{int64(group_id)}
 	}
 
 	if protocol, ok := d.Get("protocol").(string); ok && protocol != "" {
-		params.Protocol = &protocol
+		params.Protocol = []string{protocol}
 	}
 
 	res, err := api.Ipam.IpamFhrpGroupsList(params, nil)

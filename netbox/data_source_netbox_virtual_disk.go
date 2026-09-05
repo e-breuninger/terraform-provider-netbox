@@ -120,9 +120,13 @@ func dataSourceNetboxVirtualDiskRead(d *schema.ResourceData, m interface{}) erro
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.NameIc = &vString
+				params.NameIc = []string{vString}
 			case "virtual_machine_id":
-				params.VirtualMachineID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VirtualMachineID = n
 			case "tag":
 				tags = append(tags, vString)
 			default:

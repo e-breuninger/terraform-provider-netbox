@@ -85,14 +85,14 @@ func testAccCheckVirtualDiskDestroy(s *terraform.State) error {
 		}
 
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := virtualization.NewVirtualizationVirtualDisksReadParams().WithID(stateID)
-		_, err := conn.Virtualization.VirtualizationVirtualDisksRead(params, nil)
+		params := virtualization.NewVirtualizationVirtualDisksRetrieveParams().WithID(stateID)
+		_, err := conn.Virtualization.VirtualizationVirtualDisksRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("virtual disk (%s) still exists", rs.Primary.ID)
 		}
 
-		if errresp, ok := err.(*virtualization.VirtualizationVirtualDisksReadDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationVirtualDisksRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				return nil

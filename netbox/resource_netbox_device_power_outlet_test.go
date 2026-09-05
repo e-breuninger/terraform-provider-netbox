@@ -226,15 +226,15 @@ func testAccCheckDevicePowerOutletDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimPowerOutletsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimPowerOutletsRead(params, nil)
+		params := dcim.NewDcimPowerOutletsRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimPowerOutletsRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_power_outlet (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimPowerOutletsReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimPowerOutletsRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -263,8 +263,8 @@ func init() {
 			}
 			for _, powerOutlet := range res.GetPayload().Results {
 				if strings.HasPrefix(*powerOutlet.Name, testPrefix) {
-					deleteParams := dcim.NewDcimPowerOutletsDeleteParams().WithID(powerOutlet.ID)
-					_, err := api.Dcim.DcimPowerOutletsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimPowerOutletsDestroyParams().WithID(powerOutlet.ID)
+					_, err := api.Dcim.DcimPowerOutletsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

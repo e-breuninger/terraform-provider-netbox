@@ -42,11 +42,11 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressCreate(d *schema.ResourceData
 func resourceNetboxDeviceInterfacePrimaryMACAddressRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimInterfacesReadParams().WithID(id)
+	params := dcim.NewDcimInterfacesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimInterfacesRead(params, nil)
+	res, err := api.Dcim.DcimInterfacesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimInterfacesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimInterfacesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -75,8 +75,8 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 	// because the go-netbox library does not have patch support atm, we have to get the whole object and re-put it
 
 	// get the interface
-	readParams := dcim.NewDcimInterfacesReadParams().WithID(interfaceID)
-	res, err := api.Dcim.DcimInterfacesRead(readParams, nil)
+	readParams := dcim.NewDcimInterfacesRetrieveParams().WithID(interfaceID)
+	res, err := api.Dcim.DcimInterfacesRetrieve(readParams, nil)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 	data := &models.WritableInterface{
 		Device:             &iface.Device.ID, // Allowed to set directly as field is required
 		Name:               iface.Name,
-		Type:               iface.Type.Value,
+		Type:               &iface.Type.Value,
 		CustomFields:       iface.CustomFields,
 		Description:        iface.Description,
 		Enabled:            iface.Enabled,
@@ -129,11 +129,7 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 	}
 
 	if iface.Mode != nil {
-		data.Mode = *iface.Mode.Value
-	}
-
-	if iface.L2vpnTermination != nil {
-		data.L2vpnTermination = strconv.FormatInt(iface.L2vpnTermination.ID, 10)
+		data.Mode = &iface.Mode.Value
 	}
 
 	if iface.Lag != nil {
@@ -145,27 +141,23 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 	}
 
 	if iface.PoeMode != nil {
-		data.PoeMode = *iface.PoeMode.Value
+		data.PoeMode = &iface.PoeMode.Value
 	}
 
 	if iface.PoeType != nil {
-		data.PoeType = *iface.PoeType.Value
+		data.PoeType = &iface.PoeType.Value
 	}
 
 	if iface.RfChannel != nil {
-		data.RfChannel = *iface.RfChannel.Value
+		data.RfChannel = &iface.RfChannel.Value
 	}
 
 	if iface.RfRole != nil {
-		data.RfRole = *iface.RfRole.Value
+		data.RfRole = &iface.RfRole.Value
 	}
 
 	if iface.Vrf != nil {
 		data.Vrf = &iface.Vrf.ID
-	}
-
-	if iface.WirelessLink != nil {
-		data.WirelessLink = &iface.WirelessLink.ID
 	}
 
 	for _, vdc := range iface.Vdcs {

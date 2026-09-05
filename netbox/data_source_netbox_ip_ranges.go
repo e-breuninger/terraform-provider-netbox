@@ -156,17 +156,17 @@ func dataSourceNetboxIPRangesRead(d *schema.ResourceData, m interface{}) error {
 			case "contains":
 				params.Contains = &vString
 			case "start_address":
-				params.StartAddress = &vString
+				params.StartAddress = []string{vString}
 			case "end_address":
-				params.EndAddress = &vString
+				params.EndAddress = []string{vString}
 			case "role":
-				params.Role = &vString
+				params.Role = []string{vString}
 			case "status":
-				params.Status = &vString
+				params.Status = []string{vString}
 			case "vrf":
-				params.Vrf = &vString
+				params.Vrf = []string{vString}
 			case "tenant":
-				params.Tenant = &vString
+				params.Tenant = []string{vString}
 			case "tag":
 				tags = append(tags, vString)
 				params.Tag = tags

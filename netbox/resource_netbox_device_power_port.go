@@ -75,7 +75,7 @@ func resourceNetboxDevicePowerPortCreate(d *schema.ResourceData, m interface{}) 
 		Module:        getOptionalInt(d, "module_id"),
 		Name:          strToPtr(d.Get("name").(string)),
 		Label:         getOptionalStr(d, "label", false),
-		Type:          getOptionalStr(d, "type", false),
+		Type:          getOptionalStrPtr(d, "type"),
 		MaximumDraw:   getOptionalInt(d, "maximum_draw"),
 		AllocatedDraw: getOptionalInt(d, "allocated_draw"),
 		Description:   getOptionalStr(d, "description", false),
@@ -90,7 +90,7 @@ func resourceNetboxDevicePowerPortCreate(d *schema.ResourceData, m interface{}) 
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimPowerPortsCreateParams().WithData(&data)
@@ -108,12 +108,12 @@ func resourceNetboxDevicePowerPortCreate(d *schema.ResourceData, m interface{}) 
 func resourceNetboxDevicePowerPortRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimPowerPortsReadParams().WithID(id)
+	params := dcim.NewDcimPowerPortsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimPowerPortsRead(params, nil)
+	res, err := api.Dcim.DcimPowerPortsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimPowerPortsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimPowerPortsRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -172,7 +172,7 @@ func resourceNetboxDevicePowerPortUpdate(d *schema.ResourceData, m interface{}) 
 		Module:        getOptionalInt(d, "module_id"),
 		Name:          strToPtr(d.Get("name").(string)),
 		Label:         getOptionalStr(d, "label", true),
-		Type:          getOptionalStr(d, "type", false),
+		Type:          getOptionalStrPtr(d, "type"),
 		MaximumDraw:   getOptionalInt(d, "maximum_draw"),
 		AllocatedDraw: getOptionalInt(d, "allocated_draw"),
 		Description:   getOptionalStr(d, "description", true),
@@ -187,7 +187,7 @@ func resourceNetboxDevicePowerPortUpdate(d *schema.ResourceData, m interface{}) 
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimPowerPortsPartialUpdateParams().WithID(id).WithData(&data)
@@ -204,9 +204,9 @@ func resourceNetboxDevicePowerPortDelete(d *schema.ResourceData, m interface{}) 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimPowerPortsDeleteParams().WithID(id)
+	params := dcim.NewDcimPowerPortsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimPowerPortsDelete(params, nil)
+	_, err := api.Dcim.DcimPowerPortsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

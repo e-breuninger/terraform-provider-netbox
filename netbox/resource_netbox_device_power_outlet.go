@@ -80,9 +80,9 @@ func resourceNetboxDevicePowerOutletCreate(d *schema.ResourceData, m interface{}
 		Module:        getOptionalInt(d, "module_id"),
 		Name:          strToPtr(d.Get("name").(string)),
 		Label:         getOptionalStr(d, "label", false),
-		Type:          getOptionalStr(d, "type", false),
+		Type:          getOptionalStrPtr(d, "type"),
 		PowerPort:     getOptionalInt(d, "power_port_id"),
-		FeedLeg:       getOptionalStr(d, "feed_leg", false),
+		FeedLeg:       getOptionalStrPtr(d, "feed_leg"),
 		Description:   getOptionalStr(d, "description", false),
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
@@ -95,7 +95,7 @@ func resourceNetboxDevicePowerOutletCreate(d *schema.ResourceData, m interface{}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimPowerOutletsCreateParams().WithData(&data)
@@ -113,12 +113,12 @@ func resourceNetboxDevicePowerOutletCreate(d *schema.ResourceData, m interface{}
 func resourceNetboxDevicePowerOutletRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimPowerOutletsReadParams().WithID(id)
+	params := dcim.NewDcimPowerOutletsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimPowerOutletsRead(params, nil)
+	res, err := api.Dcim.DcimPowerOutletsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimPowerOutletsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimPowerOutletsRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -186,9 +186,9 @@ func resourceNetboxDevicePowerOutletUpdate(d *schema.ResourceData, m interface{}
 		Module:        getOptionalInt(d, "module_id"),
 		Name:          strToPtr(d.Get("name").(string)),
 		Label:         getOptionalStr(d, "label", true),
-		Type:          getOptionalStr(d, "type", false),
+		Type:          getOptionalStrPtr(d, "type"),
 		PowerPort:     getOptionalInt(d, "power_port_id"),
-		FeedLeg:       getOptionalStr(d, "feed_leg", false),
+		FeedLeg:       getOptionalStrPtr(d, "feed_leg"),
 		Description:   getOptionalStr(d, "description", true),
 		MarkConnected: d.Get("mark_connected").(bool),
 	}
@@ -201,7 +201,7 @@ func resourceNetboxDevicePowerOutletUpdate(d *schema.ResourceData, m interface{}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimPowerOutletsPartialUpdateParams().WithID(id).WithData(&data)
@@ -218,9 +218,9 @@ func resourceNetboxDevicePowerOutletDelete(d *schema.ResourceData, m interface{}
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimPowerOutletsDeleteParams().WithID(id)
+	params := dcim.NewDcimPowerOutletsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimPowerOutletsDelete(params, nil)
+	_, err := api.Dcim.DcimPowerOutletsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

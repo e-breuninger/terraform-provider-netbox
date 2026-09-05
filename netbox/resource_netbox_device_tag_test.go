@@ -123,7 +123,7 @@ func testAccCheckNetboxDevicePrimaryIP4(deviceResourceName, ipResourceName strin
 		}
 
 		api := testAccProvider.Meta().(*providerState)
-		res, err := api.Dcim.DcimDevicesRead(dcim.NewDcimDevicesReadParams().WithID(deviceID), nil)
+		res, err := api.Dcim.DcimDevicesRetrieve(dcim.NewDcimDevicesRetrieveParams().WithID(deviceID), nil)
 		if err != nil {
 			return err
 		}

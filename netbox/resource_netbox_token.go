@@ -35,8 +35,9 @@ func resourceNetboxToken() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(40, 256),
 			},
 			"allowed_ips": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:       schema.TypeList,
+				Optional:   true,
+				Deprecated: "This attribute is not supported by netbox any longer. It will be removed in future versions of this provider.",
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.IsCIDR,
@@ -72,16 +73,15 @@ func resourceNetboxTokenCreate(ctx context.Context, d *schema.ResourceData, m in
 
 	userid := int64(d.Get("user_id").(int))
 
-	key := d.Get("key").(string)
-	allowedIps := d.Get("allowed_ips").([]interface{})
-
+	// The "key" attribute pre-supplies a custom token secret; go-netbox v3 renamed the
+	// writable field from Key to Token (Key is now a read-only v2 identifier on the
+	// response side, see resourceNetboxTokenRead).
 	data.User = &userid
-	data.Key = key
+	data.Token = d.Get("key").(string)
 
-	data.AllowedIps = make([]models.IPNetwork, len(allowedIps))
-	for i, v := range allowedIps {
-		data.AllowedIps[i] = v
-	}
+	// TODO(v3-migration): AllowedIps is no longer accepted by WritableToken (NetBox
+	// dropped IP-restriction on tokens in this API version); the "allowed_ips" schema
+	// attribute is kept but marked Deprecated and is now a no-op on write.
 
 	data.WriteEnabled = d.Get("write_enabled").(bool)
 	data.Description = d.Get("description").(string)
@@ -107,11 +107,11 @@ func resourceNetboxTokenCreate(ctx context.Context, d *schema.ResourceData, m in
 func resourceNetboxTokenRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersTokensReadParams().WithID(id)
+	params := users.NewUsersTokensRetrieveParams().WithID(id)
 
-	res, err := api.Users.UsersTokensRead(params, nil)
+	res, err := api.Users.UsersTokensRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersTokensReadDefault); ok {
+		if errresp, ok := err.(*users.UsersTokensRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -129,14 +129,13 @@ func resourceNetboxTokenRead(ctx context.Context, d *schema.ResourceData, m inte
 
 	// Since NetBox 4.3.0, ALLOW_TOKEN_RETRIEVAL is disabled by default
 	// This means we will usually not get a Key value from the API
-	if token.Key != "" {
-		d.Set("key", token.Key)
+	if token.Key != nil && *token.Key != "" {
+		d.Set("key", *token.Key)
 	}
 	d.Set("last_used", token.LastUsed)
 	if token.Expires != nil {
 		d.Set("expires", token.Expires.String())
 	}
-	d.Set("allowed_ips", token.AllowedIps)
 	d.Set("write_enabled", token.WriteEnabled)
 	d.Set("description", token.Description)
 
@@ -149,16 +148,9 @@ func resourceNetboxTokenUpdate(ctx context.Context, d *schema.ResourceData, m in
 	data := models.WritableToken{}
 
 	userid := int64(d.Get("user_id").(int))
-	key := d.Get("key").(string)
-	allowedIps := d.Get("allowed_ips").([]interface{})
 
 	data.User = &userid
-	data.Key = key
-
-	data.AllowedIps = make([]models.IPNetwork, len(allowedIps))
-	for i, v := range allowedIps {
-		data.AllowedIps[i] = v
-	}
+	data.Token = d.Get("key").(string)
 
 	data.WriteEnabled = d.Get("write_enabled").(bool)
 	data.Description = d.Get("description").(string)
@@ -182,10 +174,10 @@ func resourceNetboxTokenUpdate(ctx context.Context, d *schema.ResourceData, m in
 func resourceNetboxTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersTokensDeleteParams().WithID(id)
-	_, err := api.Users.UsersTokensDelete(params, nil)
+	params := users.NewUsersTokensDestroyParams().WithID(id)
+	_, err := api.Users.UsersTokensDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersTokensDeleteDefault); ok {
+		if errresp, ok := err.(*users.UsersTokensDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

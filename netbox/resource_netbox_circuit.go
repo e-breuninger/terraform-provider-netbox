@@ -101,12 +101,12 @@ func resourceNetboxCircuitCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxCircuitRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := circuits.NewCircuitsCircuitsReadParams().WithID(id)
+	params := circuits.NewCircuitsCircuitsRetrieveParams().WithID(id)
 
-	res, err := api.Circuits.CircuitsCircuitsRead(params, nil)
+	res, err := api.Circuits.CircuitsCircuitsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*circuits.CircuitsCircuitsReadDefault); ok {
+		if errresp, ok := err.(*circuits.CircuitsCircuitsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-.html
@@ -185,11 +185,11 @@ func resourceNetboxCircuitDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := circuits.NewCircuitsCircuitsDeleteParams().WithID(id)
+	params := circuits.NewCircuitsCircuitsDestroyParams().WithID(id)
 
-	_, err := api.Circuits.CircuitsCircuitsDelete(params, nil)
+	_, err := api.Circuits.CircuitsCircuitsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*circuits.CircuitsCircuitsDeleteDefault); ok {
+		if errresp, ok := err.(*circuits.CircuitsCircuitsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

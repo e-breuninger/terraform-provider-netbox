@@ -151,7 +151,7 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	var err error
@@ -173,11 +173,11 @@ func resourceNetboxPrefixCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamPrefixesReadParams().WithID(id)
+	params := ipam.NewIpamPrefixesRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamPrefixesRead(params, nil)
+	res, err := api.Ipam.IpamPrefixesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamPrefixesReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamPrefixesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -290,7 +290,7 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	siteID := getOptionalInt(d, "site_id")
@@ -333,10 +333,10 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxPrefixDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamPrefixesDeleteParams().WithID(id)
-	_, err := api.Ipam.IpamPrefixesDelete(params, nil)
+	params := ipam.NewIpamPrefixesDestroyParams().WithID(id)
+	_, err := api.Ipam.IpamPrefixesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamPrefixesDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamPrefixesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

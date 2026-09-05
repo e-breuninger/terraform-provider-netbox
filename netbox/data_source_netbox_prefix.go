@@ -144,11 +144,11 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 
 	// note: cidr is deprecated in favor of prefix
 	if cidr, ok := d.Get("cidr").(string); ok && cidr != "" {
-		params.Prefix = &cidr
+		params.Prefix = []string{cidr}
 	}
 
 	if description, ok := d.Get("description").(string); ok && description != "" {
-		params.Description = &description
+		params.Description = []string{description}
 	}
 
 	if family, ok := d.Get("family").(int); ok && family != 0 {
@@ -157,46 +157,43 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if roleID, ok := d.Get("role_id").(int); ok && roleID != 0 {
-		params.RoleID = strToPtr(strconv.Itoa(roleID))
+		params.RoleID = []int64{int64(roleID)}
 	}
 
 	if prefix, ok := d.Get("prefix").(string); ok && prefix != "" {
-		params.Prefix = &prefix
+		params.Prefix = []string{prefix}
 	}
 
 	if vrfID, ok := d.Get("vrf_id").(int); ok && vrfID != 0 {
-		// Note that vrf_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.VrfID = strToPtr(strconv.Itoa(vrfID))
+		params.VrfID = []int64{int64(vrfID)}
 	}
 
 	if vlanID, ok := d.Get("vlan_id").(int); ok && vlanID != 0 {
-		// Note that vlan_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.VlanID = strToPtr(strconv.Itoa(vlanID))
+		params.VlanID = []int64{int64(vlanID)}
 	}
 
 	if vlanVid, ok := d.Get("vlan_vid").(float64); ok && vlanVid != 0 {
-		params.VlanVid = &vlanVid
+		vlanVidInt := int64(vlanVid)
+		params.VlanVid = &vlanVidInt
 	}
 
 	if tenantID, ok := d.Get("tenant_id").(int); ok && tenantID != 0 {
-		// Note that tenant_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.TenantID = strToPtr(strconv.Itoa(tenantID))
+		params.TenantID = []int64{int64(tenantID)}
 	}
 
 	if siteID, ok := d.Get("site_id").(int); ok && siteID != 0 {
-		// Note that site_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.SiteID = strToPtr(strconv.Itoa(siteID))
+		params.SiteID = []int64{int64(siteID)}
 	}
 
 	if tag, ok := d.Get("tag").(string); ok && tag != "" {
 		params.Tag = []string{tag} //TODO: switch schema to list
 	}
 	if tagn, ok := d.Get("tag__n").(string); ok && tagn != "" {
-		params.Tagn = &tagn
+		params.Tagn = []string{tagn}
 	}
 
 	if status, ok := d.Get("status").(string); ok && status != "" {
-		params.Status = &status
+		params.Status = []string{status}
 	}
 
 	if cfm, ok := d.Get(customFieldsKey).(map[string]interface{}); ok {
@@ -221,7 +218,7 @@ func dataSourceNetboxPrefixRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("prefix", result.Prefix)
 	d.Set("status", result.Status.Value)
 	d.Set("description", result.Description)
-	d.Set("family", int(*result.Family.Value))
+	d.Set("family", int(result.Family.Value))
 	d.Set("tags", getTagListFromNestedTagList(result.Tags))
 
 	cf := getCustomFields(result.CustomFields)

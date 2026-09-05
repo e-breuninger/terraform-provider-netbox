@@ -175,7 +175,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 		Name:    &name,
 		Site:    &siteID,
 		Status:  status,
-		Width:   width,
+		Width:   &width,
 		UHeight: uHeight,
 	}
 
@@ -191,7 +191,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	data.Weight = getOptionalFloat(d, "weight")
 	data.MaxWeight = getOptionalInt(d, "max_weight")
-	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
+	data.WeightUnit = strToPtr(getOptionalStr(d, "weight_unit", false))
 
 	if descUnits, ok := d.GetOk("desc_units"); ok {
 		data.DescUnits = descUnits.(bool)
@@ -199,11 +199,11 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.OuterWidth = getOptionalInt(d, "outer_width")
 	data.OuterDepth = getOptionalInt(d, "outer_depth")
-	data.OuterUnit = getOptionalStr(d, "outer_unit", false)
+	data.OuterUnit = strToPtr(getOptionalStr(d, "outer_unit", false))
 	data.MountingDepth = getOptionalInt(d, "mounting_depth")
 	data.Description = getOptionalStr(d, "description", false)
 	data.Comments = getOptionalStr(d, "comments", false)
-	data.FormFactor = getOptionalStr(d, "form_factor", false)
+	data.FormFactor = strToPtr(getOptionalStr(d, "form_factor", false))
 	data.RackType = getOptionalInt(d, "rack_type_id")
 
 	var err error
@@ -214,7 +214,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimRacksCreateParams().WithData(&data)
@@ -232,12 +232,12 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRacksReadParams().WithID(id)
+	params := dcim.NewDcimRacksRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimRacksRead(params, nil)
+	res, err := api.Dcim.DcimRacksRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRacksReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRacksRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -354,7 +354,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 		Name:    &name,
 		Site:    &siteID,
 		Status:  status,
-		Width:   width,
+		Width:   &width,
 		UHeight: uHeight,
 	}
 
@@ -372,7 +372,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	data.Weight = getOptionalFloat(d, "weight")
 	data.MaxWeight = getOptionalInt(d, "max_weight")
-	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
+	data.WeightUnit = strToPtr(getOptionalStr(d, "weight_unit", false))
 
 	if descUnits, ok := d.GetOk("desc_units"); ok {
 		data.DescUnits = descUnits.(bool)
@@ -380,11 +380,11 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.OuterWidth = getOptionalInt(d, "outer_width")
 	data.OuterDepth = getOptionalInt(d, "outer_depth")
-	data.OuterUnit = getOptionalStr(d, "outer_unit", false)
+	data.OuterUnit = strToPtr(getOptionalStr(d, "outer_unit", false))
 	data.MountingDepth = getOptionalInt(d, "mounting_depth")
 	data.Description = getOptionalStr(d, "description", true)
 	data.Comments = getOptionalStr(d, "comments", true)
-	data.FormFactor = getOptionalStr(d, "form_factor", false)
+	data.FormFactor = strToPtr(getOptionalStr(d, "form_factor", false))
 	data.RackType = getOptionalInt(d, "rack_type_id")
 
 	var err error
@@ -395,7 +395,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := dcim.NewDcimRacksPartialUpdateParams().WithID(id).WithData(&data)
@@ -412,11 +412,11 @@ func resourceNetboxRackDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRacksDeleteParams().WithID(id)
+	params := dcim.NewDcimRacksDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimRacksDelete(params, nil)
+	_, err := api.Dcim.DcimRacksDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRacksDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRacksDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

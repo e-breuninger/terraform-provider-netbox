@@ -93,11 +93,11 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantsReadParams().WithID(id)
+	params := tenancy.NewTenancyTenantsRetrieveParams().WithID(id)
 
-	res, err := api.Tenancy.TenancyTenantsRead(params, nil)
+	res, err := api.Tenancy.TenancyTenantsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyTenantsReadDefault); ok {
+		if errresp, ok := err.(*tenancy.TenancyTenantsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -160,11 +160,11 @@ func resourceNetboxTenantDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyTenantsDeleteParams().WithID(id)
+	params := tenancy.NewTenancyTenantsDestroyParams().WithID(id)
 
-	_, err := api.Tenancy.TenancyTenantsDelete(params, nil)
+	_, err := api.Tenancy.TenancyTenantsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyTenantsDeleteDefault); ok {
+		if errresp, ok := err.(*tenancy.TenancyTenantsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

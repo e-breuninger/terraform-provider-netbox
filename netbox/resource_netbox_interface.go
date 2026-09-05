@@ -101,7 +101,7 @@ func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
-	mode := d.Get("mode").(string)
+	mode := getOptionalStrPtr(d, "mode")
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
@@ -145,11 +145,11 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 
 	var diags diag.Diagnostics
 
-	params := virtualization.NewVirtualizationInterfacesReadParams().WithID(id)
+	params := virtualization.NewVirtualizationInterfacesRetrieveParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationInterfacesRead(params, nil)
+	res, err := api.Virtualization.VirtualizationInterfacesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationInterfacesReadDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationInterfacesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -197,7 +197,7 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
-	mode := d.Get("mode").(string)
+	mode := getOptionalStrPtr(d, "mode")
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
@@ -215,10 +215,13 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 		VirtualMachine: &virtualMachineID,
 	}
 
-	if d.HasChange("mac_address") {
-		macAddress := d.Get("mac_address").(string)
-		data.MacAddress = &macAddress
-	}
+	// TODO(v3-migration): go-netbox v3 removed MacAddress from WritableVMInterface —
+	// NetBox now models MAC addresses as first-class MACAddress objects linked to an
+	// interface via primary_mac_address, rather than a plain string on the interface
+	// itself. Setting mac_address on this resource is a no-op until this is redesigned
+	// to create/link a MACAddress object; the "mac_address" schema attribute still
+	// reads back the interface's current MAC (via VMInterface.MacAddress) but no longer
+	// round-trips a user-supplied value on write. Needs human review.
 	if d.HasChange("mtu") {
 		mtu := int64(d.Get("mtu").(int))
 		data.Mtu = &mtu
@@ -285,11 +288,11 @@ func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationInterfacesDeleteParams().WithID(id)
+	params := virtualization.NewVirtualizationInterfacesDestroyParams().WithID(id)
 
-	_, err := api.Virtualization.VirtualizationInterfacesDelete(params, nil)
+	_, err := api.Virtualization.VirtualizationInterfacesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationInterfacesDeleteDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationInterfacesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil
@@ -300,7 +303,7 @@ func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func getIDsFromNestedVLAN(nestedvlans []*models.NestedVLAN) []int64 {
+func getIDsFromNestedVLAN(nestedvlans []*models.VLAN) []int64 {
 	var vlans []int64
 	for _, vlan := range nestedvlans {
 		vlans = append(vlans, vlan.ID)

@@ -70,7 +70,7 @@ func resourceNetboxCircuitProviderNetworkCreate(d *schema.ResourceData, m interf
 
 	cf, ok := d.GetOk("custom_fields")
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := circuits.NewCircuitsProviderNetworksCreateParams().WithData(&data)
@@ -88,12 +88,12 @@ func resourceNetboxCircuitProviderNetworkCreate(d *schema.ResourceData, m interf
 func resourceNetboxCircuitProviderNetworkRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := circuits.NewCircuitsProviderNetworksReadParams().WithID(id)
+	params := circuits.NewCircuitsProviderNetworksRetrieveParams().WithID(id)
 
-	res, err := api.Circuits.CircuitsProviderNetworksRead(params, nil)
+	res, err := api.Circuits.CircuitsProviderNetworksRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*circuits.CircuitsProviderNetworksReadDefault); ok {
+		if errresp, ok := err.(*circuits.CircuitsProviderNetworksRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -136,7 +136,7 @@ func resourceNetboxCircuitProviderNetworkUpdate(d *schema.ResourceData, m interf
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	var err error
@@ -159,9 +159,9 @@ func resourceNetboxCircuitProviderNetworkDelete(d *schema.ResourceData, m interf
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := circuits.NewCircuitsProviderNetworksDeleteParams().WithID(id)
+	params := circuits.NewCircuitsProviderNetworksDestroyParams().WithID(id)
 
-	_, err := api.Circuits.CircuitsProviderNetworksDelete(params, nil)
+	_, err := api.Circuits.CircuitsProviderNetworksDestroy(params, nil)
 	if err != nil {
 		return err
 	}

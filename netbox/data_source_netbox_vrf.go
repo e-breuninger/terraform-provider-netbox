@@ -30,13 +30,12 @@ func dataSourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	params := ipam.NewIpamVrfsListParams()
-	params.Name = &name
+	params.Name = []string{name}
 	limit := int64(2) // Limit of 2 is enough
 	params.Limit = &limit
 
 	if tenantID, ok := d.Get("tenant_id").(int); ok && tenantID != 0 {
-		// Note that tenant_id is a string pointer in the netbox filter, but we use a number in the provider
-		params.TenantID = strToPtr(strconv.Itoa(tenantID))
+		params.TenantID = []int64{int64(tenantID)}
 	}
 
 	res, err := api.Ipam.IpamVrfsList(params, nil)

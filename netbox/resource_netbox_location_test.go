@@ -186,8 +186,8 @@ func init() {
 			}
 			for _, Location := range res.GetPayload().Results {
 				if strings.HasPrefix(*Location.Name, testPrefix) {
-					deleteParams := dcim.NewDcimLocationsDeleteParams().WithID(Location.ID)
-					_, err := api.Dcim.DcimLocationsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimLocationsDestroyParams().WithID(Location.ID)
+					_, err := api.Dcim.DcimLocationsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

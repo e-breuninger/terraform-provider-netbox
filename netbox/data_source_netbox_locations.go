@@ -116,21 +116,33 @@ func dataSourceNetboxLocationsRead(d *schema.ResourceData, m interface{}) error 
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "slug":
-				params.Slug = &vString
+				params.Slug = []string{vString}
 			case "site":
-				params.Site = &vString
+				params.Site = []string{vString}
 			case "site_id":
-				params.SiteID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.SiteID = n
 			case "parent_id":
-				params.ParentID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ParentID = n
 			case "tenant":
-				params.Tenant = &vString
+				params.Tenant = []string{vString}
 			case "tenant_id":
-				params.TenantID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantID = n
 			case "status":
-				params.Status = &vString
+				params.Status = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

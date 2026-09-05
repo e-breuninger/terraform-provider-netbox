@@ -88,7 +88,7 @@ func resourceNetboxCustomFieldChoiceSetCreate(d *schema.ResourceData, m interfac
 
 	name := d.Get("name").(string)
 
-	data := models.CustomFieldChoiceSet{
+	data := models.WritableCustomFieldChoiceSet{
 		Name:                &name,
 		OrderAlphabetically: d.Get("order_alphabetically").(bool),
 	}
@@ -124,12 +124,12 @@ func resourceNetboxCustomFieldChoiceSetCreate(d *schema.ResourceData, m interfac
 func resourceNetboxCustomFieldChoiceSetRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasCustomFieldChoiceSetsReadParams().WithID(id)
+	params := extras.NewExtrasCustomFieldChoiceSetsRetrieveParams().WithID(id)
 
-	res, err := api.Extras.ExtrasCustomFieldChoiceSetsRead(params, nil)
+	res, err := api.Extras.ExtrasCustomFieldChoiceSetsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasCustomFieldChoiceSetsReadDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasCustomFieldChoiceSetsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -174,7 +174,7 @@ func resourceNetboxCustomFieldChoiceSetUpdate(d *schema.ResourceData, m interfac
 
 	name := d.Get("name").(string)
 
-	data := models.CustomFieldChoiceSet{
+	data := models.WritableCustomFieldChoiceSet{
 		Name:                &name,
 		OrderAlphabetically: d.Get("order_alphabetically").(bool),
 	}
@@ -209,11 +209,11 @@ func resourceNetboxCustomFieldChoiceSetDelete(d *schema.ResourceData, m interfac
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasCustomFieldChoiceSetsDeleteParams().WithID(id)
+	params := extras.NewExtrasCustomFieldChoiceSetsDestroyParams().WithID(id)
 
-	_, err := api.Extras.ExtrasCustomFieldChoiceSetsDelete(params, nil)
+	_, err := api.Extras.ExtrasCustomFieldChoiceSetsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasCustomFieldChoiceSetsDeleteDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasCustomFieldChoiceSetsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

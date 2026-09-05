@@ -101,11 +101,11 @@ func resourceNetboxConfigTemplateRead(ctx context.Context, d *schema.ResourceDat
 
 	var diags diag.Diagnostics
 
-	params := extras.NewExtrasConfigTemplatesReadParams().WithID(id)
+	params := extras.NewExtrasConfigTemplatesRetrieveParams().WithID(id)
 
-	res, err := api.Extras.ExtrasConfigTemplatesRead(params, nil)
+	res, err := api.Extras.ExtrasConfigTemplatesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasConfigTemplatesReadDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasConfigTemplatesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -182,11 +182,11 @@ func resourceNetboxConfigTemplateDelete(ctx context.Context, d *schema.ResourceD
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasConfigTemplatesDeleteParams().WithID(id)
+	params := extras.NewExtrasConfigTemplatesDestroyParams().WithID(id)
 
-	_, err := api.Extras.ExtrasConfigTemplatesDelete(params, nil)
+	_, err := api.Extras.ExtrasConfigTemplatesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasConfigTemplatesDeleteDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasConfigTemplatesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

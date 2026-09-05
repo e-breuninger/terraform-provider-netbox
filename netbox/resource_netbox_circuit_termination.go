@@ -140,7 +140,7 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := circuits.NewCircuitsCircuitTerminationsCreateParams().WithData(&data)
@@ -158,12 +158,12 @@ func resourceNetboxCircuitTerminationCreate(d *schema.ResourceData, m interface{
 func resourceNetboxCircuitTerminationRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := circuits.NewCircuitsCircuitTerminationsReadParams().WithID(id)
+	params := circuits.NewCircuitsCircuitTerminationsRetrieveParams().WithID(id)
 
-	res, err := api.Circuits.CircuitsCircuitTerminationsRead(params, nil)
+	res, err := api.Circuits.CircuitsCircuitTerminationsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*circuits.CircuitsCircuitTerminationsReadDefault); ok {
+		if errresp, ok := err.(*circuits.CircuitsCircuitTerminationsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-.html
@@ -289,7 +289,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := circuits.NewCircuitsCircuitTerminationsPartialUpdateParams().WithID(id).WithData(&data)
@@ -306,11 +306,11 @@ func resourceNetboxCircuitTerminationDelete(d *schema.ResourceData, m interface{
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := circuits.NewCircuitsCircuitTerminationsDeleteParams().WithID(id)
+	params := circuits.NewCircuitsCircuitTerminationsDestroyParams().WithID(id)
 
-	_, err := api.Circuits.CircuitsCircuitTerminationsDelete(params, nil)
+	_, err := api.Circuits.CircuitsCircuitTerminationsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*circuits.CircuitsCircuitTerminationsDeleteDefault); ok {
+		if errresp, ok := err.(*circuits.CircuitsCircuitTerminationsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

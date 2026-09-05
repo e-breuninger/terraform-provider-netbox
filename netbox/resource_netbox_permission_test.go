@@ -100,8 +100,8 @@ func init() {
 			}
 			for _, perm := range res.GetPayload().Results {
 				if strings.HasPrefix(*perm.Name, testPrefix) {
-					deleteParams := users.NewUsersPermissionsDeleteParams().WithID(perm.ID)
-					_, err := api.Users.UsersPermissionsDelete(deleteParams, nil)
+					deleteParams := users.NewUsersPermissionsDestroyParams().WithID(perm.ID)
+					_, err := api.Users.UsersPermissionsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

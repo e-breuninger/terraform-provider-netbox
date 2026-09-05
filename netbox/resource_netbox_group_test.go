@@ -54,8 +54,8 @@ func init() {
 			}
 			for _, group := range res.GetPayload().Results {
 				if strings.HasPrefix(*group.Name, testPrefix) {
-					deleteParams := users.NewUsersGroupsDeleteParams().WithID(group.ID)
-					_, err := api.Users.UsersGroupsDelete(deleteParams, nil)
+					deleteParams := users.NewUsersGroupsDestroyParams().WithID(group.ID)
+					_, err := api.Users.UsersGroupsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

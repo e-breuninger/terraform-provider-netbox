@@ -74,12 +74,16 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 	tags, _ := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 
 	params := dcim.NewDcimDeviceRolesCreateParams().WithData(
-		&models.DeviceRole{
+		// TODO(v3-migration): go-netbox v3 reverted VMRole from *bool back to plain bool
+		// with omitempty, which reintroduces the bug fixed upstream in bf00e79b ("make
+		// DeviceRole.vm_role nullable so false can be sent") — an explicit `vm_role = false`
+		// in Terraform config is no longer distinguishable from "unset" and won't be sent.
+		&models.WritableDeviceRole{
 			Name:        &name,
 			Slug:        &slug,
 			Color:       color,
 			Description: description,
-			VMRole:      &vmRole,
+			VMRole:      vmRole,
 			Tags:        tags,
 		},
 	)
@@ -98,11 +102,11 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimDeviceRolesReadParams().WithID(id)
+	params := dcim.NewDcimDeviceRolesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimDeviceRolesRead(params, nil)
+	res, err := api.Dcim.DcimDeviceRolesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDeviceRolesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDeviceRolesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -126,7 +130,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.DeviceRole{}
+	data := models.WritableDeviceRole{}
 
 	name := d.Get("name").(string)
 	color := d.Get("color_hex").(string)
@@ -145,7 +149,7 @@ func resourceNetboxDeviceRoleUpdate(d *schema.ResourceData, m interface{}) error
 
 	data.Slug = &slug
 	data.Name = &name
-	data.VMRole = &vmRole
+	data.VMRole = vmRole
 	data.Color = color
 	data.Description = description
 
@@ -166,11 +170,11 @@ func resourceNetboxDeviceRoleDelete(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimDeviceRolesDeleteParams().WithID(id)
+	params := dcim.NewDcimDeviceRolesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimDeviceRolesDelete(params, nil)
+	_, err := api.Dcim.DcimDeviceRolesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDeviceRolesDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDeviceRolesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

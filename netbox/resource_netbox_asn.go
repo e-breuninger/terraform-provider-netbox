@@ -52,7 +52,7 @@ func resourceNetboxAsn() *schema.Resource {
 func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.WritableASN{}
+	data := models.WritableASN{Sites: []int64{}}
 
 	asn := int64(d.Get("asn").(int))
 	data.Asn = &asn
@@ -83,12 +83,12 @@ func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamAsnsReadParams().WithID(id)
+	params := ipam.NewIpamAsnsRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamAsnsRead(params, nil)
+	res, err := api.Ipam.IpamAsnsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamAsnsReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamAsnsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -113,7 +113,7 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableASN{}
+	data := models.WritableASN{Sites: []int64{}}
 
 	asn := int64(d.Get("asn").(int))
 	data.Asn = &asn
@@ -143,11 +143,11 @@ func resourceNetboxAsnDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamAsnsDeleteParams().WithID(id)
+	params := ipam.NewIpamAsnsDestroyParams().WithID(id)
 
-	_, err := api.Ipam.IpamAsnsDelete(params, nil)
+	_, err := api.Ipam.IpamAsnsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamAsnsDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamAsnsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

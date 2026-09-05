@@ -62,8 +62,8 @@ func init() {
 			}
 			for _, prefix := range res.GetPayload().Results {
 				if len(prefix.Tags) > 0 && (prefix.Tags[0] == &models.NestedTag{Name: strToPtr("acctest"), Slug: strToPtr("acctest")}) {
-					deleteParams := ipam.NewIpamAggregatesDeleteParams().WithID(prefix.ID)
-					_, err := api.Ipam.IpamAggregatesDelete(deleteParams, nil)
+					deleteParams := ipam.NewIpamAggregatesDestroyParams().WithID(prefix.ID)
+					_, err := api.Ipam.IpamAggregatesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

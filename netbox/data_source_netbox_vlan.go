@@ -63,19 +63,19 @@ func dataSourceNetboxVlanRead(d *schema.ResourceData, m interface{}) error {
 
 	params.Limit = int64ToPtr(2)
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.Name = &name
+		params.Name = []string{name}
 	}
 	if vid, ok := d.Get("vid").(int); ok && vid != 0 {
-		params.Vid = strToPtr(strconv.Itoa(vid))
+		params.Vid = []int64{int64(vid)}
 	}
 	if groupID, ok := d.Get("group_id").(int); ok && groupID != 0 {
-		params.GroupID = strToPtr(strconv.Itoa(groupID))
+		params.GroupID = []int64{int64(groupID)}
 	}
 	if roleID, ok := d.Get("role").(int); ok && roleID != 0 {
-		params.RoleID = strToPtr(strconv.Itoa(roleID))
+		params.RoleID = []int64{int64(roleID)}
 	}
 	if tenantID, ok := d.Get("tenant").(int); ok && tenantID != 0 {
-		params.TenantID = strToPtr(strconv.Itoa(tenantID))
+		params.TenantID = []int64{int64(tenantID)}
 	}
 	if cfm, ok := d.Get(customFieldsKey).(map[string]interface{}); ok {
 		opts = append(opts, WithCustomFieldParamsOption(cfm))

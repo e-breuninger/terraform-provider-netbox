@@ -332,15 +332,15 @@ func testAccCheckVirtualMachineDestroy(s *terraform.State) error {
 
 		// Retrieve our virtual machine by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(stateID)
-		_, err := conn.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
+		params := virtualization.NewVirtualizationVirtualMachinesRetrieveParams().WithID(stateID)
+		_, err := conn.Virtualization.VirtualizationVirtualMachinesRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("virtual machine (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesReadDefault); ok {
+			if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -666,8 +666,8 @@ func init() {
 			}
 			for _, virtualMachine := range res.GetPayload().Results {
 				if strings.HasPrefix(*virtualMachine.Name, testPrefix) {
-					deleteParams := virtualization.NewVirtualizationVirtualMachinesDeleteParams().WithID(virtualMachine.ID)
-					_, err := api.Virtualization.VirtualizationVirtualMachinesDelete(deleteParams, nil)
+					deleteParams := virtualization.NewVirtualizationVirtualMachinesDestroyParams().WithID(virtualMachine.ID)
+					_, err := api.Virtualization.VirtualizationVirtualMachinesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

@@ -74,12 +74,12 @@ func resourceNetboxMACAddress() *schema.Resource {
 func resourceNetboxMACAddressCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.MACAddress{}
+	data := models.WritableMACAddress{}
 
 	data.MacAddress = strToPtr(d.Get("mac_address").(string))
 
-	data.Description = strToPtr(getOptionalStr(d, "description", false))
-	data.Comments = strToPtr(getOptionalStr(d, "comments", false))
+	data.Description = getOptionalStr(d, "description", false)
+	data.Comments = getOptionalStr(d, "comments", false)
 
 	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
 	deviceInterfaceID := getOptionalInt(d, "device_interface_id")
@@ -110,7 +110,7 @@ func resourceNetboxMACAddressCreate(d *schema.ResourceData, m interface{}) error
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := dcim.NewDcimMacAddressesCreateParams().WithData(&data)
@@ -128,11 +128,11 @@ func resourceNetboxMACAddressCreate(d *schema.ResourceData, m interface{}) error
 func resourceNetboxMACAddressRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimMacAddressesReadParams().WithID(id)
+	params := dcim.NewDcimMacAddressesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimMacAddressesRead(params, nil)
+	res, err := api.Dcim.DcimMacAddressesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimMacAddressesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimMacAddressesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -183,12 +183,12 @@ func resourceNetboxMACAddressUpdate(d *schema.ResourceData, m interface{}) error
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	data := models.MACAddress{}
+	data := models.WritableMACAddress{}
 
 	data.MacAddress = strToPtr(d.Get("mac_address").(string))
 
-	data.Description = strToPtr(getOptionalStr(d, "description", false))
-	data.Comments = strToPtr(getOptionalStr(d, "comments", false))
+	data.Description = getOptionalStr(d, "description", false)
+	data.Comments = getOptionalStr(d, "comments", false)
 
 	vmInterfaceID := getOptionalInt(d, "virtual_machine_interface_id")
 	deviceInterfaceID := getOptionalInt(d, "device_interface_id")
@@ -219,7 +219,7 @@ func resourceNetboxMACAddressUpdate(d *schema.ResourceData, m interface{}) error
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := dcim.NewDcimMacAddressesPartialUpdateParams().WithID(id).WithData(&data)
@@ -236,11 +236,11 @@ func resourceNetboxMACAddressDelete(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimMacAddressesDeleteParams().WithID(id)
+	params := dcim.NewDcimMacAddressesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimMacAddressesDelete(params, nil)
+	_, err := api.Dcim.DcimMacAddressesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimMacAddressesDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimMacAddressesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

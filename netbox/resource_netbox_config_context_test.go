@@ -190,8 +190,8 @@ func init() {
 			}
 			for _, configContext := range res.GetPayload().Results {
 				if strings.HasPrefix(*configContext.Name, testPrefix) {
-					deleteParams := extras.NewExtrasConfigContextsDeleteParams().WithID(configContext.ID)
-					_, err := api.Extras.ExtrasConfigContextsDelete(deleteParams, nil)
+					deleteParams := extras.NewExtrasConfigContextsDestroyParams().WithID(configContext.ID)
+					_, err := api.Extras.ExtrasConfigContextsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

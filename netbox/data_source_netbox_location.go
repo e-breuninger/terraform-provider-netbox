@@ -60,21 +60,33 @@ func dataSourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 
 	params.Limit = int64ToPtr(2)
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.SetName(&name)
+		params.SetName([]string{name})
 	}
 	if slug, ok := d.Get("slug").(string); ok && slug != "" {
-		params.SetSlug(&slug)
+		params.SetSlug([]string{slug})
 	}
 	if id, ok := d.Get("id").(string); ok && id != "0" {
-		params.SetID(&id)
+		n, perr := int64FromFilterString(id)
+		if perr != nil {
+			return perr
+		}
+		params.SetID(n)
 	}
 	if site, ok := d.Get("site_id").(int); ok && site != 0 {
 		siteID := fmt.Sprintf("%v", site)
-		params.SetSiteID(&siteID)
+		n, perr := int64FromFilterString(siteID)
+		if perr != nil {
+			return perr
+		}
+		params.SetSiteID(n)
 	}
 	if parent, ok := d.Get("parent_id").(int); ok && parent != 0 {
 		parentID := fmt.Sprintf("%v", parent)
-		params.SetParentID(&parentID)
+		n, perr := int64FromFilterString(parentID)
+		if perr != nil {
+			return perr
+		}
+		params.SetParentID(n)
 	}
 	res, err := api.Dcim.DcimLocationsList(params, nil)
 

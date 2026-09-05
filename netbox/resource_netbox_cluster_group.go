@@ -45,7 +45,7 @@ func resourceNetboxClusterGroup() *schema.Resource {
 func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.ClusterGroup{}
+	data := models.WritableClusterGroup{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
@@ -81,11 +81,11 @@ func resourceNetboxClusterGroupCreate(d *schema.ResourceData, m interface{}) err
 func resourceNetboxClusterGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationClusterGroupsReadParams().WithID(id)
+	params := virtualization.NewVirtualizationClusterGroupsRetrieveParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationClusterGroupsRead(params, nil)
+	res, err := api.Virtualization.VirtualizationClusterGroupsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationClusterGroupsReadDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationClusterGroupsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -106,7 +106,7 @@ func resourceNetboxClusterGroupUpdate(d *schema.ResourceData, m interface{}) err
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.ClusterGroup{}
+	data := models.WritableClusterGroup{}
 
 	name := d.Get("name").(string)
 	data.Name = &name
@@ -146,11 +146,11 @@ func resourceNetboxClusterGroupDelete(d *schema.ResourceData, m interface{}) err
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationClusterGroupsDeleteParams().WithID(id)
+	params := virtualization.NewVirtualizationClusterGroupsDestroyParams().WithID(id)
 
-	_, err := api.Virtualization.VirtualizationClusterGroupsDelete(params, nil)
+	_, err := api.Virtualization.VirtualizationClusterGroupsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationClusterGroupsDeleteDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationClusterGroupsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

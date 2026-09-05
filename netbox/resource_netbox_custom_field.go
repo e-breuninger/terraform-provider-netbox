@@ -150,7 +150,7 @@ func resourceNetboxCustomFieldUpdate(d *schema.ResourceData, m interface{}) erro
 		Label:             d.Get("label").(string),
 		Required:          d.Get("required").(bool),
 		ValidationRegex:   d.Get("validation_regex").(string),
-		RelatedObjectType: d.Get("related_object_type").(string),
+		RelatedObjectType: strToPtr(d.Get("related_object_type").(string)),
 		Weight:            int64ToPtr(int64(d.Get("weight").(int))),
 	}
 
@@ -201,7 +201,7 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 		Label:             d.Get("label").(string),
 		Required:          d.Get("required").(bool),
 		ValidationRegex:   d.Get("validation_regex").(string),
-		RelatedObjectType: d.Get("related_object_type").(string),
+		RelatedObjectType: strToPtr(d.Get("related_object_type").(string)),
 		Weight:            int64ToPtr(int64(d.Get("weight").(int))),
 	}
 
@@ -245,10 +245,10 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasCustomFieldsReadParams().WithID(id)
-	res, err := api.Extras.ExtrasCustomFieldsRead(params, nil)
+	params := extras.NewExtrasCustomFieldsRetrieveParams().WithID(id)
+	res, err := api.Extras.ExtrasCustomFieldsRetrieve(params, nil)
 	if err != nil {
-		errapi, ok := err.(*extras.ExtrasCustomFieldsReadDefault)
+		errapi, ok := err.(*extras.ExtrasCustomFieldsRetrieveDefault)
 		if !ok {
 			return err
 		}
@@ -262,7 +262,7 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 
 	customField := res.GetPayload()
 	d.Set("name", customField.Name)
-	d.Set("type", *customField.Type.Value)
+	d.Set("type", customField.Type.Value)
 
 	d.Set("content_types", customField.ObjectTypes)
 
@@ -298,10 +298,10 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 func resourceNetboxCustomFieldDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasCustomFieldsDeleteParams().WithID(id)
-	_, err := api.Extras.ExtrasCustomFieldsDelete(params, nil)
+	params := extras.NewExtrasCustomFieldsDestroyParams().WithID(id)
+	_, err := api.Extras.ExtrasCustomFieldsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasCustomFieldsDeleteDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasCustomFieldsDestroyDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				d.SetId("")

@@ -93,12 +93,12 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 
 	data := models.WritableCable{
 		Status:      d.Get("status").(string),
-		Type:        getOptionalStr(d, "type", false),
+		Type:        getOptionalStrPtr(d, "type"),
 		Tenant:      getOptionalInt(d, "tenant_id"),
 		Label:       getOptionalStr(d, "label", false),
 		Color:       getOptionalStr(d, "color_hex", false),
 		Length:      getOptionalFloat(d, "length"),
-		LengthUnit:  getOptionalStr(d, "length_unit", false),
+		LengthUnit:  getOptionalStrPtr(d, "length_unit"),
 		Description: getOptionalStr(d, "description", false),
 		Comments:    getOptionalStr(d, "comments", false),
 	}
@@ -117,7 +117,7 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimCablesCreateParams().WithData(&data)
@@ -135,12 +135,12 @@ func resourceNetboxCableCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxCableRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimCablesReadParams().WithID(id)
+	params := dcim.NewDcimCablesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimCablesRead(params, nil)
+	res, err := api.Dcim.DcimCablesRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimCablesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimCablesRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -198,12 +198,12 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data := models.WritableCable{
 		Status:      d.Get("status").(string),
-		Type:        getOptionalStr(d, "type", false),
+		Type:        getOptionalStrPtr(d, "type"),
 		Tenant:      getOptionalInt(d, "tenant_id"),
 		Label:       getOptionalStr(d, "label", true),
 		Color:       getOptionalStr(d, "color_hex", false),
 		Length:      getOptionalFloat(d, "length"),
-		LengthUnit:  getOptionalStr(d, "length_unit", false),
+		LengthUnit:  getOptionalStrPtr(d, "length_unit"),
 		Description: getOptionalStr(d, "description", true),
 		Comments:    getOptionalStr(d, "comments", true),
 	}
@@ -222,7 +222,7 @@ func resourceNetboxCableUpdate(d *schema.ResourceData, m interface{}) error {
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimCablesPartialUpdateParams().WithID(id).WithData(&data)
@@ -239,9 +239,9 @@ func resourceNetboxCableDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimCablesDeleteParams().WithID(id)
+	params := dcim.NewDcimCablesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimCablesDelete(params, nil)
+	_, err := api.Dcim.DcimCablesDestroy(params, nil)
 	if err != nil {
 		return err
 	}

@@ -55,16 +55,16 @@ func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error
 
 	params.Limit = int64ToPtr(2)
 	if manufacturer, ok := d.Get("manufacturer").(string); ok && manufacturer != "" {
-		params.Manufacturer = &manufacturer
+		params.Manufacturer = []string{manufacturer}
 	}
 	if model, ok := d.Get("model").(string); ok && model != "" {
-		params.Model = &model
+		params.Model = []string{model}
 	}
 	if part, ok := d.Get("part_number").(string); ok && part != "" {
-		params.PartNumber = &part
+		params.PartNumber = []string{part}
 	}
 	if slug, ok := d.Get("slug").(string); ok && slug != "" {
-		params.Slug = &slug
+		params.Slug = []string{slug}
 	}
 
 	res, err := api.Dcim.DcimDeviceTypesList(params, nil)

@@ -70,7 +70,7 @@ func resourceNetboxUser() *schema.Resource {
 }
 func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.WritableUser{}
+	data := models.WritableUser{Permissions: []int64{}}
 
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
@@ -78,7 +78,6 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	firstName := d.Get("first_name").(string)
 	lastName := d.Get("last_name").(string)
 	active := d.Get("active").(bool)
-	staff := d.Get("staff").(bool)
 	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
@@ -87,7 +86,9 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	data.FirstName = firstName
 	data.LastName = lastName
 	data.IsActive = active
-	data.IsStaff = staff
+	// "staff" is deprecated and ignored: IsStaff was removed from the User model in
+	// NetBox 4.5 (migration users.0013_user_remove_is_staff) and no longer exists on
+	// WritableUser.
 	data.Groups = groupIDs
 	data.DateJoined = strfmt.DateTime(time.Now())
 
@@ -104,11 +105,11 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersUsersReadParams().WithID(id)
+	params := users.NewUsersUsersRetrieveParams().WithID(id)
 
-	res, err := api.Users.UsersUsersRead(params, nil)
+	res, err := api.Users.UsersUsersRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersUsersReadDefault); ok {
+		if errresp, ok := err.(*users.UsersUsersRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -127,7 +128,7 @@ func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("first_name", res.GetPayload().FirstName)
 	d.Set("last_name", res.GetPayload().LastName)
 
-	d.Set("staff", res.GetPayload().IsStaff)
+	d.Set("staff", false) // deprecated and ignored, see the schema attribute's Deprecated note
 	d.Set("active", res.GetPayload().IsActive)
 	d.Set("group_ids", getIDsFromNestedGroup(res.GetPayload().Groups))
 
@@ -139,7 +140,7 @@ func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableUser{}
+	data := models.WritableUser{Permissions: []int64{}}
 
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
@@ -147,7 +148,6 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	firstName := d.Get("first_name").(string)
 	lastName := d.Get("last_name").(string)
 	active := d.Get("active").(bool)
-	staff := d.Get("staff").(bool)
 	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
@@ -156,7 +156,6 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	data.FirstName = firstName
 	data.LastName = lastName
 	data.IsActive = active
-	data.IsStaff = staff
 	data.Groups = groupIDs
 	data.DateJoined = strfmt.DateTime(time.Now())
 
@@ -171,10 +170,10 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxUserDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersUsersDeleteParams().WithID(id)
-	_, err := api.Users.UsersUsersDelete(params, nil)
+	params := users.NewUsersUsersDestroyParams().WithID(id)
+	_, err := api.Users.UsersUsersDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersUsersDeleteDefault); ok {
+		if errresp, ok := err.(*users.UsersUsersDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil
@@ -186,7 +185,7 @@ func resourceNetboxUserDelete(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func getIDsFromNestedGroup(nestedGroups []*models.NestedGroup) []int64 {
+func getIDsFromNestedGroup(nestedGroups []*models.Group) []int64 {
 	var groupIDs []int64
 	for _, group := range nestedGroups {
 		groupIDs = append(groupIDs, group.ID)

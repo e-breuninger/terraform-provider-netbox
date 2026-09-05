@@ -118,15 +118,15 @@ func testAccCheckDeviceModuleBayDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimModuleBaysReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimModuleBaysRead(params, nil)
+		params := dcim.NewDcimModuleBaysRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimModuleBaysRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_module_bay (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimModuleBaysReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimModuleBaysRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -155,8 +155,8 @@ func init() {
 			}
 			for _, moduleBay := range res.GetPayload().Results {
 				if strings.HasPrefix(*moduleBay.Name, testPrefix) {
-					deleteParams := dcim.NewDcimModuleBaysDeleteParams().WithID(moduleBay.ID)
-					_, err := api.Dcim.DcimModuleBaysDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimModuleBaysDestroyParams().WithID(moduleBay.ID)
+					_, err := api.Dcim.DcimModuleBaysDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

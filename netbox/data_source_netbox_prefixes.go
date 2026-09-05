@@ -133,31 +133,51 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			vString := v.(string)
 			switch k {
 			case "prefix":
-				params.Prefix = &vString
+				params.Prefix = []string{vString}
 			case "vlan_vid":
-				float, err := strconv.ParseFloat(vString, 64)
-				if err != nil {
-					return err
+				n, perr := strconv.ParseInt(vString, 10, 64)
+				if perr != nil {
+					return perr
 				}
-				params.VlanVid = &float
+				params.VlanVid = &n
 			case "contains":
 				params.Contains = &vString
 			case "vrf_id":
-				params.VrfID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VrfID = n
 			case "vlan_id":
-				params.VlanID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VlanID = n
 			case "status":
-				params.Status = &vString
+				params.Status = []string{vString}
 			case "tenant_id":
-				params.TenantID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantID = n
 			case "site_id":
-				params.SiteID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.SiteID = n
 			case "role_id":
-				params.RoleID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.RoleID = n
 			case "region_id":
-				params.RegionID = &vString
+				params.RegionID = []string{vString}
 			case "description":
-				params.Description = &vString
+				params.Description = []string{vString}
 			case "tag":
 				params.Tag = []string{vString}
 			default:

@@ -138,10 +138,9 @@ func resourceNetboxAvailablePrefixCreate(d *schema.ResourceData, m interface{}) 
 	data := models.PrefixLength{
 		PrefixLength: &prefixLength,
 	}
-	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
-	}
-	params := ipam.NewIpamPrefixesAvailablePrefixesCreateParams().WithID(parentPrefixID).WithData(&data)
+	// custom_fields is no longer accepted by this allocation endpoint (go-netbox v3);
+	// it's applied to the created prefix by the resourceNetboxPrefixUpdate call below instead.
+	params := ipam.NewIpamPrefixesAvailablePrefixesCreateParams().WithID(parentPrefixID).WithData([]*models.PrefixLength{&data})
 
 	res, err := api.Ipam.IpamPrefixesAvailablePrefixesCreate(params, nil)
 	if err != nil {
@@ -149,8 +148,14 @@ func resourceNetboxAvailablePrefixCreate(d *schema.ResourceData, m interface{}) 
 	}
 
 	payload := res.GetPayload()
-	d.SetId(strconv.FormatInt(payload.ID, 10))
-	d.Set("prefix", payload.Prefix)
+	if len(payload) == 0 {
+		return fmt.Errorf("no available prefix was returned")
+	}
+	created := payload[0]
+	d.SetId(strconv.FormatInt(created.ID, 10))
+	if created.Prefix != nil {
+		d.Set("prefix", *created.Prefix)
+	}
 
 	return resourceNetboxPrefixUpdate(d, m)
 }

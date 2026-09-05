@@ -135,8 +135,8 @@ func init() {
 			}
 			for _, tenant := range res.GetPayload().Results {
 				if strings.HasPrefix(*tenant.Name, testPrefix) {
-					deleteParams := tenancy.NewTenancyTenantsDeleteParams().WithID(tenant.ID)
-					_, err := api.Tenancy.TenancyTenantsDelete(deleteParams, nil)
+					deleteParams := tenancy.NewTenancyTenantsDestroyParams().WithID(tenant.ID)
+					_, err := api.Tenancy.TenancyTenantsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

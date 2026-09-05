@@ -139,15 +139,15 @@ func testAccCheckModuleDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimModulesReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimModulesRead(params, nil)
+		params := dcim.NewDcimModulesRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimModulesRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("module (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimModulesReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimModulesRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -176,8 +176,8 @@ func init() {
 			}
 			for _, module := range res.GetPayload().Results {
 				if strings.HasPrefix(*module.ModuleType.Model, testPrefix) {
-					deleteParams := dcim.NewDcimModulesDeleteParams().WithID(module.ID)
-					_, err := api.Dcim.DcimModulesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimModulesDestroyParams().WithID(module.ID)
+					_, err := api.Dcim.DcimModulesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

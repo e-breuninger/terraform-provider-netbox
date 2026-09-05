@@ -79,8 +79,8 @@ func init() {
 			}
 			for _, region := range res.GetPayload().Results {
 				if strings.HasPrefix(*region.Name, testPrefix) {
-					deleteParams := dcim.NewDcimRegionsDeleteParams().WithID(region.ID)
-					_, err := api.Dcim.DcimRegionsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimRegionsDestroyParams().WithID(region.ID)
+					_, err := api.Dcim.DcimRegionsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

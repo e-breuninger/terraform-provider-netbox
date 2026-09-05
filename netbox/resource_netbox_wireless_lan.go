@@ -93,8 +93,8 @@ func resourceNetboxWirelessLANCreate(d *schema.ResourceData, m interface{}) erro
 	data := &models.WritableWirelessLAN{
 		Ssid:        &ssid,
 		Status:      status,
-		AuthType:    d.Get("auth_type").(string),
-		AuthCipher:  d.Get("auth_cipher").(string),
+		AuthType:    getOptionalStrPtr(d, "auth_type"),
+		AuthCipher:  getOptionalStrPtr(d, "auth_cipher"),
 		AuthPsk:     d.Get("auth_psk").(string),
 		Description: d.Get("description").(string),
 		Comments:    d.Get("comments").(string),
@@ -119,7 +119,7 @@ func resourceNetboxWirelessLANCreate(d *schema.ResourceData, m interface{}) erro
 	}
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := wireless.NewWirelessWirelessLansCreateParams().WithData(data)
@@ -137,10 +137,10 @@ func resourceNetboxWirelessLANRead(d *schema.ResourceData, m interface{}) error 
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := wireless.NewWirelessWirelessLansReadParams().WithID(id)
-	res, err := api.Wireless.WirelessWirelessLansRead(params, nil)
+	params := wireless.NewWirelessWirelessLansRetrieveParams().WithID(id)
+	res, err := api.Wireless.WirelessWirelessLansRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*wireless.WirelessWirelessLansReadDefault); ok && errresp.Code() == 404 {
+		if errresp, ok := err.(*wireless.WirelessWirelessLansRetrieveDefault); ok && errresp.Code() == 404 {
 			d.SetId("")
 			return nil
 		}
@@ -234,13 +234,13 @@ func resourceNetboxWirelessLANUpdate(d *schema.ResourceData, m interface{}) erro
 	}
 
 	if authType, ok := d.GetOk("auth_type"); ok {
-		data.AuthType = authType.(string)
+		data.AuthType = strToPtr(authType.(string))
 	} else {
 		overrideFields["auth_type"] = nil
 	}
 
 	if authCipher, ok := d.GetOk("auth_cipher"); ok {
-		data.AuthCipher = authCipher.(string)
+		data.AuthCipher = strToPtr(authCipher.(string))
 	} else {
 		overrideFields["auth_cipher"] = nil
 	}
@@ -258,7 +258,7 @@ func resourceNetboxWirelessLANUpdate(d *schema.ResourceData, m interface{}) erro
 	}
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := wireless.NewWirelessWirelessLansPartialUpdateParams().WithID(id).WithData(&data)
@@ -274,10 +274,10 @@ func resourceNetboxWirelessLANDelete(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := wireless.NewWirelessWirelessLansDeleteParams().WithID(id)
-	_, err := api.Wireless.WirelessWirelessLansDelete(params, nil)
+	params := wireless.NewWirelessWirelessLansDestroyParams().WithID(id)
+	_, err := api.Wireless.WirelessWirelessLansDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*wireless.WirelessWirelessLansDeleteDefault); ok && errresp.Code() == 404 {
+		if errresp, ok := err.(*wireless.WirelessWirelessLansDestroyDefault); ok && errresp.Code() == 404 {
 			d.SetId("")
 			return nil
 		}

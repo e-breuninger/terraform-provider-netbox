@@ -205,7 +205,7 @@ func resourceNetboxVirtualMachineCreate(ctx context.Context, d *schema.ResourceD
 	data.Tags = tags
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := virtualization.NewVirtualizationVirtualMachinesCreateParams().WithData(&data)
@@ -227,11 +227,11 @@ func resourceNetboxVirtualMachineRead(ctx context.Context, d *schema.ResourceDat
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(id)
+	params := virtualization.NewVirtualizationVirtualMachinesRetrieveParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
+	res, err := api.Virtualization.VirtualizationVirtualMachinesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesReadDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -427,7 +427,7 @@ func resourceNetboxVirtualMachineUpdate(ctx context.Context, d *schema.ResourceD
 	data.Tags = tags
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	if d.HasChanges("comments") {
@@ -469,11 +469,11 @@ func resourceNetboxVirtualMachineDelete(ctx context.Context, d *schema.ResourceD
 	var diags diag.Diagnostics
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationVirtualMachinesDeleteParams().WithID(id)
+	params := virtualization.NewVirtualizationVirtualMachinesDestroyParams().WithID(id)
 
-	_, err := api.Virtualization.VirtualizationVirtualMachinesDelete(params, nil)
+	_, err := api.Virtualization.VirtualizationVirtualMachinesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesDeleteDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

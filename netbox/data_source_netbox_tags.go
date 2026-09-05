@@ -88,39 +88,59 @@ func dataSourceNetboxTagsRead(d *schema.ResourceData, m interface{}) error {
 			vString := v.(string)
 			switch k {
 			case "id":
-				params.ID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ID = n
 			case "id__gt":
-				params.IDGt = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDGt = n
 			case "id__gte":
-				params.IDGte = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDGte = n
 			case "id__lt":
-				params.IDLt = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDLt = n
 			case "id__lte":
-				params.IDLte = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDLte = n
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "name__ic":
-				params.NameIc = &vString
+				params.NameIc = []string{vString}
 			case "name__niew":
-				params.NameNiew = &vString
+				params.NameNiew = []string{vString}
 			case "name__iew":
-				params.NameIew = &vString
+				params.NameIew = []string{vString}
 			case "name__nisw":
-				params.NameNisw = &vString
+				params.NameNisw = []string{vString}
 			case "name__isw":
-				params.NameIsw = &vString
+				params.NameIsw = []string{vString}
 			case "slug":
-				params.Slug = &vString
+				params.Slug = []string{vString}
 			case "slug__ic":
-				params.SlugIc = &vString
+				params.SlugIc = []string{vString}
 			case "slug__niew":
-				params.SlugNiew = &vString
+				params.SlugNiew = []string{vString}
 			case "slug__iew":
-				params.SlugIew = &vString
+				params.SlugIew = []string{vString}
 			case "slug__nisw":
-				params.SlugNisw = &vString
+				params.SlugNisw = []string{vString}
 			case "slug__isw":
-				params.SlugIsw = &vString
+				params.SlugIsw = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

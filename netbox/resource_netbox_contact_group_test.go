@@ -72,8 +72,8 @@ func init() {
 			}
 			for _, contactGroup := range res.GetPayload().Results {
 				if strings.HasPrefix(*contactGroup.Name, testPrefix) {
-					deleteParams := tenancy.NewTenancyContactGroupsDeleteParams().WithID(contactGroup.ID)
-					_, err := api.Tenancy.TenancyContactGroupsDelete(deleteParams, nil)
+					deleteParams := tenancy.NewTenancyContactGroupsDestroyParams().WithID(contactGroup.ID)
+					_, err := api.Tenancy.TenancyContactGroupsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

@@ -157,8 +157,8 @@ func init() {
 			}
 			for _, contact := range res.GetPayload().Results {
 				if strings.HasPrefix(*contact.Name, testPrefix) {
-					deleteParams := tenancy.NewTenancyContactsDeleteParams().WithID(contact.ID)
-					_, err := api.Tenancy.TenancyContactsDelete(deleteParams, nil)
+					deleteParams := tenancy.NewTenancyContactsDestroyParams().WithID(contact.ID)
+					_, err := api.Tenancy.TenancyContactsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

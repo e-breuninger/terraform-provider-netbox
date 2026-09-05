@@ -71,7 +71,9 @@ func resourceNetboxWebhook() *schema.Resource {
 func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := &models.Webhook{}
+	data := &models.WritableWebhook{
+		Tags: []*models.NestedTag{},
+	}
 	name := d.Get("name").(string)
 	data.Name = &name
 	payloadURL := d.Get("payload_url").(string)
@@ -98,11 +100,11 @@ func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxWebhookRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasWebhooksReadParams().WithID(id)
+	params := extras.NewExtrasWebhooksRetrieveParams().WithID(id)
 
-	res, err := api.Extras.ExtrasWebhooksRead(params, nil)
+	res, err := api.Extras.ExtrasWebhooksRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasWebhooksReadDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasWebhooksRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				d.SetId("")
@@ -128,7 +130,9 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.Webhook{}
+	data := models.WritableWebhook{
+		Tags: []*models.NestedTag{},
+	}
 
 	name := d.Get("name").(string)
 	payloadURL := d.Get("payload_url").(string)
@@ -156,11 +160,11 @@ func resourceNetboxWebhookDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasWebhooksDeleteParams().WithID(id)
+	params := extras.NewExtrasWebhooksDestroyParams().WithID(id)
 
-	_, err := api.Extras.ExtrasWebhooksDelete(params, nil)
+	_, err := api.Extras.ExtrasWebhooksDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasWebhooksDeleteDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasWebhooksDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

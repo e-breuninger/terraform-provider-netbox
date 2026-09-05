@@ -64,7 +64,7 @@ func resourceNetboxFhrpGroup() *schema.Resource {
 func resourceNetboxFhrpGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.FHRPGroup{}
+	data := models.WritableFHRPGroup{}
 
 	protocol := d.Get("protocol").(string)
 	data.Protocol = &protocol
@@ -72,7 +72,7 @@ func resourceNetboxFhrpGroupCreate(d *schema.ResourceData, m interface{}) error 
 	group_id := int64(d.Get("group_id").(int))
 	data.GroupID = &group_id
 
-	data.AuthType = d.Get("auth_type").(string)
+	data.AuthType = getOptionalStrPtr(d, "auth_type")
 	data.AuthKey = d.Get("auth_key").(string)
 	data.Name = d.Get("name").(string)
 	data.Description = d.Get("description").(string)
@@ -98,12 +98,12 @@ func resourceNetboxFhrpGroupCreate(d *schema.ResourceData, m interface{}) error 
 func resourceNetboxFhrpGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamFhrpGroupsReadParams().WithID(id)
+	params := ipam.NewIpamFhrpGroupsRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamFhrpGroupsRead(params, nil)
+	res, err := api.Ipam.IpamFhrpGroupsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamAsnsReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamAsnsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -132,7 +132,7 @@ func resourceNetboxFhrpGroupUpdate(d *schema.ResourceData, m interface{}) error 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.FHRPGroup{}
+	data := models.WritableFHRPGroup{}
 
 	protocol := d.Get("protocol").(string)
 	data.Protocol = &protocol
@@ -140,7 +140,7 @@ func resourceNetboxFhrpGroupUpdate(d *schema.ResourceData, m interface{}) error 
 	group_id := int64(d.Get("group_id").(int))
 	data.GroupID = &group_id
 
-	data.AuthType = d.Get("auth_type").(string)
+	data.AuthType = getOptionalStrPtr(d, "auth_type")
 	data.AuthKey = d.Get("auth_key").(string)
 	data.Name = d.Get("name").(string)
 	data.Description = d.Get("description").(string)
@@ -166,11 +166,11 @@ func resourceNetboxFhrpGroupDelete(d *schema.ResourceData, m interface{}) error 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamFhrpGroupsDeleteParams().WithID(id)
+	params := ipam.NewIpamFhrpGroupsDestroyParams().WithID(id)
 
-	_, err := api.Ipam.IpamFhrpGroupsDelete(params, nil)
+	_, err := api.Ipam.IpamFhrpGroupsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamFhrpGroupsDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamFhrpGroupsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

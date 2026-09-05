@@ -187,15 +187,15 @@ func testAccCheckInventoryItemDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimInventoryItemsReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimInventoryItemsRead(params, nil)
+		params := dcim.NewDcimInventoryItemsRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimInventoryItemsRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("inventory_item (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimInventoryItemsReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimInventoryItemsRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -224,8 +224,8 @@ func init() {
 			}
 			for _, rearPort := range res.GetPayload().Results {
 				if strings.HasPrefix(*rearPort.Name, testPrefix) {
-					deleteParams := dcim.NewDcimInventoryItemsDeleteParams().WithID(rearPort.ID)
-					_, err := api.Dcim.DcimInventoryItemsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimInventoryItemsDestroyParams().WithID(rearPort.ID)
+					_, err := api.Dcim.DcimInventoryItemsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

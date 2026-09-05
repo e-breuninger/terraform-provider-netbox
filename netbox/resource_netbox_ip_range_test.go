@@ -267,8 +267,8 @@ func init() {
 			}
 			for _, r := range res.GetPayload().Results {
 				if strings.HasPrefix(*r.StartAddress, testPrefix) {
-					deleteParams := ipam.NewIpamIPRangesDeleteParams().WithID(r.ID)
-					_, err := api.Ipam.IpamIPRangesDelete(deleteParams, nil)
+					deleteParams := ipam.NewIpamIPRangesDestroyParams().WithID(r.ID)
+					_, err := api.Ipam.IpamIPRangesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

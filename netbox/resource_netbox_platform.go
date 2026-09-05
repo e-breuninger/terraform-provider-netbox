@@ -94,12 +94,12 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimPlatformsReadParams().WithID(id)
+	params := dcim.NewDcimPlatformsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimPlatformsRead(params, nil)
+	res, err := api.Dcim.DcimPlatformsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimPlatformsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimPlatformsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -168,11 +168,11 @@ func resourceNetboxPlatformDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimPlatformsDeleteParams().WithID(id)
+	params := dcim.NewDcimPlatformsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimPlatformsDelete(params, nil)
+	_, err := api.Dcim.DcimPlatformsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimPlatformsDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimPlatformsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

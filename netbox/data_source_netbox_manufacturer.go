@@ -91,11 +91,11 @@ func dataSourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) err
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "tag":
 				params.Tag = []string{vString}
 			case "slug":
-				params.Slug = &vString
+				params.Slug = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

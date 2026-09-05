@@ -94,12 +94,12 @@ func resourceNetboxRegionCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxRegionRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRegionsReadParams().WithID(id)
+	params := dcim.NewDcimRegionsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimRegionsRead(params, nil)
+	res, err := api.Dcim.DcimRegionsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRegionsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRegionsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -163,11 +163,11 @@ func resourceNetboxRegionDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRegionsDeleteParams().WithID(id)
+	params := dcim.NewDcimRegionsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimRegionsDelete(params, nil)
+	_, err := api.Dcim.DcimRegionsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRegionsDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRegionsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

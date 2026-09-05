@@ -278,15 +278,15 @@ func testAccCheckRackDestroy(s *terraform.State) error {
 
 		// Retrieve our rack by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimRacksReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimRacksRead(params, nil)
+		params := dcim.NewDcimRacksRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimRacksRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("rack (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimRacksReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimRacksRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -315,8 +315,8 @@ func init() {
 			}
 			for _, Rack := range res.GetPayload().Results {
 				if strings.HasPrefix(*Rack.Name, testPrefix) {
-					deleteParams := dcim.NewDcimRacksDeleteParams().WithID(Rack.ID)
-					_, err := api.Dcim.DcimRacksDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimRacksDestroyParams().WithID(Rack.ID)
+					_, err := api.Dcim.DcimRacksDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

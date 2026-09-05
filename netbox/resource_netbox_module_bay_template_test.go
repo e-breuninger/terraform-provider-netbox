@@ -132,8 +132,8 @@ func init() {
 			}
 			for _, tmpl := range res.GetPayload().Results {
 				if strings.HasPrefix(*tmpl.Name, testPrefix) {
-					deleteParams := dcim.NewDcimModuleBayTemplatesDeleteParams().WithID(tmpl.ID)
-					_, err := api.Dcim.DcimModuleBayTemplatesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimModuleBayTemplatesDestroyParams().WithID(tmpl.ID)
+					_, err := api.Dcim.DcimModuleBayTemplatesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

@@ -43,7 +43,7 @@ func resourceNetboxContactRoleCreate(d *schema.ResourceData, m interface{}) erro
 
 	name := d.Get("name").(string)
 
-	data := &models.ContactRole{}
+	data := &models.WritableContactRole{}
 
 	slugValue, slugOk := d.GetOk("slug")
 	// Default slug to generated slug if not given
@@ -71,12 +71,12 @@ func resourceNetboxContactRoleCreate(d *schema.ResourceData, m interface{}) erro
 func resourceNetboxContactRoleRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyContactRolesReadParams().WithID(id)
+	params := tenancy.NewTenancyContactRolesRetrieveParams().WithID(id)
 
-	res, err := api.Tenancy.TenancyContactRolesRead(params, nil)
+	res, err := api.Tenancy.TenancyContactRolesRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyContactRolesReadDefault); ok {
+		if errresp, ok := err.(*tenancy.TenancyContactRolesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -98,7 +98,7 @@ func resourceNetboxContactRoleUpdate(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.ContactRole{}
+	data := models.WritableContactRole{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -126,11 +126,11 @@ func resourceNetboxContactRoleDelete(d *schema.ResourceData, m interface{}) erro
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyContactRolesDeleteParams().WithID(id)
+	params := tenancy.NewTenancyContactRolesDestroyParams().WithID(id)
 
-	_, err := api.Tenancy.TenancyContactRolesDelete(params, nil)
+	_, err := api.Tenancy.TenancyContactRolesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyContactRolesDeleteDefault); ok {
+		if errresp, ok := err.(*tenancy.TenancyContactRolesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

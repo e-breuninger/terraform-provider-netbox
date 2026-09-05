@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -12,6 +13,26 @@ import (
 
 func strToPtr(str string) *string {
 	return &str
+}
+
+// int64FromFilterString parses a single filter value into the []int64 the go-netbox
+// v3 client now expects for ID-style filters (e.g. device_id, interface_id).
+func int64FromFilterString(str string) ([]int64, error) {
+	n, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid integer filter value %q: %w", str, err)
+	}
+	return []int64{n}, nil
+}
+
+// boolFromFilterString parses a single filter value into the *bool the go-netbox
+// v3 client now expects for "_empty"-style lookup filters.
+func boolFromFilterString(str string) (*bool, error) {
+	b, err := strconv.ParseBool(str)
+	if err != nil {
+		return nil, fmt.Errorf("invalid boolean filter value %q: %w", str, err)
+	}
+	return &b, nil
 }
 
 func int64ToPtr(i int64) *int64 {
@@ -93,6 +114,18 @@ func getOptionalStr(d *schema.ResourceData, key string, useSpace bool) string {
 		}
 	}
 	return strVal
+}
+
+// getOptionalStrPtr is like getOptionalStr but returns nil when the key is unset,
+// for API fields that are now *string with omitempty: unlike a plain string field,
+// omitempty on a *string only omits a nil pointer, so a pointer-to-"" would still be sent.
+func getOptionalStrPtr(d *schema.ResourceData, key string) *string {
+	strVal, ok := d.GetOk(key)
+	if !ok {
+		return nil
+	}
+	s := strVal.(string)
+	return &s
 }
 
 func getOptionalVal[SchemaT int | float64, ApiT int64 | float64](d *schema.ResourceData, key string) *ApiT {

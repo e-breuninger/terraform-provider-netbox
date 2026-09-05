@@ -53,14 +53,18 @@ func dataSourceNetboxAsnRead(d *schema.ResourceData, m interface{}) error {
 	params.Limit = &limit
 
 	if asn, ok := d.Get("asn").(string); ok && asn != "" {
-		params.Asn = &asn
+		n, perr := int64FromFilterString(asn)
+		if perr != nil {
+			return perr
+		}
+		params.Asn = n
 	}
 
 	if tag, ok := d.Get("tag").(string); ok && tag != "" {
 		params.Tag = []string{tag} //TODO: switch schema to list?
 	}
 	if tagn, ok := d.Get("tag__n").(string); ok && tagn != "" {
-		params.Tagn = &tagn
+		params.Tagn = []string{tagn}
 	}
 
 	res, err := api.Ipam.IpamAsnsList(params, nil)

@@ -81,13 +81,29 @@ func dataSourceNetboxAsnsRead(d *schema.ResourceData, m interface{}) error {
 			vString := v.(string)
 			switch k {
 			case "asn":
-				params.Asn = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.Asn = n
 			case "asn__gte":
-				params.AsnGte = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.AsnGte = n
 			case "asn__lte":
-				params.AsnLte = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.AsnLte = n
 			case "asn__n":
-				params.Asnn = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.Asnn = n
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

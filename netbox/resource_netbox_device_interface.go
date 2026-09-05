@@ -146,7 +146,7 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
-	mode := d.Get("mode").(string)
+	mode := getOptionalStrPtr(d, "mode")
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
@@ -204,11 +204,11 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 
 	var diags diag.Diagnostics
 
-	params := dcim.NewDcimInterfacesReadParams().WithID(id)
+	params := dcim.NewDcimInterfacesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimInterfacesRead(params, nil)
+	res, err := api.Dcim.DcimInterfacesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimInterfacesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimInterfacesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -291,7 +291,7 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	interfaceType := d.Get("type").(string)
 	enabled := d.Get("enabled").(bool)
 	mgmtonly := d.Get("mgmtonly").(bool)
-	mode := d.Get("mode").(string)
+	mode := getOptionalStrPtr(d, "mode")
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
 	if err != nil {
 		return diag.FromErr(err)
@@ -356,11 +356,11 @@ func resourceNetboxDeviceInterfaceDelete(ctx context.Context, d *schema.Resource
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimInterfacesDeleteParams().WithID(id)
+	params := dcim.NewDcimInterfacesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimInterfacesDelete(params, nil)
+	_, err := api.Dcim.DcimInterfacesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimInterfacesDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimInterfacesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil
@@ -371,7 +371,7 @@ func resourceNetboxDeviceInterfaceDelete(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func getIDsFromNestedVLANDevice(nestedvlans []*models.NestedVLAN) []int64 {
+func getIDsFromNestedVLANDevice(nestedvlans []*models.VLAN) []int64 {
 	var vlans []int64
 	for _, vlan := range nestedvlans {
 		vlans = append(vlans, vlan.ID)

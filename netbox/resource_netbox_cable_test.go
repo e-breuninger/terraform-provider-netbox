@@ -214,15 +214,15 @@ func testAccCheckCableDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimCablesReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimCablesRead(params, nil)
+		params := dcim.NewDcimCablesRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimCablesRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("cable (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimCablesReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimCablesRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -251,8 +251,8 @@ func init() {
 			}
 			for _, cable := range res.GetPayload().Results {
 				if strings.HasPrefix(cable.Label, testPrefix) {
-					deleteParams := dcim.NewDcimCablesDeleteParams().WithID(cable.ID)
-					_, err := api.Dcim.DcimCablesDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimCablesDestroyParams().WithID(cable.ID)
+					_, err := api.Dcim.DcimCablesDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

@@ -68,7 +68,7 @@ func resourceNetboxVlanGroup() *schema.Resource {
 
 func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.VLANGroup{}
+	data := models.WritableVLANGroup{}
 
 	name := d.Get("name").(string)
 	slug := d.Get("slug").(string)
@@ -116,11 +116,11 @@ func resourceNetboxVlanGroupCreate(d *schema.ResourceData, m interface{}) error 
 func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamVlanGroupsReadParams().WithID(id)
+	params := ipam.NewIpamVlanGroupsRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamVlanGroupsRead(params, nil)
+	res, err := api.Ipam.IpamVlanGroupsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamVlanGroupsReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamVlanGroupsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -153,7 +153,7 @@ func resourceNetboxVlanGroupRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.VLANGroup{}
+	data := models.WritableVLANGroup{}
 
 	name := d.Get("name").(string)
 	slug := d.Get("slug").(string)
@@ -200,8 +200,8 @@ func resourceNetboxVlanGroupUpdate(d *schema.ResourceData, m interface{}) error 
 func resourceNetboxVlanGroupDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamVlanGroupsDeleteParams().WithID(id)
-	_, err := api.Ipam.IpamVlanGroupsDelete(params, nil)
+	params := ipam.NewIpamVlanGroupsDestroyParams().WithID(id)
+	_, err := api.Ipam.IpamVlanGroupsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

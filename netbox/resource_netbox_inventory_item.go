@@ -125,7 +125,7 @@ func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) er
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimInventoryItemsCreateParams().WithData(&data)
@@ -143,12 +143,12 @@ func resourceNetboxInventoryItemCreate(d *schema.ResourceData, m interface{}) er
 func resourceNetboxInventoryItemRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimInventoryItemsReadParams().WithID(id)
+	params := dcim.NewDcimInventoryItemsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimInventoryItemsRead(params, nil)
+	res, err := api.Dcim.DcimInventoryItemsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimInventoryItemsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimInventoryItemsRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -236,7 +236,7 @@ func resourceNetboxInventoryItemUpdate(d *schema.ResourceData, m interface{}) er
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimInventoryItemsPartialUpdateParams().WithID(id).WithData(&data)
@@ -253,9 +253,9 @@ func resourceNetboxInventoryItemDelete(d *schema.ResourceData, m interface{}) er
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimInventoryItemsDeleteParams().WithID(id)
+	params := dcim.NewDcimInventoryItemsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimInventoryItemsDelete(params, nil)
+	_, err := api.Dcim.DcimInventoryItemsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

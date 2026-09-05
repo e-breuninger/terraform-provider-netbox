@@ -63,11 +63,11 @@ func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}
 
 	data := &models.WritableContactAssignment{}
 
-	data.ObjectType = contentType
+	data.ObjectType = &contentType
 	data.ObjectID = &objectID
 	data.Contact = &contactID
 	data.Role = &roleID
-	data.Priority = priority
+	data.Priority = &priority
 
 	params := tenancy.NewTenancyContactAssignmentsCreateParams().WithData(data)
 
@@ -84,11 +84,11 @@ func resourceNetboxContactAssignmentCreate(d *schema.ResourceData, m interface{}
 func resourceNetboxContactAssignmentRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyContactAssignmentsReadParams().WithID(id)
+	params := tenancy.NewTenancyContactAssignmentsRetrieveParams().WithID(id)
 
-	res, err := api.Tenancy.TenancyContactAssignmentsRead(params, nil)
+	res, err := api.Tenancy.TenancyContactAssignmentsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyContactAssignmentsReadDefault); ok {
+		if errresp, ok := err.(*tenancy.TenancyContactAssignmentsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -129,7 +129,7 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	roleID := int64(d.Get("role_id").(int))
 	priority := d.Get("priority").(string)
 
-	data.ObjectType = contentType
+	data.ObjectType = &contentType
 	if objectID != 0 {
 		data.ObjectID = &objectID
 	}
@@ -139,7 +139,7 @@ func resourceNetboxContactAssignmentUpdate(d *schema.ResourceData, m interface{}
 	if roleID != 0 {
 		data.Role = &roleID
 	}
-	data.Priority = priority
+	data.Priority = &priority
 
 	params := tenancy.NewTenancyContactAssignmentsPartialUpdateParams().WithID(id).WithData(&data)
 
@@ -155,11 +155,11 @@ func resourceNetboxContactAssignmentDelete(d *schema.ResourceData, m interface{}
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyContactAssignmentsDeleteParams().WithID(id)
+	params := tenancy.NewTenancyContactAssignmentsDestroyParams().WithID(id)
 
-	_, err := api.Tenancy.TenancyContactAssignmentsDelete(params, nil)
+	_, err := api.Tenancy.TenancyContactAssignmentsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyContactAssignmentsDeleteDefault); ok {
+		if errresp, ok := err.(*tenancy.TenancyContactAssignmentsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

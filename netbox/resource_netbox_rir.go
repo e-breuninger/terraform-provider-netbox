@@ -49,7 +49,7 @@ func resourceNetboxRir() *schema.Resource {
 
 func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.RIR{}
+	data := models.WritableRIR{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -80,11 +80,11 @@ func resourceNetboxRirCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamRirsReadParams().WithID(id)
+	params := ipam.NewIpamRirsRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamRirsRead(params, nil)
+	res, err := api.Ipam.IpamRirsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamRirsReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamRirsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -108,7 +108,7 @@ func resourceNetboxRirRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.RIR{}
+	data := models.WritableRIR{}
 
 	name := d.Get("name").(string)
 	slugValue, slugOk := d.GetOk("slug")
@@ -137,10 +137,10 @@ func resourceNetboxRirUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxRirDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamRirsDeleteParams().WithID(id)
-	_, err := api.Ipam.IpamRirsDelete(params, nil)
+	params := ipam.NewIpamRirsDestroyParams().WithID(id)
+	_, err := api.Ipam.IpamRirsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamRirsDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamRirsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

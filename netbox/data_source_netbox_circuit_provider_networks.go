@@ -104,9 +104,13 @@ func dataSourceNetboxCircuitProviderNetworksRead(d *schema.ResourceData, m inter
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "provider_id":
-				params.ProviderID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ProviderID = n
 			case "tag":
 				tags = append(tags, vString)
 				params.Tag = tags

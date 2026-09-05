@@ -88,11 +88,11 @@ func resourceNetboxContactGroupRead(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := tenancy.NewTenancyContactGroupsReadParams().WithID(id)
+	params := tenancy.NewTenancyContactGroupsRetrieveParams().WithID(id)
 
-	res, err := api.Tenancy.TenancyContactGroupsRead(params, nil)
+	res, err := api.Tenancy.TenancyContactGroupsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*tenancy.TenancyContactGroupsReadDefault); ok {
+		if errresp, ok := err.(*tenancy.TenancyContactGroupsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -153,9 +153,9 @@ func resourceNetboxContactGroupDelete(d *schema.ResourceData, m interface{}) err
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := tenancy.NewTenancyContactGroupsDeleteParams().WithID(id)
+	params := tenancy.NewTenancyContactGroupsDestroyParams().WithID(id)
 
-	_, err := api.Tenancy.TenancyContactGroupsDelete(params, nil)
+	_, err := api.Tenancy.TenancyContactGroupsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

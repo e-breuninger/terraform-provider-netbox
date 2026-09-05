@@ -88,8 +88,8 @@ func init() {
 			}
 			for _, siteGroup := range res.GetPayload().Results {
 				if strings.HasPrefix(*siteGroup.Name, testPrefix) {
-					deleteParams := dcim.NewDcimSiteGroupsDeleteParams().WithID(siteGroup.ID)
-					_, err := api.Dcim.DcimSiteGroupsDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimSiteGroupsDestroyParams().WithID(siteGroup.ID)
+					_, err := api.Dcim.DcimSiteGroupsDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

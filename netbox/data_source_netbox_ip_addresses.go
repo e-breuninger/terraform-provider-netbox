@@ -157,30 +157,42 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 			vString := v.(string)
 			switch k {
 			case "dns_name":
-				params.DNSName = &vString
+				params.DNSName = []string{vString}
 			case "interface_id":
-				params.InterfaceID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.InterfaceID = n
 			case "device_id":
-				params.DeviceID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.DeviceID = n
 			case "ip_address":
-				params.Address = &vString
+				params.Address = []string{vString}
 			case "vm_interface_id":
-				params.VminterfaceID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.VminterfaceID = n
 			case "role":
-				params.Role = &vString
+				params.Role = []string{vString}
 			case "status":
-				params.Status = &vString
+				params.Status = []string{vString}
 			case "vrf":
-				params.Vrf = &vString
+				params.Vrf = []string{vString}
 			case "tenant":
-				params.Tenant = &vString
+				params.Tenant = []string{vString}
 			case "parent_prefix":
-				params.Parent = &vString
+				params.Parent = []string{vString}
 			case "tag":
 				tags = append(tags, vString)
 				params.Tag = tags
 			case "description":
-				params.Description = &vString
+				params.Description = []string{vString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -264,13 +276,17 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 	return d.Set("ip_addresses", s)
 }
 
-func flattenTenant(tenant *models.NestedTenant) []map[string]interface{} {
+func flattenTenant(tenant *models.BriefTenant) []map[string]interface{} {
 	var s []map[string]interface{}
 	if tenant != nil {
 		var mapping = make(map[string]interface{})
 		mapping["id"] = tenant.ID
-		mapping["name"] = tenant.Name
-		mapping["slug"] = tenant.Slug
+		if tenant.Name != nil {
+			mapping["name"] = *tenant.Name
+		}
+		if tenant.Slug != nil {
+			mapping["slug"] = *tenant.Slug
+		}
 		s = append(s, mapping)
 	}
 	return s

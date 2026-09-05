@@ -80,6 +80,7 @@ func resourceNetboxDeviceRearPortCreate(d *schema.ResourceData, m interface{}) e
 		Color:         getOptionalStr(d, "color_hex", false),
 		Description:   getOptionalStr(d, "description", false),
 		MarkConnected: d.Get("mark_connected").(bool),
+		FrontPorts:    []*models.RearPortMapping{},
 	}
 
 	var err error
@@ -90,7 +91,7 @@ func resourceNetboxDeviceRearPortCreate(d *schema.ResourceData, m interface{}) e
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimRearPortsCreateParams().WithData(&data)
@@ -108,12 +109,12 @@ func resourceNetboxDeviceRearPortCreate(d *schema.ResourceData, m interface{}) e
 func resourceNetboxDeviceRearPortRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRearPortsReadParams().WithID(id)
+	params := dcim.NewDcimRearPortsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimRearPortsRead(params, nil)
+	res, err := api.Dcim.DcimRearPortsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRearPortsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRearPortsRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -176,6 +177,7 @@ func resourceNetboxDeviceRearPortUpdate(d *schema.ResourceData, m interface{}) e
 		Color:         getOptionalStr(d, "color_hex", false),
 		Description:   getOptionalStr(d, "description", true),
 		MarkConnected: d.Get("mark_connected").(bool),
+		FrontPorts:    []*models.RearPortMapping{},
 	}
 
 	var err error
@@ -186,7 +188,7 @@ func resourceNetboxDeviceRearPortUpdate(d *schema.ResourceData, m interface{}) e
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimRearPortsPartialUpdateParams().WithID(id).WithData(&data)
@@ -203,9 +205,9 @@ func resourceNetboxDeviceRearPortDelete(d *schema.ResourceData, m interface{}) e
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRearPortsDeleteParams().WithID(id)
+	params := dcim.NewDcimRearPortsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimRearPortsDelete(params, nil)
+	_, err := api.Dcim.DcimRearPortsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

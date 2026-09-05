@@ -126,8 +126,8 @@ func init() {
 			}
 			for _, cluster := range res.GetPayload().Results {
 				if strings.HasPrefix(*cluster.Name, testPrefix) {
-					deleteParams := virtualization.NewVirtualizationClustersDeleteParams().WithID(cluster.ID)
-					_, err := api.Virtualization.VirtualizationClustersDelete(deleteParams, nil)
+					deleteParams := virtualization.NewVirtualizationClustersDestroyParams().WithID(cluster.ID)
+					_, err := api.Virtualization.VirtualizationClustersDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

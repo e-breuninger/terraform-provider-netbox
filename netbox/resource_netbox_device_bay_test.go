@@ -133,15 +133,15 @@ func testAccCheckDeviceBayDestroy(s *terraform.State) error {
 
 		// Retrieve our device by referencing it's state ID for API lookup
 		stateID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		params := dcim.NewDcimDeviceBaysReadParams().WithID(stateID)
-		_, err := conn.Dcim.DcimDeviceBaysRead(params, nil)
+		params := dcim.NewDcimDeviceBaysRetrieveParams().WithID(stateID)
+		_, err := conn.Dcim.DcimDeviceBaysRetrieve(params, nil)
 
 		if err == nil {
 			return fmt.Errorf("device_bay (%s) still exists", rs.Primary.ID)
 		}
 
 		if err != nil {
-			if errresp, ok := err.(*dcim.DcimDeviceBaysReadDefault); ok {
+			if errresp, ok := err.(*dcim.DcimDeviceBaysRetrieveDefault); ok {
 				errorcode := errresp.Code()
 				if errorcode == 404 {
 					return nil
@@ -170,8 +170,8 @@ func init() {
 			}
 			for _, deviceBay := range res.GetPayload().Results {
 				if strings.HasPrefix(*deviceBay.Name, testPrefix) {
-					deleteParams := dcim.NewDcimDeviceBaysDeleteParams().WithID(deviceBay.ID)
-					_, err := api.Dcim.DcimDeviceBaysDelete(deleteParams, nil)
+					deleteParams := dcim.NewDcimDeviceBaysDestroyParams().WithID(deviceBay.ID)
+					_, err := api.Dcim.DcimDeviceBaysDestroy(deleteParams, nil)
 					if err != nil {
 						return err
 					}

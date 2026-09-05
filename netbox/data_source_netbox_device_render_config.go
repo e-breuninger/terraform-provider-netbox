@@ -41,9 +41,9 @@ func dataSourceNetboxDeviceRenderConfigRead(d *schema.ResourceData, m interface{
 
 	deviceID := int64(d.Get("device_id").(int))
 
-	params := dcim.NewDcimDevicesRenderConfigParams().WithID(deviceID)
+	params := dcim.NewDcimDevicesRenderConfigCreateParams().WithID(deviceID)
 
-	res, err := api.Dcim.DcimDevicesRenderConfig(params, nil)
+	res, err := api.Dcim.DcimDevicesRenderConfigCreate(params, nil)
 	if err != nil {
 		return err
 	}

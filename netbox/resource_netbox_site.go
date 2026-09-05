@@ -188,7 +188,7 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimSitesCreateParams().WithData(&data)
@@ -206,12 +206,12 @@ func resourceNetboxSiteCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxSiteRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimSitesReadParams().WithID(id)
+	params := dcim.NewDcimSitesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimSitesRead(params, nil)
+	res, err := api.Dcim.DcimSitesRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimSitesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimSitesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -359,7 +359,7 @@ func resourceNetboxSiteUpdate(d *schema.ResourceData, m interface{}) error {
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(id).WithData(&data)
@@ -376,11 +376,11 @@ func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimSitesDeleteParams().WithID(id)
+	params := dcim.NewDcimSitesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimSitesDelete(params, nil)
+	_, err := api.Dcim.DcimSitesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimSitesDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimSitesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil
@@ -391,7 +391,7 @@ func resourceNetboxSiteDelete(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func getIDsFromNestedASNList(nestedASNs []*models.NestedASN) []int64 {
+func getIDsFromNestedASNList(nestedASNs []*models.ASN) []int64 {
 	var asns []int64
 	for _, asn := range nestedASNs {
 		asns = append(asns, asn.ID)
