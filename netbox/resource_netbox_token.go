@@ -135,6 +135,8 @@ func resourceNetboxTokenRead(ctx context.Context, d *schema.ResourceData, m inte
 	d.Set("last_used", token.LastUsed)
 	if token.Expires != nil {
 		d.Set("expires", token.Expires.String())
+	} else {
+		d.Set("expires", nil)
 	}
 	d.Set("allowed_ips", token.AllowedIps)
 	d.Set("write_enabled", token.WriteEnabled)
