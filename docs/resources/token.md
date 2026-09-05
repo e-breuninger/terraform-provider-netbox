@@ -39,7 +39,7 @@ resource "netbox_token" "test_basic" {
 
 ### Optional
 
-- `allowed_ips` (List of String)
+- `allowed_ips` (List of String, Deprecated)
 - `description` (String)
 - `expires` (String)
 - `key` (String, Sensitive)
