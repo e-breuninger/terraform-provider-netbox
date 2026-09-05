@@ -49,11 +49,11 @@ func resourceNetboxPrimaryIPCreate(d *schema.ResourceData, m interface{}) error 
 func resourceNetboxPrimaryIPRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(id)
+	params := virtualization.NewVirtualizationVirtualMachinesRetrieveParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationVirtualMachinesRead(params, nil)
+	res, err := api.Virtualization.VirtualizationVirtualMachinesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesReadDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationVirtualMachinesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -90,8 +90,8 @@ func resourceNetboxPrimaryIPUpdate(d *schema.ResourceData, m interface{}) error 
 	// because the go-netbox library does not have patch support atm, we have to get the whole object and re-put it
 
 	// first, get the vm
-	readParams := virtualization.NewVirtualizationVirtualMachinesReadParams().WithID(virtualMachineID)
-	res, err := api.Virtualization.VirtualizationVirtualMachinesRead(readParams, nil)
+	readParams := virtualization.NewVirtualizationVirtualMachinesRetrieveParams().WithID(virtualMachineID)
+	res, err := api.Virtualization.VirtualizationVirtualMachinesRetrieve(readParams, nil)
 	if err != nil {
 		return err
 	}

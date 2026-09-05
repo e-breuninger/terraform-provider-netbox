@@ -86,7 +86,7 @@ func resourceNetboxDeviceConsoleServerPortCreate(d *schema.ResourceData, m inter
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimConsoleServerPortsCreateParams().WithData(&data)
@@ -104,12 +104,12 @@ func resourceNetboxDeviceConsoleServerPortCreate(d *schema.ResourceData, m inter
 func resourceNetboxDeviceConsoleServerPortRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimConsoleServerPortsReadParams().WithID(id)
+	params := dcim.NewDcimConsoleServerPortsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimConsoleServerPortsRead(params, nil)
+	res, err := api.Dcim.DcimConsoleServerPortsRetrieve(params, nil)
 
 	if err != nil {
-		if errIntf, ok := err.(*dcim.DcimConsoleServerPortsReadDefault); ok && errIntf.Code() == 404 {
+		if errIntf, ok := err.(*dcim.DcimConsoleServerPortsRetrieveDefault); ok && errIntf.Code() == 404 {
 			// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 			d.SetId("")
 			return nil
@@ -183,7 +183,7 @@ func resourceNetboxDeviceConsoleServerPortUpdate(d *schema.ResourceData, m inter
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimConsoleServerPortsPartialUpdateParams().WithID(id).WithData(&data)
@@ -200,9 +200,9 @@ func resourceNetboxDeviceConsoleServerPortDelete(d *schema.ResourceData, m inter
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimConsoleServerPortsDeleteParams().WithID(id)
+	params := dcim.NewDcimConsoleServerPortsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimConsoleServerPortsDelete(params, nil)
+	_, err := api.Dcim.DcimConsoleServerPortsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

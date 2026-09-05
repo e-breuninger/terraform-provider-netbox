@@ -118,7 +118,7 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimDeviceTypesCreateParams().WithData(&data)
@@ -136,12 +136,12 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimDeviceTypesReadParams().WithID(id)
+	params := dcim.NewDcimDeviceTypesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimDeviceTypesRead(params, nil)
+	res, err := api.Dcim.DcimDeviceTypesRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDeviceTypesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDeviceTypesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -225,7 +225,7 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimDeviceTypesPartialUpdateParams().WithID(id).WithData(&data)
@@ -242,11 +242,11 @@ func resourceNetboxDeviceTypeDelete(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimDeviceTypesDeleteParams().WithID(id)
+	params := dcim.NewDcimDeviceTypesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimDeviceTypesDelete(params, nil)
+	_, err := api.Dcim.DcimDeviceTypesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDeviceTypesDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDeviceTypesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

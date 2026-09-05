@@ -145,11 +145,11 @@ func resourceNetboxInterfaceRead(ctx context.Context, d *schema.ResourceData, m 
 
 	var diags diag.Diagnostics
 
-	params := virtualization.NewVirtualizationInterfacesReadParams().WithID(id)
+	params := virtualization.NewVirtualizationInterfacesRetrieveParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationInterfacesRead(params, nil)
+	res, err := api.Virtualization.VirtualizationInterfacesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationInterfacesReadDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationInterfacesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -285,11 +285,11 @@ func resourceNetboxInterfaceDelete(ctx context.Context, d *schema.ResourceData, 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationInterfacesDeleteParams().WithID(id)
+	params := virtualization.NewVirtualizationInterfacesDestroyParams().WithID(id)
 
-	_, err := api.Virtualization.VirtualizationInterfacesDelete(params, nil)
+	_, err := api.Virtualization.VirtualizationInterfacesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationInterfacesDeleteDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationInterfacesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

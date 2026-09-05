@@ -96,7 +96,7 @@ func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) 
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimFrontPortsCreateParams().WithData(&data)
@@ -114,12 +114,12 @@ func resourceNetboxDeviceFrontPortCreate(d *schema.ResourceData, m interface{}) 
 func resourceNetboxDeviceFrontPortRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimFrontPortsReadParams().WithID(id)
+	params := dcim.NewDcimFrontPortsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimFrontPortsRead(params, nil)
+	res, err := api.Dcim.DcimFrontPortsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimFrontPortsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimFrontPortsRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -199,7 +199,7 @@ func resourceNetboxDeviceFrontPortUpdate(d *schema.ResourceData, m interface{}) 
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimFrontPortsPartialUpdateParams().WithID(id).WithData(&data)
@@ -216,9 +216,9 @@ func resourceNetboxDeviceFrontPortDelete(d *schema.ResourceData, m interface{}) 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimFrontPortsDeleteParams().WithID(id)
+	params := dcim.NewDcimFrontPortsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimFrontPortsDelete(params, nil)
+	_, err := api.Dcim.DcimFrontPortsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

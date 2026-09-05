@@ -113,151 +113,187 @@ func dataSourceNetboxVlanGroupsRead(d *schema.ResourceData, m interface{}) error
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.Name = strToPtr(vString)
+				params.Name = []string{vString}
 			case "name__empty":
-				params.NameEmpty = strToPtr(vString)
+				b, perr := boolFromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.NameEmpty = b
 			case "name__ic":
-				params.NameIc = strToPtr(vString)
+				params.NameIc = []string{vString}
 			case "name__ie":
-				params.NameIe = strToPtr(vString)
+				params.NameIe = []string{vString}
 			case "name__iew":
-				params.NameIew = strToPtr(vString)
+				params.NameIew = []string{vString}
 			case "name__isw":
-				params.NameIsw = strToPtr(vString)
+				params.NameIsw = []string{vString}
 			case "name__n":
-				params.Namen = strToPtr(vString)
+				params.Namen = []string{vString}
 			case "name__nic":
-				params.NameNic = strToPtr(vString)
+				params.NameNic = []string{vString}
 			case "name__nie":
-				params.NameNie = strToPtr(vString)
+				params.NameNie = []string{vString}
 			case "name__niew":
-				params.NameNiew = strToPtr(vString)
+				params.NameNiew = []string{vString}
 			case "name__nisw":
-				params.NameNisw = strToPtr(vString)
+				params.NameNisw = []string{vString}
 			case "slug":
-				params.Slug = strToPtr(vString)
+				params.Slug = []string{vString}
 			case "slug__empty":
-				params.SlugEmpty = strToPtr(vString)
+				b, perr := boolFromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.SlugEmpty = b
 			case "slug__ic":
-				params.SlugIc = strToPtr(vString)
+				params.SlugIc = []string{vString}
 			case "slug__ie":
-				params.SlugIe = strToPtr(vString)
+				params.SlugIe = []string{vString}
 			case "slug__iew":
-				params.SlugIew = strToPtr(vString)
+				params.SlugIew = []string{vString}
 			case "slug__isw":
-				params.SlugIsw = strToPtr(vString)
+				params.SlugIsw = []string{vString}
 			case "slug__n":
-				params.Slugn = strToPtr(vString)
+				params.Slugn = []string{vString}
 			case "slug__nic":
-				params.SlugNic = strToPtr(vString)
+				params.SlugNic = []string{vString}
 			case "slug__nie":
-				params.SlugNie = strToPtr(vString)
+				params.SlugNie = []string{vString}
 			case "slug__niew":
-				params.SlugNiew = strToPtr(vString)
+				params.SlugNiew = []string{vString}
 			case "slug__nisw":
-				params.SlugNisw = strToPtr(vString)
+				params.SlugNisw = []string{vString}
 			case "description":
-				params.Description = strToPtr(vString)
+				params.Description = []string{vString}
 			case "description__empty":
-				params.DescriptionEmpty = strToPtr(vString)
+				b, perr := boolFromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.DescriptionEmpty = b
 			case "description__ic":
-				params.DescriptionIc = strToPtr(vString)
+				params.DescriptionIc = []string{vString}
 			case "description__ie":
-				params.DescriptionIe = strToPtr(vString)
+				params.DescriptionIe = []string{vString}
 			case "description__iew":
-				params.DescriptionIew = strToPtr(vString)
+				params.DescriptionIew = []string{vString}
 			case "description__isw":
-				params.DescriptionIsw = strToPtr(vString)
+				params.DescriptionIsw = []string{vString}
 			case "description__n":
-				params.Descriptionn = strToPtr(vString)
+				params.Descriptionn = []string{vString}
 			case "description__nic":
-				params.DescriptionNic = strToPtr(vString)
+				params.DescriptionNic = []string{vString}
 			case "description__nie":
-				params.DescriptionNie = strToPtr(vString)
+				params.DescriptionNie = []string{vString}
 			case "description__niew":
-				params.DescriptionNiew = strToPtr(vString)
+				params.DescriptionNiew = []string{vString}
 			case "description__nisw":
-				params.DescriptionNisw = strToPtr(vString)
+				params.DescriptionNisw = []string{vString}
 			case "id":
-				params.ID = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ID = n
 			case "id__gt":
-				params.IDGt = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDGt = n
 			case "id__gte":
-				params.IDGte = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDGte = n
 			case "id__lt":
-				params.IDLt = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDLt = n
 			case "id__lte":
-				params.IDLte = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDLte = n
 			case "id__n":
-				params.IDn = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.IDn = n
 			case "scope_type":
-				params.ScopeType = strToPtr(vString)
+				params.ScopeType = []string{vString}
 			case "scope_type__n":
-				params.ScopeTypen = strToPtr(vString)
+				params.ScopeTypen = []string{vString}
 			case "scope_id":
-				params.ScopeID = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ScopeID = n
 			case "scope_id__gt":
-				params.ScopeIDGt = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ScopeIDGt = n
 			case "scope_id__gte":
-				params.ScopeIDGte = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ScopeIDGte = n
 			case "scope_id__lt":
-				params.ScopeIDLt = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ScopeIDLt = n
 			case "scope_id__lte":
-				params.ScopeIDLte = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ScopeIDLte = n
 			case "scope_id__n":
-				params.ScopeIDn = strToPtr(vString)
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.ScopeIDn = n
 			case "site_id", "site":
-				if f, err := strconv.ParseFloat(vString, 64); err == nil {
-					params.Site = float64ToPtr(f)
+				if n, err := strconv.ParseInt(vString, 10, 64); err == nil {
+					params.Site = &n
 				}
 			case "location_id", "location":
-				if f, err := strconv.ParseFloat(vString, 64); err == nil {
-					params.Location = float64ToPtr(f)
+				if n, err := strconv.ParseInt(vString, 10, 64); err == nil {
+					params.Location = &n
 				}
 			case "rack_id", "rack":
-				if f, err := strconv.ParseFloat(vString, 64); err == nil {
-					params.Rack = float64ToPtr(f)
+				if n, err := strconv.ParseInt(vString, 10, 64); err == nil {
+					params.Rack = &n
 				}
 			case "region_id", "region":
-				if f, err := strconv.ParseFloat(vString, 64); err == nil {
-					params.Region = float64ToPtr(f)
+				if n, err := strconv.ParseInt(vString, 10, 64); err == nil {
+					params.Region = &n
 				}
 			case "sitegroup_id", "sitegroup":
-				if f, err := strconv.ParseFloat(vString, 64); err == nil {
-					params.Sitegroup = float64ToPtr(f)
+				if n, err := strconv.ParseInt(vString, 10, 64); err == nil {
+					params.SiteGroup = &n
 				}
 			case "cluster_id", "cluster":
-				if f, err := strconv.ParseFloat(vString, 64); err == nil {
-					params.Cluster = float64ToPtr(f)
+				if n, err := strconv.ParseInt(vString, 10, 64); err == nil {
+					params.Cluster = &n
 				}
 			case "clustergroup_id", "clustergroup":
-				if f, err := strconv.ParseFloat(vString, 64); err == nil {
-					params.Clustergroup = float64ToPtr(f)
+				if n, err := strconv.ParseInt(vString, 10, 64); err == nil {
+					params.ClusterGroup = &n
 				}
-			case "minvid":
-				params.MinVid = strToPtr(vString)
-			case "minvid__gt":
-				params.MinVidGt = strToPtr(vString)
-			case "minvid__gte":
-				params.MinVidGte = strToPtr(vString)
-			case "minvid__lt":
-				params.MinVidLt = strToPtr(vString)
-			case "minvid__lte":
-				params.MinVidLte = strToPtr(vString)
-			case "minvid__n":
-				params.MinVidn = strToPtr(vString)
-			case "maxvid":
-				params.MaxVid = strToPtr(vString)
-			case "maxvid__gt":
-				params.MaxVidGt = strToPtr(vString)
-			case "maxvid__gte":
-				params.MaxVidGte = strToPtr(vString)
-			case "maxvid__lt":
-				params.MaxVidLt = strToPtr(vString)
-			case "maxvid__lte":
-				params.MaxVidLte = strToPtr(vString)
-			case "maxvid__n":
-				params.MaxVidn = strToPtr(vString)
 			case "tag":
 				tags = append(tags, vString)
 				params.Tag = tags

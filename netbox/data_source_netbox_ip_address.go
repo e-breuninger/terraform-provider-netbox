@@ -108,10 +108,10 @@ func dataSourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error 
 
 	id := d.Get("id").(int)
 
-	params := ipam.NewIpamIPAddressesReadParams()
+	params := ipam.NewIpamIPAddressesRetrieveParams()
 	params.SetID(int64(id))
 
-	res, err := api.Ipam.IpamIPAddressesRead(params, nil)
+	res, err := api.Ipam.IpamIPAddressesRetrieve(params, nil)
 	if err != nil {
 		return err
 	}

@@ -106,8 +106,8 @@ func resourceNetboxDeviceTagCreate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	readParams := dcim.NewDcimDevicesReadParams().WithID(deviceID)
-	res, err := api.Dcim.DcimDevicesRead(readParams, nil)
+	readParams := dcim.NewDcimDevicesRetrieveParams().WithID(deviceID)
+	res, err := api.Dcim.DcimDevicesRetrieve(readParams, nil)
 	if err != nil {
 		return err
 	}
@@ -141,10 +141,10 @@ func resourceNetboxDeviceTagRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	readParams := dcim.NewDcimDevicesReadParams().WithID(deviceID)
-	res, err := api.Dcim.DcimDevicesRead(readParams, nil)
+	readParams := dcim.NewDcimDevicesRetrieveParams().WithID(deviceID)
+	res, err := api.Dcim.DcimDevicesRetrieve(readParams, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDevicesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDevicesRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -181,10 +181,10 @@ func resourceNetboxDeviceTagDelete(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	readParams := dcim.NewDcimDevicesReadParams().WithID(deviceID)
-	res, err := api.Dcim.DcimDevicesRead(readParams, nil)
+	readParams := dcim.NewDcimDevicesRetrieveParams().WithID(deviceID)
+	res, err := api.Dcim.DcimDevicesRetrieve(readParams, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDevicesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDevicesRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// the device is already gone, nothing left to clean up
 				return nil

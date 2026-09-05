@@ -139,7 +139,7 @@ func resourceNetboxAvailablePrefixCreate(d *schema.ResourceData, m interface{}) 
 		PrefixLength: &prefixLength,
 	}
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 	params := ipam.NewIpamPrefixesAvailablePrefixesCreateParams().WithID(parentPrefixID).WithData(&data)
 

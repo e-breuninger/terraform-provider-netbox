@@ -245,10 +245,10 @@ func resourceNetboxCustomFieldCreate(d *schema.ResourceData, m interface{}) erro
 func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasCustomFieldsReadParams().WithID(id)
-	res, err := api.Extras.ExtrasCustomFieldsRead(params, nil)
+	params := extras.NewExtrasCustomFieldsRetrieveParams().WithID(id)
+	res, err := api.Extras.ExtrasCustomFieldsRetrieve(params, nil)
 	if err != nil {
-		errapi, ok := err.(*extras.ExtrasCustomFieldsReadDefault)
+		errapi, ok := err.(*extras.ExtrasCustomFieldsRetrieveDefault)
 		if !ok {
 			return err
 		}
@@ -298,10 +298,10 @@ func resourceNetboxCustomFieldRead(d *schema.ResourceData, m interface{}) error 
 func resourceNetboxCustomFieldDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasCustomFieldsDeleteParams().WithID(id)
-	_, err := api.Extras.ExtrasCustomFieldsDelete(params, nil)
+	params := extras.NewExtrasCustomFieldsDestroyParams().WithID(id)
+	_, err := api.Extras.ExtrasCustomFieldsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasCustomFieldsDeleteDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasCustomFieldsDestroyDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				d.SetId("")

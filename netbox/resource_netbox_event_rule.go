@@ -143,11 +143,11 @@ func resourceNetboxEventRuleCreate(d *schema.ResourceData, m interface{}) error 
 func resourceNetboxEventRuleRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasEventRulesReadParams().WithID(id)
+	params := extras.NewExtrasEventRulesRetrieveParams().WithID(id)
 
-	res, err := api.Extras.ExtrasEventRulesRead(params, nil)
+	res, err := api.Extras.ExtrasEventRulesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasEventRulesReadDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasEventRulesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				d.SetId("")
@@ -239,11 +239,11 @@ func resourceNetboxEventRuleDelete(d *schema.ResourceData, m interface{}) error 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasEventRulesDeleteParams().WithID(id)
+	params := extras.NewExtrasEventRulesDestroyParams().WithID(id)
 
-	_, err := api.Extras.ExtrasEventRulesDelete(params, nil)
+	_, err := api.Extras.ExtrasEventRulesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasEventRulesDeleteDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasEventRulesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

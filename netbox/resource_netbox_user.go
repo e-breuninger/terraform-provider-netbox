@@ -104,11 +104,11 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersUsersReadParams().WithID(id)
+	params := users.NewUsersUsersRetrieveParams().WithID(id)
 
-	res, err := api.Users.UsersUsersRead(params, nil)
+	res, err := api.Users.UsersUsersRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersUsersReadDefault); ok {
+		if errresp, ok := err.(*users.UsersUsersRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -171,10 +171,10 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxUserDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersUsersDeleteParams().WithID(id)
-	_, err := api.Users.UsersUsersDelete(params, nil)
+	params := users.NewUsersUsersDestroyParams().WithID(id)
+	_, err := api.Users.UsersUsersDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersUsersDeleteDefault); ok {
+		if errresp, ok := err.(*users.UsersUsersDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

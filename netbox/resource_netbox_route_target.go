@@ -64,11 +64,11 @@ func resourceNetboxRouteTargetCreate(d *schema.ResourceData, m interface{}) erro
 func resourceNetboxRouteTargetRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamRouteTargetsReadParams().WithID(id)
+	params := ipam.NewIpamRouteTargetsRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamRouteTargetsRead(params, nil)
+	res, err := api.Ipam.IpamRouteTargetsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamRouteTargetsReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamRouteTargetsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -123,10 +123,10 @@ func resourceNetboxRouteTargetUpdate(d *schema.ResourceData, m interface{}) erro
 func resourceNetboxRouteTargetDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamRouteTargetsDeleteParams().WithID(id)
-	_, err := api.Ipam.IpamRouteTargetsDelete(params, nil)
+	params := ipam.NewIpamRouteTargetsDestroyParams().WithID(id)
+	_, err := api.Ipam.IpamRouteTargetsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamRouteTargetsDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamRouteTargetsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

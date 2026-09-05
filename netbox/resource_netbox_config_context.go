@@ -196,12 +196,12 @@ func resourceNetboxConfigContextCreate(d *schema.ResourceData, m interface{}) er
 func resourceNetboxConfigContextRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasConfigContextsReadParams().WithID(id)
+	params := extras.NewExtrasConfigContextsRetrieveParams().WithID(id)
 
-	res, err := api.Extras.ExtrasConfigContextsRead(params, nil)
+	res, err := api.Extras.ExtrasConfigContextsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasConfigContextsReadDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasConfigContextsRetrieveDefault); ok {
 			if errresp.Code() == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
 				d.SetId("")
@@ -367,9 +367,9 @@ func resourceNetboxConfigContextDelete(d *schema.ResourceData, m interface{}) er
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasConfigContextsDeleteParams().WithID(id)
+	params := extras.NewExtrasConfigContextsDestroyParams().WithID(id)
 
-	_, err := api.Extras.ExtrasConfigContextsDelete(params, nil)
+	_, err := api.Extras.ExtrasConfigContextsDestroy(params, nil)
 	if err != nil {
 		return err
 	}

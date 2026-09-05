@@ -164,7 +164,7 @@ func resourceNetboxIPAddressCreate(d *schema.ResourceData, m interface{}) error 
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := ipam.NewIpamIPAddressesCreateParams().WithData(&data)
@@ -183,11 +183,11 @@ func resourceNetboxIPAddressRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamIPAddressesReadParams().WithID(id)
+	params := ipam.NewIpamIPAddressesRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamIPAddressesRead(params, nil)
+	res, err := api.Ipam.IpamIPAddressesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamIPAddressesReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamIPAddressesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -330,7 +330,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := ipam.NewIpamIPAddressesUpdateParams().WithID(id).WithData(&data)
@@ -347,11 +347,11 @@ func resourceNetboxIPAddressDelete(d *schema.ResourceData, m interface{}) error 
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamIPAddressesDeleteParams().WithID(id)
+	params := ipam.NewIpamIPAddressesDestroyParams().WithID(id)
 
-	_, err := api.Ipam.IpamIPAddressesDelete(params, nil)
+	_, err := api.Ipam.IpamIPAddressesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamIPAddressesDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamIPAddressesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

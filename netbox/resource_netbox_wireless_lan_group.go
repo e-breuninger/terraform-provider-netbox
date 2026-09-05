@@ -77,7 +77,7 @@ func resourceNetboxWirelessLANGroupCreate(d *schema.ResourceData, m interface{})
 	}
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := wireless.NewWirelessWirelessLanGroupsCreateParams().WithData(data)
@@ -95,10 +95,10 @@ func resourceNetboxWirelessLANGroupRead(d *schema.ResourceData, m interface{}) e
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := wireless.NewWirelessWirelessLanGroupsReadParams().WithID(id)
-	res, err := api.Wireless.WirelessWirelessLanGroupsRead(params, nil)
+	params := wireless.NewWirelessWirelessLanGroupsRetrieveParams().WithID(id)
+	res, err := api.Wireless.WirelessWirelessLanGroupsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*wireless.WirelessWirelessLanGroupsReadDefault); ok && errresp.Code() == 404 {
+		if errresp, ok := err.(*wireless.WirelessWirelessLanGroupsRetrieveDefault); ok && errresp.Code() == 404 {
 			d.SetId("")
 			return nil
 		}
@@ -159,7 +159,7 @@ func resourceNetboxWirelessLANGroupUpdate(d *schema.ResourceData, m interface{})
 	}
 
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := wireless.NewWirelessWirelessLanGroupsPartialUpdateParams().WithID(id).WithData(&data)
@@ -175,10 +175,10 @@ func resourceNetboxWirelessLANGroupDelete(d *schema.ResourceData, m interface{})
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := wireless.NewWirelessWirelessLanGroupsDeleteParams().WithID(id)
-	_, err := api.Wireless.WirelessWirelessLanGroupsDelete(params, nil)
+	params := wireless.NewWirelessWirelessLanGroupsDestroyParams().WithID(id)
+	_, err := api.Wireless.WirelessWirelessLanGroupsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*wireless.WirelessWirelessLanGroupsDeleteDefault); ok && errresp.Code() == 404 {
+		if errresp, ok := err.(*wireless.WirelessWirelessLanGroupsDestroyDefault); ok && errresp.Code() == 404 {
 			d.SetId("")
 			return nil
 		}

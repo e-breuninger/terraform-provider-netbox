@@ -105,7 +105,7 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimLocationsCreateParams().WithData(&data)
@@ -123,12 +123,12 @@ func resourceNetboxLocationCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxLocationRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimLocationsReadParams().WithID(id)
+	params := dcim.NewDcimLocationsRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimLocationsRead(params, nil)
+	res, err := api.Dcim.DcimLocationsRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimLocationsReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimLocationsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -219,7 +219,7 @@ func resourceNetboxLocationUpdate(d *schema.ResourceData, m interface{}) error {
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := dcim.NewDcimLocationsPartialUpdateParams().WithID(id).WithData(&data)
@@ -236,11 +236,11 @@ func resourceNetboxLocationDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimLocationsDeleteParams().WithID(id)
+	params := dcim.NewDcimLocationsDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimLocationsDelete(params, nil)
+	_, err := api.Dcim.DcimLocationsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimLocationsDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimLocationsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

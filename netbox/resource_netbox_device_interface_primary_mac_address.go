@@ -42,11 +42,11 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressCreate(d *schema.ResourceData
 func resourceNetboxDeviceInterfacePrimaryMACAddressRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimInterfacesReadParams().WithID(id)
+	params := dcim.NewDcimInterfacesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimInterfacesRead(params, nil)
+	res, err := api.Dcim.DcimInterfacesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimInterfacesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimInterfacesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -75,8 +75,8 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 	// because the go-netbox library does not have patch support atm, we have to get the whole object and re-put it
 
 	// get the interface
-	readParams := dcim.NewDcimInterfacesReadParams().WithID(interfaceID)
-	res, err := api.Dcim.DcimInterfacesRead(readParams, nil)
+	readParams := dcim.NewDcimInterfacesRetrieveParams().WithID(interfaceID)
+	res, err := api.Dcim.DcimInterfacesRetrieve(readParams, nil)
 	if err != nil {
 		return err
 	}

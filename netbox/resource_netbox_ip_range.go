@@ -115,11 +115,11 @@ func resourceNetboxIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamIPRangesReadParams().WithID(id)
+	params := ipam.NewIpamIPRangesRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamIPRangesRead(params, nil)
+	res, err := api.Ipam.IpamIPRangesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamIPRangesReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamIPRangesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -210,7 +210,7 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	if cf, ok := d.GetOk(customFieldsKey); ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := ipam.NewIpamIPRangesUpdateParams().WithID(id).WithData(&data)
@@ -224,10 +224,10 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxIPRangeDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamIPRangesDeleteParams().WithID(id)
-	_, err := api.Ipam.IpamIPRangesDelete(params, nil)
+	params := ipam.NewIpamIPRangesDestroyParams().WithID(id)
+	_, err := api.Ipam.IpamIPRangesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamIPRangesDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamIPRangesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

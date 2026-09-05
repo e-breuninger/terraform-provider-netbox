@@ -56,11 +56,11 @@ func resourceNetboxGroupCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersGroupsReadParams().WithID(id)
+	params := users.NewUsersGroupsRetrieveParams().WithID(id)
 
-	res, err := api.Users.UsersGroupsRead(params, nil)
+	res, err := api.Users.UsersGroupsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersGroupsReadDefault); ok {
+		if errresp, ok := err.(*users.UsersGroupsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -101,10 +101,10 @@ func resourceNetboxGroupUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxGroupDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersGroupsDeleteParams().WithID(id)
-	_, err := api.Users.UsersGroupsDelete(params, nil)
+	params := users.NewUsersGroupsDestroyParams().WithID(id)
+	_, err := api.Users.UsersGroupsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersGroupsDeleteDefault); ok {
+		if errresp, ok := err.(*users.UsersGroupsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

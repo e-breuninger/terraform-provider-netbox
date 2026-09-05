@@ -113,11 +113,11 @@ func resourceNetboxRearPortTemplateRead(ctx context.Context, d *schema.ResourceD
 
 	var diags diag.Diagnostics
 
-	params := dcim.NewDcimRearPortTemplatesReadParams().WithID(id)
+	params := dcim.NewDcimRearPortTemplatesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimRearPortTemplatesRead(params, nil)
+	res, err := api.Dcim.DcimRearPortTemplatesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRearPortTemplatesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRearPortTemplatesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -191,11 +191,11 @@ func resourceNetboxRearPortTemplateDelete(ctx context.Context, d *schema.Resourc
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRearPortTemplatesDeleteParams().WithID(id)
+	params := dcim.NewDcimRearPortTemplatesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimRearPortTemplatesDelete(params, nil)
+	_, err := api.Dcim.DcimRearPortTemplatesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRearPortTemplatesDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRearPortTemplatesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

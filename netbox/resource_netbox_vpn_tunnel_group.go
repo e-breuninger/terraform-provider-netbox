@@ -81,11 +81,11 @@ func resourceNetboxVpnTunnelGroupCreate(d *schema.ResourceData, m interface{}) e
 func resourceNetboxVpnTunnelGroupRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := vpn.NewVpnTunnelGroupsReadParams().WithID(id)
+	params := vpn.NewVpnTunnelGroupsRetrieveParams().WithID(id)
 
-	res, err := api.Vpn.VpnTunnelGroupsRead(params, nil)
+	res, err := api.Vpn.VpnTunnelGroupsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*vpn.VpnTunnelGroupsReadDefault); ok {
+		if errresp, ok := err.(*vpn.VpnTunnelGroupsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -146,11 +146,11 @@ func resourceNetboxVpnTunnelGroupDelete(d *schema.ResourceData, m interface{}) e
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := vpn.NewVpnTunnelGroupsDeleteParams().WithID(id)
+	params := vpn.NewVpnTunnelGroupsDestroyParams().WithID(id)
 
-	_, err := api.Vpn.VpnTunnelGroupsDelete(params, nil)
+	_, err := api.Vpn.VpnTunnelGroupsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*vpn.VpnTunnelGroupsDeleteDefault); ok {
+		if errresp, ok := err.(*vpn.VpnTunnelGroupsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

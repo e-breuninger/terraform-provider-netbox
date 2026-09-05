@@ -90,11 +90,11 @@ func resourceNetboxTagCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxTagRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasTagsReadParams().WithID(id)
+	params := extras.NewExtrasTagsRetrieveParams().WithID(id)
 
-	res, err := api.Extras.ExtrasTagsRead(params, nil)
+	res, err := api.Extras.ExtrasTagsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasTagsReadDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasTagsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -150,11 +150,11 @@ func resourceNetboxTagDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := extras.NewExtrasTagsDeleteParams().WithID(id)
+	params := extras.NewExtrasTagsDestroyParams().WithID(id)
 
-	_, err := api.Extras.ExtrasTagsDelete(params, nil)
+	_, err := api.Extras.ExtrasTagsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*extras.ExtrasTagsDeleteDefault); ok {
+		if errresp, ok := err.(*extras.ExtrasTagsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

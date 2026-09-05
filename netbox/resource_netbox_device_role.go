@@ -98,11 +98,11 @@ func resourceNetboxDeviceRoleCreate(d *schema.ResourceData, m interface{}) error
 func resourceNetboxDeviceRoleRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimDeviceRolesReadParams().WithID(id)
+	params := dcim.NewDcimDeviceRolesRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimDeviceRolesRead(params, nil)
+	res, err := api.Dcim.DcimDeviceRolesRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDeviceRolesReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDeviceRolesRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -166,11 +166,11 @@ func resourceNetboxDeviceRoleDelete(d *schema.ResourceData, m interface{}) error
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimDeviceRolesDeleteParams().WithID(id)
+	params := dcim.NewDcimDeviceRolesDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimDeviceRolesDelete(params, nil)
+	_, err := api.Dcim.DcimDeviceRolesDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimDeviceRolesDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimDeviceRolesDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

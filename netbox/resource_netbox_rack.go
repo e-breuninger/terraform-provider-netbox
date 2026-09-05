@@ -214,7 +214,7 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	params := dcim.NewDcimRacksCreateParams().WithData(&data)
@@ -232,12 +232,12 @@ func resourceNetboxRackCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxRackRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRacksReadParams().WithID(id)
+	params := dcim.NewDcimRacksRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimRacksRead(params, nil)
+	res, err := api.Dcim.DcimRacksRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRacksReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRacksRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -395,7 +395,7 @@ func resourceNetboxRackUpdate(d *schema.ResourceData, m interface{}) error {
 
 	cf, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = cf
+		data.CustomFields = getCustomFields(cf)
 	}
 
 	params := dcim.NewDcimRacksPartialUpdateParams().WithID(id).WithData(&data)
@@ -412,11 +412,11 @@ func resourceNetboxRackDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimRacksDeleteParams().WithID(id)
+	params := dcim.NewDcimRacksDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimRacksDelete(params, nil)
+	_, err := api.Dcim.DcimRacksDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimRacksDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimRacksDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

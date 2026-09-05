@@ -107,11 +107,11 @@ func resourceNetboxTokenCreate(ctx context.Context, d *schema.ResourceData, m in
 func resourceNetboxTokenRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersTokensReadParams().WithID(id)
+	params := users.NewUsersTokensRetrieveParams().WithID(id)
 
-	res, err := api.Users.UsersTokensRead(params, nil)
+	res, err := api.Users.UsersTokensRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersTokensReadDefault); ok {
+		if errresp, ok := err.(*users.UsersTokensRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -182,10 +182,10 @@ func resourceNetboxTokenUpdate(ctx context.Context, d *schema.ResourceData, m in
 func resourceNetboxTokenDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := users.NewUsersTokensDeleteParams().WithID(id)
-	_, err := api.Users.UsersTokensDelete(params, nil)
+	params := users.NewUsersTokensDestroyParams().WithID(id)
+	_, err := api.Users.UsersTokensDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*users.UsersTokensDeleteDefault); ok {
+		if errresp, ok := err.(*users.UsersTokensDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

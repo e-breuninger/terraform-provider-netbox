@@ -71,12 +71,12 @@ func resourceNetboxManufacturerCreate(d *schema.ResourceData, m interface{}) err
 func resourceNetboxManufacturerRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimManufacturersReadParams().WithID(id)
+	params := dcim.NewDcimManufacturersRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimManufacturersRead(params, nil)
+	res, err := api.Dcim.DcimManufacturersRetrieve(params, nil)
 
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimManufacturersReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimManufacturersRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -126,11 +126,11 @@ func resourceNetboxManufacturerDelete(d *schema.ResourceData, m interface{}) err
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimManufacturersDeleteParams().WithID(id)
+	params := dcim.NewDcimManufacturersDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimManufacturersDelete(params, nil)
+	_, err := api.Dcim.DcimManufacturersDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimManufacturersDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimManufacturersDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

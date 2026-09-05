@@ -96,11 +96,11 @@ func resourceNetboxVrfCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxVrfRead(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamVrfsReadParams().WithID(id)
+	params := ipam.NewIpamVrfsRetrieveParams().WithID(id)
 
-	res, err := api.Ipam.IpamVrfsRead(params, nil)
+	res, err := api.Ipam.IpamVrfsRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamVrfsReadDefault); ok {
+		if errresp, ok := err.(*ipam.IpamVrfsRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				// If the ID is updated to blank, this tells Terraform the resource no longer exists (maybe it was destroyed out of band). Just like the destroy callback, the Read function should gracefully handle this case. https://www.terraform.io/docs/extend/writing-custom-providers.html
@@ -167,11 +167,11 @@ func resourceNetboxVrfDelete(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := ipam.NewIpamVrfsDeleteParams().WithID(id)
+	params := ipam.NewIpamVrfsDestroyParams().WithID(id)
 
-	_, err := api.Ipam.IpamVrfsDelete(params, nil)
+	_, err := api.Ipam.IpamVrfsDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*ipam.IpamVrfsDeleteDefault); ok {
+		if errresp, ok := err.(*ipam.IpamVrfsDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil

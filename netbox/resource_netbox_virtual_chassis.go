@@ -75,7 +75,7 @@ func resourceNetboxVirtualChassisCreate(ctx context.Context, d *schema.ResourceD
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	var err error
@@ -101,11 +101,11 @@ func resourceNetboxVirtualChassisRead(ctx context.Context, d *schema.ResourceDat
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := dcim.NewDcimVirtualChassisReadParams().WithID(id)
+	params := dcim.NewDcimVirtualChassisRetrieveParams().WithID(id)
 
-	res, err := api.Dcim.DcimVirtualChassisRead(params, nil)
+	res, err := api.Dcim.DcimVirtualChassisRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimVirtualChassisReadDefault); ok {
+		if errresp, ok := err.(*dcim.DcimVirtualChassisRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				d.SetId("")
@@ -148,7 +148,7 @@ func resourceNetboxVirtualChassisUpdate(ctx context.Context, d *schema.ResourceD
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	var err error
@@ -188,11 +188,11 @@ func resourceNetboxVirtualChassisDelete(ctx context.Context, d *schema.ResourceD
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := dcim.NewDcimVirtualChassisDeleteParams().WithID(id)
+	params := dcim.NewDcimVirtualChassisDestroyParams().WithID(id)
 
-	_, err := api.Dcim.DcimVirtualChassisDelete(params, nil)
+	_, err := api.Dcim.DcimVirtualChassisDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*dcim.DcimVirtualChassisDeleteDefault); ok {
+		if errresp, ok := err.(*dcim.DcimVirtualChassisDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil
@@ -208,7 +208,7 @@ func virtualChassisUpdateMaster(api *providerState, id int64, master *int64) err
 	// Need to read the virtual chassis because we cannot do a partial update
 	// because setting `master` to nil would omit it entirely, so we need to
 	// do a PUT request instead of PATCH
-	vcRes, err := api.Dcim.DcimVirtualChassisRead(dcim.NewDcimVirtualChassisReadParams().WithID(id), nil)
+	vcRes, err := api.Dcim.DcimVirtualChassisRetrieve(dcim.NewDcimVirtualChassisRetrieveParams().WithID(id), nil)
 	if err != nil {
 		return err
 	}

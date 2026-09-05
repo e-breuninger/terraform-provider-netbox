@@ -75,7 +75,7 @@ func resourceNetboxVirtualDisksCreate(ctx context.Context, d *schema.ResourceDat
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	var err error
@@ -101,11 +101,11 @@ func resourceNetboxVirtualDisksRead(ctx context.Context, d *schema.ResourceData,
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
 
-	params := virtualization.NewVirtualizationVirtualDisksReadParams().WithID(id)
+	params := virtualization.NewVirtualizationVirtualDisksRetrieveParams().WithID(id)
 
-	res, err := api.Virtualization.VirtualizationVirtualDisksRead(params, nil)
+	res, err := api.Virtualization.VirtualizationVirtualDisksRetrieve(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationVirtualDisksReadDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationVirtualDisksRetrieveDefault); ok {
 			errorcode := errresp.Code()
 			if errorcode == 404 {
 				d.SetId("")
@@ -152,7 +152,7 @@ func resourceNetboxVirtualDisksUpdate(ctx context.Context, d *schema.ResourceDat
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
-		data.CustomFields = ct
+		data.CustomFields = getCustomFields(ct)
 	}
 
 	var err error
@@ -184,11 +184,11 @@ func resourceNetboxVirtualDisksDelete(ctx context.Context, d *schema.ResourceDat
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	params := virtualization.NewVirtualizationVirtualDisksDeleteParams().WithID(id)
+	params := virtualization.NewVirtualizationVirtualDisksDestroyParams().WithID(id)
 
-	_, err := api.Virtualization.VirtualizationVirtualDisksDelete(params, nil)
+	_, err := api.Virtualization.VirtualizationVirtualDisksDestroy(params, nil)
 	if err != nil {
-		if errresp, ok := err.(*virtualization.VirtualizationVirtualDisksDeleteDefault); ok {
+		if errresp, ok := err.(*virtualization.VirtualizationVirtualDisksDestroyDefault); ok {
 			if errresp.Code() == 404 {
 				d.SetId("")
 				return nil
