@@ -80,6 +80,7 @@ func resourceNetboxDeviceRearPortCreate(d *schema.ResourceData, m interface{}) e
 		Color:         getOptionalStr(d, "color_hex", false),
 		Description:   getOptionalStr(d, "description", false),
 		MarkConnected: d.Get("mark_connected").(bool),
+		FrontPorts:    []*models.RearPortMapping{},
 	}
 
 	var err error
@@ -176,6 +177,7 @@ func resourceNetboxDeviceRearPortUpdate(d *schema.ResourceData, m interface{}) e
 		Color:         getOptionalStr(d, "color_hex", false),
 		Description:   getOptionalStr(d, "description", true),
 		MarkConnected: d.Get("mark_connected").(bool),
+		FrontPorts:    []*models.RearPortMapping{},
 	}
 
 	var err error

@@ -70,7 +70,7 @@ func resourceNetboxUser() *schema.Resource {
 }
 func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
-	data := models.WritableUser{}
+	data := models.WritableUser{Permissions: []int64{}}
 
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
@@ -140,7 +140,7 @@ func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableUser{}
+	data := models.WritableUser{Permissions: []int64{}}
 
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)

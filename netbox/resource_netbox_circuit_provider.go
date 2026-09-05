@@ -63,6 +63,7 @@ func resourceNetboxCircuitProviderCreate(d *schema.ResourceData, m interface{}) 
 
 	data.Tags = []*models.NestedTag{}
 	data.Asns = []int64{}
+	data.Accounts = []int64{}
 
 	params := circuits.NewCircuitsProvidersCreateParams().WithData(&data)
 
@@ -122,6 +123,7 @@ func resourceNetboxCircuitProviderUpdate(d *schema.ResourceData, m interface{}) 
 
 	data.Tags = []*models.NestedTag{}
 	data.Asns = []int64{}
+	data.Accounts = []int64{}
 
 	params := circuits.NewCircuitsProvidersPartialUpdateParams().WithID(id).WithData(&data)
 

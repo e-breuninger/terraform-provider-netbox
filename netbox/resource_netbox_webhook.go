@@ -71,7 +71,9 @@ func resourceNetboxWebhook() *schema.Resource {
 func resourceNetboxWebhookCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := &models.WritableWebhook{}
+	data := &models.WritableWebhook{
+		Tags: []*models.NestedTag{},
+	}
 	name := d.Get("name").(string)
 	data.Name = &name
 	payloadURL := d.Get("payload_url").(string)
@@ -128,7 +130,9 @@ func resourceNetboxWebhookUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableWebhook{}
+	data := models.WritableWebhook{
+		Tags: []*models.NestedTag{},
+	}
 
 	name := d.Get("name").(string)
 	payloadURL := d.Get("payload_url").(string)

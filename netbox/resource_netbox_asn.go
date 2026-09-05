@@ -52,7 +52,7 @@ func resourceNetboxAsn() *schema.Resource {
 func resourceNetboxAsnCreate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
-	data := models.WritableASN{}
+	data := models.WritableASN{Sites: []int64{}}
 
 	asn := int64(d.Get("asn").(int))
 	data.Asn = &asn
@@ -113,7 +113,7 @@ func resourceNetboxAsnUpdate(d *schema.ResourceData, m interface{}) error {
 	api := m.(*providerState)
 
 	id, _ := strconv.ParseInt(d.Id(), 10, 64)
-	data := models.WritableASN{}
+	data := models.WritableASN{Sites: []int64{}}
 
 	asn := int64(d.Get("asn").(int))
 	data.Asn = &asn

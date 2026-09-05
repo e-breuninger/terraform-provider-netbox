@@ -87,6 +87,7 @@ func resourceNetboxRearPortTemplateCreate(ctx context.Context, d *schema.Resourc
 		Type:        &portType,
 		Positions:   int64(d.Get("positions").(int)),
 		Color:       d.Get("color_hex").(string),
+		FrontPorts:  []*models.RearPortTemplateMapping{},
 	}
 
 	if deviceTypeID, ok := d.Get("device_type_id").(int); ok && deviceTypeID != 0 {
@@ -166,6 +167,7 @@ func resourceNetboxRearPortTemplateUpdate(ctx context.Context, d *schema.Resourc
 		Type:        &portType,
 		Positions:   int64(d.Get("positions").(int)),
 		Color:       d.Get("color_hex").(string),
+		FrontPorts:  []*models.RearPortTemplateMapping{},
 	}
 
 	if d.HasChange("device_type_id") {
