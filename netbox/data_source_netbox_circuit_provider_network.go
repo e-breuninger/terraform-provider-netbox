@@ -55,11 +55,15 @@ func dataSourceNetboxCircuitProviderNetworkRead(d *schema.ResourceData, m interf
 	params := circuits.NewCircuitsProviderNetworksListParams()
 
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.Name = &name
+		params.Name = []string{name}
 	}
 
-	if id, ok := d.Get("id").(string); ok && id != "0" {
-		params.SetID(&id)
+	if idString, ok := d.Get("id").(string); ok && idString != "0" && idString != "" {
+		n, perr := int64FromFilterString(idString)
+		if perr != nil {
+			return perr
+		}
+		params.SetID(n)
 	}
 
 	limit := int64(2) // Limit of 2 is enough

@@ -2,7 +2,6 @@ package netbox
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
@@ -87,20 +86,23 @@ func dataSourceNetboxClusterRead(d *schema.ResourceData, m interface{}) error {
 	params := virtualization.NewVirtualizationClustersListParams()
 
 	if name, ok := d.Get("name").(string); ok && name != "" {
-		params.Name = &name
+		params.Name = []string{name}
 	}
 
 	if siteID, ok := d.Get("site_id").(int); ok && siteID != 0 {
-		params.SiteID = strToPtr(strconv.FormatInt(int64(siteID), 10))
+		params.SiteID = []int64{int64(siteID)}
 	}
 
-	if id, ok := d.Get("id").(string); ok && id != "0" {
-		params.SetID(&id)
+	if idString, ok := d.Get("id").(string); ok && idString != "0" && idString != "" {
+		n, perr := int64FromFilterString(idString)
+		if perr != nil {
+			return perr
+		}
+		params.SetID(n)
 	}
 
 	if clustergroupID, ok := d.Get("cluster_group_id").(int); ok && clustergroupID != 0 {
-		clustGroupStr := fmt.Sprintf("%d", clustergroupID)
-		params.GroupID = &clustGroupStr
+		params.GroupID = []int64{int64(clustergroupID)}
 	}
 
 	limit := int64(2) // Limit of 2 is enough

@@ -132,13 +132,25 @@ func dataSourceNetboxClustersRead(d *schema.ResourceData, m interface{}) error {
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "cluster_type_id":
-				params.TypeID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.TypeID = n
 			case "cluster_group_id":
-				params.GroupID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.GroupID = n
 			case "site_id":
-				params.SiteID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.SiteID = n
 			case "tag":
 				tags = append(tags, vString)
 				params.Tag = tags

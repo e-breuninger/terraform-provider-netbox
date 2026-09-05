@@ -117,11 +117,15 @@ func dataSourceNetboxDevicePowerOutletRead(d *schema.ResourceData, m interface{}
 			vString := v.(string)
 			switch k {
 			case "name":
-				params.Name = &vString
+				params.Name = []string{vString}
 			case "tag":
 				params.Tag = []string{vString} //TODO: switch schema to list?
 			case "device_id":
-				params.DeviceID = &vString
+				n, perr := int64FromFilterString(vString)
+				if perr != nil {
+					return perr
+				}
+				params.DeviceID = n
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}

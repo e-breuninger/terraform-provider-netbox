@@ -181,40 +181,60 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			switch k {
 			case "asset_tag":
 				var assetTagString = v.(string)
-				params.AssetTag = &assetTagString
+				params.AssetTag = []string{assetTagString}
 			case "cluster_id":
 				var clusterString = v.(string)
-				params.ClusterID = &clusterString
+				n, perr := int64FromFilterString(clusterString)
+				if perr != nil {
+					return perr
+				}
+				params.ClusterID = n
 			case "device_type_id":
 				var deviceTypeIDString = v.(string)
-				params.DeviceTypeID = &deviceTypeIDString
+				n, perr := int64FromFilterString(deviceTypeIDString)
+				if perr != nil {
+					return perr
+				}
+				params.DeviceTypeID = n
 			case "name":
 				var nameString = v.(string)
-				params.Name = &nameString
+				params.Name = []string{nameString}
 			case "region":
 				var regionString = v.(string)
-				params.Region = &regionString
+				params.Region = []string{regionString}
 			case "role_id":
 				var roleIDString = v.(string)
-				params.RoleID = &roleIDString
+				params.RoleID = []string{roleIDString}
 			case "site_id":
 				var siteIDString = v.(string)
-				params.SiteID = &siteIDString
+				n, perr := int64FromFilterString(siteIDString)
+				if perr != nil {
+					return perr
+				}
+				params.SiteID = n
 			case "location_id":
 				var locationIDString = v.(string)
-				params.LocationID = &locationIDString
+				params.LocationID = []string{locationIDString}
 			case "rack_id":
 				var rackIDString = v.(string)
-				params.RackID = &rackIDString
+				n, perr := int64FromFilterString(rackIDString)
+				if perr != nil {
+					return perr
+				}
+				params.RackID = n
 			case "tenant_id":
 				var tenantIDString = v.(string)
-				params.TenantID = &tenantIDString
+				n, perr := int64FromFilterString(tenantIDString)
+				if perr != nil {
+					return perr
+				}
+				params.TenantID = n
 			case "tags":
 				var tagsString = v.(string)
 				params.Tag = strings.Split(tagsString, ",")
 			case "status":
 				var statusString = v.(string)
-				params.Status = &statusString
+				params.Status = []string{statusString}
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
@@ -325,7 +345,7 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			mapping["serial"] = device.Serial
 		}
 		if device.Status != nil {
-			mapping["status"] = *device.Status.Value
+			mapping["status"] = device.Status.Value
 		}
 		if device.CustomFields != nil {
 			mapping["custom_fields"] = flattenCustomFields(device.CustomFields)
