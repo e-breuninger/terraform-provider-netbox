@@ -477,3 +477,27 @@ data "netbox_ip_addresses" "test_list" {
 		},
 	})
 }
+
+// A filter matching zero IP addresses must return an empty list, not error -
+// callers need to tell "nothing has this IP yet" apart from a real failure.
+func TestAccNetboxIpAddressesDataSource_empty(t *testing.T) {
+	testSlug := "ipam_ipaddrs_ds_empty"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxIPAddressFullDependencies(testName) + `
+data "netbox_ip_addresses" "test_empty" {
+	filter {
+		name  = "vm_interface_id"
+		value = netbox_interface.test.id
+	}
+}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_ip_addresses.test_empty", "ip_addresses.#", "0"),
+				),
+			},
+		},
+	})
+}

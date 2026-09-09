@@ -35,6 +35,11 @@ func resourceNetboxPlatform() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -57,14 +62,20 @@ func resourceNetboxPlatformCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data := models.WritablePlatform{
-		Name: &name,
-		Slug: &slug,
-		Tags: []*models.NestedTag{},
+		Name:        &name,
+		Slug:        &slug,
+		Description: d.Get("description").(string),
 	}
 
 	manufacturerIDValue, ok := d.GetOk("manufacturer_id")
 	if ok {
 		data.Manufacturer = int64ToPtr(int64(manufacturerIDValue.(int)))
+	}
+
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
 	}
 
 	params := dcim.NewDcimPlatformsCreateParams().WithData(&data)
@@ -103,9 +114,11 @@ func resourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
+	d.Set("description", result.Description)
 	if result.Manufacturer != nil {
 		d.Set("manufacturer_id", result.Manufacturer.ID)
 	}
+	api.readTags(d, result.Tags)
 	return nil
 }
 
@@ -128,16 +141,22 @@ func resourceNetboxPlatformUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Slug = &slug
 	data.Name = &name
-	data.Tags = []*models.NestedTag{}
+	data.Description = d.Get("description").(string)
 
 	manufacturerIDValue, ok := d.GetOk("manufacturer_id")
 	if ok {
 		data.Manufacturer = int64ToPtr(int64(manufacturerIDValue.(int)))
 	}
 
+	var err error
+	data.Tags, err = getNestedTagListFromResourceDataSet(api, d.Get(tagsAllKey))
+	if err != nil {
+		return err
+	}
+
 	params := dcim.NewDcimPlatformsPartialUpdateParams().WithID(id).WithData(&data)
 
-	_, err := api.Dcim.DcimPlatformsPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimPlatformsPartialUpdate(params, nil)
 	if err != nil {
 		return err
 	}

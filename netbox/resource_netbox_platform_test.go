@@ -73,6 +73,69 @@ resource "netbox_platform" "test" {
 	})
 }
 
+func TestAccNetboxPlatform_descriptionAndTags(t *testing.T) {
+	testSlug := "platform_desc_tags"
+	testName := testAccGetTestName(testSlug)
+	randomSlug := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_tag" "test_a" {
+  name = "%[3]sa"
+}
+
+resource "netbox_tag" "test_b" {
+  name = "%[3]sb"
+}
+
+resource "netbox_platform" "test" {
+  name        = "%[1]s"
+  slug        = "%[2]s"
+  description = "test description"
+  tags        = [netbox_tag.test_a.name, netbox_tag.test_b.name]
+}`, testName, randomSlug, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_platform.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_platform.test", "description", "test description"),
+					resource.TestCheckResourceAttr("netbox_platform.test", "tags.#", "2"),
+					resource.TestCheckResourceAttr("netbox_platform.test", "tags.0", testName+"a"),
+					resource.TestCheckResourceAttr("netbox_platform.test", "tags.1", testName+"b"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_tag" "test_a" {
+  name = "%[3]sa"
+}
+
+resource "netbox_tag" "test_b" {
+  name = "%[3]sb"
+}
+
+resource "netbox_platform" "test" {
+  name        = "%[1]s"
+  slug        = "%[2]s"
+  description = "test description changed"
+  tags        = [netbox_tag.test_a.name]
+}`, testName, randomSlug, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_platform.test", "description", "test description changed"),
+					resource.TestCheckResourceAttr("netbox_platform.test", "tags.#", "1"),
+					resource.TestCheckResourceAttr("netbox_platform.test", "tags.0", testName+"a"),
+				),
+			},
+			{
+				ResourceName:      "netbox_platform.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxPlatform_defaultSlug(t *testing.T) {
 	testSlug := "platform_defSlug"
 	testName := testAccGetTestName(testSlug)

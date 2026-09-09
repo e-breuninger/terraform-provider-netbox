@@ -61,6 +61,21 @@ data "netbox_vlans" "test" {
 }`
 }
 
+func testAccNetboxVlansEmpty() string {
+	return `
+data "netbox_vlans" "test" {
+  filter {
+	name = "vid__gte"
+	value = "4090"
+  }
+
+  filter {
+	name = "vid__lte"
+	value = "4094"
+  }
+}`
+}
+
 func TestAccNetboxVlansDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxVlansSetUp()
 	// This test cannot be run in parallel with other tests, because other tests create also Vlans
@@ -101,6 +116,12 @@ func TestAccNetboxVlansDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.netbox_vlans.test", "vlans.#", "2"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.0.vid", "netbox_vlan.test_2", "vid"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlans.test", "vlans.1.vid", "netbox_vlan.test_3", "vid"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxVlansEmpty(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_vlans.test", "vlans.#", "0"),
 				),
 			},
 		},

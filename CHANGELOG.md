@@ -1,3 +1,25 @@
+# 5.8.0 (September 4th, 2026)
+
+ANNOUNCEMENT
+
+Starting with the next major version 6.0.0, this provider will be mostly auto-generated instead of maintained by hand.
+Some PRs might still be merged, but be warned that investing your personal time into a contribution at this
+point in time is probably not worth it, as it almost certainly will not survive into the generated code.
+
+ENHANCEMENTS
+
+* **New Resource:** `netbox_rear_port_template` ([#928](https://github.com/e-breuninger/terraform-provider-netbox/pull/928) by [@Topherr](https://github.com/Topherr))
+* **New Resource:** `netbox_rear_port_template` ([#925](https://github.com/e-breuninger/terraform-provider-netbox/pull/925) by [@Topherr](https://github.com/Topherr))
+* **New Resource:** `netbox_circuit_provider_network` ([#953](https://github.com/e-breuninger/terraform-provider-netbox/pull/953) by [@romanfields-oss](https://github.com/romanfields-oss))
+* **New Resource:** `netbox_device_tag` ([#1020](https://github.com/e-breuninger/terraform-provider-netbox/pull/1020) by [@mcanevet](https://github.com/mcanevet))
+* **New Data Source:** `netbox_circuit_provider_network` ([#953](https://github.com/e-breuninger/terraform-provider-netbox/pull/953) by [@romanfields-oss](https://github.com/romanfields-oss))
+* **New Data Source:** `netbox_circuit_provider_networks` ([#953](https://github.com/e-breuninger/terraform-provider-netbox/pull/953) by [@romanfields-oss](https://github.com/romanfields-oss))
+* resource/netbox_device_type: Add `description` and `comments` filters and attributes ([#963](https://github.com/e-breuninger/terraform-provider-netbox/pull/963) by [@ndreno](https://github.com/ndreno))
+* data-source/netbox_prefixes: Add `role_id` and `region_id` filters and attributes ([#954](https://github.com/e-breuninger/terraform-provider-netbox/pull/954) by [@luispcoutinho](https://github.com/luispcoutinho))
+* resource/netbox_platform: Add `description` and `tags` attributes ([#968](https://github.com/e-breuninger/terraform-provider-netbox/pull/968) by [@hikhvar](https://github.com/hikhvar))
+* data-source/netbox_platform: Add `description` and `tags` attributes ([#968](https://github.com/e-breuninger/terraform-provider-netbox/pull/968) by [@hikhvar](https://github.com/hikhvar))
+* All plural data sources: Now return an empty list instead of an error on no results. ([#1021](https://github.com/e-breuninger/terraform-provider-netbox/pull/1021) by [@mcanevet](https://github.com/mcanevet))
+
 # 5.7.0 (July 15th, 2026)
 
 ENHANCEMENTS

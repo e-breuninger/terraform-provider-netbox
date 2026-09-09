@@ -1,7 +1,6 @@
 package netbox
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/fbreckle/go-netbox/netbox/client/vpn"
@@ -101,10 +100,6 @@ func dataSourceNetboxVpnTunnelTerminationsRead(d *schema.ResourceData, m interfa
 
 	trimmedCount := paginationHelper.TrimToLimit(len(allTunnelTerminations))
 	filteredTunnelTerminations := allTunnelTerminations[:trimmedCount]
-
-	if len(filteredTunnelTerminations) == 0 {
-		return errors.New("no result")
-	}
 
 	var s []map[string]interface{}
 	for _, v := range filteredTunnelTerminations {

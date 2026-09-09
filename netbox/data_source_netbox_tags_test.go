@@ -44,6 +44,16 @@ data "netbox_tags" "test" {
 }`
 }
 
+func testAccNetboxTagsEmpty() string {
+	return `
+data "netbox_tags" "test" {
+  filter {
+    name  = "name"
+    value = "Tag-does-not-exist"
+  }
+}`
+}
+
 // func testAccNetboxTagsAll() string {
 // 	return `
 // data "netbox_tags" "test" {
@@ -73,6 +83,12 @@ func TestAccNetboxTagsDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_tags.test", "tags.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_tags.test", "tags.0.tag_id", "netbox_tag.test_3", "id"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxTagsEmpty(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_tags.test", "tags.#", "0"),
 				),
 			},
 			// {

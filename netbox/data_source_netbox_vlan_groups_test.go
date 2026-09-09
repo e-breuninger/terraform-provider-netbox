@@ -78,6 +78,16 @@ data "netbox_vlan_groups" "test" {
 }`
 }
 
+func testAccNetboxVlanGroupsEmpty() string {
+	return `
+data "netbox_vlan_groups" "test" {
+  filter {
+	name  = "name"
+	value = "VLANGroup-does-not-exist"
+  }
+}`
+}
+
 func TestAccNetboxVlanGroupsDataSource_basic(t *testing.T) {
 	setUp := testAccNetboxVlanGroupsSetUp()
 	resource.Test(t, resource.TestCase{
@@ -103,6 +113,12 @@ func TestAccNetboxVlanGroupsDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.netbox_vlan_groups.test", "vlan_groups.#", "1"),
 					resource.TestCheckResourceAttrPair("data.netbox_vlan_groups.test", "vlan_groups.0.slug", "netbox_vlan_group.test_2", "slug"),
+				),
+			},
+			{
+				Config: setUp + testAccNetboxVlanGroupsEmpty(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.netbox_vlan_groups.test", "vlan_groups.#", "0"),
 				),
 			},
 		},

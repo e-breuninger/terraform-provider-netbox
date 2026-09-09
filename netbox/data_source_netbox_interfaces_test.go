@@ -49,6 +49,12 @@ func TestAccNetboxInterfacesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(testResource, "interfaces.0.name", testName+"_2_regex"),
 				),
 			},
+			{
+				Config: dependencies + testAccNetboxInterfacesDataSourceFilterEmpty(testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(testResource, "interfaces.#", "0"),
+				),
+			},
 		},
 	})
 }
@@ -122,3 +128,17 @@ const testAccNetboxInterfacesDataSourceNameRegex = `
 data "netbox_interfaces" "test" {
   name_regex = "test.*_regex"
 }`
+
+func testAccNetboxInterfacesDataSourceFilterEmpty(testName string) string {
+	return fmt.Sprintf(`
+data "netbox_interfaces" "test" {
+  filter {
+    name  = "vm_id"
+    value = netbox_virtual_machine.test0.id
+  }
+  filter {
+    name  = "name"
+    value = "%[1]s_does_not_exist"
+  }
+}`, testName)
+}

@@ -25,6 +25,11 @@ func dataSourceNetboxPlatform() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			tagsKey: tagsSchemaRead,
 		},
 	}
 }
@@ -53,8 +58,10 @@ func dataSourceNetboxPlatformRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(strconv.FormatInt(result.ID, 10))
 	d.Set("name", result.Name)
 	d.Set("slug", result.Slug)
+	d.Set("description", result.Description)
 	if result.Manufacturer != nil {
 		d.Set("manufacturer_id", result.Manufacturer.ID)
 	}
+	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))
 	return nil
 }
