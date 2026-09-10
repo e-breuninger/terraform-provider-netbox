@@ -10,3 +10,11 @@ data "netbox_virtual_machines" "base_vm" {
     value = data.netbox_cluster.vmw_cluster_01.id
   }
 }
+
+// Custom fields are matched exactly and are combined with the other filters
+data "netbox_virtual_machines" "prod_backup_vms" {
+  custom_fields = {
+    environment = "production"
+    backup_tier = "gold"
+  }
+}
