@@ -2,7 +2,10 @@ package netbox
 
 import (
 	"encoding/json"
+	"reflect"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func TestFlattenCustomFields(t *testing.T) {
@@ -246,7 +249,24 @@ func TestGetCustomFields(t *testing.T) {
 			},
 			expected: map[string]interface{}{
 				"field1": "value1",
-				"field2": 123,
+				"field2": "123",
+			},
+		},
+		{
+			name: "non-string values are rendered as strings",
+			input: map[string]interface{}{
+				"bool_field":   false,
+				"int_field":    int64(2),
+				"float_field":  3.14,
+				"object_field": map[string]interface{}{"name": "vlan1"},
+				"array_field":  []interface{}{"a", "b"},
+			},
+			expected: map[string]interface{}{
+				"bool_field":   "false",
+				"int_field":    "2",
+				"float_field":  "3.14",
+				"object_field": `{"name":"vlan1"}`,
+				"array_field":  `["a","b"]`,
 			},
 		},
 		{
@@ -303,6 +323,85 @@ func TestGetCustomFields(t *testing.T) {
 
 				if actualValue != expectedValue {
 					t.Errorf("field %q: expected %v, got %v", key, expectedValue, actualValue)
+				}
+			}
+		})
+	}
+}
+
+// TestCustomFieldsWriteToStateIsComplete guards the read path against a partial
+// write to state.
+//
+// The custom_fields elements are decoded strictly on the way into state, so a
+// single value that is not a string makes the SDK give up part way through the
+// map and leave the keys it had already written behind. Map iteration order is
+// randomised, so the surviving subset differs on every read and the resource
+// reports drift on fields nothing has touched.
+func TestCustomFieldsWriteToStateIsComplete(t *testing.T) {
+	// An object with a custom field of every type, as Netbox returns it: an unset
+	// text field comes back as "", an unset field of any other type as null, and
+	// the boolean, integer and object fields carry a real boolean, a real number
+	// and a nested object.
+	apiResponse := func() map[string]interface{} {
+		return map[string]interface{}{
+			"text_field":        "value1",
+			"empty_text_field":  "",
+			"unset_field":       nil,
+			"true_field":        true,
+			"false_field":       false,
+			"integer_field":     float64(2),
+			"decimal_field":     3.14,
+			"selection_field":   "choice1",
+			"object_field":      map[string]interface{}{"name": "object1"},
+			"multiselect_field": []interface{}{"choice1", "choice2"},
+		}
+	}
+
+	set := map[string]interface{}{
+		"text_field":        "value1",
+		"empty_text_field":  "",
+		"true_field":        "true",
+		"false_field":       "false",
+		"integer_field":     "2",
+		"decimal_field":     "3.14",
+		"selection_field":   "choice1",
+		"object_field":      `{"name":"object1"}`,
+		"multiselect_field": `["choice1","choice2"]`,
+	}
+
+	// flattenCustomFields keeps an unset field as an empty string, getCustomFields
+	// drops it.
+	flattened := map[string]interface{}{"unset_field": ""}
+	for k, v := range set {
+		flattened[k] = v
+	}
+
+	cases := []struct {
+		name string
+		fn   func(interface{}) map[string]interface{}
+		want map[string]interface{}
+	}{
+		{"getCustomFields", getCustomFields, set},
+		{"flattenCustomFields", flattenCustomFields, flattened},
+	}
+
+	r := &schema.Resource{Schema: map[string]*schema.Schema{
+		customFieldsKey: customFieldsSchema,
+	}}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			// Repeat: a writer that aborts mid-map drops a different, randomly
+			// chosen set of keys each time, and can drop none at all by luck.
+			for i := 0; i < 50; i++ {
+				d := r.TestResourceData()
+				if err := d.Set(customFieldsKey, tt.fn(apiResponse())); err != nil {
+					t.Fatalf("writing custom fields to state failed: %s", err)
+				}
+
+				got := d.Get(customFieldsKey)
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Fatalf("state holds %v, want %v", got, tt.want)
 				}
 			}
 		})

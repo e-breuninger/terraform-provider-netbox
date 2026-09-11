@@ -22,6 +22,35 @@ var customFieldsSchema = &schema.Schema{
 	},
 }
 
+// customFieldValueToString renders a custom field value as returned by the
+// Netbox API as a string.
+//
+// The custom_fields schema is a map of strings, and the SDK's state writer
+// decodes each element strictly (mapstructure.Decode, not WeakDecode). Handing
+// it anything but a string aborts the write part way through the map, and since
+// Go randomises map iteration order the keys that made it into state differ on
+// every read. The result is a resource that reports drift on custom fields it
+// never touched, with a different set of them each plan.
+//
+// Netbox returns a boolean for a boolean field, a number for an integer or
+// decimal field and an object for an object reference, so every value has to be
+// rendered here before it reaches state.
+func customFieldValueToString(value interface{}) string {
+	switch v := value.(type) {
+	case string:
+		return v
+	case float64, int, int64, bool:
+		return fmt.Sprintf("%v", v)
+	default:
+		// For complex types (maps, arrays, objects), convert to JSON string
+		if jsonBytes, err := json.Marshal(value); err == nil {
+			return string(jsonBytes)
+		}
+		// Fallback to string representation
+		return fmt.Sprintf("%v", value)
+	}
+}
+
 func getCustomFields(cf interface{}) map[string]interface{} {
 	cfm, ok := cf.(map[string]interface{})
 	if !ok || len(cfm) == 0 {
@@ -30,8 +59,10 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 
 	result := make(map[string]interface{})
 	for key, value := range cfm {
+		// Netbox reports an unset field as null. Storing it as "" would show up
+		// as a permanent diff for configurations that do not declare the field.
 		if value != nil {
-			result[key] = value
+			result[key] = customFieldValueToString(value)
 		}
 	}
 
@@ -43,6 +74,7 @@ func getCustomFields(cf interface{}) map[string]interface{} {
 
 // flattenCustomFields converts custom fields to a map where all values are strings.
 // Complex nested objects (like IP address references) are converted to JSON strings.
+// Unlike getCustomFields, an unset field is kept as an empty string.
 func flattenCustomFields(cf interface{}) map[string]interface{} {
 	cfm, ok := cf.(map[string]interface{})
 	if !ok || len(cfm) == 0 {
@@ -56,21 +88,7 @@ func flattenCustomFields(cf interface{}) map[string]interface{} {
 			continue
 		}
 
-		// Check if the value is a simple type (string, number, bool)
-		switch v := value.(type) {
-		case string:
-			result[key] = v
-		case float64, int, int64, bool:
-			result[key] = fmt.Sprintf("%v", v)
-		default:
-			// For complex types (maps, arrays, objects), convert to JSON string
-			if jsonBytes, err := json.Marshal(value); err == nil {
-				result[key] = string(jsonBytes)
-			} else {
-				// Fallback to string representation
-				result[key] = fmt.Sprintf("%v", value)
-			}
-		}
+		result[key] = customFieldValueToString(value)
 	}
 
 	return result
