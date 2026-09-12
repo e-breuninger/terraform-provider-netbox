@@ -287,8 +287,7 @@ func resourceNetboxCircuitTerminationUpdate(d *schema.ResourceData, m interface{
 		return err
 	}
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 

@@ -484,8 +484,7 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 		}
 	}
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 

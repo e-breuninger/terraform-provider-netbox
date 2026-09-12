@@ -209,7 +209,7 @@ func resourceNetboxIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	if cf, ok := d.GetOk(customFieldsKey); ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 

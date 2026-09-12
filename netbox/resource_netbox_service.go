@@ -232,8 +232,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		data.ParentObjectID = deviceID
 	}
 
-	cf, ok := d.GetOk(customFieldsKey)
-	if ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 

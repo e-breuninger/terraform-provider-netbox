@@ -329,7 +329,7 @@ func resourceNetboxIPAddressUpdate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	if cf, ok := d.GetOk(customFieldsKey); ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 
