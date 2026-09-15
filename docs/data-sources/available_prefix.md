@@ -3,12 +3,15 @@
 page_title: "netbox_available_prefix Data Source - terraform-provider-netbox"
 subcategory: "IP Address Management (IPAM)"
 description: |-
-  
+  This data source lists the free prefixes inside a parent prefix.
+  ~> Note: Reading this list does not reserve anything. The prefixes are read while the plan is built, so they can be taken by another apply, or by somebody working in the Netbox UI, before your configuration gets around to using them. Use the netbox_available_prefix resource instead when you want a prefix allocated and held.
 ---
 
 # netbox_available_prefix (Data Source)
 
+This data source lists the free prefixes inside a parent prefix.
 
+~> **Note:** Reading this list does not reserve anything. The prefixes are read while the plan is built, so they can be taken by another apply, or by somebody working in the Netbox UI, before your configuration gets around to using them. Use the `netbox_available_prefix` resource instead when you want a prefix allocated and held.
 
 
 

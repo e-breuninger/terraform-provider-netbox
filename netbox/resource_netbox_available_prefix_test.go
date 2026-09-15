@@ -1,9 +1,13 @@
 package netbox
 
 import (
+	"context"
 	"fmt"
 	"regexp"
+	"strconv"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
@@ -306,6 +310,214 @@ resource "netbox_available_prefix" "with_site_group_id" {
 			},
 		},
 	})
+}
+
+// TestAccNetboxAvailablePrefix_parallel allocates several prefixes out of one
+// parent without any depends_on between them, so terraform creates them in
+// parallel and they all race for the same pool. Unlike
+// TestAccNetboxAvailablePrefix_multiplePrefixesSerial, which chains the
+// resources deliberately, this is the case that used to return conflicts from
+// Netbox and hand out overlapping prefixes.
+//
+// The prefixes themselves are allocated in whatever order the requests land,
+// so the test checks that every prefix is distinct rather than checking for
+// specific values.
+func TestAccNetboxAvailablePrefix_parallel(t *testing.T) {
+	testParentPrefix := "17.1.0.0/24"
+	testPrefixLength := 28
+	testSlug := "prefix-parallel"
+	testName := testAccGetTestName(testSlug)
+
+	// A /24 split into /28s leaves plenty of room for these.
+	const count = 10
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxAvailablePrefixFullDependencies(testName, testParentPrefix) + fmt.Sprintf(`
+resource "netbox_available_prefix" "test" {
+  count = %d
+  parent_prefix_id = netbox_prefix.parent.id
+  prefix_length = %d
+  status = "active"
+  tags = [netbox_tag.test.name]
+}`, count, testPrefixLength),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPrefixesAreDistinct("netbox_available_prefix.test", count),
+				),
+			},
+		},
+	})
+}
+
+// testAccCheckPrefixesAreDistinct fails if any two of the given resources ended
+// up with the same prefix, which is what an unserialized allocation produces.
+func testAccCheckPrefixesAreDistinct(resourcePrefix string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		seen := make(map[string]string, count)
+		for i := 0; i < count; i++ {
+			name := fmt.Sprintf("%s.%d", resourcePrefix, i)
+			rs, ok := s.RootModule().Resources[name]
+			if !ok {
+				return fmt.Errorf("resource %s not found in state", name)
+			}
+
+			prefix := rs.Primary.Attributes["prefix"]
+			if prefix == "" {
+				return fmt.Errorf("resource %s has no prefix set", name)
+			}
+			if previous, duplicate := seen[prefix]; duplicate {
+				return fmt.Errorf("%s and %s were both allocated %s", previous, name, prefix)
+			}
+			seen[prefix] = name
+		}
+		return nil
+	}
+}
+
+// TestAccNetboxAvailablePrefix_retriesExternalConflict proves retryAllocation
+// recovers from a conflict that comes from outside this provider process,
+// e.g. a second terraform apply or somebody freeing space in the Netbox UI
+// while our request is queued.
+//
+// It bypasses lockAllocation on purpose and calls the Netbox client directly:
+// the parent prefix has room for exactly 3 free /30s (a 4th is held by an
+// "occupier" prefix), and 4 goroutines race for it. One of them necessarily
+// loses and gets a genuine 409 from Netbox. Shortly after, the occupier is
+// deleted, freeing a slot. If retryAllocation is working, the loser's next
+// attempt succeeds and all 4 requesters end up with distinct prefixes.
+func TestAccNetboxAvailablePrefix_retriesExternalConflict(t *testing.T) {
+	testParentPrefix := "60.60.60.0/28" // room for four /30s
+	testOccupierPrefix := "60.60.60.0/30"
+	testPrefixLength := 30
+	testSlug := "prefix-retry-external"
+	testName := testAccGetTestName(testSlug)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxAvailablePrefixFullDependencies(testName, testParentPrefix) + fmt.Sprintf(`
+resource "netbox_prefix" "occupier" {
+  prefix      = "%s"
+  description = "%s-occupier"
+  status      = "active"
+  tags        = [netbox_tag.test.name]
+  depends_on  = [netbox_prefix.parent]
+}`, testOccupierPrefix, testName),
+				Check: testAccCheckRetriesExternalPrefixConflict("netbox_prefix.parent", "netbox_prefix.occupier", testPrefixLength),
+				// The check deliberately deletes netbox_prefix.occupier out from
+				// under Terraform to free the slot mid-retry, so the post-apply
+				// refresh sees drift.
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+func testAccCheckRetriesExternalPrefixConflict(parentResource, occupierResource string, prefixLength int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		conn := testAccProvider.Meta().(*providerState)
+
+		parentRS, ok := s.RootModule().Resources[parentResource]
+		if !ok {
+			return fmt.Errorf("resource %s not found in state", parentResource)
+		}
+		parentID, err := strconv.ParseInt(parentRS.Primary.ID, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		occupierRS, ok := s.RootModule().Resources[occupierResource]
+		if !ok {
+			return fmt.Errorf("resource %s not found in state", occupierResource)
+		}
+		occupierID, err := strconv.ParseInt(occupierRS.Primary.ID, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		type allocation struct {
+			id     int64
+			prefix string
+		}
+
+		const requesters = 4
+		results := make(chan allocation, requesters)
+		errs := make(chan error, requesters)
+
+		var wg sync.WaitGroup
+		for i := 0; i < requesters; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				length := int64(prefixLength)
+				params := ipam.NewIpamPrefixesAvailablePrefixesCreateParams().
+					WithID(parentID).
+					WithData(&models.PrefixLength{PrefixLength: &length})
+
+				var got allocation
+				err := retryAllocation(context.Background(), func() error {
+					res, err := conn.Ipam.IpamPrefixesAvailablePrefixesCreate(params, nil)
+					if err != nil {
+						return err
+					}
+					payload := res.GetPayload()
+					if payload == nil || payload.Prefix == nil {
+						return fmt.Errorf("no available prefix in parent prefix %d", parentID)
+					}
+					got = allocation{id: payload.ID, prefix: *payload.Prefix}
+					return nil
+				})
+				if err != nil {
+					errs <- err
+					return
+				}
+				results <- got
+			}()
+		}
+
+		// Let the requesters race for the 3 truly free slots so the loser hits its
+		// first genuine 409, then free the slot the occupier was holding. This
+		// lands comfortably inside the loser's backoff window (250ms-750ms before
+		// the first retry, growing from there), well before allocationRetryTimeout.
+		time.Sleep(700 * time.Millisecond)
+		if _, err := conn.Ipam.IpamPrefixesDelete(ipam.NewIpamPrefixesDeleteParams().WithID(occupierID), nil); err != nil {
+			return fmt.Errorf("freeing occupier slot: %w", err)
+		}
+
+		wg.Wait()
+		close(results)
+		close(errs)
+
+		for err := range errs {
+			return fmt.Errorf("allocation did not recover from external conflict: %w", err)
+		}
+
+		seen := make(map[string]bool, requesters)
+		var allocated []allocation
+		for got := range results {
+			if seen[got.prefix] {
+				return fmt.Errorf("prefix %s allocated twice", got.prefix)
+			}
+			seen[got.prefix] = true
+			allocated = append(allocated, got)
+		}
+		if len(allocated) != requesters {
+			return fmt.Errorf("expected %d allocations, got %d", requesters, len(allocated))
+		}
+
+		// These prefixes were created directly through the client, so Terraform
+		// never learns about them and won't clean them up on its own.
+		for _, got := range allocated {
+			if _, err := conn.Ipam.IpamPrefixesDelete(ipam.NewIpamPrefixesDeleteParams().WithID(got.id), nil); err != nil {
+				return fmt.Errorf("cleaning up allocated prefix %d: %w", got.id, err)
+			}
+		}
+
+		return nil
+	}
 }
 
 func init() {

@@ -1,22 +1,24 @@
 package netbox
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetboxAvailableIPAddress() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxAvailableIPAddressCreate,
-		Read:   resourceNetboxAvailableIPAddressRead,
-		Update: resourceNetboxAvailableIPAddressUpdate,
-		Delete: resourceNetboxAvailableIPAddressDelete,
+		CreateContext: resourceNetboxAvailableIPAddressCreate,
+		Read:          resourceNetboxAvailableIPAddressRead,
+		Update:        resourceNetboxAvailableIPAddressUpdate,
+		Delete:        resourceNetboxAvailableIPAddressDelete,
 
 		Description: `:meta:subcategory:IP Address Management (IPAM):Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/ipaddress/):
 
@@ -30,7 +32,9 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 > * DHCP
 > * SLAAC (IPv6 Stateless Address Autoconfiguration)
 
-This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)`,
+This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)
+
+Allocations from the same prefix or IP range are serialized inside the provider, so several of these resources can be created in the same apply without racing each other. Conflicts caused by anything outside the current provider process are retried for a short while but can still fail if contention keeps up.`,
 
 		Schema: map[string]*schema.Schema{
 			"prefix_id": {
@@ -113,7 +117,7 @@ This resource will retrieve the next available IP address from a given prefix or
 	}
 }
 
-func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxAvailableIPAddressCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	prefixID := int64(d.Get("prefix_id").(int))
 	vrfID := int64(int64(d.Get("vrf_id").(int)))
@@ -124,33 +128,69 @@ func resourceNetboxAvailableIPAddressCreate(d *schema.ResourceData, m interface{
 	data := models.AvailableIP{
 		Vrf: &nestedvrf,
 	}
+	// Only the allocation itself is serialized and retried. Everything after it
+	// operates on the address we just got, which nothing else is competing for.
 	if prefixID != 0 {
 		params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).WithData([]*models.AvailableIP{&data})
-		res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+
+		unlock, err := api.lockAllocation(ctx, allocationLockKeyPrefix(prefixID))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
-		if len(res.Payload) == 0 {
-			return fmt.Errorf("no available IP addresses in prefix %d", prefixID)
+		defer unlock()
+		var addressID int64
+		var address *string
+		err = retryAllocation(ctx, func() error {
+			res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+			if err != nil {
+				return err
+			}
+			if len(res.Payload) == 0 {
+				return fmt.Errorf("no available IP addresses in prefix %d", prefixID)
+			}
+			addressID = res.Payload[0].ID
+			address = res.Payload[0].Address
+			return nil
+		})
+		unlock()
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		// Since we generated the ip_address, set that now
-		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
-		d.Set("ip_address", *res.Payload[0].Address)
+		d.SetId(strconv.FormatInt(addressID, 10))
+		d.Set("ip_address", *address)
 	}
 	if rangeID != 0 {
 		params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).WithData([]*models.AvailableIP{&data})
-		res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+
+		unlock, err := api.lockAllocation(ctx, allocationLockKeyIPRange(rangeID))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
-		if len(res.Payload) == 0 {
-			return fmt.Errorf("no available IP addresses in IP range %d", rangeID)
+		defer unlock()
+		var addressID int64
+		var address *string
+		err = retryAllocation(ctx, func() error {
+			res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+			if err != nil {
+				return err
+			}
+			if len(res.Payload) == 0 {
+				return fmt.Errorf("no available IP addresses in IP range %d", rangeID)
+			}
+			addressID = res.Payload[0].ID
+			address = res.Payload[0].Address
+			return nil
+		})
+		unlock()
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		// Since we generated the ip_address, set that now
-		d.SetId(strconv.FormatInt(res.Payload[0].ID, 10))
-		d.Set("ip_address", *res.Payload[0].Address)
+		d.SetId(strconv.FormatInt(addressID, 10))
+		d.Set("ip_address", *address)
 	}
-	return resourceNetboxAvailableIPAddressUpdate(d, m)
+	return diag.FromErr(resourceNetboxAvailableIPAddressUpdate(d, m))
 }
 
 func resourceNetboxAvailableIPAddressRead(d *schema.ResourceData, m interface{}) error {
