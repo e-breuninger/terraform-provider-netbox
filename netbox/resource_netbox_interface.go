@@ -215,10 +215,6 @@ func resourceNetboxInterfaceUpdate(ctx context.Context, d *schema.ResourceData, 
 		VirtualMachine: &virtualMachineID,
 	}
 
-	if d.HasChange("mac_address") {
-		macAddress := d.Get("mac_address").(string)
-		data.MacAddress = &macAddress
-	}
 	if d.HasChange("mtu") {
 		mtu := int64(d.Get("mtu").(int))
 		data.Mtu = &mtu

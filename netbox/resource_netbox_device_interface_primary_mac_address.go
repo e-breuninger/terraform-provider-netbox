@@ -164,10 +164,6 @@ func resourceNetboxDeviceInterfacePrimaryMACAddressUpdate(d *schema.ResourceData
 		data.Vrf = &iface.Vrf.ID
 	}
 
-	if iface.WirelessLink != nil {
-		data.WirelessLink = &iface.WirelessLink.ID
-	}
-
 	for _, vdc := range iface.Vdcs {
 		data.Vdcs = append(data.Vdcs, vdc.ID)
 	}
