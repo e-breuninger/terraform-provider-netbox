@@ -48,6 +48,8 @@ resource "netbox_vlan" "example2" {
 - `custom_fields` (Map of String)
 - `description` (String) Defaults to `""`.
 - `group_id` (Number)
+- `qinq_role` (String) Q-in-Q role of this VLAN. Valid values are `svlan` and `cvlan`.
+- `qinq_svlan_id` (Number) ID of the service VLAN this customer VLAN belongs to.
 - `role_id` (Number)
 - `site_id` (Number)
 - `status` (String) Valid values are `active`, `reserved` and `deprecated`. Defaults to `active`.

@@ -190,3 +190,35 @@ func init() {
 		},
 	})
 }
+
+func TestAccNetboxVlan_qinq(t *testing.T) {
+	testSlug := "vlan_qinq"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_vlan" "test_svlan" {
+  name      = "%[1]s-svlan"
+  vid       = 100
+  status    = "active"
+  qinq_role = "svlan"
+}
+
+resource "netbox_vlan" "test_cvlan" {
+  name          = "%[1]s-cvlan"
+  vid           = 200
+  status        = "active"
+  qinq_role     = "cvlan"
+  qinq_svlan_id = netbox_vlan.test_svlan.id
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vlan.test_svlan", "qinq_role", "svlan"),
+					resource.TestCheckResourceAttr("netbox_vlan.test_cvlan", "qinq_role", "cvlan"),
+					resource.TestCheckResourceAttrPair("netbox_vlan.test_cvlan", "qinq_svlan_id", "netbox_vlan.test_svlan", "id"),
+				),
+			},
+		},
+	})
+}
