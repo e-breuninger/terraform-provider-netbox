@@ -2,8 +2,8 @@ package netbox
 
 import (
 	"fmt"
-	"testing"
 	"regexp"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -32,7 +32,6 @@ resource "netbox_vpn_tunnel" "test" {
   tags = [netbox_tag.test.name]
 }`, testName)
 }
-
 
 const testAccNetboxVpnTunnelNoResult = `
 data "netbox_vpn_tunnel" "test" {
