@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,6 +23,36 @@ type providerState struct {
 
 	// concurrent access ok, only populated on provider start
 	tagCache map[string]*models.NestedTag
+
+	// Semantic version of the Netbox the provider is talking to, e.g. "4.6.8".
+	// Empty when skip_version_check is set, in which case resources must
+	// assume the newest supported API shape.
+	netboxVersion string
+}
+
+// netboxVersionAtLeast reports whether the connected Netbox is at least
+// major.minor. It returns true when the version is unknown, so that skipping
+// the version check does not silently select legacy API shapes.
+func (s *providerState) netboxVersionAtLeast(major, minor int) bool {
+	if s.netboxVersion == "" {
+		return true
+	}
+	parts := strings.SplitN(s.netboxVersion, ".", 3)
+	if len(parts) < 2 {
+		return true
+	}
+	haveMajor, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return true
+	}
+	haveMinor, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return true
+	}
+	if haveMajor != major {
+		return haveMajor > major
+	}
+	return haveMinor >= minor
 }
 
 // This makes the description contain the default value, particularly useful for the docs
@@ -180,6 +211,7 @@ func Provider() *schema.Provider {
 			"netbox_mac_address":                                   resourceNetboxMACAddress(),
 			"netbox_wireless_lan_group":                            resourceNetboxWirelessLANGroup(),
 			"netbox_wireless_lan":                                  resourceNetboxWirelessLAN(),
+			"netbox_front_port_template":                           resourceNetboxFrontPortTemplate(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"netbox_asn":                       dataSourceNetboxAsn(),
@@ -361,6 +393,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 	// Unless explicitly switched off, use the client to retrieve the Netbox version
 	// so we can determine compatibility of the provider with the used Netbox
+	var netboxVersion string
 	skipVersionCheck := data.Get("skip_version_check").(bool)
 
 	if !skipVersionCheck {
@@ -400,7 +433,7 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 
 		netboxVersionStringFromAPI := res.GetPayload().(map[string]interface{})["netbox-version"].(string)
 
-		netboxVersion, err := extractSemanticVersionFromString(netboxVersionStringFromAPI)
+		netboxVersion, err = extractSemanticVersionFromString(netboxVersionStringFromAPI)
 		if err != nil {
 			return nil, diag.FromErr(fmt.Errorf("error extracting netbox version. try using the `skip_version_check` provider parameter to bypass this error. original error: %w", err))
 		}
@@ -437,9 +470,10 @@ func providerConfigure(ctx context.Context, data *schema.ResourceData) (interfac
 	}
 
 	state := &providerState{
-		NetBoxAPI:   netboxClient,
-		defaultTags: schema.CopySet(tags),
-		tagCache:    tagCache,
+		NetBoxAPI:     netboxClient,
+		defaultTags:   schema.CopySet(tags),
+		tagCache:      tagCache,
+		netboxVersion: netboxVersion,
 	}
 	return state, diags
 }
