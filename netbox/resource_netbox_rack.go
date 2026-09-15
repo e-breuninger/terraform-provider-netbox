@@ -40,10 +40,9 @@ Each rack is assigned a name and (optionally) a separate facility ID. This is he
 				Required: true,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxRackStatusOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxRackStatusOptions),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: buildValidValueDescription(resourceNetboxRackStatusOptions) + statusNotEnforcedNote,
 			},
 			"width": {
 				Type:          schema.TypeInt,

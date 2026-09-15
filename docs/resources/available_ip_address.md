@@ -91,7 +91,7 @@ resource "netbox_available_ip_address" "myvm-ip" {
 - `object_type` (String) Valid values are `virtualization.vminterface`, `dcim.interface` and `ipam.fhrpgroup`. Required when `interface_id` is set.
 - `prefix_id` (Number) Exactly one of `prefix_id` or `ip_range_id` must be given.
 - `role` (String) Valid values are `loopback`, `secondary`, `anycast`, `vip`, `vrrp`, `hsrp`, `glbp` and `carp`.
-- `status` (String) Valid values are `active`, `reserved`, `deprecated`, `dhcp` and `slaac`. Defaults to `active`.
+- `status` (String) Valid values are `active`, `reserved`, `deprecated`, `dhcp` and `slaac`. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `virtual_machine_interface_id` (Number) Conflicts with `interface_id` and `device_interface_id`.
