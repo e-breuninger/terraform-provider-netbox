@@ -38,7 +38,7 @@ resource "netbox_ip_range" "cust_a_prod" {
 - `mark_populated` (Boolean)
 - `mark_utilized` (Boolean)
 - `role_id` (Number)
-- `status` (String) Valid values are `active`, `reserved` and `deprecated`. Defaults to `active`.
+- `status` (String) Valid values are `active`, `reserved` and `deprecated`. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vrf_id` (Number)
