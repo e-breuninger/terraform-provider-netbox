@@ -20,6 +20,10 @@ resource "netbox_site" "test" {
   name   = "%[1]s"
   status = "active"
 }
+
+resource "netbox_tenant" "test" {
+  name = "%[1]s"
+}
 `, testName)
 }
 func TestAccNetboxVlanGroup_basic(t *testing.T) {
@@ -35,12 +39,16 @@ resource "netbox_vlan_group" "test_basic" {
   name       = "%s"
   slug       = "%s"
   vid_ranges  = [[1, 2], [3, 4]]
+  comments   = "Some comments"
+  tenant_id  = netbox_tenant.test.id
   tags       = []
 }`, testName, testSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "name", testName),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "slug", testSlug),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "description", ""),
+					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "comments", "Some comments"),
+					resource.TestCheckResourceAttrPair("netbox_vlan_group.test_basic", "tenant_id", "netbox_tenant.test", "id"),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "tags.#", "0"),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.0.0", "1"),
 					resource.TestCheckResourceAttr("netbox_vlan_group.test_basic", "vid_ranges.0.1", "2"),
