@@ -164,6 +164,43 @@ resource "netbox_vrf" "test_rd" {
 	})
 }
 
+func TestAccNetboxVrf_cf(t *testing.T) {
+	testSlug := "vrf_cf"
+	testName := testAccGetTestName(testSlug)
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_custom_field" "test" {
+  name          = "%s"
+  type          = "text"
+  weight        = 100
+  content_types = ["ipam.vrf"]
+}
+
+resource "netbox_vrf" "test_cf" {
+  name = "%s"
+
+  custom_fields = {
+    "${netbox_custom_field.test.name}" = "test-field"
+  }
+}`, testSlug, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vrf.test_cf", "name", testName),
+					resource.TestCheckResourceAttr("netbox_vrf.test_cf", fmt.Sprintf("custom_fields.%s", testSlug), "test-field"),
+				),
+			},
+			{
+				ResourceName:      "netbox_vrf.test_cf",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxVrf_enforceUnique(t *testing.T) {
 	testSlug := "vrf_enforce_unique"
 	testName := testAccGetTestName(testSlug)

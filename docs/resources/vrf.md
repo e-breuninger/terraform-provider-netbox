@@ -31,6 +31,7 @@ resource "netbox_vrf" "cust_a_prod" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `enforce_unique` (Boolean) Defaults to `true`.
 - `rd` (String)
