@@ -73,6 +73,51 @@ resource "netbox_ipam_role" "role_extended" {
 	})
 }
 
+func TestAccNetboxRole_with_tags(t *testing.T) {
+	testSlug := "role_tags"
+	testName := testAccGetTestName(testSlug)
+	randomSlug := testAccGetTestName(testSlug)
+	tag1Name := testAccGetTestName("tag1")
+	tag2Name := testAccGetTestName("tag2")
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+resource "netbox_tag" "tag1" {
+  name = "%[3]s"
+  slug = "%[3]s"
+}
+
+resource "netbox_tag" "tag2" {
+  name = "%[4]s"
+  slug = "%[4]s"
+}
+
+resource "netbox_ipam_role" "test_with_tags" {
+  name = "%[1]s"
+  slug = "%[2]s"
+  tags = [netbox_tag.tag1.name, netbox_tag.tag2.name]
+}`, testName, randomSlug, tag1Name, tag2Name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_with_tags", "name", testName),
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_with_tags", "slug", randomSlug),
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_with_tags", "tags.#", "2"),
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_with_tags", "tags.0", tag1Name),
+					resource.TestCheckResourceAttr("netbox_ipam_role.test_with_tags", "tags.1", tag2Name),
+				),
+			},
+			{
+				ResourceName:      "netbox_ipam_role.test_with_tags",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func init() {
 	resource.AddTestSweepers("netbox_ipam_role", &resource.Sweeper{
 		Name:         "netbox_ipam_role",
