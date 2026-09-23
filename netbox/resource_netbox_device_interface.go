@@ -300,18 +300,16 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 	deviceID := int64(d.Get("device_id").(int))
 
 	data := models.WritableInterface{
-		Name:         &name,
-		Description:  description,
-		Label:        label,
-		Type:         &interfaceType,
-		Enabled:      enabled,
-		MgmtOnly:     mgmtonly,
-		Mode:         mode,
-		Tags:         tags,
-		TaggedVlans:  taggedVlans,
-		Device:       &deviceID,
-		WirelessLans: []int64{},
-		Vdcs:         []int64{},
+		Name:        &name,
+		Description: description,
+		Label:       label,
+		Type:        &interfaceType,
+		Enabled:     enabled,
+		MgmtOnly:    mgmtonly,
+		Mode:        mode,
+		Tags:        tags,
+		TaggedVlans: taggedVlans,
+		Device:      &deviceID,
 	}
 	data.Module = getOptionalInt(d, "module_id")
 
@@ -335,16 +333,15 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		untaggedvlan := int64(d.Get("untagged_vlan").(int))
 		data.UntaggedVlan = &untaggedvlan
 	}
-	if d.HasChange("primary_mac_address_id") {
-		primaryMac := int64(d.Get("primary_mac_address_id").(int))
-		data.PrimaryMacAddress = &primaryMac
-	}
 	if d.HasChange("vrf_id") {
 		data.Vrf = getOptionalInt(d, "vrf_id")
 	}
 
+	// primary_mac_address, vdcs and wireless_lans are not managed here, so they
+	// must not appear in the body at all, see hackOmitFields.
 	params := dcim.NewDcimInterfacesPartialUpdateParams().WithID(id).WithData(&data)
-	_, err = api.Dcim.DcimInterfacesPartialUpdate(params, nil)
+	_, err = api.Dcim.DcimInterfacesPartialUpdate(params, nil,
+		dcim.ClientOption(hackOmitFields("primary_mac_address", "vdcs", "wireless_lans")))
 	if err != nil {
 		return diag.FromErr(err)
 	}

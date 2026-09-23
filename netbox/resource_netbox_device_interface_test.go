@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	log "github.com/sirupsen/logrus"
@@ -371,6 +372,109 @@ func TestAccNetboxDeviceInterface_vrf(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccNetboxDeviceInterfaceWirelessLans(testName, description string) string {
+	return fmt.Sprintf(`
+resource "netbox_wireless_lan" "test" {
+  ssid = "%[1]s"
+}
+
+resource "netbox_device_interface" "test" {
+  name        = "%[1]s"
+  device_id   = netbox_device.test.id
+  type        = "ieee802.11ac"
+  description = "%[2]s"
+}`, testName, description)
+}
+
+// TestAccNetboxDeviceInterface_preservesWirelessLans covers wireless LAN
+// assignments surviving an unrelated in-place update of the interface.
+//
+// Neither `wireless_lans` nor `vdcs` is modelled by this resource, so the only
+// way either can hold a value is out of band - another tool, the UI, or an
+// import. Netbox treats both as full-replacement lists and WritableInterface
+// declares them without `omitempty`, so sending an empty slice on every update
+// wipes them.
+func TestAccNetboxDeviceInterface_preservesWirelessLans(t *testing.T) {
+	testSlug := "iface_wlans"
+	testName := testAccGetTestName(testSlug)
+
+	var deviceID, interfaceID, wirelessLanID int64
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers:    testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxDeviceInterfaceFullDependencies(testName) + testAccNetboxDeviceInterfaceWirelessLans(testName, "before update"),
+				Check: func(s *terraform.State) (err error) {
+					if deviceID, err = testAccStateResourceID(s, "netbox_device.test"); err != nil {
+						return err
+					}
+					if interfaceID, err = testAccStateResourceID(s, "netbox_device_interface.test"); err != nil {
+						return err
+					}
+					wirelessLanID, err = testAccStateResourceID(s, "netbox_wireless_lan.test")
+					return err
+				},
+			},
+			{
+				PreConfig: func() {
+					api := testAccProvider.Meta().(*providerState)
+
+					// Assign the wireless LAN to the interface behind
+					// Terraform's back. The unrelated fields have to be filled
+					// in by hand because WritableInterface declares
+					// device/name/type/enabled without `omitempty` too, so
+					// leaving them nil would clear them.
+					interfaceName := testName
+					interfaceType := "ieee802.11ac"
+					_, err := api.Dcim.DcimInterfacesPartialUpdate(
+						dcim.NewDcimInterfacesPartialUpdateParams().WithID(interfaceID).WithData(&models.WritableInterface{
+							Device:       &deviceID,
+							Name:         &interfaceName,
+							Type:         &interfaceType,
+							Enabled:      true,
+							Tags:         []*models.NestedTag{},
+							TaggedVlans:  []int64{},
+							Vdcs:         []int64{},
+							WirelessLans: []int64{wirelessLanID},
+						}), nil)
+					if err != nil {
+						t.Fatalf("assigning interface %d to wireless LAN %d: %s", interfaceID, wirelessLanID, err)
+					}
+				},
+				// Only the interface's description changes.
+				Config: testAccNetboxDeviceInterfaceFullDependencies(testName) + testAccNetboxDeviceInterfaceWirelessLans(testName, "after update"),
+				Check: func(s *terraform.State) error {
+					api := testAccProvider.Meta().(*providerState)
+
+					res, err := api.Dcim.DcimInterfacesRead(dcim.NewDcimInterfacesReadParams().WithID(interfaceID), nil)
+					if err != nil {
+						return err
+					}
+
+					for _, wirelessLan := range res.GetPayload().WirelessLans {
+						if wirelessLan.ID == wirelessLanID {
+							return nil
+						}
+					}
+					return fmt.Errorf("interface %d is no longer assigned to wireless LAN %d after the update", interfaceID, wirelessLanID)
+				},
+			},
+		},
+	})
+}
+
+// testAccStateResourceID returns the Netbox numeric id of a resource in state.
+func testAccStateResourceID(s *terraform.State, address string) (int64, error) {
+	rs, ok := s.RootModule().Resources[address]
+	if !ok {
+		return 0, fmt.Errorf("%s not found in state", address)
+	}
+	return strconv.ParseInt(rs.Primary.ID, 10, 64)
 }
 
 func testAccCheckDeviceInterfaceDestroy(s *terraform.State) error {
