@@ -162,6 +162,10 @@ func dataSourceNetboxDeviceInterfaces() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"mgmt_only": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -309,6 +313,9 @@ func dataSourceNetboxDeviceInterfaceRead(d *schema.ResourceData, m interface{}) 
 		if v.Lag != nil {
 			mapping["lag_device_interface_id"] = v.Lag.ID
 		}
+
+		mapping["mgmt_only"] = v.MgmtOnly
+
 
 		s = append(s, mapping)
 	}

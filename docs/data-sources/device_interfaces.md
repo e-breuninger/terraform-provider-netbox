@@ -47,6 +47,7 @@ Read-Only:
 - `lag_device_interface_id` (Number)
 - `mac_address` (String)
 - `mac_addresses` (Set of Object) (see [below for nested schema](#nestedobjatt--interfaces--mac_addresses))
+- `mgmt_only` (Boolean)
 - `mode` (Map of String)
 - `mtu` (Number)
 - `name` (String)
