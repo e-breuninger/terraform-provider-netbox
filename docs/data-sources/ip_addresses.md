@@ -41,6 +41,8 @@ Required:
 Read-Only:
 
 - `address_family` (String)
+- `assigned_object_id` (Number)
+- `assigned_object_type` (String)
 - `created` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
