@@ -1,0 +1,1 @@
+terraform import netbox_device_power_outlet.test 123

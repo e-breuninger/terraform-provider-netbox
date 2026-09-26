@@ -1,3 +1,3 @@
-data "netbox_device_role" "core_sw" {
-  name = "core-sw"
+data "netbox_device_role" "test" {
+  name = "test-device_role"
 }

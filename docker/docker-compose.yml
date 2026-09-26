@@ -2,13 +2,19 @@
 services:
   postgres:
     image: postgres:18-alpine
+    # GRANIAN_BACKPRESSURE below lets Netbox run up to 100 requests at once, and
+    # Django holds a connection per in-flight request (plus the housekeeping and
+    # rq ones, ~40 at idle). Postgres defaults to 100 connections, so the app's
+    # own concurrency limit could exhaust the database before backpressure ever
+    # applied: the suite failed with "sorry, too many clients already" whenever
+    # go test ran unthrottled. Give the pool room for the concurrency Netbox is
+    # configured to use.
+    command: postgres -c max_connections=300
     environment:
       - POSTGRES_USER=netbox
       - POSTGRES_PASSWORD=netbox
-      - POSTGRES_DB=netbox
     healthcheck:
-      test:
-        ["CMD-SHELL", "pg_isready -q -t 2 -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -q -t 2 -U $$POSTGRES_USER"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,29 +35,19 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - 8001:8080
+      - "8001:8080"
     environment:
-      - CORS_ORIGIN_ALLOW_ALL=True
-      - DB_NAME=netbox
       - DB_USER=netbox
       - DB_PASSWORD=netbox
       - DB_HOST=postgres
       - REDIS_HOST=redis
-      - REDIS_DATABASE=0
-      - REDIS_SSL=false
-      - REDIS_CACHE_HOST=redis
-      - REDIS_CACHE_DATABASE=1
-      - REDIS_CACHE_SSL=false
       - SECRET_KEY=0123456789abcdefghij0123456789abcdefghij0123456789
-      - SKIP_STARTUP_SCRIPTS=false
-      - SKIP_SUPERUSER=false
-      - SUPERUSER_NAME=admin
-      - SUPERUSER_EMAIL=admin@example.com
       - SUPERUSER_PASSWORD=admin
-      - SUPERUSER_API_TOKEN=${SUPERUSER_API_TOKEN}
-      - SUPERUSER_API_KEY=${SUPERUSER_API_KEY}
-      - API_TOKEN_PEPPER_1=${API_TOKEN_PEPPER_1}
-      - METRICS_ENABLED=true
+      # The admin's v2 token, nbt_<key>.<token>, is what the acceptance tests authenticate with
+      # (NETBOX_API_TOKEN in the GNUmakefile). NetBox creates no token without a pepper.
+      - SUPERUSER_API_TOKEN=Iw2JZtpMdYjBuIVIZLItd4lB2RYEiv6xhY23W0tQ
+      - SUPERUSER_API_KEY=mrcLJrER9ves
+      - API_TOKEN_PEPPER_1=C9Bp3tmBgchWcWc2OkoFuaV9aoKZfhJgZUBG7g0PFxYzf1AkLd
       - GRANIAN_BACKPRESSURE=100
     # Gate on a real readiness signal: /login/ only serves 200 once migrations
     # have run and the app is up (matches netbox-community/netbox-docker). The

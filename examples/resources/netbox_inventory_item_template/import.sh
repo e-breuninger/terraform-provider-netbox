@@ -1,0 +1,1 @@
+terraform import netbox_inventory_item_template.test 123

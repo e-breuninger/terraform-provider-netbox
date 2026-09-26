@@ -1,3 +1,4 @@
 resource "netbox_contact_role" "test" {
-  name = "test"
+  name        = "test-contact-role"
+  description = "test-description"
 }

@@ -1,21 +1,26 @@
 ---
-layout: ""
-page_title: "Provider: Netbox"
+page_title: "Provider: NetBox"
 description: |-
-  The netbox provider provides resources and data sources to interact with Netbox.
+  The NetBox provider manages NetBox objects: a resource for every object type, a data source to look one object up and a data source to list objects by filters.
 ---
 
-# Netbox Provider
+# NetBox Provider
 
-The Terraform Netbox provider is a plugin for Terraform that allows for the full lifecycle management of [Netbox](https://netboxlabs.com/docs/netbox/) resources.
+The NetBox provider manages objects in [NetBox](https://netboxlabs.com/docs/netbox/) through its REST API.
 
-Use the navigation to the left to read about the available resources.
+## Requirements
+
+- Terraform 1.0 or newer.
+- A NetBox version the provider was tested against.
 
 ## Supported Netbox versions
-Netbox often makes breaking API changes even in non-major releases. Check the table below to see which version this provider is compatible with your Netbox version. It is generally recommended to use the provider version matching your Netbox version.
+Netbox often makes breaking API changes even in non-major releases.
+Check the table below to see which version this provider is compatible with your Netbox version.
+It is generally recommended to use the provider version matching your Netbox version.
 
 | Netbox version  | Provider version |
 | --------------- | ---------------- |
+| v4.6.8 - 4.6.10 | v6.0.0 and up    |
 | v4.3.0 - 4.6.5  | v5.6.1 and up    |
 | v4.3.0 - 4.4.10 | v5.0.0 - 5.6.0   |
 | v4.2.2 - 4.2.9  | v4.0.0 - 4.3.1   |
@@ -34,10 +39,8 @@ Netbox often makes breaking API changes even in non-major releases. Check the ta
 | v2.10.10        | v0.2.x           |
 | v2.9            | v0.1.x           |
 
-Additionally, since version [1.6.6](https://github.com/e-breuninger/terraform-provider-netbox/commit/0b0b2fffa54d4ab2e5f1677e948b01e56ba211c8), each version of the provider has a built-in list of all Netbox versions it supports at release time. Upon initialization, the provider will probe your Netbox version and include a (non-blocking) warning if the used Netbox version is not supported.
-
-## Configuration
-You must configure the provider with proper credentials before you can use it. You can configure the provider via attributes in the provider block or via environment variables. See [Schema](#schema) for all configuration options
+Each version of the provider has a built-in list of all Netbox versions it supports at release time.
+Upon initialization, the provider will probe your Netbox version and include a (non-blocking) warning if the used Netbox version is not supported.
 
 ## Example Usage
 

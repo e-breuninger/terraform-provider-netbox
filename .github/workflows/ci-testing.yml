@@ -2,8 +2,11 @@
 name: ci-testing
 on:
   push:
+    # Temporarily run on every branch push, not only master, so the acceptance
+    # tests exercise work-in-progress branches before a pull request exists.
+    # Restore "branches: [master]" once branch runs are no longer needed.
     branches:
-      - master
+      - "**"
   pull_request:
     branches:
       - master
@@ -26,42 +29,9 @@ jobs:
       fail-fast: false
       matrix:
         netbox-version:
-          - v4.3.0
-          # - v4.3.1 # with this version, we get {"scope":["Please select a site."]} for prefixes
-          - v4.3.2
-          - v4.3.3
-          - v4.3.4
-          - v4.3.5
-          - v4.3.6
-          - v4.3.7
-          - v4.4.0
-          - v4.4.1
-          - v4.4.2
-          # - v4.4.3 # this version cannot be spun up for testing due to TypeError: issubclass() arg 1 must be a class
-          - v4.4.4
-          - v4.4.5
-          - v4.4.6
-          - v4.4.7
-          - v4.4.8
-          - v4.4.9
-          - v4.4.10
-          # - v4.5.0 # this version cannot be spun up for testing due to startup stall at "Building search index"
-          - v4.5.1
-          - v4.5.2
-          - v4.5.3
-          - v4.5.4
-          - v4.5.5
-          - v4.5.6
-          - v4.5.7
-          - v4.5.8
-          - v4.5.9
-          - v4.5.10
-          - v4.6.0
-          - v4.6.1
-          - v4.6.2
-          - v4.6.3
-          - v4.6.4
-          - v4.6.5
+          - v4.6.8
+          - v4.6.9
+          - v4.6.10
     steps:
       - uses: actions/checkout@v7
       - name: Set up Go

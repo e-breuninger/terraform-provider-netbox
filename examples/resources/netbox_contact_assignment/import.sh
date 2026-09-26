@@ -1,0 +1,1 @@
+terraform import netbox_contact_assignment.test 123

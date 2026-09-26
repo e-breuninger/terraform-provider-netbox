@@ -1,0 +1,1 @@
+terraform import netbox_circuit_provider_network.test 123

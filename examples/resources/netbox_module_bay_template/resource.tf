@@ -1,17 +1,16 @@
 resource "netbox_manufacturer" "test" {
-  name = "Cisco"
+  name = "test-manufacturer"
 }
 
 resource "netbox_device_type" "test" {
-  model           = "Catalyst 9300X-24Y"
-  slug            = "catalyst-9300x-24y"
-  part_number     = "C9300X-24Y"
   manufacturer_id = netbox_manufacturer.test.id
+  model           = "test-device-type"
 }
 
 resource "netbox_module_bay_template" "test" {
-  name           = "TwentyFiveGigE1/0/1"
-  label          = "SFP28 cage"
-  position       = "TwentyFiveGigE1/0/1"
   device_type_id = netbox_device_type.test.id
+  name           = "test-module-bay-template"
+  position       = "1"
+  label          = "test-label"
+  description    = "test-description"
 }

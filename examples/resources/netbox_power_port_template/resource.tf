@@ -1,17 +1,18 @@
 resource "netbox_manufacturer" "test" {
-  name = "Cisco"
+  name = "test-manufacturer"
 }
 
-resource "netbox_module_type" "test" {
+resource "netbox_device_type" "test" {
   manufacturer_id = netbox_manufacturer.test.id
-  model           = "PWR-C1-715WAC-P"
-  part_number     = "PWR-C1-715WAC-P"
+  model           = "test-device-type"
 }
 
 resource "netbox_power_port_template" "test" {
-  name           = "PSU-1"
-  label          = "715W AC power supply"
-  module_type_id = netbox_module_type.test.id
-  type           = "iec-60320-c16"
-  maximum_draw   = 715
+  device_type_id = netbox_device_type.test.id
+  name           = "test-power-port-template"
+  type           = "iec-60320-c14"
+  maximum_draw   = 600
+  allocated_draw = 300
+  label          = "test-label"
+  description    = "test-description"
 }

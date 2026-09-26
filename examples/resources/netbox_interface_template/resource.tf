@@ -1,19 +1,19 @@
 resource "netbox_manufacturer" "test" {
-  name = "my-manufacturer"
+  name = "test-manufacturer"
 }
 
 resource "netbox_device_type" "test" {
-  model           = "test-model"
-  slug            = "test-model"
-  part_number     = "test-part-number"
   manufacturer_id = netbox_manufacturer.test.id
+  model           = "test-device-type"
 }
 
 resource "netbox_interface_template" "test" {
-  name           = "eth0"
-  description    = "eth0 description"
-  label          = "eth0 label"
   device_type_id = netbox_device_type.test.id
-  type           = "100base-tx"
+  name           = "test-interface-template"
+  type           = "1000base-t"
   mgmt_only      = true
+  poe_mode       = "pse"
+  poe_type       = "type1-ieee802.3af"
+  label          = "test-label"
+  description    = "test-description"
 }
