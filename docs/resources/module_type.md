@@ -36,10 +36,12 @@ resource "netbox_module_type" "test" {
 
 ### Optional
 
+- `attributes` (String) Attribute data for this module type, validated by NetBox against the assigned profile's schema. Requires NetBox 4.3 or later. Removing this attribute from the configuration does not clear already-set attribute data.
 - `comments` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
 - `part_number` (String)
+- `profile_id` (Number) ID of the module type profile assigned to this module type. Requires NetBox 4.3 or later. Removing this attribute from the configuration does not detach an already-assigned profile.
 - `tags` (Set of String)
 - `weight` (Number)
 - `weight_unit` (String) One of [kg, g, lb, oz]. Required when `weight` is set.

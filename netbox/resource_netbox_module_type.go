@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"encoding/json"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
@@ -32,6 +33,29 @@ func resourceNetboxModuleType() *schema.Resource {
 			"part_number": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"profile_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "ID of the module type profile assigned to this module type. Requires NetBox 4.3 or later. Removing this attribute from the configuration does not detach an already-assigned profile.",
+			},
+			"attributes": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsJSON,
+				Description:  "Attribute data for this module type, validated by NetBox against the assigned profile's schema. Requires NetBox 4.3 or later. Removing this attribute from the configuration does not clear already-set attribute data.",
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					// an unset attributes config is stored as an empty object in NetBox
+					if oldValue == "" {
+						oldValue = "{}"
+					}
+					if newValue == "" {
+						newValue = "{}"
+					}
+					equal, _ := jsonSemanticCompare(oldValue, newValue)
+					return equal
+				},
+				DiffSuppressOnRefresh: true,
 			},
 			"weight": {
 				Type:     schema.TypeFloat,
@@ -68,10 +92,24 @@ func resourceNetboxModuleTypeCreate(d *schema.ResourceData, m interface{}) error
 		Manufacturer: int64ToPtr(int64(d.Get("manufacturer_id").(int))),
 		Model:        strToPtr(d.Get("model").(string)),
 		PartNumber:   getOptionalStr(d, "part_number", false),
+		Profile:      getOptionalInt(d, "profile_id"),
 		Weight:       getOptionalFloat(d, "weight"),
 		WeightUnit:   getOptionalStr(d, "weight_unit", false),
 		Description:  getOptionalStr(d, "description", false),
 		Comments:     getOptionalStr(d, "comments", false),
+	}
+
+	if attrJSON, ok := d.GetOk("attributes"); ok {
+		var attrObj any
+		if err := json.Unmarshal([]byte(attrJSON.(string)), &attrObj); err != nil {
+			return err
+		}
+		data.Attributes = attrObj
+	} else if data.Profile != nil {
+		// NetBox validates attributes against the assigned profile's schema and
+		// rejects null, so a profile assignment without attribute data must send
+		// an empty object.
+		data.Attributes = map[string]any{}
 	}
 
 	var err error
@@ -125,6 +163,23 @@ func resourceNetboxModuleTypeRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("model", moduleType.Model)
 	d.Set("part_number", moduleType.PartNumber)
+
+	if moduleType.Profile != nil {
+		d.Set("profile_id", moduleType.Profile.ID)
+	} else {
+		d.Set("profile_id", nil)
+	}
+
+	if moduleType.Attributes != nil {
+		attrJSON, err := json.Marshal(moduleType.Attributes)
+		if err != nil {
+			return err
+		}
+		d.Set("attributes", string(attrJSON))
+	} else {
+		d.Set("attributes", nil)
+	}
+
 	d.Set("weight", moduleType.Weight)
 
 	if moduleType.WeightUnit != nil {
@@ -154,10 +209,24 @@ func resourceNetboxModuleTypeUpdate(d *schema.ResourceData, m interface{}) error
 		Manufacturer: int64ToPtr(int64(d.Get("manufacturer_id").(int))),
 		Model:        strToPtr(d.Get("model").(string)),
 		PartNumber:   getOptionalStr(d, "part_number", true),
+		Profile:      getOptionalInt(d, "profile_id"),
 		Weight:       getOptionalFloat(d, "weight"),
 		WeightUnit:   getOptionalStr(d, "weight_unit", false),
 		Description:  getOptionalStr(d, "description", true),
 		Comments:     getOptionalStr(d, "comments", true),
+	}
+
+	if attrJSON, ok := d.GetOk("attributes"); ok {
+		var attrObj any
+		if err := json.Unmarshal([]byte(attrJSON.(string)), &attrObj); err != nil {
+			return err
+		}
+		data.Attributes = attrObj
+	} else if data.Profile != nil {
+		// NetBox validates attributes against the assigned profile's schema and
+		// rejects null, so a profile assignment without attribute data must send
+		// an empty object.
+		data.Attributes = map[string]any{}
 	}
 
 	var err error
