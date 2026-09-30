@@ -10,6 +10,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxCustomFieldTypeOptions = []string{
+	models.CustomFieldTypeValueText,
+	models.CustomFieldTypeValueInteger,
+	models.CustomFieldTypeValueBoolean,
+	models.CustomFieldTypeValueDate,
+	models.CustomFieldTypeValueURL,
+	models.CustomFieldTypeValueSelect,
+	models.CustomFieldTypeValueMultiselect,
+	models.CustomFieldTypeValueObject,
+	models.CustomFieldTypeValueMultiobject,
+	models.CustomFieldTypeValueJSON,
+}
+
 // customFieldDefaultToAPI - converts the tf attribute to the json netbox expects
 func customFieldDefaultToAPI(d *schema.ResourceData) interface{} {
 	v, ok := d.GetOk("default")
@@ -58,24 +71,15 @@ func resourceCustomField() *schema.Resource {
 				Required: true,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					models.CustomFieldTypeValueText,
-					models.CustomFieldTypeValueInteger,
-					models.CustomFieldTypeValueBoolean,
-					models.CustomFieldTypeValueDate,
-					models.CustomFieldTypeValueURL,
-					models.CustomFieldTypeValueSelect,
-					models.CustomFieldTypeValueMultiselect,
-					models.CustomFieldTypeValueObject,
-					models.CustomFieldTypeValueMultiobject,
-					models.CustomFieldTypeValueJSON,
-				}, false),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice(resourceNetboxCustomFieldTypeOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxCustomFieldTypeOptions),
 			},
 			"content_types": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type:        schema.TypeSet,
+				Required:    true,
+				Description: "The object types this custom field applies to, in `app_label.model` form, for example `dcim.device`.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -122,12 +126,14 @@ func resourceCustomField() *schema.Resource {
 				Optional: true,
 			},
 			"choice_set_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The ID of a `netbox_custom_field_choice_set`. Necessary when `type` is `select` or `multiselect`.",
 			},
 			"related_object_type": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The object type this custom field points to, in `app_label.model` form, for example `dcim.site`. Necessary when `type` is `object` or `multiobject`.",
 			},
 		},
 		Importer: &schema.ResourceImporter{

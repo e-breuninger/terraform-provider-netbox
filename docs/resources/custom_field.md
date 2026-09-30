@@ -33,18 +33,18 @@ resource "netbox_custom_field" "test" {
 
 ### Required
 
-- `content_types` (Set of String)
+- `content_types` (Set of String) The object types this custom field applies to, in `app_label.model` form, for example `dcim.device`.
 - `name` (String)
-- `type` (String)
+- `type` (String) Valid values are `text`, `integer`, `boolean`, `date`, `url`, `select`, `multiselect`, `object`, `multiobject` and `json`.
 
 ### Optional
 
-- `choice_set_id` (Number)
+- `choice_set_id` (Number) The ID of a `netbox_custom_field_choice_set`. Necessary when `type` is `select` or `multiselect`.
 - `default` (String)
 - `description` (String)
 - `group_name` (String)
 - `label` (String)
-- `related_object_type` (String)
+- `related_object_type` (String) The object type this custom field points to, in `app_label.model` form, for example `dcim.site`. Necessary when `type` is `object` or `multiobject`.
 - `required` (Boolean)
 - `validation_maximum` (Number)
 - `validation_minimum` (Number)
