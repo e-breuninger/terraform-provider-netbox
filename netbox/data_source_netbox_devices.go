@@ -94,6 +94,10 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"location_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"manufacturer_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -120,6 +124,10 @@ func dataSourceNetboxDevices() *schema.Resource {
 						},
 						"role_id": {
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"role_name": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"serial": {
@@ -155,6 +163,18 @@ func dataSourceNetboxDevices() *schema.Resource {
 							Computed: true,
 						},
 						"tags": tagsSchemaRead,
+						"virtual_chassis_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"virtual_chassis_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"virtual_chassis_master_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -179,6 +199,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 			k := f.(map[string]interface{})["name"]
 			v := f.(map[string]interface{})["value"]
 			switch k {
+			case "id":
+				idString := v.(string)
+				params.ID = &idString
 			case "asset_tag":
 				var assetTagString = v.(string)
 				params.AssetTag = &assetTagString
@@ -308,6 +331,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Location != nil {
 			mapping["location_id"] = device.Location.ID
+			if device.Location.Name != nil {
+				mapping["location_name"] = *device.Location.Name
+			}
 		}
 		if device.Platform != nil {
 			mapping["platform_id"] = device.Platform.ID
@@ -320,6 +346,18 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 		}
 		if device.Role != nil {
 			mapping["role_id"] = device.Role.ID
+			if device.Role.Name != nil {
+				mapping["role_name"] = *device.Role.Name
+			}
+		}
+		if device.VirtualChassis != nil {
+			mapping["virtual_chassis_id"] = device.VirtualChassis.ID
+			if device.VirtualChassis.Name != nil {
+				mapping["virtual_chassis_name"] = *device.VirtualChassis.Name
+			}
+			if device.VirtualChassis.Master != nil {
+				mapping["virtual_chassis_master_id"] = device.VirtualChassis.Master.ID
+			}
 		}
 		if device.Serial != "" {
 			mapping["serial"] = device.Serial

@@ -50,6 +50,7 @@ Read-Only:
 - `device_type_id` (Number)
 - `local_context_data` (String)
 - `location_id` (Number)
+- `location_name` (String)
 - `manufacturer_id` (Number)
 - `model` (String)
 - `name` (String)
@@ -61,10 +62,14 @@ Read-Only:
 - `rack_id` (Number)
 - `rack_position` (Number)
 - `role_id` (Number)
+- `role_name` (String)
 - `serial` (String)
 - `site_id` (Number)
 - `status` (String)
 - `tags` (Set of String)
 - `tenant_id` (Number)
+- `virtual_chassis_id` (Number)
+- `virtual_chassis_master_id` (Number)
+- `virtual_chassis_name` (String)
 
 

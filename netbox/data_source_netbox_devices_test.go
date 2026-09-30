@@ -99,6 +99,99 @@ func TestAccNetboxDevicesDataSource_basic(t *testing.T) {
 	})
 }
 
+func TestAccNetboxDevicesDataSource_virtualChassis(t *testing.T) {
+	testName := testAccGetTestName("devices_ds_virtual_chassis")
+	config := fmt.Sprintf(`
+resource "netbox_site" "test" {
+  name   = %[1]q
+  status = "active"
+}
+
+resource "netbox_manufacturer" "test" {
+  name = %[1]q
+}
+
+resource "netbox_device_type" "test" {
+  model           = %[1]q
+  manufacturer_id = netbox_manufacturer.test.id
+}
+
+resource "netbox_device_role" "test" {
+  name      = %[1]q
+  color_hex = "123456"
+}
+
+resource "netbox_location" "test" {
+  name    = %[1]q
+  site_id = netbox_site.test.id
+}
+
+resource "netbox_tag" "test" {
+  name = %[1]q
+}
+
+resource "netbox_virtual_chassis" "test" {
+  name = %[1]q
+}
+
+resource "netbox_device" "master" {
+  name                     = "%[1]s-master"
+  site_id                  = netbox_site.test.id
+  device_type_id           = netbox_device_type.test.id
+  role_id                  = netbox_device_role.test.id
+  location_id              = netbox_location.test.id
+  virtual_chassis_id       = netbox_virtual_chassis.test.id
+  virtual_chassis_position = 1
+  virtual_chassis_master   = true
+}
+
+resource "netbox_device" "member" {
+  name                     = "%[1]s-member"
+  site_id                  = netbox_site.test.id
+  device_type_id           = netbox_device_type.test.id
+  role_id                  = netbox_device_role.test.id
+  virtual_chassis_id       = netbox_virtual_chassis.test.id
+  virtual_chassis_position = 2
+  virtual_chassis_master   = false
+  tags                     = [netbox_tag.test.name]
+  depends_on               = [netbox_device.master]
+}
+
+data "netbox_devices" "tagged" {
+  filter {
+    name  = "tags"
+    value = netbox_tag.test.name
+  }
+  depends_on = [netbox_device.member]
+}
+
+data "netbox_devices" "master" {
+  filter {
+    name  = "id"
+    value = netbox_device.master.id
+  }
+  depends_on = [netbox_device.member]
+}
+`, testName)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{{
+			Config: config,
+			Check: resource.ComposeTestCheckFunc(
+				resource.TestCheckResourceAttr("data.netbox_devices.tagged", "devices.#", "1"),
+				resource.TestCheckResourceAttrPair("data.netbox_devices.tagged", "devices.0.virtual_chassis_id", "netbox_virtual_chassis.test", "id"),
+				resource.TestCheckResourceAttrPair("data.netbox_devices.tagged", "devices.0.virtual_chassis_name", "netbox_virtual_chassis.test", "name"),
+				resource.TestCheckResourceAttrPair("data.netbox_devices.tagged", "devices.0.virtual_chassis_master_id", "netbox_device.master", "id"),
+				resource.TestCheckResourceAttr("data.netbox_devices.master", "devices.#", "1"),
+				resource.TestCheckResourceAttrPair("data.netbox_devices.master", "devices.0.device_id", "netbox_device.master", "id"),
+				resource.TestCheckResourceAttrPair("data.netbox_devices.master", "devices.0.role_name", "netbox_device_role.test", "name"),
+				resource.TestCheckResourceAttrPair("data.netbox_devices.master", "devices.0.location_name", "netbox_location.test", "name"),
+			),
+		}},
+	})
+}
+
 func testAccNetboxDeviceDataSourceDependencies(testName string) string {
 	return fmt.Sprintf(`
 resource "netbox_tenant" "test" {
