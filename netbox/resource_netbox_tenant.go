@@ -33,7 +33,8 @@ func resourceNetboxTenant() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
+			customFieldsKey: customFieldsSchema,
 			"group_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -78,6 +79,11 @@ func resourceNetboxTenantCreate(d *schema.ResourceData, m interface{}) error {
 		data.Group = &groupID
 	}
 
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
+	}
+
 	params := tenancy.NewTenancyTenantsCreateParams().WithData(data)
 
 	res, err := api.Tenancy.TenancyTenantsCreate(params, nil)
@@ -108,12 +114,18 @@ func resourceNetboxTenantRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("name", res.GetPayload().Name)
-	d.Set("slug", res.GetPayload().Slug)
-	d.Set("description", res.GetPayload().Description)
-	if res.GetPayload().Group != nil {
-		d.Set("group_id", res.GetPayload().Group.ID)
+	tenant := res.GetPayload()
+	d.Set("name", tenant.Name)
+	d.Set("slug", tenant.Slug)
+	d.Set("description", tenant.Description)
+	if tenant.Group != nil {
+		d.Set("group_id", tenant.Group.ID)
 	}
+	cf := flattenCustomFields(tenant.CustomFields)
+	if cf != nil {
+		d.Set(customFieldsKey, cf)
+	}
+	api.readTags(d, tenant.Tags)
 
 	return nil
 }
@@ -144,6 +156,11 @@ func resourceNetboxTenantUpdate(d *schema.ResourceData, m interface{}) error {
 	data.Tags = tags
 	if groupID != 0 {
 		data.Group = &groupID
+	}
+
+	ct, ok := d.GetOk(customFieldsKey)
+	if ok {
+		data.CustomFields = ct
 	}
 
 	params := tenancy.NewTenancyTenantsPartialUpdateParams().WithID(id).WithData(&data)
