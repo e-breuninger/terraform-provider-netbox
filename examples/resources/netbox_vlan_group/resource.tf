@@ -1,16 +1,13 @@
-#Basic VLAN Group example
-resource "netbox_vlan_group" "example1" {
-  name = "example1"
-  slug = "example1"
+resource "netbox_site" "test" {
+  name = "test-site"
 }
 
-#Full VLAN Group example
-resource "netbox_vlan_group" "example2" {
-  name        = "Second Example"
-  slug        = "example2"
-  scope_type  = "dcim.site"
-  scope_id    = netbox_site.example.id
-  description = "Second Example VLAN Group"
-  tags        = [netbox_tag.example.id]
-  vid_ranges  = [[1, 2], [3, 4]]
+resource "netbox_vlan_group" "test" {
+  name        = "test-vlan-group"
+  site_id     = netbox_site.test.id
+  description = "test-description"
+  vid_ranges = [
+    { start = 100, end = 199 },
+    { start = 300, end = 399 },
+  ]
 }

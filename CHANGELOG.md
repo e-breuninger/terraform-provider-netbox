@@ -1,4 +1,38 @@
-# 5.7.0 (July 15th, 2026)
+## 6.0.0-rc.1 (September 26th, 2026)
+
+This is a complete rewrite of the provider.
+
+It is mostly generated procedurally from the NetBox API spec which means all missing resources, data sources and their
+attributes/filters should be implemented. Some additional resources are manually added on top of that.
+
+The provider also moved to the Terraform Plugin Framework in the process.
+
+SUPPORTED VERSIONS
+
+This version fully supports NetBox 4.6.8, 4.6.9 and 4.6.10.
+
+NetBox 4.6.7 is supported except for custom field choice sets.
+
+MIGRATION
+
+Most resources should migrate their state on the first refresh.
+
+Some resources must be removed from state and re-imported.
+
+BREAKING CHANGES
+
+* `netbox_vlan_group`, `netbox_custom_field_choice_set` and `netbox_cable` had attributes changed
+* `netbox_interface` renamed to `netbox_virtual_machine_interface`
+* `netbox_device_primary_ip` is merged into `netbox_primary_ip` (previously implicitly the VM version)
+* Tags are now referenced by slug, not name
+* `filter` blocks in data sources are now a set of objects called `filters`
+* In singular data sources, custom field lookups are now in `custom_field_filters` (`custom_fields` now contains the
+  custom fields of the returned object)
+* In plural data sources, custom fields are looked up via the `cf_<field-name>` syntax. The filter mode is defined in
+  the custom field itself.
+* Many attributes were renamed or dropped
+
+## 5.7.0 (July 15th, 2026)
 
 ENHANCEMENTS
 

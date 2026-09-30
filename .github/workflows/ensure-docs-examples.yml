@@ -7,5 +7,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-      - name: ensure-docs-examples
-        run: bash scripts/ensure_docs_examples.sh
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      - name: validate-examples
+        run: make validate-examples

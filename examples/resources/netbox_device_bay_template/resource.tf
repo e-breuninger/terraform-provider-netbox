@@ -1,16 +1,16 @@
-resource "netbox_manufacturer" "example" {
-  name = "example_manufacturer"
+resource "netbox_manufacturer" "test" {
+  name = "test-manufacturer"
 }
 
-resource "netbox_device_type" "example" {
-  model           = "example_device_model"
-  slug            = "example_device_slug"
-  part_number     = "example_part_number"
-  manufacturer_id = netbox_manufacturer.example.id
+resource "netbox_device_type" "test" {
+  manufacturer_id = netbox_manufacturer.test.id
+  model           = "test-device-type"
   subdevice_role  = "parent"
 }
 
-resource "netbox_device_bay_template" "example" {
-  name           = "example_device_bay_template"
-  device_type_id = netbox_device_type.example.id
+resource "netbox_device_bay_template" "test" {
+  device_type_id = netbox_device_type.test.id
+  name           = "test-device-bay-template"
+  label          = "test-label"
+  description    = "test-description"
 }

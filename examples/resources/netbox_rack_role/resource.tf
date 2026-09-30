@@ -1,4 +1,6 @@
 resource "netbox_rack_role" "test" {
-  name      = "test"
-  color_hex = "111111"
+  name        = "test-rack-role"
+  slug        = "test-rack-role"
+  color_hex   = "112233"
+  description = "test-description"
 }

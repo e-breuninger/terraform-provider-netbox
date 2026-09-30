@@ -1,3 +1,3 @@
-data "netbox_cluster_group" "dc_west" {
-  name = "dc-west"
+data "netbox_cluster_group" "test" {
+  name = "test-cluster_group"
 }

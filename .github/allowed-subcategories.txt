@@ -7,3 +7,4 @@ Tenancy
 Virtualization
 VPN Tunnels
 Wireless
+Miscellaneous
