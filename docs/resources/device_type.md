@@ -37,6 +37,7 @@ resource "netbox_device_type" "test" {
 
 ### Optional
 
+- `airflow` (String) Valid values are `front-to-rear`, `rear-to-front`, `left-to-right`, `right-to-left`, `side-to-rear`, `passive` and `mixed`.
 - `comments` (String)
 - `custom_fields` (Map of String)
 - `description` (String)
@@ -46,6 +47,8 @@ resource "netbox_device_type" "test" {
 - `subdevice_role` (String)
 - `tags` (Set of String)
 - `u_height` (Number) Defaults to `1.0`.
+- `weight` (Number)
+- `weight_unit` (String) Valid values are `kg`, `g`, `lb` and `oz`. Required when `weight` is set.
 
 ### Read-Only
 

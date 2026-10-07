@@ -14,6 +14,7 @@ import (
 
 var resourceNetboxDeviceStatusOptions = []string{"offline", "active", "planned", "staged", "failed", "inventory", "decommissioning"}
 var resourceNetboxDeviceRackFaceOptions = []string{"front", "rear"}
+var resourceNetboxDeviceAirflowOptions = []string{"front-to-rear", "rear-to-front", "left-to-right", "right-to-left", "side-to-rear", "passive", "mixed"}
 
 func resourceNetboxDevice() *schema.Resource {
 	return &schema.Resource{
@@ -109,6 +110,12 @@ func resourceNetboxDevice() *schema.Resource {
 			"rack_position": {
 				Type:     schema.TypeFloat,
 				Optional: true,
+			},
+			"airflow": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceAirflowOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxDeviceAirflowOptions),
 			},
 			"virtual_chassis_id": {
 				Type:         schema.TypeInt,
@@ -213,6 +220,8 @@ func resourceNetboxDeviceCreate(ctx context.Context, d *schema.ResourceData, m i
 
 	data.Rack = getOptionalInt(d, "rack_id")
 	data.Face = getOptionalStr(d, "rack_face", false)
+
+	data.Airflow = getOptionalStr(d, "airflow", false)
 
 	rackPosition, ok := d.GetOk("rack_position")
 	if ok && rackPosition.(float64) > 0 {
@@ -380,6 +389,12 @@ func resourceNetboxDeviceRead(ctx context.Context, d *schema.ResourceData, m int
 		d.Set("rack_face", nil)
 	}
 
+	if device.Airflow != nil {
+		d.Set("airflow", device.Airflow.Value)
+	} else {
+		d.Set("airflow", nil)
+	}
+
 	d.Set("rack_position", device.Position)
 
 	if device.VirtualChassis != nil {
@@ -469,6 +484,8 @@ func resourceNetboxDeviceUpdate(ctx context.Context, d *schema.ResourceData, m i
 
 	data.Rack = getOptionalInt(d, "rack_id")
 	data.Face = getOptionalStr(d, "rack_face", false)
+
+	data.Airflow = getOptionalStr(d, "airflow", false)
 	data.Position = getOptionalFloat(d, "rack_position")
 
 	data.VirtualChassis = getOptionalInt(d, "virtual_chassis_id")

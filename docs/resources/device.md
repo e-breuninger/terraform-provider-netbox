@@ -58,6 +58,7 @@ resource "netbox_device" "test" {
 
 ### Optional
 
+- `airflow` (String) Valid values are `front-to-rear`, `rear-to-front`, `left-to-right`, `right-to-left`, `side-to-rear`, `passive` and `mixed`.
 - `asset_tag` (String)
 - `cluster_id` (Number)
 - `comments` (String)

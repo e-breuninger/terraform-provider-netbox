@@ -256,6 +256,49 @@ resource "netbox_device" "test" {
 	})
 }
 
+func TestAccNetboxDevice_airflow(t *testing.T) {
+	testSlug := "device_airflow"
+	testName := testAccGetTestName(testSlug)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDeviceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_device" "test" {
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+  airflow = "front-to-rear"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "airflow", "front-to-rear"),
+				),
+			},
+			{
+				Config: testAccNetboxDeviceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_device" "test" {
+  name = "%[1]s"
+  role_id = netbox_device_role.test.id
+  device_type_id = netbox_device_type.test.id
+  site_id = netbox_site.test.id
+  airflow = "passive"
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_device.test", "airflow", "passive"),
+				),
+			},
+			{
+				ResourceName:      "netbox_device.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetboxDevice_virtual_chassis(t *testing.T) {
 	testSlug := "device_virtual_chassis"
 	testName := testAccGetTestName(testSlug)

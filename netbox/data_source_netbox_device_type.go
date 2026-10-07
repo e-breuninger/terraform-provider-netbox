@@ -13,6 +13,10 @@ func dataSourceNetboxDeviceType() *schema.Resource {
 		Read:        dataSourceNetboxDeviceTypeRead,
 		Description: `:meta:subcategory:Data Center Inventory Management (DCIM):`,
 		Schema: map[string]*schema.Schema{
+			"airflow": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"is_full_depth": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -43,6 +47,14 @@ func dataSourceNetboxDeviceType() *schema.Resource {
 			},
 			"u_height": {
 				Type:     schema.TypeFloat,
+				Computed: true,
+			},
+			"weight": {
+				Type:     schema.TypeFloat,
+				Computed: true,
+			},
+			"weight_unit": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -80,6 +92,11 @@ func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error
 	}
 	result := res.GetPayload().Results[0]
 	d.SetId(strconv.FormatInt(result.ID, 10))
+	if result.Airflow != nil && result.Airflow.Value != nil {
+		d.Set("airflow", *result.Airflow.Value)
+	} else {
+		d.Set("airflow", nil)
+	}
 	d.Set("is_full_depth", result.IsFullDepth)
 	d.Set("manufacturer_id", result.Manufacturer.ID)
 	d.Set("model", result.Model)
@@ -91,5 +108,11 @@ func dataSourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error
 	}
 	d.Set("slug", result.Slug)
 	d.Set("u_height", result.UHeight)
+	d.Set("weight", result.Weight)
+	if result.WeightUnit != nil && result.WeightUnit.Value != nil {
+		d.Set("weight_unit", *result.WeightUnit.Value)
+	} else {
+		d.Set("weight_unit", nil)
+	}
 	return nil
 }
