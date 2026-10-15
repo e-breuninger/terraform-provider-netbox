@@ -76,7 +76,7 @@ resource "netbox_rack" "test" {
 - `airflow` (String) Airflow direction. One of: front-to-rear, rear-to-front.
 - `asset_tag` (String) Unique asset tag.
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `desc_units` (Boolean) Units are numbered top-to-bottom.
 - `description` (String)
 - `facility_id` (String) Locally-assigned facility identifier.

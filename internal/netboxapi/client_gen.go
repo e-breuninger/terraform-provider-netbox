@@ -203,11 +203,54 @@ func typedCustomFieldValue(name, fieldType, v string) (any, error) {
 			return v, nil // bare text is sent as a JSON string
 		}
 		return x, nil
-	case "object", "multiobject":
-		return nil, fmt.Errorf("custom field %q: %s custom fields are not supported", name, fieldType)
+	case "object":
+		var x any
+		if err := json.Unmarshal([]byte(v), &x); err != nil {
+			return nil, fmt.Errorf("custom field %q: %q is not an object id", name, v)
+		}
+		id, ok := customFieldObjectID(x)
+		if !ok {
+			return nil, fmt.Errorf("custom field %q: %q is not an object id", name, v)
+		}
+		return id, nil
+	case "multiobject":
+		var xs []any
+		if err := json.Unmarshal([]byte(v), &xs); err != nil {
+			return nil, fmt.Errorf("custom field %q: %q is not a JSON array of object ids", name, v)
+		}
+		ids := make([]int64, 0, len(xs))
+		for _, x := range xs {
+			id, ok := customFieldObjectID(x)
+			if !ok {
+				return nil, fmt.Errorf("custom field %q: %q is not a JSON array of object ids", name, v)
+			}
+			ids = append(ids, id)
+		}
+		return ids, nil
 	default:
 		return v, nil
 	}
+}
+
+// customFieldObjectID is the related object's id in an object custom field
+// value: the id itself, or the object as NetBox returns it ({"id": 12, ...}),
+// which is what the state holds when the value was set outside Terraform.
+func customFieldObjectID(x any) (int64, bool) {
+	switch t := x.(type) {
+	case float64:
+		if t > 0 && t == float64(int64(t)) {
+			return int64(t), true
+		}
+	case string:
+		if id, err := strconv.ParseInt(t, 10, 64); err == nil && id > 0 {
+			return id, true
+		}
+	case map[string]any:
+		if id, ok := t["id"]; ok {
+			return customFieldObjectID(id)
+		}
+	}
+	return 0, false
 }
 
 // MergeTags is configured plus the defaults it does not already list.

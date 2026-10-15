@@ -82,7 +82,7 @@ resource "netbox_module" "test" {
 - `adopt_components` (Boolean) Whether existing components of the device that match the module type's templates are adopted by the module. Only applied when the module is created.
 - `asset_tag` (String) Unique asset tag.
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `owner_id` (Number) Id of the owner the object is assigned to.
 - `replicate_components` (Boolean) Whether the components of the module type are created on the device along with the module. Only applied when the module is created.

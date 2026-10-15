@@ -45,7 +45,7 @@ resource "netbox_virtual_machine_type" "test" {
 ### Optional
 
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `default_memory` (Number) Default memory in megabytes.
 - `default_platform_id` (Number) Id of the platform virtual machines of this type default to.
 - `default_vcpus` (Number) Default number of virtual CPUs.

@@ -77,7 +77,7 @@ resource "netbox_vpn_tunnel_termination" "test" {
 
 ### Optional
 
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `device_interface_id` (Number) Id of the terminating device interface (termination_type dcim.interface). Conflicts with virtual_machine_interface_id and with setting the termination_* pair directly.
 - `outside_ip_address_id` (Number) Id of the outside IP address of the termination.
 - `role` (String) Role of the termination in the tunnel topology. One of: peer, hub, spoke.

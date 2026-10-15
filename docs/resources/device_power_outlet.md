@@ -75,7 +75,7 @@ resource "netbox_device_power_outlet" "test" {
 ### Optional
 
 - `color_hex` (String) RGB color in hex (e.g. ff0000).
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `feed_leg` (String) Phase (for three-phase feeds). One of: A, B, C.
 - `label` (String) Physical label.

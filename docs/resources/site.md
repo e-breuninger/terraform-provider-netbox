@@ -90,7 +90,7 @@ resource "netbox_site" "no_asn" {
 
 - `asn_ids` (Set of Number) Ids of ASNs assigned to the site. When set, the site has exactly these ASNs, and an empty set removes them all. When unset, the ASNs are left alone, so they can be declared on the ASNs instead (netbox_asn site_ids).
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `facility` (String) Local facility ID or description.
 - `group_id` (Number) Id of the site group.

@@ -88,7 +88,7 @@ resource "netbox_wireless_link" "test" {
 - `auth_psk` (String, Sensitive) Pre-shared key.
 - `auth_type` (String) Authentication type. One of: open, wep, wpa-personal, wpa-enterprise.
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `distance` (Number) Link distance; requires distance_unit.
 - `distance_unit` (String) Unit of distance. One of: km, m, mi, ft.

@@ -60,7 +60,7 @@ resource "netbox_circuit" "test" {
 - `circuit_provider_account_id` (Number) Id of the provider account the circuit is billed to.
 - `comments` (String)
 - `commit_rate_kbps` (Number) Committed rate in kbps.
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `distance` (Number) Length of the circuit (requires distance_unit).
 - `distance_unit` (String) Unit of distance. One of: km, m, mi, ft.

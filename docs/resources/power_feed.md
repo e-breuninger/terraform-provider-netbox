@@ -61,7 +61,7 @@ resource "netbox_power_feed" "test" {
 
 - `amperage` (Number) Amperage of the feed.
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `mark_connected` (Boolean) Treat the feed as connected even without a cable.
 - `max_percent_utilization` (Number, Deprecated) Deprecated alias of max_utilization_percent.

@@ -119,7 +119,7 @@ func (r *clusterTypeResource) Schema(ctx context.Context, req resource.SchemaReq
 				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
-				Description: "Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).",
+				Description: "Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).",
 				PlanModifiers: []planmodifier.Map{
 					mapplanmodifier.UseStateForUnknown(),
 				},
