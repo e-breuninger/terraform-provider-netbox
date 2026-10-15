@@ -233,7 +233,7 @@ func resourceNetboxAvailableIPAddressUpdate(d *schema.ResourceData, m interface{
 	data.DNSName = getOptionalStr(d, "dns_name", false)
 	data.Vrf = getOptionalInt(d, "vrf_id")
 	data.Tenant = getOptionalInt(d, "tenant_id")
-	if cf, ok := d.GetOk(customFieldsKey); ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 

@@ -289,7 +289,7 @@ func resourceNetboxPrefixUpdate(d *schema.ResourceData, m interface{}) error {
 		data.Role = int64ToPtr(int64(roleID.(int)))
 	}
 
-	if cf, ok := d.GetOk(customFieldsKey); ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 

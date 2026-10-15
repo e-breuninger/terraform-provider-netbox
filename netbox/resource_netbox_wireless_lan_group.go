@@ -158,7 +158,7 @@ func resourceNetboxWirelessLANGroupUpdate(d *schema.ResourceData, m interface{})
 		return err
 	}
 
-	if cf, ok := d.GetOk(customFieldsKey); ok {
+	if cf := getCustomFieldsForUpdate(d); cf != nil {
 		data.CustomFields = cf
 	}
 
