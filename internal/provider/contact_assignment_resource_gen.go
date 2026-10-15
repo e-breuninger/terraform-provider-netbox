@@ -253,7 +253,7 @@ func (r *contactAssignmentResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()

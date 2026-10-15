@@ -261,7 +261,7 @@ func (r *dataSourceResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	priorCustomFields := state.CustomFields
 	res, err := r.client.Core.CoreDataSourcesRetrieveContext(ctx, core.NewCoreDataSourcesRetrieveParams().WithID(state.ID.ValueInt64()), nil)

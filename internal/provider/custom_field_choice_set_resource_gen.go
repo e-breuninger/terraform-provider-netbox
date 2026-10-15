@@ -226,7 +226,7 @@ func (r *customFieldChoiceSetResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	priorExtraChoices := state.ExtraChoices
 	res, err := r.client.Extras.ExtrasCustomFieldChoiceSetsRetrieveContext(ctx, extras.NewExtrasCustomFieldChoiceSetsRetrieveParams().WithID(state.ID.ValueInt64()), nil)

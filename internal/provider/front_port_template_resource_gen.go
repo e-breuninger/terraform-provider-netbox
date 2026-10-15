@@ -291,7 +291,7 @@ func (r *frontPortTemplateResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Dcim.DcimFrontPortTemplatesRetrieveContext(ctx, dcim.NewDcimFrontPortTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {

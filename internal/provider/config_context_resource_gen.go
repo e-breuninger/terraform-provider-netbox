@@ -652,7 +652,7 @@ func (r *configContextResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Extras.ExtrasConfigContextsRetrieveContext(ctx, extras.NewExtrasConfigContextsRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {

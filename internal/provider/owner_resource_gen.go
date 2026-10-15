@@ -147,7 +147,7 @@ func (r *ownerResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Users.UsersOwnersRetrieveContext(ctx, users.NewUsersOwnersRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {

@@ -211,7 +211,7 @@ func (r *tokenResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	priorToken := state.Token
 	res, err := r.client.Users.UsersTokensRetrieveContext(ctx, users.NewUsersTokensRetrieveParams().WithID(state.ID.ValueInt64()), nil)

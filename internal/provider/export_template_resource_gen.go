@@ -228,7 +228,7 @@ func (r *exportTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Extras.ExtrasExportTemplatesRetrieveContext(ctx, extras.NewExtrasExportTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {

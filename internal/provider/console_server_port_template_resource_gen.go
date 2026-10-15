@@ -213,7 +213,7 @@ func (r *consoleServerPortTemplateResource) Read(ctx context.Context, req resour
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Dcim.DcimConsoleServerPortTemplatesRetrieveContext(ctx, dcim.NewDcimConsoleServerPortTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {

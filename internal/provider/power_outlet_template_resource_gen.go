@@ -277,7 +277,7 @@ func (r *powerOutletTemplateResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 	state := &data
-	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Dcim.DcimPowerOutletTemplatesRetrieveContext(ctx, dcim.NewDcimPowerOutletTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
