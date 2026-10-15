@@ -39,6 +39,40 @@ You can create an IP address that is not assigned to anything by omitting the at
 
 {{ tffile "examples/resources/netbox_ip_address/standalone.tf" }}
 
+### Allocating the next available address from a prefix
+
+Omit `ip_address` and set `prefix_id` to have Netbox pick the next free address from that prefix.
+
+{{ tffile "examples/resources/netbox_ip_address/prefix.tf" }}
+
+### Allocating the next available address from an IP range
+
+Same idea, from an IP range instead of a prefix.
+
+{{ tffile "examples/resources/netbox_ip_address/range.tf" }}
+
+## Migrating from `netbox_available_ip_address`
+
+`netbox_available_ip_address` is superseded by the `prefix_id` / `ip_range_id`
+attributes on this resource. There is no automatic migration: `terraform state
+mv` refuses to move state between different resource types, and `moved` blocks
+require the provider to implement `MoveResourceState`, which this provider does
+not. Migrate manually, one resource at a time:
+
+```shell
+terraform state rm netbox_available_ip_address.example
+```
+
+Then change the resource block's type from `netbox_available_ip_address` to
+`netbox_ip_address` in your configuration, and import it back:
+
+```shell
+terraform import netbox_ip_address.example <id>
+```
+
+The underlying Netbox object and its ID are unchanged, so the import is a no-op
+against the live API and the next plan is empty.
+
 {{ .SchemaMarkdown | trimspace }}
 
 {{ if .HasImport -}}
