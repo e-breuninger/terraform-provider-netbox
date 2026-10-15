@@ -120,7 +120,7 @@ func (r *primaryIPResource) UpgradeState(ctx context.Context) map[int64]resource
 func (r *virtualMachineInterfaceResource) MoveState(ctx context.Context) []resource.StateMover {
 	return []resource.StateMover{{
 		StateMover: func(ctx context.Context, req resource.MoveStateRequest, resp *resource.MoveStateResponse) {
-			if req.SourceTypeName != "netbox_interface" || !strings.HasSuffix(req.SourceProviderAddress, "/netbox") {
+			if req.SourceTypeName != "netbox_interface" || !isNetboxProviderAddress(req.SourceProviderAddress) {
 				return
 			}
 			if req.SourceRawState == nil {
@@ -138,4 +138,11 @@ func (r *virtualMachineInterfaceResource) MoveState(ctx context.Context) []resou
 			resp.Diagnostics.Append(resp.TargetState.Set(ctx, obj)...)
 		},
 	}}
+}
+
+// isNetboxProviderAddress reports whether a moved block's source provider is
+// this one. Terraform sends the full address (registry.terraform.io/
+// e-breuninger/netbox), OpenTofu only the type (netbox).
+func isNetboxProviderAddress(address string) bool {
+	return address == "netbox" || strings.HasSuffix(address, "/netbox")
 }
