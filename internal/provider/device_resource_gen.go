@@ -48,6 +48,7 @@ func (r *deviceResource) Metadata(ctx context.Context, req resource.MetadataRequ
 
 func (r *deviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Version:     1,
 		Description: ":meta:subcategory:Data Center Inventory Management (DCIM):A physical device (dcim.device). primary_ip4_id/primary_ip6_id are set through netbox_primary_ip.\n\nFrom the [official documentation](https://netboxlabs.com/docs/netbox/models/dcim/device/):\n\n> Every piece of hardware which is installed within a site or rack exists in NetBox as a device. Devices are measured in rack units (U) and can be half depth or full depth. A device may have a height of 0U: These devices do not consume vertical rack space and cannot be assigned to a particular rack unit. A common example of a 0U device is a vertically-mounted PDU.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
