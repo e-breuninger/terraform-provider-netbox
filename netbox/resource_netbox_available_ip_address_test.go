@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccNetboxAvailableIPAddress_basic(t *testing.T) {
@@ -329,6 +331,274 @@ resource "netbox_available_ip_address" "test" {
 			},
 		},
 	})
+}
+
+// TestAccNetboxAvailableIPAddress_adoptExistingIP imports an address allocated
+// out of band - the only way to manage one - and asserts it survives: same
+// NetBox record, prefix recorded in state, empty plan afterwards. Moving it to
+// another prefix from there must still re-allocate.
+func TestAccNetboxAvailableIPAddress_adoptExistingIP(t *testing.T) {
+	prefixes := `
+resource "netbox_prefix" "test" {
+  prefix  = "1.1.9.0/24"
+  status  = "active"
+  is_pool = false
+}
+
+resource "netbox_prefix" "other" {
+  prefix  = "1.1.13.0/24"
+  status  = "active"
+  is_pool = false
+}`
+
+	withAdoptedIP := prefixes + `
+resource "netbox_available_ip_address" "test" {
+  prefix_id = netbox_prefix.test.id
+}`
+
+	movedToOtherPrefix := prefixes + `
+resource "netbox_available_ip_address" "test" {
+  prefix_id = netbox_prefix.other.id
+}`
+
+	var prefixID, adoptedIPID int64
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			// Prefixes only; remember the id to allocate from.
+			{
+				Config: prefixes,
+				Check: func(s *terraform.State) (err error) {
+					prefixID, err = testAccStateID(s, "netbox_prefix.test")
+					return err
+				},
+			},
+			// Allocate behind Terraform's back, the same way the resource
+			// does, then adopt it.
+			{
+				PreConfig: func() {
+					api := testAccProvider.Meta().(*providerState)
+					params := ipam.NewIpamPrefixesAvailableIpsCreateParams().WithID(prefixID).
+						WithData([]*models.AvailableIP{{}})
+					res, err := api.Ipam.IpamPrefixesAvailableIpsCreate(params, nil)
+					if err != nil {
+						t.Fatalf("allocating an out-of-band IP in prefix %d: %s", prefixID, err)
+					}
+					if len(res.Payload) == 0 {
+						t.Fatalf("no available IP addresses in prefix %d", prefixID)
+					}
+					adoptedIPID = res.Payload[0].ID
+				},
+				Config:             withAdoptedIP,
+				ResourceName:       "netbox_available_ip_address.test",
+				ImportState:        true,
+				ImportStatePersist: true,
+				ImportStateIdFunc: func(*terraform.State) (string, error) {
+					return strconv.FormatInt(adoptedIPID, 10), nil
+				},
+				ImportStateCheck: testAccCheckImportedAllocationSourceUnset("prefix_id"),
+			},
+			// Records the prefix in state, keeps the address. Unfixed, this
+			// destroys the imported address and allocates another.
+			{
+				Config: withAdoptedIP,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_available_ip_address.test", "prefix_id", "netbox_prefix.test", "id"),
+					func(s *terraform.State) error {
+						id, err := testAccStateID(s, "netbox_available_ip_address.test")
+						if err != nil {
+							return err
+						}
+						if id != adoptedIPID {
+							return fmt.Errorf("expected the adopted address (NetBox id %d) to be kept, got id %d", adoptedIPID, id)
+						}
+						return nil
+					},
+				),
+			},
+			// Converged.
+			{
+				Config:   withAdoptedIP,
+				PlanOnly: true,
+			},
+			// Source known now, so a change re-allocates as usual.
+			{
+				Config: movedToOtherPrefix,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", "1.1.13.1/24"),
+					func(s *terraform.State) error {
+						id, err := testAccStateID(s, "netbox_available_ip_address.test")
+						if err != nil {
+							return err
+						}
+						if id == adoptedIPID {
+							return fmt.Errorf("expected the address to be replaced, but it is still NetBox id %d", adoptedIPID)
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
+// TestAccNetboxAvailableIPAddress_adoptExistingIPFromRange is the ip_range_id
+// twin of TestAccNetboxAvailableIPAddress_adoptExistingIP.
+func TestAccNetboxAvailableIPAddress_adoptExistingIPFromRange(t *testing.T) {
+	rangeOnly := `
+resource "netbox_ip_range" "test" {
+  start_address = "1.1.12.1/24"
+  end_address   = "1.1.12.50/24"
+}`
+
+	withAdoptedIP := rangeOnly + `
+resource "netbox_available_ip_address" "test" {
+  ip_range_id = netbox_ip_range.test.id
+}`
+
+	var rangeID, adoptedIPID int64
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: rangeOnly,
+				Check: func(s *terraform.State) (err error) {
+					rangeID, err = testAccStateID(s, "netbox_ip_range.test")
+					return err
+				},
+			},
+			{
+				PreConfig: func() {
+					api := testAccProvider.Meta().(*providerState)
+					params := ipam.NewIpamIPRangesAvailableIpsCreateParams().WithID(rangeID).
+						WithData([]*models.AvailableIP{{}})
+					res, err := api.Ipam.IpamIPRangesAvailableIpsCreate(params, nil)
+					if err != nil {
+						t.Fatalf("allocating an out-of-band IP in range %d: %s", rangeID, err)
+					}
+					if len(res.Payload) == 0 {
+						t.Fatalf("no available IP addresses in range %d", rangeID)
+					}
+					adoptedIPID = res.Payload[0].ID
+				},
+				Config:             withAdoptedIP,
+				ResourceName:       "netbox_available_ip_address.test",
+				ImportState:        true,
+				ImportStatePersist: true,
+				ImportStateIdFunc: func(*terraform.State) (string, error) {
+					return strconv.FormatInt(adoptedIPID, 10), nil
+				},
+				ImportStateCheck: testAccCheckImportedAllocationSourceUnset("ip_range_id"),
+			},
+			{
+				Config: withAdoptedIP,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("netbox_available_ip_address.test", "ip_range_id", "netbox_ip_range.test", "id"),
+					func(s *terraform.State) error {
+						id, err := testAccStateID(s, "netbox_available_ip_address.test")
+						if err != nil {
+							return err
+						}
+						if id != adoptedIPID {
+							return fmt.Errorf("expected the adopted address (NetBox id %d) to be kept, got id %d", adoptedIPID, id)
+						}
+						return nil
+					},
+				),
+			},
+			{
+				Config:   withAdoptedIP,
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
+// TestAccNetboxAvailableIPAddress_allocationSourceChangeReallocates guards the
+// other side: a real prefix change on a provider-created address re-allocates.
+func TestAccNetboxAvailableIPAddress_allocationSourceChangeReallocates(t *testing.T) {
+	prefixes := `
+resource "netbox_prefix" "first" {
+  prefix  = "1.1.10.0/24"
+  status  = "active"
+  is_pool = false
+}
+
+resource "netbox_prefix" "second" {
+  prefix  = "1.1.11.0/24"
+  status  = "active"
+  is_pool = false
+}`
+
+	fromFirst := prefixes + `
+resource "netbox_available_ip_address" "test" {
+  prefix_id = netbox_prefix.first.id
+}`
+
+	fromSecond := prefixes + `
+resource "netbox_available_ip_address" "test" {
+  prefix_id = netbox_prefix.second.id
+}`
+
+	var firstIPID int64
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fromFirst,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", "1.1.10.1/24"),
+					func(s *terraform.State) (err error) {
+						firstIPID, err = testAccStateID(s, "netbox_available_ip_address.test")
+						return err
+					},
+				),
+			},
+			{
+				Config: fromSecond,
+				Check: resource.ComposeTestCheckFunc(
+					// New address and new record; an in-place update would
+					// have kept both.
+					resource.TestCheckResourceAttr("netbox_available_ip_address.test", "ip_address", "1.1.11.1/24"),
+					func(s *terraform.State) error {
+						secondIPID, err := testAccStateID(s, "netbox_available_ip_address.test")
+						if err != nil {
+							return err
+						}
+						if secondIPID == firstIPID {
+							return fmt.Errorf("expected the IP address to be replaced, but it is still NetBox id %d", firstIPID)
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
+// testAccCheckImportedAllocationSourceUnset asserts an import could not
+// populate the given allocation source, which is the root of the problem.
+func testAccCheckImportedAllocationSourceUnset(attribute string) resource.ImportStateCheckFunc {
+	return func(states []*terraform.InstanceState) error {
+		for _, is := range states {
+			if got := is.Attributes[attribute]; got != "" && got != "0" {
+				return fmt.Errorf("expected imported %s to be unset, got %q", attribute, got)
+			}
+		}
+		return nil
+	}
+}
+
+// testAccStateID returns a resource's NetBox id from state.
+func testAccStateID(s *terraform.State, address string) (int64, error) {
+	rs, ok := s.RootModule().Resources[address]
+	if !ok {
+		return 0, fmt.Errorf("%s not found in state", address)
+	}
+	return strconv.ParseInt(rs.Primary.ID, 10, 64)
 }
 
 func init() {

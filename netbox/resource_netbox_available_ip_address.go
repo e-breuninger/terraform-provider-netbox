@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -11,12 +12,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+// forceNewOnAllocationSourceMove replaces the address only when its allocation
+// source really moves from one prefix or range to another.
+//
+// prefix_id / ip_range_id are write-only: Netbox does not report which prefix or
+// range an address came from, so Read cannot populate them and an imported
+// address keeps 0. An old value of 0 therefore means "source unknown", not
+// "moved" - as does a new value that is not known until apply, such as a prefix
+// id from a data source whose read is deferred. Replacing on either destroys a
+// live address, and Netbox hands out a different one on the re-allocation.
+//
+// customdiff.ForceNewIfChange cannot express this: its predicate only receives
+// the values, and GetChange reports an unknown as 0.
+func forceNewOnAllocationSourceMove(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	for _, key := range []string{"prefix_id", "ip_range_id"} {
+		oldValue, newValue := d.GetChange(key)
+		if !d.NewValueKnown(key) || oldValue.(int) == 0 || oldValue.(int) == newValue.(int) {
+			continue
+		}
+		if err := d.ForceNew(key); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func resourceNetboxAvailableIPAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxAvailableIPAddressCreate,
 		Read:   resourceNetboxAvailableIPAddressRead,
 		Update: resourceNetboxAvailableIPAddressUpdate,
 		Delete: resourceNetboxAvailableIPAddressDelete,
+
+		CustomizeDiff: forceNewOnAllocationSourceMove,
 
 		Description: `:meta:subcategory:IP Address Management (IPAM):Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/ipaddress/):
 
@@ -33,16 +61,15 @@ func resourceNetboxAvailableIPAddress() *schema.Resource {
 This resource will retrieve the next available IP address from a given prefix or IP range (specified by ID)`,
 
 		Schema: map[string]*schema.Schema{
+			// Not ForceNew: see forceNewOnAllocationSourceMove.
 			"prefix_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
 			"ip_range_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"prefix_id", "ip_range_id"},
 			},
 			"ip_address": {
