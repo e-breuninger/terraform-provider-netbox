@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -99,8 +98,10 @@ func (r *rackResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				},
 			},
 			"form_factor": schema.StringAttribute{
-				Optional:    true,
-				Description: "Rack form factor. One of: 2-post-frame, 4-post-frame, 4-post-cabinet, wall-frame, wall-frame-vertical, wall-cabinet, wall-cabinet-vertical.",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{derivedString{derivedFrom("rack_type_id")}},
+				Description:   "Rack form factor. One of: 2-post-frame, 4-post-frame, 4-post-cabinet, wall-frame, wall-frame-vertical, wall-cabinet, wall-cabinet-vertical.",
 				Validators: []validator.String{
 					stringvalidator.OneOf("2-post-frame", "4-post-frame", "4-post-cabinet", "wall-frame", "wall-frame-vertical", "wall-cabinet", "wall-cabinet-vertical"),
 				},
@@ -117,7 +118,7 @@ func (r *rackResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Description: "Rail-to-rail width in inches. One of: 10, 19, 21, 23.",
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
+					derivedInt64{derivedFrom("rack_type_id").keepingWhenSourceUnset()},
 				},
 				Validators: []validator.Int64{
 					int64validator.OneOf(10, 19, 21, 23),
@@ -128,7 +129,7 @@ func (r *rackResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Description: "Height in rack units.",
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
+					derivedInt64{derivedFrom("rack_type_id").keepingWhenSourceUnset()},
 				},
 				Validators: []validator.Int64{
 					int64validator.Between(1, 100),
@@ -139,7 +140,7 @@ func (r *rackResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Description: "Lowest unit number.",
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
+					derivedInt64{derivedFrom("rack_type_id").keepingWhenSourceUnset()},
 				},
 				Validators: []validator.Int64{
 					int64validator.Between(1, 32767),
@@ -150,7 +151,7 @@ func (r *rackResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Description: "Units are numbered top-to-bottom.",
 				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
+					derivedBool{derivedFrom("rack_type_id").keepingWhenSourceUnset()},
 				},
 			},
 			"serial": schema.StringAttribute{
@@ -175,57 +176,73 @@ func (r *rackResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				},
 			},
 			"outer_width": schema.Int64Attribute{
-				Optional:    true,
-				Description: "Outer width (requires outer_unit).",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Int64{derivedInt64{derivedFrom("rack_type_id")}},
+				Description:   "Outer width (requires outer_unit).",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 32767),
 				},
 			},
 			"outer_height": schema.Int64Attribute{
-				Optional:    true,
-				Description: "Outer height (requires outer_unit).",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Int64{derivedInt64{derivedFrom("rack_type_id")}},
+				Description:   "Outer height (requires outer_unit).",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 32767),
 				},
 			},
 			"outer_depth": schema.Int64Attribute{
-				Optional:    true,
-				Description: "Outer depth (requires outer_unit).",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Int64{derivedInt64{derivedFrom("rack_type_id")}},
+				Description:   "Outer depth (requires outer_unit).",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 32767),
 				},
 			},
 			"outer_unit": schema.StringAttribute{
-				Optional:    true,
-				Description: "Unit of the outer dimensions. One of: mm, in.",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{derivedString{derivedFrom("rack_type_id")}},
+				Description:   "Unit of the outer dimensions. One of: mm, in.",
 				Validators: []validator.String{
 					stringvalidator.OneOf("mm", "in"),
 				},
 			},
 			"mounting_depth": schema.Int64Attribute{
-				Optional:    true,
-				Description: "Maximum depth of a mounted device in millimeters.",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Int64{derivedInt64{derivedFrom("rack_type_id")}},
+				Description:   "Maximum depth of a mounted device in millimeters.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 32767),
 				},
 			},
 			"weight": schema.Float64Attribute{
-				Optional:    true,
-				Description: "Weight of the rack (requires weight_unit).",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Float64{derivedFloat64{derivedFrom("rack_type_id")}},
+				Description:   "Weight of the rack (requires weight_unit).",
 				Validators: []validator.Float64{
 					float64validator.Between(-1000000, 1000000),
 				},
 			},
 			"max_weight": schema.Int64Attribute{
-				Optional:    true,
-				Description: "Maximum load capacity (requires weight_unit).",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Int64{derivedInt64{derivedFrom("rack_type_id")}},
+				Description:   "Maximum load capacity (requires weight_unit).",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 2147483647),
 				},
 			},
 			"weight_unit": schema.StringAttribute{
-				Optional:    true,
-				Description: "Unit of weight and max_weight. One of: kg, g, lb, oz.",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{derivedString{derivedFrom("rack_type_id")}},
+				Description:   "Unit of weight and max_weight. One of: kg, g, lb, oz.",
 				Validators: []validator.String{
 					stringvalidator.OneOf("kg", "g", "lb", "oz"),
 				},

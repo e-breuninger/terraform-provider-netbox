@@ -135,8 +135,10 @@ func (r *virtualMachineResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Id of the cluster (a virtual machine needs a cluster or a site).",
 			},
 			"site_id": schema.Int64Attribute{
-				Optional:    true,
-				Description: "Id of the site (a virtual machine needs a cluster or a site).",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Int64{derivedInt64{derivedFrom("cluster_id")}},
+				Description:   "Id of the site (a virtual machine needs a cluster or a site).",
 			},
 			"role_id": schema.Int64Attribute{
 				Optional:    true,
@@ -151,8 +153,10 @@ func (r *virtualMachineResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Id of the tenant.",
 			},
 			"platform_id": schema.Int64Attribute{
-				Optional:    true,
-				Description: "Id of the platform.",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Int64{derivedInt64{derivedOnCreate()}},
+				Description:   "Id of the platform.",
 			},
 			"device_id": schema.Int64Attribute{
 				Optional:    true,
@@ -178,15 +182,19 @@ func (r *virtualMachineResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Id of the primary IPv6 address (managed by netbox_primary_ip).",
 			},
 			"vcpus": schema.Float64Attribute{
-				Optional:    true,
-				Description: "Number of virtual CPUs (fractions allowed).",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Float64{derivedFloat64{derivedOnCreate()}},
+				Description:   "Number of virtual CPUs (fractions allowed).",
 				Validators: []validator.Float64{
 					float64validator.Between(0.01, 10000),
 				},
 			},
 			"memory_mb": schema.Int64Attribute{
-				Optional:    true,
-				Description: "Memory in MB.",
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Int64{derivedInt64{derivedOnCreate()}},
+				Description:   "Memory in MB.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 2147483647),
 				},
