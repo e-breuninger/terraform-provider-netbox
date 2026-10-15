@@ -40,7 +40,7 @@ resource "netbox_device_role" "test" {
 - `color_hex` (String) RGB color in hex (e.g. ff0000). Defaults to 9e9e9e.
 - `comments` (String)
 - `config_template_id` (Number) Id of the config template devices of this role render by default.
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `owner_id` (Number) Id of the owner the object is assigned to.
 - `parent_id` (Number) Id of the parent device role.

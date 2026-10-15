@@ -51,7 +51,7 @@ resource "netbox_l2vpn_termination" "test" {
 
 - `assigned_object_id` (Number) Id of the terminating object (see assigned_object_type).
 - `assigned_object_type` (String) Content type of the terminating object. Derived from device_interface_id, virtual_machine_interface_id or vlan_id when one of those is set; set it together with assigned_object_id otherwise. One assignment is required. One of: dcim.interface, virtualization.vminterface, ipam.vlan.
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `device_interface_id` (Number) Id of the terminating device interface (assigned_object_type dcim.interface). Conflicts with the other aliases and with setting the assigned_object_* pair directly.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `virtual_machine_interface_id` (Number) Id of the terminating virtual machine interface (assigned_object_type virtualization.vminterface). Conflicts with the other aliases and with setting the assigned_object_* pair directly.

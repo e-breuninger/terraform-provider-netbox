@@ -49,7 +49,7 @@ resource "netbox_vpn_tunnel" "test" {
 ### Optional
 
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `ipsec_profile_id` (Number) Id of the IPsec profile.
 - `owner_id` (Number) Id of the owner the object is assigned to.

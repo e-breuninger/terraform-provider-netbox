@@ -51,7 +51,7 @@ resource "netbox_contact_assignment" "test" {
 
 ### Optional
 
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `priority` (String) Priority of the contact for this object. One of: primary, secondary, tertiary, inactive.
 - `role_id` (Number) Id of the contact role. Once set it cannot be removed, only changed: NetBox rejects a null. If you drop it from the config, keep a depends_on on the role so it is destroyed after the assignment.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).

@@ -92,7 +92,7 @@ resource "netbox_device" "test" {
 - `cluster_id` (Number) Id of the virtualization cluster the device hosts.
 - `comments` (String)
 - `config_template_id` (Number) Id of the config template.
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `latitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
 - `local_context_data` (String) Local config context data as JSON text (use jsonencode()).

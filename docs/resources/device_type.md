@@ -49,7 +49,7 @@ resource "netbox_device_type" "test" {
 
 - `airflow` (String) Airflow direction. One of: front-to-rear, rear-to-front, left-to-right, right-to-left, side-to-rear, passive, mixed, rear-to-side, bottom-to-top, top-to-bottom.
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `default_platform_id` (Number) Id of the platform assigned to new devices of this type.
 - `description` (String)
 - `exclude_from_utilization` (Boolean) Whether devices of this type are left out of the rack utilization.

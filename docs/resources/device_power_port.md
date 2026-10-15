@@ -67,7 +67,7 @@ resource "netbox_device_power_port" "test" {
 ### Optional
 
 - `allocated_draw` (Number) Allocated power draw in watts.
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `label` (String) Physical label.
 - `mark_connected` (Boolean) Treat as if a cable is connected.

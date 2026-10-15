@@ -157,7 +157,7 @@ resource "netbox_ip_address" "test" {
 - `assigned_object_id` (Number) Id of the object the address is assigned to (see assigned_object_type).
 - `assigned_object_type` (String) Content type of the object the address is assigned to. Derived from device_interface_id or virtual_machine_interface_id when one of those is set; set it together with assigned_object_id for other object types. One of: dcim.interface, virtualization.vminterface, ipam.fhrpgroup.
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `device_interface_id` (Number) Id of the device interface the address is assigned to (assigned_object_type dcim.interface). Conflicts with virtual_machine_interface_id and with setting the assigned_object_* pair directly.
 - `dns_name` (String) Hostname or FQDN (not case-sensitive).

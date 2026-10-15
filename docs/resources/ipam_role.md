@@ -35,7 +35,7 @@ resource "netbox_ipam_role" "test" {
 ### Optional
 
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `owner_id` (Number) Id of the owner the object is assigned to.
 - `slug` (String) URL-friendly unique shorthand; derived from name when not set.

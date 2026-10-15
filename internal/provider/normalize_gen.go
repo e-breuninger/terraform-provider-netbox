@@ -5,6 +5,7 @@ package provider
 import (
 	"encoding/json"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -44,17 +45,61 @@ func keepPriorCustomFields(prior, next types.Map) types.Map {
 }
 
 // sameCustomFieldValue reports whether two custom field strings denote one
-// value: the same number, or the same JSON document.
+// value: the same number, the same JSON document, or, for an object or
+// multiobject field, the same related objects (configured as ids, answered by
+// NetBox as nested objects, in any order).
 func sameCustomFieldValue(a, b string) bool {
-	if numberA, err := strconv.ParseFloat(a, 64); err == nil {
-		numberB, err := strconv.ParseFloat(b, 64)
-		return err == nil && numberA == numberB
+	numberA, errA := strconv.ParseFloat(a, 64)
+	numberB, errB := strconv.ParseFloat(b, 64)
+	if errA == nil && errB == nil {
+		return numberA == numberB
 	}
 	var documentA, documentB any
 	if json.Unmarshal([]byte(a), &documentA) != nil || json.Unmarshal([]byte(b), &documentB) != nil {
 		return false
 	}
-	return reflect.DeepEqual(documentA, documentB)
+	if reflect.DeepEqual(documentA, documentB) {
+		return true
+	}
+	idsA, nestedA, okA := relatedObjectIDs(documentA)
+	idsB, nestedB, okB := relatedObjectIDs(documentB)
+	return okA && okB && (nestedA || nestedB) && reflect.DeepEqual(idsA, idsB)
+}
+
+// relatedObjectIDs reads an object or multiobject custom field value as sorted
+// ids: an id, a nested object as NetBox returns it, or a list of either. nested
+// reports whether NetBox's nested form (id, url and display) was seen, which
+// tells an object field apart from a JSON field that merely holds numbers or
+// an "id" key.
+func relatedObjectIDs(document any) (ids []float64, nested bool, ok bool) {
+	one := func(x any) (float64, bool) {
+		switch t := x.(type) {
+		case float64:
+			return t, true
+		case map[string]any:
+			id, hasID := t["id"].(float64)
+			_, hasURL := t["url"]
+			_, hasDisplay := t["display"]
+			if hasID && hasURL && hasDisplay {
+				nested = true
+				return id, true
+			}
+		}
+		return 0, false
+	}
+	list, isList := document.([]any)
+	if !isList {
+		list = []any{document}
+	}
+	for _, x := range list {
+		id, isID := one(x)
+		if !isID {
+			return nil, false, false
+		}
+		ids = append(ids, id)
+	}
+	sort.Float64s(ids)
+	return ids, nested, true
 }
 
 // keepPriorFold returns prior when next differs from it only in letter

@@ -45,7 +45,7 @@ resource "netbox_webhook" "test" {
 - `additional_headers` (String) Extra request headers, one Name: Value per line; may be a Jinja2 template.
 - `body_template` (String) Jinja2 template for the request body.
 - `ca_file_path` (String) Path on the NetBox server to a CA certificate file to verify against. NetBox rejects it while ssl_verification is false.
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `http_content_type` (String) Content-Type header.
 - `http_method` (String) HTTP method. One of: GET, POST, PUT, PATCH, DELETE.

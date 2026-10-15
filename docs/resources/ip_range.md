@@ -42,7 +42,7 @@ resource "netbox_ip_range" "test" {
 ### Optional
 
 - `comments` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field takes the related object's id, a multiobject field a JSON list of ids (jsonencode([...])). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `description` (String)
 - `mark_populated` (Boolean) Treat the range as fully populated.
 - `mark_utilized` (Boolean) Treat the range as fully utilized.
