@@ -91,10 +91,10 @@ func flattenDeviceFrontPort(ctx context.Context, responseDTO *netboxapi.DeviceFr
 	}
 	model.RearPortID = conv.FromInt64Ptr(responseDTO.RearPortID)
 	model.RearPortPosition = conv.FromInt64Ptr(responseDTO.RearPortPosition)
-	model.ColorHex = conv.FromStringPtr(responseDTO.Color)
-	model.Label = conv.FromStringPtr(responseDTO.Label)
+	model.ColorHex = keepPriorString(model.ColorHex, conv.FromStringPtr(responseDTO.Color))
+	model.Label = keepPriorString(model.Label, conv.FromStringPtr(responseDTO.Label))
 	model.MarkConnected = conv.FromBoolPtr(responseDTO.MarkConnected)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)

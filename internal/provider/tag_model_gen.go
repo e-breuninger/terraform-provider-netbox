@@ -43,9 +43,9 @@ func flattenTag(ctx context.Context, responseDTO *netboxapi.TagResponseDTO, mode
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Slug = conv.FromStringPtr(responseDTO.Slug)
-	model.ColorHex = conv.FromStringPtr(responseDTO.Color)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Slug = keepPriorString(model.Slug, conv.FromStringPtr(responseDTO.Slug))
+	model.ColorHex = keepPriorString(model.ColorHex, conv.FromStringPtr(responseDTO.Color))
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.Weight = conv.FromInt64Ptr(responseDTO.Weight)
 	model.ObjectTypes = conv.SetFrom(ctx, types.StringType, responseDTO.ObjectTypes, model.ObjectTypes.IsNull() || model.ObjectTypes.IsUnknown(), &diags)
 	model.Created = conv.FromStringPtr(responseDTO.Created)

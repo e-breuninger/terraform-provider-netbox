@@ -39,7 +39,7 @@ func flattenVlanTranslationRule(ctx context.Context, responseDTO *netboxapi.Vlan
 	model.VlanTranslationPolicyID = conv.FromInt64Ptr(responseDTO.Policy)
 	model.LocalVid = conv.FromInt64Ptr(responseDTO.LocalVid)
 	model.RemoteVid = conv.FromInt64Ptr(responseDTO.RemoteVid)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.URL = conv.FromStringPtr(responseDTO.URL)
 	return diags
 }

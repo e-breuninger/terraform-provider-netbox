@@ -210,6 +210,7 @@ func (r *moduleBayTemplateResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -222,6 +223,7 @@ func (r *moduleBayTemplateResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Dcim.DcimModuleBayTemplatesRetrieveContext(ctx, dcim.NewDcimModuleBayTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -270,6 +272,7 @@ func (r *moduleBayTemplateResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

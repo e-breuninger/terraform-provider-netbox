@@ -278,6 +278,7 @@ func (r *asnRangeResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -290,6 +291,7 @@ func (r *asnRangeResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -366,6 +368,7 @@ func (r *asnRangeResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

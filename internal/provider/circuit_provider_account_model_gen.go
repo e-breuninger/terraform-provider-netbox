@@ -48,10 +48,10 @@ func flattenCircuitProviderAccount(ctx context.Context, responseDTO *netboxapi.C
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Account = conv.FromStringPtr(responseDTO.Account)
-	model.Name = conv.FromStringPtr(responseDTO.Name)
+	model.Name = keepPriorString(model.Name, conv.FromStringPtr(responseDTO.Name))
 	model.CircuitProviderID = conv.FromInt64Ptr(responseDTO.Provider)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.Comments = conv.FromStringPtr(responseDTO.Comments)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.Comments = keepPriorString(model.Comments, conv.FromStringPtr(responseDTO.Comments))
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)

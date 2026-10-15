@@ -56,9 +56,9 @@ func flattenVrf(ctx context.Context, responseDTO *netboxapi.VrfResponseDTO, mode
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Rd = conv.FromStringPtr(responseDTO.Rd)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.Comments = conv.FromStringPtr(responseDTO.Comments)
+	model.Rd = keepPriorString(model.Rd, conv.FromStringPtr(responseDTO.Rd))
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.Comments = keepPriorString(model.Comments, conv.FromStringPtr(responseDTO.Comments))
 	model.EnforceUnique = conv.FromBoolPtr(responseDTO.EnforceUnique)
 	model.TenantID = conv.FromInt64Ptr(responseDTO.Tenant)
 	model.ImportTargetIds = conv.SetFrom(ctx, types.Int64Type, responseDTO.ImportTargets, model.ImportTargetIds.IsNull() || model.ImportTargetIds.IsUnknown(), &diags)

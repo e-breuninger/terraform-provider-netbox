@@ -215,6 +215,7 @@ func (r *exportTemplateResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -227,6 +228,7 @@ func (r *exportTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Extras.ExtrasExportTemplatesRetrieveContext(ctx, extras.NewExtrasExportTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -275,6 +277,7 @@ func (r *exportTemplateResource) Update(ctx context.Context, req resource.Update
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

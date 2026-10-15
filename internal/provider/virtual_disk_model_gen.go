@@ -48,7 +48,7 @@ func flattenVirtualDisk(ctx context.Context, responseDTO *netboxapi.VirtualDiskR
 	model.VirtualMachineID = conv.FromInt64Ptr(responseDTO.VirtualMachine)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
 	model.SizeMb = conv.FromInt64Ptr(responseDTO.Size)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)

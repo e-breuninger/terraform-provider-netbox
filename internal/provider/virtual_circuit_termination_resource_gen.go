@@ -234,6 +234,7 @@ func (r *virtualCircuitTerminationResource) Create(ctx context.Context, req reso
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -246,6 +247,7 @@ func (r *virtualCircuitTerminationResource) Read(ctx context.Context, req resour
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -322,6 +324,7 @@ func (r *virtualCircuitTerminationResource) Update(ctx context.Context, req reso
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

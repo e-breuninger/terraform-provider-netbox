@@ -48,7 +48,7 @@ func flattenL2vpnTermination(ctx context.Context, responseDTO *netboxapi.L2vpnTe
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.L2vpnID = conv.FromInt64Ptr(responseDTO.L2vpn)
-	model.AssignedObjectType = conv.FromStringPtr(responseDTO.AssignedObjectType)
+	model.AssignedObjectType = keepPriorString(model.AssignedObjectType, conv.FromStringPtr(responseDTO.AssignedObjectType))
 	model.AssignedObjectID = conv.FromInt64Ptr(responseDTO.AssignedObjectID)
 	model.DeviceInterfaceID = conv.FromInt64Ptr(responseDTO.DeviceInterfaceID)
 	model.VirtualMachineInterfaceID = conv.FromInt64Ptr(responseDTO.VirtualMachineInterfaceID)

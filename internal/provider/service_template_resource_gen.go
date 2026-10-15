@@ -240,6 +240,7 @@ func (r *serviceTemplateResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -252,6 +253,7 @@ func (r *serviceTemplateResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -328,6 +330,7 @@ func (r *serviceTemplateResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

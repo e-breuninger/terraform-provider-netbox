@@ -46,9 +46,9 @@ func flattenUser(ctx context.Context, responseDTO *netboxapi.UserResponseDTO, mo
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Username = conv.FromStringPtr(responseDTO.Username)
-	model.FirstName = conv.FromStringPtr(responseDTO.FirstName)
-	model.LastName = conv.FromStringPtr(responseDTO.LastName)
-	model.Email = conv.FromStringPtr(responseDTO.Email)
+	model.FirstName = keepPriorString(model.FirstName, conv.FromStringPtr(responseDTO.FirstName))
+	model.LastName = keepPriorString(model.LastName, conv.FromStringPtr(responseDTO.LastName))
+	model.Email = keepPriorString(model.Email, conv.FromStringPtr(responseDTO.Email))
 	model.IsActive = conv.FromBoolPtr(responseDTO.IsActive)
 	model.GroupIds = conv.SetFrom(ctx, types.Int64Type, responseDTO.Groups, model.GroupIds.IsNull() || model.GroupIds.IsUnknown(), &diags)
 	model.DateJoined = conv.FromStringPtr(responseDTO.DateJoined)

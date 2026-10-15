@@ -37,7 +37,7 @@ func flattenNotificationGroup(ctx context.Context, responseDTO *netboxapi.Notifi
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.GroupIds = conv.SetFrom(ctx, types.Int64Type, responseDTO.Groups, model.GroupIds.IsNull() || model.GroupIds.IsUnknown(), &diags)
 	model.UserIds = conv.SetFrom(ctx, types.Int64Type, responseDTO.Users, model.UserIds.IsNull() || model.UserIds.IsUnknown(), &diags)
 	model.URL = conv.FromStringPtr(responseDTO.URL)

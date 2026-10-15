@@ -74,9 +74,9 @@ func flattenVlanGroup(ctx context.Context, responseDTO *netboxapi.VlanGroupRespo
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Slug = conv.FromStringPtr(responseDTO.Slug)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.Comments = conv.FromStringPtr(responseDTO.Comments)
+	model.Slug = keepPriorString(model.Slug, conv.FromStringPtr(responseDTO.Slug))
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.Comments = keepPriorString(model.Comments, conv.FromStringPtr(responseDTO.Comments))
 	if responseDTO.VidRanges == nil {
 		model.VidRanges = types.ListNull(types.ObjectType{AttrTypes: vlanGroupVidRangesAttrTypes()})
 	} else {
@@ -91,7 +91,7 @@ func flattenVlanGroup(ctx context.Context, responseDTO *netboxapi.VlanGroupRespo
 		model.VidRanges = v
 	}
 	model.TenantID = conv.FromInt64Ptr(responseDTO.Tenant)
-	model.ScopeType = conv.FromStringPtr(responseDTO.ScopeType)
+	model.ScopeType = keepPriorString(model.ScopeType, conv.FromStringPtr(responseDTO.ScopeType))
 	model.ScopeID = conv.FromInt64Ptr(responseDTO.ScopeID)
 	model.SiteID = conv.FromInt64Ptr(responseDTO.SiteID)
 	model.LocationID = conv.FromInt64Ptr(responseDTO.LocationID)

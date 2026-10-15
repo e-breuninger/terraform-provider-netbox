@@ -259,6 +259,7 @@ func (r *contactGroupResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -271,6 +272,7 @@ func (r *contactGroupResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -347,6 +349,7 @@ func (r *contactGroupResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

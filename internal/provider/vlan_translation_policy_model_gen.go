@@ -37,8 +37,8 @@ func flattenVlanTranslationPolicy(ctx context.Context, responseDTO *netboxapi.Vl
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.Comments = conv.FromStringPtr(responseDTO.Comments)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.Comments = keepPriorString(model.Comments, conv.FromStringPtr(responseDTO.Comments))
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.URL = conv.FromStringPtr(responseDTO.URL)
 	return diags

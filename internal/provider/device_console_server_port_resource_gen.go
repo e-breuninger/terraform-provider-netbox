@@ -259,6 +259,7 @@ func (r *deviceConsoleServerPortResource) Create(ctx context.Context, req resour
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -271,6 +272,7 @@ func (r *deviceConsoleServerPortResource) Read(ctx context.Context, req resource
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -347,6 +349,7 @@ func (r *deviceConsoleServerPortResource) Update(ctx context.Context, req resour
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

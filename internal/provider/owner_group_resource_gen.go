@@ -158,6 +158,7 @@ func (r *ownerGroupResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -170,6 +171,7 @@ func (r *ownerGroupResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Users.UsersOwnerGroupsRetrieveContext(ctx, users.NewUsersOwnerGroupsRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -218,6 +220,7 @@ func (r *ownerGroupResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

@@ -42,7 +42,7 @@ func flattenOwner(ctx context.Context, responseDTO *netboxapi.OwnerResponseDTO, 
 	model.OwnerGroupID = conv.FromInt64Ptr(responseDTO.Group)
 	model.UserIds = conv.SetFrom(ctx, types.Int64Type, responseDTO.Users, model.UserIds.IsNull() || model.UserIds.IsUnknown(), &diags)
 	model.UserGroupIds = conv.SetFrom(ctx, types.Int64Type, responseDTO.UserGroups, model.UserGroupIds.IsNull() || model.UserGroupIds.IsUnknown(), &diags)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.URL = conv.FromStringPtr(responseDTO.URL)
 	return diags
 }

@@ -256,6 +256,7 @@ func (r *ikePolicyResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -268,6 +269,7 @@ func (r *ikePolicyResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -344,6 +346,7 @@ func (r *ikePolicyResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

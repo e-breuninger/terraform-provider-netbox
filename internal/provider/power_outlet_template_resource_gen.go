@@ -264,6 +264,7 @@ func (r *powerOutletTemplateResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -276,6 +277,7 @@ func (r *powerOutletTemplateResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Dcim.DcimPowerOutletTemplatesRetrieveContext(ctx, dcim.NewDcimPowerOutletTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -324,6 +326,7 @@ func (r *powerOutletTemplateResource) Update(ctx context.Context, req resource.U
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

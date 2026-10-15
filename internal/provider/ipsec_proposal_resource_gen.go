@@ -265,6 +265,7 @@ func (r *ipsecProposalResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -277,6 +278,7 @@ func (r *ipsecProposalResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -353,6 +355,7 @@ func (r *ipsecProposalResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

@@ -213,6 +213,7 @@ func (r *customFieldChoiceSetResource) Create(ctx context.Context, req resource.
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -225,6 +226,7 @@ func (r *customFieldChoiceSetResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 	state := &data
+	clearLegacyBlanks(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	priorExtraChoices := state.ExtraChoices
 	res, err := r.client.Extras.ExtrasCustomFieldChoiceSetsRetrieveContext(ctx, extras.NewExtrasCustomFieldChoiceSetsRetrieveParams().WithID(state.ID.ValueInt64()), nil)
@@ -277,6 +279,7 @@ func (r *customFieldChoiceSetResource) Update(ctx context.Context, req resource.
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

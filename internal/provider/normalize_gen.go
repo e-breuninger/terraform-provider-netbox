@@ -60,6 +60,27 @@ func sameCustomFieldValue(a, b string) bool {
 // keepPriorFold returns prior when next differs from it only in letter
 // case (the API case-normalized the value, e.g. a MAC address uppercased
 // by NetBox), and next otherwise.
+// keepPriorString returns next, or the prior (configured) string where NetBox
+// stored the same text in its canonical form: an empty string is read back
+// as null, and leading and trailing whitespace is trimmed (DRF CharField).
+// Without this, `description = ""` or a heredoc ending in a newline fails
+// with "Provider produced inconsistent result after apply".
+func keepPriorString(prior, next types.String) types.String {
+	if prior.IsNull() || prior.IsUnknown() || next.IsUnknown() {
+		return next
+	}
+	if next.IsNull() {
+		if prior.ValueString() == "" {
+			return prior
+		}
+		return next
+	}
+	if strings.TrimSpace(prior.ValueString()) == next.ValueString() {
+		return prior
+	}
+	return next
+}
+
 func keepPriorFold(prior, next types.String) types.String {
 	if prior.IsNull() || prior.IsUnknown() || next.IsNull() || next.IsUnknown() {
 		return next

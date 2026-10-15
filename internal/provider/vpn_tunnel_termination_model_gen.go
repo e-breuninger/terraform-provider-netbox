@@ -50,8 +50,8 @@ func flattenVpnTunnelTermination(ctx context.Context, responseDTO *netboxapi.Vpn
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.VpnTunnelID = conv.FromInt64Ptr(responseDTO.Tunnel)
-	model.Role = conv.FromStringPtr(responseDTO.Role)
-	model.TerminationType = conv.FromStringPtr(responseDTO.TerminationType)
+	model.Role = keepPriorString(model.Role, conv.FromStringPtr(responseDTO.Role))
+	model.TerminationType = keepPriorString(model.TerminationType, conv.FromStringPtr(responseDTO.TerminationType))
 	model.TerminationID = conv.FromInt64Ptr(responseDTO.TerminationID)
 	model.DeviceInterfaceID = conv.FromInt64Ptr(responseDTO.DeviceInterfaceID)
 	model.VirtualMachineInterfaceID = conv.FromInt64Ptr(responseDTO.VirtualMachineInterfaceID)
