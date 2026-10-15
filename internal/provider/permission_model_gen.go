@@ -48,7 +48,7 @@ func flattenPermission(ctx context.Context, responseDTO *netboxapi.PermissionRes
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.Enabled = conv.FromBoolPtr(responseDTO.Enabled)
 	model.ObjectTypes = conv.SetFrom(ctx, types.StringType, responseDTO.ObjectTypes, false, &diags)
 	model.Actions = conv.SetFrom(ctx, types.StringType, responseDTO.Actions, false, &diags)

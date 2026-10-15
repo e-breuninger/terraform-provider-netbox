@@ -45,8 +45,8 @@ func flattenCableBundle(ctx context.Context, responseDTO *netboxapi.CableBundleR
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.Comments = conv.FromStringPtr(responseDTO.Comments)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.Comments = keepPriorString(model.Comments, conv.FromStringPtr(responseDTO.Comments))
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)

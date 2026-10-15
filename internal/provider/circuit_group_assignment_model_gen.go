@@ -44,7 +44,7 @@ func flattenCircuitGroupAssignment(ctx context.Context, responseDTO *netboxapi.C
 	model.CircuitGroupID = conv.FromInt64Ptr(responseDTO.Group)
 	model.MemberType = conv.FromStringPtr(responseDTO.MemberType)
 	model.MemberID = conv.FromInt64Ptr(responseDTO.MemberID)
-	model.Priority = conv.FromStringPtr(responseDTO.Priority)
+	model.Priority = keepPriorString(model.Priority, conv.FromStringPtr(responseDTO.Priority))
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)
 	model.URL = conv.FromStringPtr(responseDTO.URL)

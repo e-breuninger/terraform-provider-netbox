@@ -49,9 +49,9 @@ func flattenRir(ctx context.Context, responseDTO *netboxapi.RirResponseDTO, mode
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Slug = conv.FromStringPtr(responseDTO.Slug)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.Comments = conv.FromStringPtr(responseDTO.Comments)
+	model.Slug = keepPriorString(model.Slug, conv.FromStringPtr(responseDTO.Slug))
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.Comments = keepPriorString(model.Comments, conv.FromStringPtr(responseDTO.Comments))
 	model.IsPrivate = conv.FromBoolPtr(responseDTO.IsPrivate)
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.Created = conv.FromStringPtr(responseDTO.Created)

@@ -34,7 +34,7 @@ func flattenOwnerGroup(ctx context.Context, responseDTO *netboxapi.OwnerGroupRes
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.URL = conv.FromStringPtr(responseDTO.URL)
 	model.MemberCount = conv.FromInt64Ptr(responseDTO.MemberCount)
 	return diags

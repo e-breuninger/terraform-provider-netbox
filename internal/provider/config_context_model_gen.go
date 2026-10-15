@@ -85,7 +85,7 @@ func flattenConfigContext(ctx context.Context, responseDTO *netboxapi.ConfigCont
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
 	model.Weight = conv.FromInt64Ptr(responseDTO.Weight)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.IsActive = conv.FromBoolPtr(responseDTO.IsActive)
 	model.Data = jsontypes.NewNormalizedPointerValue(conv.EmptyStringAsNil(responseDTO.Data))
 	model.ProfileID = conv.FromInt64Ptr(responseDTO.Profile)

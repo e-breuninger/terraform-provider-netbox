@@ -64,7 +64,7 @@ func flattenEventRule(ctx context.Context, responseDTO *netboxapi.EventRuleRespo
 	model.ActionType = conv.FromStringPtr(responseDTO.ActionType)
 	model.ActionObjectType = conv.FromStringPtr(responseDTO.ActionObjectType)
 	model.ActionObjectID = conv.FromInt64Ptr(responseDTO.ActionObjectID)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)

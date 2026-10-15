@@ -34,7 +34,7 @@ func flattenGroup(ctx context.Context, responseDTO *netboxapi.GroupResponseDTO, 
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.UserCount = conv.FromInt64Ptr(responseDTO.UserCount)
 	model.URL = conv.FromStringPtr(responseDTO.URL)
 	return diags

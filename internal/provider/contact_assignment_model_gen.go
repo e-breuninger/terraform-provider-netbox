@@ -49,7 +49,7 @@ func flattenContactAssignment(ctx context.Context, responseDTO *netboxapi.Contac
 	model.ObjectID = conv.FromInt64Ptr(responseDTO.ObjectID)
 	model.ContactID = conv.FromInt64Ptr(responseDTO.Contact)
 	model.RoleID = conv.FromInt64Ptr(responseDTO.Role)
-	model.Priority = conv.FromStringPtr(responseDTO.Priority)
+	model.Priority = keepPriorString(model.Priority, conv.FromStringPtr(responseDTO.Priority))
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)
 	model.URL = conv.FromStringPtr(responseDTO.URL)

@@ -82,9 +82,9 @@ func flattenFrontPortTemplate(ctx context.Context, responseDTO *netboxapi.FrontP
 	}
 	model.RearPortID = conv.FromInt64Ptr(responseDTO.RearPortID)
 	model.RearPortPosition = conv.FromInt64Ptr(responseDTO.RearPortPosition)
-	model.ColorHex = conv.FromStringPtr(responseDTO.Color)
-	model.Label = conv.FromStringPtr(responseDTO.Label)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
+	model.ColorHex = keepPriorString(model.ColorHex, conv.FromStringPtr(responseDTO.Color))
+	model.Label = keepPriorString(model.Label, conv.FromStringPtr(responseDTO.Label))
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)
 	model.URL = conv.FromStringPtr(responseDTO.URL)

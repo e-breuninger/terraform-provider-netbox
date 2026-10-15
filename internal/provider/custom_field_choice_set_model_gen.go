@@ -56,8 +56,8 @@ func flattenCustomFieldChoiceSet(ctx context.Context, responseDTO *netboxapi.Cus
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.BaseChoices = conv.FromStringPtr(responseDTO.BaseChoices)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.BaseChoices = keepPriorString(model.BaseChoices, conv.FromStringPtr(responseDTO.BaseChoices))
 	if responseDTO.ExtraChoices == nil || (len(responseDTO.ExtraChoices) == 0 && model.ExtraChoices.IsNull() || model.ExtraChoices.IsUnknown()) {
 		model.ExtraChoices = types.ListNull(types.ObjectType{AttrTypes: customFieldChoiceSetExtraChoicesAttrTypes()})
 	} else {

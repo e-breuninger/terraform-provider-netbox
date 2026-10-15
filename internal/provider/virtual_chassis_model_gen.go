@@ -48,10 +48,10 @@ func flattenVirtualChassis(ctx context.Context, responseDTO *netboxapi.VirtualCh
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
 	model.Name = conv.FromStringPtr(responseDTO.Name)
-	model.Domain = conv.FromStringPtr(responseDTO.Domain)
+	model.Domain = keepPriorString(model.Domain, conv.FromStringPtr(responseDTO.Domain))
 	model.MasterID = conv.FromInt64Ptr(responseDTO.Master)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.Comments = conv.FromStringPtr(responseDTO.Comments)
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.Comments = keepPriorString(model.Comments, conv.FromStringPtr(responseDTO.Comments))
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)

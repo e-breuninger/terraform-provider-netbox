@@ -51,13 +51,13 @@ func expandFhrpGroup(ctx context.Context, model *fhrpGroupResourceModel) (*netbo
 func flattenFhrpGroup(ctx context.Context, responseDTO *netboxapi.FhrpGroupResponseDTO, model *fhrpGroupResourceModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 	model.ID = conv.FromInt64Ptr(responseDTO.ID)
-	model.Name = conv.FromStringPtr(responseDTO.Name)
+	model.Name = keepPriorString(model.Name, conv.FromStringPtr(responseDTO.Name))
 	model.Protocol = conv.FromStringPtr(responseDTO.Protocol)
 	model.GroupID = conv.FromInt64Ptr(responseDTO.GroupID)
-	model.AuthType = conv.FromStringPtr(responseDTO.AuthType)
-	model.AuthKey = conv.FromStringPtr(responseDTO.AuthKey)
-	model.Description = conv.FromStringPtr(responseDTO.Description)
-	model.Comments = conv.FromStringPtr(responseDTO.Comments)
+	model.AuthType = keepPriorString(model.AuthType, conv.FromStringPtr(responseDTO.AuthType))
+	model.AuthKey = keepPriorString(model.AuthKey, conv.FromStringPtr(responseDTO.AuthKey))
+	model.Description = keepPriorString(model.Description, conv.FromStringPtr(responseDTO.Description))
+	model.Comments = keepPriorString(model.Comments, conv.FromStringPtr(responseDTO.Comments))
 	model.OwnerID = conv.FromInt64Ptr(responseDTO.Owner)
 	model.Created = conv.FromStringPtr(responseDTO.Created)
 	model.LastUpdated = conv.FromStringPtr(responseDTO.LastUpdated)
