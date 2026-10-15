@@ -38,10 +38,9 @@ func resourceNetboxAvailablePrefix() *schema.Resource {
 				Computed: true,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxPrefixStatusOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxPrefixStatusOptions),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: buildValidValueDescription(resourceNetboxPrefixStatusOptions) + statusNotEnforcedNote,
 			},
 			"description": {
 				Type:     schema.TypeString,

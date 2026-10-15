@@ -52,7 +52,7 @@ resource "netbox_cable" "test" {
 
 - `a_termination` (Block Set, Min: 1) (see [below for nested schema](#nestedblock--a_termination))
 - `b_termination` (Block Set, Min: 1) (see [below for nested schema](#nestedblock--b_termination))
-- `status` (String) One of [connected, planned, decommissioning].
+- `status` (String) One of [connected, planned, decommissioning]. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider.
 
 ### Optional
 

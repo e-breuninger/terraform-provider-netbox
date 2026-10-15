@@ -82,7 +82,7 @@ resource "netbox_virtual_machine" "full_vm" {
 - `platform_id` (Number)
 - `role_id` (Number)
 - `site_id` (Number) At least one of `site_id` or `cluster_id` must be given.
-- `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`. Defaults to `active`.
+- `status` (String) Valid values are `offline`, `active`, `planned`, `staged`, `failed` and `decommissioning`. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vcpus` (Number)

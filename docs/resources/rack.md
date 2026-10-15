@@ -43,7 +43,7 @@ resource "netbox_rack" "test" {
 
 - `name` (String)
 - `site_id` (Number)
-- `status` (String) Valid values are `reserved`, `available`, `planned`, `active` and `deprecated`.
+- `status` (String) Valid values are `reserved`, `available`, `planned`, `active` and `deprecated`. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider.
 
 ### Optional
 

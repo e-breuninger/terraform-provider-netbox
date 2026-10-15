@@ -55,7 +55,7 @@ resource "netbox_power_feed" "test" {
 - `name` (String)
 - `phase` (String) One of [single-phase, three-phase].
 - `power_panel_id` (Number)
-- `status` (String) One of [offline, active, planned, failed].
+- `status` (String) One of [offline, active, planned, failed]. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider.
 - `supply` (String) One of [ac, dc].
 - `type` (String) One of [primary, redundant].
 - `voltage` (Number)

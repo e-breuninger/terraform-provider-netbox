@@ -30,10 +30,9 @@ func resourceNetboxPowerFeed() *schema.Resource {
 				Required: true,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  "One of [offline, active, planned, failed]",
-				ValidateFunc: validation.StringInSlice([]string{"offline", "active", "planned", "failed"}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "One of [offline, active, planned, failed]" + statusNotEnforcedNote,
 			},
 			"type": {
 				Type:         schema.TypeString,
