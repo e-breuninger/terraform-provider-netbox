@@ -390,8 +390,15 @@ func (d *ownerGroupsDataSource) Read(ctx context.Context, req datasource.ReadReq
 			responseDTOs = append(responseDTOs, netboxapi.OwnerGroupResponseDTOFromGoNetbox(goNetboxModel))
 		}
 		offset += int64(len(res.Payload.Results))
-		if !fetchAll || len(res.Payload.Results) == 0 || res.Payload.Count == nil || offset >= *res.Payload.Count {
+		// Page until NetBox has no more, or (without name_regex) until limit objects arrived:
+		// NetBox caps a page at MAX_PAGE_SIZE (1000 by default), so one request silently
+		// truncated larger results.
+		if len(res.Payload.Results) == 0 || res.Payload.Count == nil || offset >= *res.Payload.Count || (!fetchAll && offset >= limit) {
 			break
+		}
+		if !fetchAll && limit-offset < pageSize {
+			remaining := limit - offset
+			params.SetLimit(&remaining)
 		}
 		params.SetOffset(&offset)
 	}
