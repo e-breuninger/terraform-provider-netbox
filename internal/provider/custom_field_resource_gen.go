@@ -48,6 +48,7 @@ func (r *customFieldResource) Metadata(ctx context.Context, req resource.Metadat
 
 func (r *customFieldResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Version:     1,
 		Description: ":meta:subcategory:Extras:A NetBox custom field definition (extras.customfield). Values are set per object via the custom_fields attribute.\n\nFrom the [official documentation](https://docs.netbox.dev/en/stable/customization/custom-fields/#custom-fields):\n\n> Each model in NetBox is represented in the database as a discrete table, and each attribute of a model exists as a column within its table. For example, sites are stored in the dcim_site table, which has columns named name, facility, physical_address, and so on. As new attributes are added to objects throughout the development of NetBox, tables are expanded to include new rows.\n>\n> However, some users might want to store additional object attributes that are somewhat esoteric in nature, and that would not make sense to include in the core NetBox database schema. For instance, suppose your organization needs to associate each device with a ticket number correlating it with an internal support system record. This is certainly a legitimate use for NetBox, but it's not a common enough need to warrant including a field for every NetBox installation. Instead, you can create a custom field to hold this data.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{

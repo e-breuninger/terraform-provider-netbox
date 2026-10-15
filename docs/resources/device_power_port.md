@@ -62,7 +62,6 @@ resource "netbox_device_power_port" "test" {
 
 - `device_id` (Number) Id of the device.
 - `name` (String)
-- `type` (String) Port type as its NetBox slug, e.g. iec-60320-c14, nema-5-15p (any of NetBox's power port type choices).
 
 ### Optional
 
@@ -75,6 +74,7 @@ resource "netbox_device_power_port" "test" {
 - `module_id` (Number) Id of the installed module this component belongs to.
 - `owner_id` (Number) Id of the owner the object is assigned to.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
+- `type` (String) Port type as its NetBox slug, e.g. iec-60320-c14, nema-5-15p (any of NetBox's power port type choices).
 
 ### Read-Only
 

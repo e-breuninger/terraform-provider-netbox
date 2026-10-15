@@ -71,7 +71,7 @@ func (r *devicePowerPortResource) Schema(ctx context.Context, req resource.Schem
 				},
 			},
 			"type": schema.StringAttribute{
-				Required:    true,
+				Optional:    true,
 				Description: "Port type as its NetBox slug, e.g. iec-60320-c14, nema-5-15p (any of NetBox's power port type choices).",
 			},
 			"maximum_draw": schema.Int64Attribute{

@@ -71,7 +71,7 @@ func (r *deviceConsolePortResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"type": schema.StringAttribute{
-				Required:    true,
+				Optional:    true,
 				Description: "Port type as its NetBox slug, e.g. de-9, rj-45, usb-a (any of NetBox's console port type choices).",
 			},
 			"speed": schema.Int64Attribute{

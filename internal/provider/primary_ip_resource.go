@@ -63,6 +63,7 @@ func (resource *primaryIPResource) Metadata(ctx context.Context, req resource.Me
 
 func (resource *primaryIPResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Version:     1,
 		Description: ":meta:subcategory:Virtualization:Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as device/<id> or vm/<id>.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
