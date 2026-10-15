@@ -72,6 +72,14 @@ func dataSourceNetboxIPAddresses() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"assigned_object_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"assigned_object_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"status": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -243,6 +251,8 @@ func dataSourceNetboxIPAddressesRead(d *schema.ResourceData, m interface{}) erro
 		mapping["status"] = v.Status.Value
 		mapping["dns_name"] = v.DNSName
 		mapping["tenant"] = flattenTenant(v.Tenant)
+		mapping["assigned_object_type"] = v.AssignedObjectType
+		mapping["assigned_object_id"] = v.AssignedObjectID
 		var stags []map[string]interface{}
 		for _, t := range v.Tags {
 			var tagmapping = make(map[string]interface{})
