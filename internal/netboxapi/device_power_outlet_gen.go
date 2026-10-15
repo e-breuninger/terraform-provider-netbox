@@ -41,6 +41,8 @@ func (requestDTO *DevicePowerOutletRequestDTO) Payload() map[string]any {
 	}
 	if requestDTO.Type != nil {
 		payload["type"] = *requestDTO.Type
+	} else {
+		payload["type"] = nil
 	}
 	if requestDTO.Status != nil {
 		payload["status"] = *requestDTO.Status

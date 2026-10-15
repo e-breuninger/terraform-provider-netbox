@@ -70,7 +70,6 @@ resource "netbox_device_power_outlet" "test" {
 
 - `device_id` (Number) Id of the device.
 - `name` (String)
-- `type` (String) Outlet type as its NetBox slug, e.g. iec-60320-c13, nema-5-15r (any of NetBox's power outlet type choices).
 
 ### Optional
 
@@ -85,6 +84,7 @@ resource "netbox_device_power_outlet" "test" {
 - `power_port_id` (Number) Id of the upstream power port on the same device.
 - `status` (String) Operational status. One of: enabled, disabled, faulty.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
+- `type` (String) Outlet type as its NetBox slug, e.g. iec-60320-c13, nema-5-15r (any of NetBox's power outlet type choices).
 
 ### Read-Only
 

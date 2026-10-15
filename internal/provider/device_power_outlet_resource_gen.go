@@ -71,7 +71,7 @@ func (r *devicePowerOutletResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"type": schema.StringAttribute{
-				Required:    true,
+				Optional:    true,
 				Description: "Outlet type as its NetBox slug, e.g. iec-60320-c13, nema-5-15r (any of NetBox's power outlet type choices).",
 			},
 			"status": schema.StringAttribute{

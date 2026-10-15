@@ -61,7 +61,6 @@ resource "netbox_device_console_server_port" "test" {
 
 - `device_id` (Number) Id of the device.
 - `name` (String)
-- `type` (String) Port type as its NetBox slug, e.g. de-9, rj-45, usb-a (any of NetBox's console server port type choices).
 
 ### Optional
 
@@ -73,6 +72,7 @@ resource "netbox_device_console_server_port" "test" {
 - `owner_id` (Number) Id of the owner the object is assigned to.
 - `speed` (Number) Port speed in bps. One of: 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
+- `type` (String) Port type as its NetBox slug, e.g. de-9, rj-45, usb-a (any of NetBox's console server port type choices).
 
 ### Read-Only
 

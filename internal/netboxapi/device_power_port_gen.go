@@ -39,6 +39,8 @@ func (requestDTO *DevicePowerPortRequestDTO) Payload() map[string]any {
 	}
 	if requestDTO.Type != nil {
 		payload["type"] = *requestDTO.Type
+	} else {
+		payload["type"] = nil
 	}
 	if requestDTO.MaximumDraw != nil {
 		payload["maximum_draw"] = *requestDTO.MaximumDraw

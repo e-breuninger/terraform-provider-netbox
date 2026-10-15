@@ -38,6 +38,8 @@ func (requestDTO *DeviceConsoleServerPortRequestDTO) Payload() map[string]any {
 	}
 	if requestDTO.Type != nil {
 		payload["type"] = *requestDTO.Type
+	} else {
+		payload["type"] = nil
 	}
 	if requestDTO.Speed != nil {
 		payload["speed"] = *requestDTO.Speed
