@@ -639,6 +639,7 @@ func (r *configContextResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -651,6 +652,7 @@ func (r *configContextResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Extras.ExtrasConfigContextsRetrieveContext(ctx, extras.NewExtrasConfigContextsRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -699,6 +701,7 @@ func (r *configContextResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

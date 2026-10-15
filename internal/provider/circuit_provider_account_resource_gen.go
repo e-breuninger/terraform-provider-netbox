@@ -240,6 +240,7 @@ func (r *circuitProviderAccountResource) Create(ctx context.Context, req resourc
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -252,6 +253,7 @@ func (r *circuitProviderAccountResource) Read(ctx context.Context, req resource.
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -328,6 +330,7 @@ func (r *circuitProviderAccountResource) Update(ctx context.Context, req resourc
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

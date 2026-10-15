@@ -200,6 +200,7 @@ func (r *consolePortTemplateResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -212,6 +213,7 @@ func (r *consolePortTemplateResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Dcim.DcimConsolePortTemplatesRetrieveContext(ctx, dcim.NewDcimConsolePortTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -260,6 +262,7 @@ func (r *consolePortTemplateResource) Update(ctx context.Context, req resource.U
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

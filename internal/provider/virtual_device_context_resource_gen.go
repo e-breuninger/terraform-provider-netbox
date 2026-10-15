@@ -269,6 +269,7 @@ func (r *virtualDeviceContextResource) Create(ctx context.Context, req resource.
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -281,6 +282,7 @@ func (r *virtualDeviceContextResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -357,6 +359,7 @@ func (r *virtualDeviceContextResource) Update(ctx context.Context, req resource.
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

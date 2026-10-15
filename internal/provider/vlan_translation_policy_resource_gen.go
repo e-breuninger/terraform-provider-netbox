@@ -126,6 +126,7 @@ func (r *vlanTranslationPolicyResource) Create(ctx context.Context, req resource
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -138,6 +139,7 @@ func (r *vlanTranslationPolicyResource) Read(ctx context.Context, req resource.R
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Ipam.IpamVlanTranslationPoliciesRetrieveContext(ctx, ipam.NewIpamVlanTranslationPoliciesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -186,6 +188,7 @@ func (r *vlanTranslationPolicyResource) Update(ctx context.Context, req resource
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

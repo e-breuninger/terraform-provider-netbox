@@ -280,6 +280,7 @@ func (r *virtualMachineInterfaceResource) Create(ctx context.Context, req resour
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -292,6 +293,7 @@ func (r *virtualMachineInterfaceResource) Read(ctx context.Context, req resource
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -368,6 +370,7 @@ func (r *virtualMachineInterfaceResource) Update(ctx context.Context, req resour
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

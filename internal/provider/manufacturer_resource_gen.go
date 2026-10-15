@@ -285,6 +285,7 @@ func (r *manufacturerResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -297,6 +298,7 @@ func (r *manufacturerResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	configuredTags := conv.SetTo[string](ctx, state.Tags, &resp.Diagnostics)
 	tagsNull := state.Tags.IsNull()
@@ -373,6 +375,7 @@ func (r *manufacturerResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

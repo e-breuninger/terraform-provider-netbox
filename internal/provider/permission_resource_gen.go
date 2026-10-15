@@ -241,6 +241,7 @@ func (r *permissionResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -253,6 +254,7 @@ func (r *permissionResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Users.UsersPermissionsRetrieveContext(ctx, users.NewUsersPermissionsRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -301,6 +303,7 @@ func (r *permissionResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

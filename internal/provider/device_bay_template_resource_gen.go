@@ -184,6 +184,7 @@ func (r *deviceBayTemplateResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -196,6 +197,7 @@ func (r *deviceBayTemplateResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Dcim.DcimDeviceBayTemplatesRetrieveContext(ctx, dcim.NewDcimDeviceBayTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -244,6 +246,7 @@ func (r *deviceBayTemplateResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 

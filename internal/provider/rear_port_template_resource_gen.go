@@ -220,6 +220,7 @@ func (r *rearPortTemplateResource) Create(ctx context.Context, req resource.Crea
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -232,6 +233,7 @@ func (r *rearPortTemplateResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Dcim.DcimRearPortTemplatesRetrieveContext(ctx, dcim.NewDcimRearPortTemplatesRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -280,6 +282,7 @@ func (r *rearPortTemplateResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
