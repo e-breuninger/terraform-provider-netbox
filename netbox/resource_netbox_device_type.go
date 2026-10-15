@@ -9,6 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var resourceNetboxDeviceTypeAirflowOptions = []string{"front-to-rear", "rear-to-front", "left-to-right", "right-to-left", "side-to-rear", "passive", "mixed"}
+var resourceNetboxDeviceTypeWeightUnitOptions = []string{"kg", "g", "lb", "oz"}
+
 func resourceNetboxDeviceType() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetboxDeviceTypeCreate,
@@ -51,6 +54,23 @@ func resourceNetboxDeviceType() *schema.Resource {
 			"subdevice_role": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"airflow": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceTypeAirflowOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxDeviceTypeAirflowOptions),
+			},
+			"weight": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"weight_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"weight"},
+				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceTypeWeightUnitOptions, false),
+				Description:  buildValidValueDescription(resourceNetboxDeviceTypeWeightUnitOptions),
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -105,6 +125,12 @@ func resourceNetboxDeviceTypeCreate(d *schema.ResourceData, m interface{}) error
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
 		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
+
+	data.Airflow = getOptionalStr(d, "airflow", false)
+
+	data.Weight = getOptionalFloat(d, "weight")
+
+	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
 
 	data.Description = d.Get("description").(string)
 
@@ -164,6 +190,17 @@ func resourceNetboxDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	} else {
 		d.Set("subdevice_role", "")
 	}
+	if deviceType.Airflow != nil && deviceType.Airflow.Value != nil {
+		d.Set("airflow", *deviceType.Airflow.Value)
+	} else {
+		d.Set("airflow", nil)
+	}
+	d.Set("weight", deviceType.Weight)
+	if deviceType.WeightUnit != nil && deviceType.WeightUnit.Value != nil {
+		d.Set("weight_unit", *deviceType.WeightUnit.Value)
+	} else {
+		d.Set("weight_unit", nil)
+	}
 	d.Set("description", deviceType.Description)
 	d.Set("comments", deviceType.Comments)
 	api.readTags(d, deviceType.Tags)
@@ -212,6 +249,12 @@ func resourceNetboxDeviceTypeUpdate(d *schema.ResourceData, m interface{}) error
 	if subdeviceRoleValue, ok := d.GetOk("subdevice_role"); ok {
 		data.SubdeviceRole = subdeviceRoleValue.(string)
 	}
+
+	data.Airflow = getOptionalStr(d, "airflow", false)
+
+	data.Weight = getOptionalFloat(d, "weight")
+
+	data.WeightUnit = getOptionalStr(d, "weight_unit", false)
 
 	data.Description = d.Get("description").(string)
 

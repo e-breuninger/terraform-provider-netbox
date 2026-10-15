@@ -43,9 +43,12 @@ data "netbox_device_type" "ex3" {
 
 ### Read-Only
 
+- `airflow` (String)
 - `id` (String) The ID of this resource.
 - `is_full_depth` (Boolean)
 - `manufacturer_id` (Number)
 - `u_height` (Number)
+- `weight` (Number)
+- `weight_unit` (String)
 
 

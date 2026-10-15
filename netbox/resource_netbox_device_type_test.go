@@ -34,6 +34,9 @@ resource "netbox_device_type" "test" {
   subdevice_role = "parent"
   description = "test description"
   comments = "test comments"
+  airflow = "front-to-rear"
+  weight = 10.5
+  weight_unit = "kg"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_type.test", "model", testName),
@@ -45,6 +48,9 @@ resource "netbox_device_type" "test" {
 					resource.TestCheckResourceAttr("netbox_device_type.test", "subdevice_role", "parent"),
 					resource.TestCheckResourceAttr("netbox_device_type.test", "description", "test description"),
 					resource.TestCheckResourceAttr("netbox_device_type.test", "comments", "test comments"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "airflow", "front-to-rear"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "weight", "10.5"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "weight_unit", "kg"),
 				),
 			},
 			{
@@ -63,6 +69,9 @@ resource "netbox_device_type" "test" {
   subdevice_role = "child"
   description = "test description changed"
   comments = "test comments changed"
+  airflow = "rear-to-front"
+  weight = 20
+  weight_unit = "lb"
 }`, testName, randomSlug),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_device_type.test", "model", testName),
@@ -74,6 +83,9 @@ resource "netbox_device_type" "test" {
 					resource.TestCheckResourceAttr("netbox_device_type.test", "subdevice_role", "child"),
 					resource.TestCheckResourceAttr("netbox_device_type.test", "description", "test description changed"),
 					resource.TestCheckResourceAttr("netbox_device_type.test", "comments", "test comments changed"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "airflow", "rear-to-front"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "weight", "20"),
+					resource.TestCheckResourceAttr("netbox_device_type.test", "weight_unit", "lb"),
 				),
 			},
 			{
