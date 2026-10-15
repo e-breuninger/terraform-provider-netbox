@@ -29,6 +29,7 @@ func dataSourceNetboxIPAMRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			tagsKey: tagsSchemaRead,
 		},
 	}
 }
@@ -65,5 +66,6 @@ func dataSourceNetboxIPAMRoleRead(d *schema.ResourceData, m interface{}) error {
 	if result.Description != "" {
 		d.Set("description", result.Description)
 	}
+	d.Set(tagsKey, getTagListFromNestedTagList(result.Tags))
 	return nil
 }

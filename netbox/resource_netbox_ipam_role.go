@@ -40,6 +40,7 @@ func resourceNetboxIpamRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			tagsKey: tagsSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -67,7 +68,11 @@ func resourceNetboxIpamRoleCreate(d *schema.ResourceData, m interface{}) error {
 
 	data.Weight = &weight
 	data.Description = description
-	data.Tags = []*models.NestedTag{}
+	tags, err := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	if err != nil {
+		return err
+	}
+	data.Tags = tags
 
 	params := ipam.NewIpamRolesCreateParams().WithData(&data)
 	res, err := api.Ipam.IpamRolesCreate(params, nil)
@@ -113,6 +118,8 @@ func resourceNetboxIpamRoleRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("description", res.GetPayload().Description)
 	}
 
+	api.readTags(d, res.GetPayload().Tags)
+
 	return nil
 }
 
@@ -138,7 +145,11 @@ func resourceNetboxIpamRoleUpdate(d *schema.ResourceData, m interface{}) error {
 
 	data.Weight = &weight
 	data.Description = description
-	data.Tags = []*models.NestedTag{}
+	tags, _err := getNestedTagListFromResourceDataSet(api, d.Get("tags"))
+	if _err != nil {
+		return _err
+	}
+	data.Tags = tags
 
 	params := ipam.NewIpamRolesUpdateParams().WithID(id).WithData(&data)
 	_, err := api.Ipam.IpamRolesUpdate(params, nil)
