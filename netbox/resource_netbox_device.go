@@ -29,7 +29,7 @@ func resourceNetboxDevice() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"device_type_id": {
 				Type:     schema.TypeInt,
