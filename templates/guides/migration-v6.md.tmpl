@@ -1,0 +1,251 @@
+---
+page_title: "Migrating from 5.x to 6.0"
+description: |-
+  How to move a configuration and its state from provider 5.x to 6.0: the upgrade steps, the resources whose state must be re-imported, and every renamed or reshaped resource, attribute and data source.
+---
+
+# Migrating from 5.x to 6.0
+
+Version 6.0 is a rewrite of the provider on the Terraform Plugin Framework, generated from the NetBox API.
+Most resources keep their names and attributes, and their state carries over on the first plan.
+This guide covers everything that does not: the steps of an upgrade, the state that must be re-imported, and the configuration changes, resource by resource.
+
+The [changelog](https://github.com/e-breuninger/terraform-provider-netbox/blob/master/CHANGELOG.md) summarizes the release, and the [data source filters guide](filters) explains the new filter syntax in detail.
+
+## Before you start
+
+- Check that your NetBox version is supported by 6.0. The changelog lists the supported versions.
+- Run `terraform plan` with your current 5.x version and make sure it shows no changes. Whatever the first 6.0 plan shows is then caused by the migration.
+- Save a copy of the state: `terraform state pull > pre-6.0.tfstate`. The copy also gives you the NetBox ids of the objects you may need to re-import.
+- Import blocks need Terraform 1.5 or later. The `terraform import` command works on older versions.
+
+## Upgrade steps
+
+NOTE: consider using an AI tool for migrating a larger codebases, especially for writing state migration batch scripts
+
+1. Change the version constraint and run `terraform init -upgrade`:
+
+{{ tffile "examples/guides/migration/version.tf" }}
+
+2. Update the configuration, using the [configuration changes](#configuration-changes) below. `terraform validate` names every attribute that no longer exists, and a renamed attribute that still works under its old name produces a warning saying which name to use instead.
+3. Remove the state that does not carry over and import it again, see [state](#state).
+4. Run `terraform plan` and check it against [the first plan](#the-first-plan). No object should be replaced or created.
+5. Run `terraform apply`.
+
+## State
+
+### What carries over
+
+Most resources need nothing. On the first plan, the provider converts the id to a number, drops attributes that no longer exist, and the refresh rewrites the state in the new shape.
+
+`netbox_device`, `netbox_virtual_machine` and `netbox_virtual_disk` have a new schema version. Their old state is upgraded by keeping only the id, and the refresh fills in everything else from NetBox.
+
+### What must be re-imported
+
+The state of the following resources cannot be read by 6.0. Remove it with `terraform state rm` and import the same NetBox object again, so it keeps its id.
+
+| 5.x resource | Why | 6.0 resource and import id |
+| --- | --- | --- |
+| `netbox_interface` | renamed | `netbox_virtual_machine_interface`, `<interface id>` |
+| `netbox_cable` | `a_termination`/`b_termination` became `a_side`/`b_side` | `netbox_cable`, `<cable id>` |
+| `netbox_vlan_group` | `vid_ranges` became a list of objects | `netbox_vlan_group`, `<vlan group id>` |
+| `netbox_custom_field_choice_set` | `extra_choices` became a list of objects | `netbox_custom_field_choice_set`, `<choice set id>` |
+| `netbox_custom_field` | an unset `default` is stored as `""`, which is not valid JSON | `netbox_custom_field`, `<custom field id>` |
+| `netbox_permission` | an unset `constraints` is stored as `""`, which is not valid JSON | `netbox_permission`, `<permission id>` |
+
+`netbox_device_primary_ip` and `netbox_primary_ip` need only the `terraform state rm`. A primary IP is a setting of its device or virtual machine, not an object of its own, so remove the old entry and let the next apply create `netbox_primary_ip` again: it sets the primary IP the device or virtual machine already has. Importing works too, with `device/<device id>` or `vm/<virtual machine id>` as the id.
+
+A resource that still fails to load shows `Unable to Read Previously Saved State` or `Invalid JSON String Value` in the plan; re-import it the same way.
+
+The ids are in the copy of the state, e.g. for every VLAN group:
+
+```shell
+jq -r '.resources[] | select(.type == "netbox_vlan_group") | .name as $name | .instances[] | "\($name) \(.attributes.id)"' pre-6.0.tfstate
+```
+
+Remove the old entry, then import it with an import block next to the resource, or with `terraform import netbox_vlan_group.office 42`:
+
+```shell
+terraform state rm netbox_vlan_group.office
+```
+
+{{ tffile "examples/guides/migration/import.tf" }}
+
+`netbox_interface` and `netbox_device_primary_ip` have no counterpart in 6.0, so a `removed` block for them is rejected there. `terraform state rm` works, or a `removed` block with `destroy = false` applied while still on 5.x.
+
+An imported `netbox_user` has no `password` and an imported `netbox_token` no secret in state, as NetBox never returns them.
+
+## Configuration changes
+
+### Everywhere
+
+- **Ids are numbers.** References and interpolation convert automatically. `for_each` needs string keys, so convert ids with `tostring()`:
+
+{{ tffile "examples/guides/migration/for_each.tf" }}
+
+- **Tags are referenced by slug**, not by name. This applies to `tags` on every resource, the provider's `default_tags`, and the tag inputs of the data sources:
+
+{{ tffile "examples/guides/migration/tags.tf" }}
+
+### Renamed resources
+
+- `netbox_interface`, which was always a virtual machine interface, is now `netbox_virtual_machine_interface`. An IP address is assigned to it with `virtual_machine_interface_id`:
+
+{{ tffile "examples/guides/migration/virtual_machine_interface.tf" }}
+
+- `netbox_device_primary_ip` is merged into `netbox_primary_ip`, which takes either `device_id` or `virtual_machine_id`:
+
+{{ tffile "examples/guides/migration/device_primary_ip.tf" }}
+
+### Renamed attributes that keep their old name
+
+These attributes were renamed, and the old name still works for now: it fills in the new attribute and produces a deprecation warning. Switching to the new name changes nothing in NetBox. Setting both names to different values is an error.
+
+| Resource | 5.x name | 6.0 name |
+| --- | --- | --- |
+| `netbox_circuit_termination` | `port_speed`, `upstream_speed` | `port_speed_kbps`, `upstream_speed_kbps` |
+| `netbox_config_context` | `cluster_groups`, `cluster_types`, `clusters`, `device_types`, `locations`, `platforms`, `regions`, `roles`, `site_groups`, `sites`, `tenant_groups`, `tenants` | `cluster_group_ids`, `cluster_type_ids`, `cluster_ids`, `device_type_ids`, `location_ids`, `platform_ids`, `region_ids`, `device_role_ids`, `site_group_ids`, `site_ids`, `tenant_group_ids`, `tenant_ids` |
+| `netbox_device_interface` | `mgmtonly`, `tagged_vlans`, `untagged_vlan` | `mgmt_only`, `tagged_vlan_ids`, `untagged_vlan_id` |
+| `netbox_ip_address` | `nat_inside_address_id` | `nat_inside_id` |
+| `netbox_permission` | `groups`, `users` | `group_ids`, `user_ids` |
+| `netbox_power_feed` | `max_percent_utilization` | `max_utilization_percent` |
+| `netbox_power_outlet_template` | `power_port_id` | `power_port_template_id` |
+| `netbox_rack_type` | `mounting_depth_mm` | `mounting_depth` |
+| `netbox_user` | `active` | `is_active` |
+| `netbox_vpn_tunnel` | `tunnel_group_id` | `vpn_tunnel_group_id` |
+
+### Renamed or reshaped attributes
+
+These changes have no fallback and must be made in the configuration.
+
+| Resource | 5.x | 6.0 |
+| --- | --- | --- |
+| `netbox_ip_address`, `netbox_available_ip_address`, `netbox_mac_address` | `interface_id` with `object_type` | `device_interface_id` or `virtual_machine_interface_id` |
+| `netbox_cable` | `a_termination` and `b_termination` blocks | `a_side` and `b_side` objects |
+| `netbox_vlan_group` | `vid_ranges = [[100, 199]]` | `vid_ranges = [{ start = 100, end = 199 }]` |
+| `netbox_custom_field_choice_set` | `extra_choices = [["prod", "Production"]]` | `extra_choices = [{ value = "prod", label = "Production" }]` |
+| `netbox_circuit` | `provider_id`, `type_id` | `circuit_provider_id`, `circuit_type_id` |
+| `netbox_circuit_provider_network` | `provider_id` | `circuit_provider_id` |
+| `netbox_custom_field` | `content_types` | `object_types` |
+| `netbox_event_rule` | `content_types` | `object_types`, plus the new required `action_object_type` (e.g. `extras.webhook`) |
+| `netbox_contact_assignment` | `content_type` | `object_type` |
+| `netbox_contact` | `group_id` | `group_ids` |
+| `netbox_service` | `port` | `ports` |
+| `netbox_device_tag` | `tag` (the tag's name) | `tag_slug` |
+| `netbox_config_context` | `tags` (tag names) | `tag_slugs` |
+| `netbox_vpn_tunnel_termination` | `tunnel_id` | `vpn_tunnel_id` |
+| `netbox_device_interface_primary_mac_address` | `interface_id` | `device_interface_id` |
+| `netbox_virtual_machine_interface_primary_mac_address` | `interface_id` | `virtual_machine_interface_id` |
+
+{{ tffile "examples/guides/migration/cable.tf" }}
+
+{{ tffile "examples/guides/migration/shapes.tf" }}
+
+### Newly required attributes
+
+| Resource | Attribute |
+| --- | --- |
+| `netbox_aggregate` | `rir_id` |
+| `netbox_available_vlan` | `group_id` |
+| `netbox_rack_type` | `manufacturer_id` |
+| `netbox_event_rule` | `action_object_type` |
+
+### Removed attributes
+
+| Resource | 5.x attribute | In 6.0 |
+| --- | --- | --- |
+| `netbox_device`, `netbox_virtual_machine` | `primary_ipv4`, `primary_ipv6` | the read-only `primary_ip4_id` and `primary_ip6_id`, set through `netbox_primary_ip` |
+| `netbox_device` | `virtual_chassis_master` | removed |
+| `netbox_device_interface` | `mac_address`, `mac_addresses`, `primary_mac_address_id` | a `netbox_mac_address` per address, and `netbox_device_interface_primary_mac_address` for the primary one |
+| `netbox_ip_address` | `nat_outside_addresses` | the read-only `nat_outside_ids` |
+| `netbox_user` | `staff` | removed, as NetBox no longer exposes it |
+| `netbox_token` | `allowed_ips` | removed |
+| `netbox_tag` | `tags` | removed |
+| `netbox_custom_field_choice_set` | `custom_fields` | removed |
+
+### Changed defaults
+
+`netbox_device_type.is_full_depth` defaults to `true`, as in NetBox. 5.x set `false` when it was not configured, so a device type without the attribute plans a change from `false` to `true`. Set `is_full_depth = false` to keep the old value.
+
+## Data sources
+
+Data sources keep no state, so only the configuration and the references to their results change.
+
+### Plural data sources
+
+- `filter` blocks are now a `filters` list of `{ name, value }` objects. The [filters guide](filters) covers names, lookups, tags and custom fields.
+- `name_regex` is gone. A `name__regex` filter does the same in NetBox, in PostgreSQL's regular expression dialect.
+- The `custom_fields` input of `netbox_ip_addresses` and `netbox_vlans` is replaced by `cf_<field name>` filters.
+- `netbox_interfaces` is now `netbox_virtual_machine_interfaces`.
+- `netbox_virtual_disk` returned a list in 5.x. The list is now `netbox_virtual_disks`, and `netbox_virtual_disk` returns one disk.
+
+{{ tffile "examples/guides/migration/data_sources.tf" }}
+
+Some result lists are named after their data source now:
+
+| Data source | 5.x list | 6.0 list |
+| --- | --- | --- |
+| `netbox_virtual_machines` | `vms` | `virtual_machines` |
+| `netbox_device_interfaces` | `interfaces` | `device_interfaces` |
+| `netbox_device_power_outlets` | `power_outlets` | `device_power_outlets` |
+| `netbox_device_power_ports` | `power_ports` | `device_power_ports` |
+| `netbox_circuit_provider_networks` | `provider_networks` | `circuit_provider_networks` |
+| `netbox_vpn_tunnel_terminations` | `terminations` | `vpn_tunnel_terminations` |
+| `netbox_available_prefix` | `prefixes_available` | `available_prefixes` |
+
+The items of every list carry the attributes of the matching resource, so their names follow the resource:
+
+- An item's own id is `id`, where 5.x had `device_id`, `vm_id`, `cluster_id`, `tag_id` or `provider_network_id`.
+- References end in `_id`: `role_id`, `site_id` and `tenant_id` on VLANs, `tenant_id` on IP addresses and IP ranges, `group_id` on tenants, `rack_type_id` on racks, `primary_ip4_id`, `primary_ip6_id` and `oob_ip_id` on devices and virtual machines.
+- `tag_ids` are `tags`, holding the tag slugs.
+- `address_family` is `family`, `vm_count` is `virtual_machine_count`, a tag's `color` is `color_hex`, and a VLAN group's `ranges` and `used` are `vid_ranges` and `utilization`.
+
+### Singular data sources
+
+Singular data sources take typed lookup inputs, described in the [filters guide](filters#singular-data-sources). The lookup inputs that changed:
+
+| Data source | 5.x input | 6.0 input |
+| --- | --- | --- |
+| `netbox_prefix` | `cidr` | `prefix` |
+| `netbox_ip_range` | `contains` | `range_contains` |
+| `netbox_asn`, `netbox_ip_range`, `netbox_prefix` | `tag`, `tag__n` | `tag_slug` (no exclusion) |
+| `netbox_prefix`, `netbox_vlan` | `custom_fields` | `custom_field_filters` |
+| `netbox_vlan` | `tenant` | `tenant_id` |
+| `netbox_vlan` | `role` | none: use `netbox_vlans` with a `role_id` filter |
+| `netbox_device_type` | `manufacturer` | none: look up by `model` or `slug`, or use `netbox_device_types` with a `manufacturer_id` filter |
+| `netbox_contact` | `slug` | none: look up by `name` or `id` |
+| `netbox_vpn_tunnel` | `encapsualation` | `encapsulation` |
+
+The attributes they return follow the resources, so some read-only attributes changed name as well:
+
+| Data source | 5.x attribute | 6.0 attribute |
+| --- | --- | --- |
+| `netbox_cluster`, `netbox_cluster_group`, `netbox_cluster_type`, `netbox_site` | `cluster_id`, `cluster_group_id`, `cluster_type_id`, `site_id` | `id` |
+| `netbox_site` | `time_zone` | `timezone` |
+| `netbox_vlan` | `site` | `site_id` |
+| `netbox_ip_address` | `tenant`, `address_family` | `tenant_id`, `family` |
+| `netbox_contact` | `group_id` | `group_ids` |
+
+In singular data sources, `custom_fields` now holds the custom fields of the returned object. `netbox_available_prefix` and `netbox_device_render_config` have no `id` attribute.
+
+## The first plan
+
+A 5.x configuration rewritten for 6.0 typically plans the following on its first run. All of it is expected and applies without changing anything else:
+
+- **In-place updates that set empty values to null.** 5.x stored unset text attributes as `""` and unset tags as `[]`, while 6.0 stores them as null. Every object created by 5.x shows `description = "" -> null` and similar lines once. Applying them changes nothing in NetBox, and the next plan is empty.
+- **`is_full_depth` changing from `false` to `true`** on device types that do not set it, see [changed defaults](#changed-defaults).
+- **Deprecation warnings** for attributes still using their 5.x names.
+- **Counts such as `device_count` as `(known after apply)`** on objects that are updated anyway.
+
+A planned replacement or creation of an object that already exists in NetBox means that its state did not carry over: import it as described in [state](#state) instead of applying. The exception is `netbox_primary_ip`, whose creation just sets the primary IP again.
+
+## Troubleshooting
+
+| Message | Cause | Fix |
+| --- | --- | --- |
+| `Unable to Read Previously Saved State` | the 5.x state does not match the 6.0 schema | `terraform state rm`, then import, see [state](#state) |
+| `Invalid JSON String Value` | an unset JSON attribute stored as `""` by 5.x | `terraform state rm`, then import |
+| `no schema available for netbox_interface` | a 5.x resource type without a 6.0 counterpart | `terraform state rm`, then import as the new type |
+| `An argument named "..." is not expected here` | a removed or renamed attribute | see [configuration changes](#configuration-changes) |
+| `Blocks of type "filter" are not expected here` | a 5.x `filter` block | use `filters`, see [data sources](#data-sources) |
+| `Invalid for_each argument` | a set of numeric ids | convert the ids with `tostring()` |

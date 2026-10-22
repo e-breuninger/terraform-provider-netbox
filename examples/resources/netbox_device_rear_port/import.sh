@@ -1,0 +1,1 @@
+terraform import netbox_device_rear_port.test 123

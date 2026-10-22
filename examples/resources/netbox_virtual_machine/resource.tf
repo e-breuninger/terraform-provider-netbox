@@ -1,44 +1,35 @@
-// Assumes vmw-cluster-01 exists in Netbox
-data "netbox_cluster" "vmw_cluster_01" {
-  name = "vmw-cluster-01"
+resource "netbox_cluster_type" "test" {
+  name = "test-cluster-type"
 }
 
-resource "netbox_virtual_machine" "base_vm" {
-  cluster_id = data.netbox_cluster.vmw_cluster_01.id
-  name       = "myvm-1"
-}
-// Assumes vmw-cluster-01 exists in Netbox
-data "netbox_cluster" "vmw_cluster_01" {
-  name = "vmw-cluster-01"
+resource "netbox_cluster" "test" {
+  name            = "test-cluster"
+  cluster_type_id = netbox_cluster_type.test.id
 }
 
-resource "netbox_virtual_machine" "basic_vm" {
-  cluster_id   = data.netbox_cluster.vmw_cluster_01.id
-  name         = "myvm-2"
-  disk_size_mb = 40000
-  memory_mb    = 4092
-  vcpus        = "2"
-}
-// Assumes vmw-cluster-01 exists as a cluster in Netbox
-data "netbox_cluster" "vmw_cluster_01" {
-  name = "vmw-cluster-01"
+resource "netbox_device_role" "test" {
+  name    = "test-device-role"
+  vm_role = true
 }
 
-// Assumes customer-a exists as a tenant in Netbox
-data "netbox_tenant" "customer_a" {
-  name = "Customer A"
+resource "netbox_tenant" "test" {
+  name = "test-tenant"
 }
 
-resource "netbox_virtual_machine" "full_vm" {
-  cluster_id   = data.netbox_cluster.vmw_cluster_01.id
-  name         = "myvm-3"
-  disk_size_mb = 40000
-  memory_mb    = 4092
-  vcpus        = "2"
-  role_id      = 31 // This corresponds to the Netbox ID for a given role
-  tenant_id    = data.netbox_tenant.customer_a.id
-  local_context_data = jsonencode({
-    "setting_a" = "Some Setting"
-    "setting_b" = 42
-  })
+resource "netbox_platform" "test" {
+  name = "test-platform"
+}
+
+resource "netbox_virtual_machine" "test" {
+  name               = "test-virtual-machine"
+  cluster_id         = netbox_cluster.test.id
+  status             = "active"
+  role_id            = netbox_device_role.test.id
+  tenant_id          = netbox_tenant.test.id
+  platform_id        = netbox_platform.test.id
+  vcpus              = 2
+  memory_mb          = 2048
+  disk_size_mb       = 10240
+  local_context_data = jsonencode({ key = "test-value" })
+  description        = "test-description"
 }

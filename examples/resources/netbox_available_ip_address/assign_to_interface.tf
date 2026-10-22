@@ -1,19 +1,42 @@
-// Assumes Netbox already has a VM whos name matches 'dc-west-myvm-20'
-data "netbox_virtual_machine" "myvm" {
-  name_regex = "dc-west-myvm-20"
+resource "netbox_site" "test" {
+  name = "test-site"
 }
 
-data "netbox_prefix" "test" {
-  cidr = "10.0.0.0/24"
+resource "netbox_manufacturer" "test" {
+  name = "test-manufacturer"
 }
 
-resource "netbox_interface" "myvm-eth0" {
-  name               = "eth0"
-  virtual_machine_id = data.netbox_virtual_machine.myvm.id
+resource "netbox_device_type" "test" {
+  manufacturer_id = netbox_manufacturer.test.id
+  model           = "test-device-type"
 }
 
-resource "netbox_available_ip_address" "myvm-ip" {
-  prefix_id    = data.netbox_prefix.test.id
-  status       = "active"
-  interface_id = netbox_interface.myvm-eth0.id
+resource "netbox_device_role" "test" {
+  name = "test-device-role"
+}
+
+resource "netbox_device" "test" {
+  name           = "test-device"
+  device_type_id = netbox_device_type.test.id
+  role_id        = netbox_device_role.test.id
+  site_id        = netbox_site.test.id
+}
+
+resource "netbox_device_interface" "test" {
+  device_id = netbox_device.test.id
+  name      = "eth0"
+  type      = "1000base-t"
+}
+
+resource "netbox_prefix" "test" {
+  prefix = "192.0.2.0/24"
+  status = "active"
+}
+
+# Allocates the next free address of the prefix and assigns it to the interface.
+resource "netbox_available_ip_address" "test" {
+  prefix_id           = netbox_prefix.test.id
+  device_interface_id = netbox_device_interface.test.id
+  status              = "active"
+  dns_name            = "test-device.example.com"
 }

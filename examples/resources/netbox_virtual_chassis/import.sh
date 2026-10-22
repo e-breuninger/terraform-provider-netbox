@@ -1,0 +1,1 @@
+terraform import netbox_virtual_chassis.test 123

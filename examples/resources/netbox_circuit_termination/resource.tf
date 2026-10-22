@@ -1,27 +1,29 @@
-resource "netbox_site" "test" {
-  name   = "%[1]s"
-  status = "active"
-}
-
 resource "netbox_circuit_provider" "test" {
-  name = "%[1]s"
+  name = "test-circuit-provider"
 }
 
 resource "netbox_circuit_type" "test" {
-  name = "%[1]s"
+  name = "test-circuit-type"
+}
+
+resource "netbox_site" "test" {
+  name = "test-site"
 }
 
 resource "netbox_circuit" "test" {
-  cid         = "%[1]s"
-  status      = "active"
-  provider_id = netbox_circuit_provider.test.id
-  type_id     = netbox_circuit_type.test.id
+  cid                 = "test-cid"
+  circuit_provider_id = netbox_circuit_provider.test.id
+  circuit_type_id     = netbox_circuit_type.test.id
 }
 
 resource "netbox_circuit_termination" "test" {
-  circuit_id     = netbox_circuit.test.id
-  term_side      = "A"
-  site_id        = netbox_site.test.id
-  port_speed     = 100000
-  upstream_speed = 50000
+  circuit_id          = netbox_circuit.test.id
+  term_side           = "A"
+  site_id             = netbox_site.test.id
+  port_speed_kbps     = 1000000
+  upstream_speed_kbps = 500000
+  xconnect_id         = "test-xconnect-id"
+  pp_info             = "test-pp-info"
+  mark_connected      = true
+  description         = "test-description"
 }

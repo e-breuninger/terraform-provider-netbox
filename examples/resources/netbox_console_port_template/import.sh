@@ -1,0 +1,1 @@
+terraform import netbox_console_port_template.test 123

@@ -1,17 +1,29 @@
-resource "netbox_vlan" "example1" {
-  name = "VLAN 1"
-  vid  = 1777
-  tags = []
+resource "netbox_site" "test" {
+  name = "test-site"
 }
 
-# Assume netbox_tenant, netbox_site, and netbox_tag resources exist
-resource "netbox_vlan" "example2" {
-  name        = "VLAN 2"
-  vid         = 1778
-  status      = "reserved"
-  description = "Reserved example VLAN"
-  tenant_id   = netbox_tenant.ex.id
-  site_id     = netbox_site.ex.id
-  group_id    = netbox_vlan_group.ex.id
-  tags        = [netbox_tag.ex.name]
+resource "netbox_tenant" "test" {
+  name = "test-tenant"
+}
+
+resource "netbox_ipam_role" "test" {
+  name = "test-ipam-role"
+}
+
+resource "netbox_vlan_group" "test" {
+  name = "test-vlan-group"
+  vid_ranges = [
+    { start = 1, end = 4094 },
+  ]
+}
+
+resource "netbox_vlan" "test" {
+  name        = "test-vlan"
+  vid         = 100
+  status      = "active"
+  description = "test-description"
+  tenant_id   = netbox_tenant.test.id
+  site_id     = netbox_site.test.id
+  group_id    = netbox_vlan_group.test.id
+  role_id     = netbox_ipam_role.test.id
 }

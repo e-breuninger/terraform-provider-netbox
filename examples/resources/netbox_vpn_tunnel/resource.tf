@@ -1,14 +1,17 @@
 resource "netbox_vpn_tunnel_group" "test" {
-  name = "my-tunnel-group"
+  name = "test-vpn-tunnel-group"
+}
+
+resource "netbox_tenant" "test" {
+  name = "test-tenant"
 }
 
 resource "netbox_vpn_tunnel" "test" {
-  name            = "my-tunnel"
-  encapsulation   = "ipsec-transport"
-  status          = "active"
-  tunnel_group_id = netbox_vpn_tunnel_group.test.id
-
-  description = "This is a description."
-  tunnel_id   = 3
-  tenant_id   = 2
+  name                = "test-vpn-tunnel"
+  encapsulation       = "gre"
+  status              = "active"
+  vpn_tunnel_group_id = netbox_vpn_tunnel_group.test.id
+  tenant_id           = netbox_tenant.test.id
+  tunnel_id           = 42
+  description         = "test-description"
 }

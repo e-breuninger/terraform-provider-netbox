@@ -1,0 +1,1 @@
+terraform import netbox_power_port_template.test 123

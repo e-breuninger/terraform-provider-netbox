@@ -1,0 +1,1 @@
+terraform import netbox_device_console_port.test 123

@@ -1,0 +1,1 @@
+terraform import netbox_wireless_lan_group.test 123

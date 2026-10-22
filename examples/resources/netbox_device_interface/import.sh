@@ -1,0 +1,1 @@
+terraform import netbox_device_interface.test 123

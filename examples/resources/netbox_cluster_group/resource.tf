@@ -1,4 +1,5 @@
-resource "netbox_cluster_group" "dc_west" {
-  description = "West Datacenter Cluster"
-  name        = "dc-west"
+resource "netbox_cluster_group" "test" {
+  name        = "test-cluster-group"
+  slug        = "test-cluster-group"
+  description = "test-description"
 }

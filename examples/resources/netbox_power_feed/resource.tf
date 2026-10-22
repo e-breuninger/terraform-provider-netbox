@@ -1,27 +1,28 @@
 resource "netbox_site" "test" {
-  name   = "Site 1"
-  status = "active"
-}
-
-resource "netbox_location" "test" {
-  name    = "Location 1"
-  site_id = netbox_site.test.id
+  name = "test-site"
 }
 
 resource "netbox_power_panel" "test" {
-  name        = "Power Panel 1"
-  site_id     = netbox_site.test.id
-  location_id = netbox_location.test.id
+  name    = "test-power-panel"
+  site_id = netbox_site.test.id
+}
+
+resource "netbox_rack" "test" {
+  name    = "test-rack"
+  site_id = netbox_site.test.id
 }
 
 resource "netbox_power_feed" "test" {
+  name                    = "test-power-feed"
   power_panel_id          = netbox_power_panel.test.id
-  name                    = "Power Feed 1"
+  rack_id                 = netbox_rack.test.id
   status                  = "active"
   type                    = "primary"
   supply                  = "ac"
-  phase                   = "single-phase"
-  voltage                 = 250
-  amperage                = 100
-  max_percent_utilization = 80
+  phase                   = "three-phase"
+  voltage                 = 230
+  amperage                = 32
+  max_utilization_percent = 75
+  mark_connected          = true
+  description             = "test-description"
 }

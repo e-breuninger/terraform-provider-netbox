@@ -1,0 +1,1 @@
+terraform import netbox_notification_group.test 123

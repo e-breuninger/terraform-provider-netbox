@@ -1,0 +1,1 @@
+terraform import netbox_module_type_profile.test 123

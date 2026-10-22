@@ -1,0 +1,1 @@
+terraform import netbox_vlan_translation_rule.test 123

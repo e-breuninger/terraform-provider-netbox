@@ -1,19 +1,28 @@
-resource "netbox_virtual_machine" "myvm" {
-  name       = "myvm-1"
-  cluster_id = netbox_cluster.vmw_cluster_01.id
+resource "netbox_cluster_type" "test" {
+  name = "test-cluster-type"
 }
 
-resource "netbox_interface" "myvm_eth0" {
-  name               = "eth0"
-  virtual_machine_id = netbox_virtual_machine.myvm.id
+resource "netbox_cluster" "test" {
+  name            = "test-cluster"
+  cluster_type_id = netbox_cluster_type.test.id
 }
 
-resource "netbox_mac_address" "myvm_mac" {
-  mac_address                  = "00:10:FA:63:38:4A"
-  virtual_machine_interface_id = netbox_interface.myvm_eth0.id
+resource "netbox_virtual_machine" "test" {
+  name       = "test-virtual-machine"
+  cluster_id = netbox_cluster.test.id
 }
 
-resource "netbox_virtual_machine_interface_primary_mac_address" "myvm_primary_mac" {
-  interface_id   = netbox_interface.myvm_eth0.id
-  mac_address_id = netbox_mac_address.myvm_mac.id
+resource "netbox_virtual_machine_interface" "test" {
+  virtual_machine_id = netbox_virtual_machine.test.id
+  name               = "test-interface"
+}
+
+resource "netbox_mac_address" "test" {
+  mac_address                  = "00:11:22:33:44:55"
+  virtual_machine_interface_id = netbox_virtual_machine_interface.test.id
+}
+
+resource "netbox_virtual_machine_interface_primary_mac_address" "test" {
+  virtual_machine_interface_id = netbox_virtual_machine_interface.test.id
+  mac_address_id               = netbox_mac_address.test.id
 }

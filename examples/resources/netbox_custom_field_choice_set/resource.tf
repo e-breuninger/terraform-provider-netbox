@@ -1,8 +1,8 @@
 resource "netbox_custom_field_choice_set" "test" {
-  name        = "my-custom-field-set"
-  description = "Description"
+  name        = "test-custom-field-choice-set"
+  description = "test-description"
   extra_choices = [
-    ["choice1", "label1"], # label and choice are different
-    ["choice2", "choice2"] # label and choice are the same
+    { value = "a", label = "test-a" },
+    { value = "b", label = "test-b" },
   ]
 }

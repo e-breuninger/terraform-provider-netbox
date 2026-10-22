@@ -1,10 +1,23 @@
-// Assuming a virtual machine with the id `123` exists
-resource "netbox_interface" "this" {
-  name               = "eth0"
-  virtual_machine_id = 123
+resource "netbox_cluster_type" "test" {
+  name = "test-cluster-type"
 }
 
-resource "netbox_mac_address" "this" {
-  mac_address                  = "00:1A:2B:3C:4D:5E"
-  virtual_machine_interface_id = netbox_interface.this.id
+resource "netbox_cluster" "test" {
+  name            = "test-cluster"
+  cluster_type_id = netbox_cluster_type.test.id
+}
+
+resource "netbox_virtual_machine" "test" {
+  name       = "test-virtual-machine"
+  cluster_id = netbox_cluster.test.id
+}
+
+resource "netbox_virtual_machine_interface" "test" {
+  virtual_machine_id = netbox_virtual_machine.test.id
+  name               = "test-interface"
+}
+
+resource "netbox_mac_address" "test" {
+  mac_address                  = "00:11:22:33:44:55"
+  virtual_machine_interface_id = netbox_virtual_machine_interface.test.id
 }

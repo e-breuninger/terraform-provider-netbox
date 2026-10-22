@@ -1,0 +1,1 @@
+terraform import netbox_custom_field_choice_set.test 123

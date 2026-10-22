@@ -1,14 +1,7 @@
-# Device role for physical devices only
-resource "netbox_device_role" "core_sw" {
-  color_hex = "ff00ff"
-  name      = "core-sw"
-  vm_role   = false
-}
-
-# Device role that can be used for both devices and virtual machines
-resource "netbox_device_role" "web_server" {
-  color_hex   = "00ff00"
-  name        = "web-server"
-  description = "Web server role"
+resource "netbox_device_role" "test" {
+  name        = "test-device-role"
+  slug        = "test-device-role"
+  color_hex   = "112233"
   vm_role     = true
+  description = "test-description"
 }

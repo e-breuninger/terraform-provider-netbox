@@ -1,18 +1,19 @@
+resource "netbox_group" "test" {
+  name = "test-group"
+}
+
 resource "netbox_user" "test" {
-  username = "johndoe"
-  password = "Abcdefghijkl1"
-  active   = true
-  staff    = true
+  username = "test-user"
+  password = "test-password"
 }
 
 resource "netbox_permission" "test" {
-  name         = "test"
-  description  = "my description"
+  name         = "test-permission"
+  description  = "test-description"
   enabled      = true
-  object_types = ["ipam.prefix"]
-  actions      = ["add", "change"]
-  users        = [netbox_user.test.id]
-  constraints = jsonencode([{
-    "status" = "active"
-  }])
+  object_types = ["dcim.device", "dcim.site"]
+  actions      = ["view", "add"]
+  group_ids    = [netbox_group.test.id]
+  user_ids     = [netbox_user.test.id]
+  constraints  = jsonencode({ status = "active" })
 }

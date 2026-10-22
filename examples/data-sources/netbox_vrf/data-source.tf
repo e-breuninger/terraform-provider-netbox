@@ -1,3 +1,3 @@
-data "netbox_vrf" "cust_a_prod" {
-  name = "cust-a-prod"
+data "netbox_vrf" "test" {
+  name = "test-vrf"
 }
