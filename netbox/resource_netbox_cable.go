@@ -32,10 +32,9 @@ func resourceNetboxCable() *schema.Resource {
 				Elem:     genericObjectSchema,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  "One of [connected, planned, decommissioning]",
-				ValidateFunc: validation.StringInSlice([]string{"connected", "planned", "decommissioning"}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "One of [connected, planned, decommissioning]" + statusNotEnforcedNote,
 			},
 			"type": {
 				Type:        schema.TypeString,

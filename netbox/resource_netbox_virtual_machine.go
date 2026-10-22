@@ -9,7 +9,6 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 var resourceNetboxVirtualMachineStatusOptions = []string{"offline", "active", "planned", "staged", "failed", "decommissioning"}
@@ -79,11 +78,10 @@ func resourceNetboxVirtualMachine() *schema.Resource {
 				Description: "The disk size in MB. When virtual disks are attached to this VM, NetBox automatically computes this as the aggregate of those disks and rejects manual values. In that case, omit this field from the configuration and let it be computed.",
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxVirtualMachineStatusOptions, false),
-				Default:      "active",
-				Description:  buildValidValueDescription(resourceNetboxVirtualMachineStatusOptions),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "active",
+				Description: buildValidValueDescription(resourceNetboxVirtualMachineStatusOptions) + statusNotEnforcedNote,
 			},
 			tagsKey: tagsSchema,
 			"primary_ipv4": {

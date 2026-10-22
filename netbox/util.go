@@ -78,6 +78,9 @@ func buildValidValueDescription(options []string) string {
 	return "Valid values are " + joinStringWithFinalConjunction(quoted, ", ", "and")
 }
 
+// statusNotEnforcedNote clarifies these are NetBox's stock values, not a client-side restriction.
+const statusNotEnforcedNote = ". These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider."
+
 func getOptionalStr(d *schema.ResourceData, key string, useSpace bool) string {
 	strVal := ""
 	// check if key is set

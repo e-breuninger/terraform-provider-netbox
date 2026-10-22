@@ -36,11 +36,10 @@ func resourceNetboxSite() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "active",
-				ValidateFunc: validation.StringInSlice(resourceNetboxSiteStatusOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxSiteStatusOptions),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "active",
+				Description: buildValidValueDescription(resourceNetboxSiteStatusOptions) + statusNotEnforcedNote,
 			},
 			"description": {
 				Type:         schema.TypeString,

@@ -35,7 +35,7 @@ resource "netbox_wireless_lan" "guest" {
 - `custom_fields` (Map of String)
 - `description` (String)
 - `group_id` (Number)
-- `status` (String) Valid values are `active`, `reserved`, `disabled` and `deprecated`. Defaults to `active`.
+- `status` (String) Valid values are `active`, `reserved`, `disabled` and `deprecated`. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider. Defaults to `active`.
 - `tags` (Set of String)
 - `tenant_id` (Number)
 - `vlan_id` (Number)
