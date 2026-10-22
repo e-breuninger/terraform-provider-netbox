@@ -1,0 +1,1 @@
+terraform import netbox_device_bay_template.test 123

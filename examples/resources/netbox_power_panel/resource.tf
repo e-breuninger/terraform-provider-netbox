@@ -1,15 +1,15 @@
 resource "netbox_site" "test" {
-  name   = "Site 1"
-  status = "active"
+  name = "test-site"
 }
 
 resource "netbox_location" "test" {
-  name    = "Location 1"
+  name    = "test-location"
   site_id = netbox_site.test.id
 }
 
 resource "netbox_power_panel" "test" {
-  name        = "Power Panel 1"
+  name        = "test-power-panel"
   site_id     = netbox_site.test.id
   location_id = netbox_location.test.id
+  description = "test-description"
 }

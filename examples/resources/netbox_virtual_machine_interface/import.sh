@@ -1,0 +1,1 @@
+terraform import netbox_virtual_machine_interface.test 123

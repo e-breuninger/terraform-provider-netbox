@@ -1,21 +1,24 @@
-resource "netbox_site" "testSite" {
-  name = "test site"
-  slug = "test-site"
+resource "netbox_site" "test" {
+  name = "test-site"
 }
 
-resource "netbox_vlan_group" "testGroup" {
-  name        = "Group One"
-  slug        = "group-one"
-  scope_id    = netbox_site.testSite.id
-  scope_type  = "dcim.site"
-  description = "First VLAN group"
-  vid_ranges  = [[1, 20]]
+resource "netbox_tenant" "test" {
+  name = "test-tenant"
 }
 
-resource "netbox_available_vlan" "testVlan" {
-  name        = "test-vlan"
-  status      = "active"
-  description = "Virtual network for testing purposes"
-  group_id    = netbox_vlan_group.testGroup.id
-  site_id     = netbox_vlan_group.testGroup.scope_id
+# A group scoped to the site; the allocated VLAN is placed at the site too.
+resource "netbox_vlan_group" "test" {
+  name    = "test-vlan-group"
+  site_id = netbox_site.test.id
+  vid_ranges = [
+    { start = 100, end = 199 },
+  ]
+}
+
+resource "netbox_available_vlan" "test" {
+  name      = "test-vlan"
+  group_id  = netbox_vlan_group.test.id
+  site_id   = netbox_site.test.id
+  tenant_id = netbox_tenant.test.id
+  status    = "active"
 }

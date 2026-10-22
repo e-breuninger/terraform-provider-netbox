@@ -1,19 +1,33 @@
-# Get the rendered configuration for a device
-data "netbox_device_render_config" "server_config" {
-  device_id = 60
+resource "netbox_site" "test" {
+  name = "test-site"
 }
 
-# Use the rendered configuration
-output "rendered_config" {
-  value = data.netbox_device_render_config.server_config.content
+resource "netbox_manufacturer" "test" {
+  name = "test-manufacturer"
 }
 
-output "template_used" {
-  value = data.netbox_device_render_config.server_config.config_template_name
+resource "netbox_device_type" "test" {
+  manufacturer_id = netbox_manufacturer.test.id
+  model           = "test-device-type"
 }
 
-# Example: Write the config to a file using local_file resource
-# resource "local_file" "kickstart" {
-#   content  = data.netbox_device_render_config.server_config.content
-#   filename = "${path.module}/kickstart.cfg"
-# }
+resource "netbox_device_role" "test" {
+  name = "test-device-role"
+}
+
+resource "netbox_config_template" "test" {
+  name          = "test-config-template"
+  template_code = "hostname {{ device.name }}"
+}
+
+resource "netbox_device" "test" {
+  name               = "test-device"
+  device_type_id     = netbox_device_type.test.id
+  role_id            = netbox_device_role.test.id
+  site_id            = netbox_site.test.id
+  config_template_id = netbox_config_template.test.id
+}
+
+data "netbox_device_render_config" "test" {
+  device_id = netbox_device.test.id
+}

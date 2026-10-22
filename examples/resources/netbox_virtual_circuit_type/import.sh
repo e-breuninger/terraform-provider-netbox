@@ -1,0 +1,1 @@
+terraform import netbox_virtual_circuit_type.test 123

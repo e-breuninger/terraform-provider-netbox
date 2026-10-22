@@ -1,3 +1,3 @@
-data "netbox_ip_address" "ip_address" {
-  id = 1001
+data "netbox_ip_address" "test" {
+  id = 123
 }

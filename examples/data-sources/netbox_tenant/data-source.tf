@@ -1,3 +1,3 @@
-data "netbox_tenant" "customer_a" {
-  name = "Customer A"
+data "netbox_tenant" "test" {
+  name = "test-tenant"
 }

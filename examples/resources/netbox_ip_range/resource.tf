@@ -1,5 +1,10 @@
-resource "netbox_ip_range" "cust_a_prod" {
-  start_address = "10.0.0.1/24"
-  end_address   = "10.0.0.50/24"
-  tags          = ["customer-a", "prod"]
+resource "netbox_vrf" "test" {
+  name = "test-vrf"
+}
+
+resource "netbox_ip_range" "test" {
+  start_address = "192.0.2.129/24"
+  end_address   = "192.0.2.200/24"
+  vrf_id        = netbox_vrf.test.id
+  description   = "test-description"
 }

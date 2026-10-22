@@ -1,8 +1,9 @@
 resource "netbox_tenant" "test" {
-  name = "test"
+  name = "test-tenant"
 }
+
 resource "netbox_route_target" "test" {
-  name        = "test"
-  description = "my description"
+  name        = "65000:1"
+  description = "test-description"
   tenant_id   = netbox_tenant.test.id
 }

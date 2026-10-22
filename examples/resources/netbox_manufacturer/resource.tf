@@ -1,3 +1,5 @@
 resource "netbox_manufacturer" "test" {
-  name = "testmanufacturer"
+  name        = "test-manufacturer"
+  slug        = "test-manufacturer"
+  description = "test-description"
 }

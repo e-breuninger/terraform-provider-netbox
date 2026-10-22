@@ -1,3 +1,3 @@
-data "netbox_platform" "PANOS" {
-  name = "PANOS"
+data "netbox_platform" "test" {
+  name = "test-platform"
 }

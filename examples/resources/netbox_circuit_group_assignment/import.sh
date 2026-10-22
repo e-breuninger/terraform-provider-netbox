@@ -1,0 +1,1 @@
+terraform import netbox_circuit_group_assignment.test 123

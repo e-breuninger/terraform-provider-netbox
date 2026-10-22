@@ -1,16 +1,20 @@
-// Assumes vmw-cluster-01 exists in Netbox
-data "netbox_cluster" "vmw_cluster_01" {
-  name = "vmw-cluster-01"
+resource "netbox_cluster_type" "test" {
+  name = "test-cluster-type"
 }
 
-resource "netbox_virtual_machine" "base_vm" {
-  cluster_id = data.netbox_cluster.vmw_cluster_01.id
-  name       = "myvm-1"
+resource "netbox_cluster" "test" {
+  name            = "test-cluster"
+  cluster_type_id = netbox_cluster_type.test.id
 }
 
-resource "netbox_virtual_disk" "example" {
-  name               = "disk-01"
-  description        = "Main disk"
-  size_mb            = 50
-  virtual_machine_id = netbox_virtual_machine.base_vm.id
+resource "netbox_virtual_machine" "test" {
+  name       = "test-virtual-machine"
+  cluster_id = netbox_cluster.test.id
+}
+
+resource "netbox_virtual_disk" "test" {
+  virtual_machine_id = netbox_virtual_machine.test.id
+  name               = "test-virtual-disk"
+  size_mb            = 20480
+  description        = "test-description"
 }

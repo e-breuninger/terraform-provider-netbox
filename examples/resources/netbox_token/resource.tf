@@ -1,12 +1,12 @@
 resource "netbox_user" "test" {
-  username = "johndoe"
-  password = "Abcdefghijkl1"
+  username = "test-user"
+  password = "test-password"
 }
 
-resource "netbox_token" "test_basic" {
+resource "netbox_token" "test" {
   user_id       = netbox_user.test.id
-  key           = "0123456789012345678901234567890123456789"
-  allowed_ips   = ["2.4.8.16/32"]
+  description   = "test-description"
   write_enabled = false
-  expires       = "2036-01-02T15:04:05.000Z"
+  enabled       = true
+  expires       = "2030-01-01T00:00:00.000Z"
 }

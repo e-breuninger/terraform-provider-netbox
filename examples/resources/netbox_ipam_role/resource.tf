@@ -1,3 +1,4 @@
-resource "netbox_ipam_role" "test_basic" {
-  name = "test"
+resource "netbox_ipam_role" "test" {
+  name        = "test-ipam-role"
+  description = "test-description"
 }

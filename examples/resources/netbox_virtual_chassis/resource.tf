@@ -1,5 +1,5 @@
-resource "netbox_virtual_chassis" "example" {
-  name        = "chassis"
-  domain      = "domain"
-  description = "virtual chassis"
+resource "netbox_virtual_chassis" "test" {
+  name        = "test-virtual-chassis"
+  domain      = "test-domain"
+  description = "test-description"
 }

@@ -7,7 +7,7 @@ See: [Official documentation](https://registry.terraform.io/providers/e-breuning
 
 ## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.0
 
 ## Supported netbox versions
 
@@ -17,6 +17,7 @@ Since version [1.6.6](https://github.com/e-breuninger/terraform-provider-netbox/
 
 | Netbox version  | Provider version |
 | --------------- | ---------------- |
+| v4.6.8 - 4.6.10 | v6.0.0 and up    |
 | v4.3.0 - 4.6.5  | v5.6.1 and up    |
 | v4.3.0 - 4.4.10 | v5.0.0 - 5.6.0   |
 | v4.2.2 - 4.2.9  | v4.0.0 - 4.3.1   |

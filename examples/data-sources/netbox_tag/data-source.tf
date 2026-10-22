@@ -1,3 +1,3 @@
-data "netbox_tag" "dmz" {
-  name = "DMZ"
+data "netbox_tag" "test" {
+  name = "test-tag"
 }
