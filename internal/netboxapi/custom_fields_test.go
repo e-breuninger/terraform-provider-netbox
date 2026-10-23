@@ -1,7 +1,8 @@
 package netboxapi
 
-// Locks the object and multiobject custom field conversions: NetBox answers related objects, the
-// state holds their ids, and a write sends the ids NetBox accepts.
+// Locks the object, multiobject, select and multiselect custom field conversions: NetBox answers
+// related objects and {value, label} choices, the state holds their ids and values, and a write
+// sends what NetBox accepts.
 
 import (
 	"encoding/json"
@@ -69,5 +70,48 @@ func TestCustomFieldValuesRelatedObjects(t *testing.T) {
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("customFieldValues = %v, want %v", got, want)
+	}
+}
+
+func TestCustomFieldValuesSelections(t *testing.T) {
+	choice := func(value, label string) map[string]any { return map[string]any{"value": value, "label": label} }
+	got := customFieldValues(map[string]any{
+		"select":       choice("a", "Alpha"),
+		"multiselect":  []any{choice("b", "Beta"), choice("a", "Alpha")},
+		"json_choice":  map[string]any{"value": "a", "label": "Alpha", "extra": true},
+		"json_numeric": map[string]any{"value": float64(1), "label": "One"},
+		"empty_list":   []any{},
+	})
+	want := map[string]string{
+		"select":       "a",                                          // the choice value, as the configuration sets it
+		"multiselect":  `["b","a"]`,                                  // the choice values, in NetBox's order
+		"json_choice":  `{"extra":true,"label":"Alpha","value":"a"}`, // a JSON field with more keys
+		"json_numeric": `{"label":"One","value":1}`,                  // a JSON field whose value is not a string
+		"empty_list":   "[]",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("customFieldValues = %v, want %v", got, want)
+	}
+}
+
+func TestTypedCustomFieldValueSelections(t *testing.T) {
+	for _, testCase := range []struct {
+		fieldType, value string
+		want             any
+	}{
+		{"select", "a", "a"},
+		{"select", `{"value": "a", "label": "Alpha"}`, "a"}, // an older state's choice
+		{"multiselect", `["b", "a"]`, []any{"b", "a"}},
+		{"multiselect", `[{"value": "b", "label": "Beta"}, {"value": "a", "label": "Alpha"}]`, []string{"b", "a"}},
+		{"multiselect", "[]", []any{}},
+	} {
+		got, err := typedCustomFieldValue("cf", testCase.fieldType, testCase.value)
+		if err != nil {
+			t.Errorf("%s %s: %v", testCase.fieldType, testCase.value, err)
+			continue
+		}
+		if !reflect.DeepEqual(got, testCase.want) {
+			t.Errorf("%s %s = %#v, want %#v", testCase.fieldType, testCase.value, got, testCase.want)
+		}
 	}
 }
