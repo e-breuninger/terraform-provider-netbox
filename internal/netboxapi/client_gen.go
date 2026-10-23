@@ -107,7 +107,7 @@ func CheckTags(ctx context.Context, c *client.NetBoxAPI, slugs []string) error {
 }
 
 // TypedCustomFields converts the string custom field values in body to the
-// types their NetBox definitions require (integer, decimal, boolean,
+// types their NetBox definitions require (integer, decimal, boolean, select,
 // multiselect, json, object, multiobject), looked up live from the custom
 // field definitions. String-typed fields and unknown names pass through
 // unchanged. nil values (keys cleared by ClearRemovedCustomFields) stay null.
@@ -201,10 +201,21 @@ func typedCustomFieldValue(name, fieldType, v string) (any, error) {
 			return false, nil
 		}
 		return nil, fmt.Errorf("custom field %q: %q is not a boolean (use \"true\" or \"false\")", name, v)
+	case "select":
+		var x any
+		if err := json.Unmarshal([]byte(v), &x); err == nil {
+			if choice, ok := selectionValue(x); ok {
+				return choice, nil // an older state's {value, label}
+			}
+		}
+		return v, nil
 	case "multiselect":
 		var xs []any
 		if err := json.Unmarshal([]byte(v), &xs); err != nil {
 			return nil, fmt.Errorf("custom field %q: %q is not a JSON array", name, v)
+		}
+		if choices, ok := selectionValues(xs); ok {
+			return choices, nil // an older state's list of {value, label}
 		}
 		return xs, nil
 	case "json":
@@ -291,6 +302,36 @@ func relatedObjectIDs(value []any) (ids []int64, ok bool) {
 	}
 	slices.Sort(ids)
 	return ids, true
+}
+
+// selectionValue is the choice value of a select custom field value as NetBox 4.7+ returns it: a
+// map with exactly a string value and a label. ok is false for any other value.
+func selectionValue(x any) (string, bool) {
+	object, isObject := x.(map[string]any)
+	if !isObject || len(object) != 2 {
+		return "", false
+	}
+	if _, hasLabel := object["label"]; !hasLabel {
+		return "", false
+	}
+	value, isString := object["value"].(string)
+	return value, isString
+}
+
+// selectionValues is the choice values, in NetBox's order, of a multiselect custom field value as
+// NetBox 4.7+ returns it (a non-empty list of {value, label}); ok is false for any other value.
+func selectionValues(list []any) (values []string, ok bool) {
+	if len(list) == 0 {
+		return nil, false
+	}
+	for _, element := range list {
+		value, isSelection := selectionValue(element)
+		if !isSelection {
+			return nil, false
+		}
+		values = append(values, value)
+	}
+	return values, true
 }
 
 // MergeTags is configured plus the defaults it does not already list.
@@ -527,7 +568,9 @@ func tagRefs(slugs []string) []map[string]string {
 // values, unset fields null) to string values: strings as-is, numbers in
 // their shortest form, booleans as true/false, a related object (object
 // field) as its id, a list of them (multiobject field) as a JSON list of the
-// sorted ids, anything else JSON-encoded.
+// sorted ids, a {value, label} choice (select field) as its value, a list of
+// them (multiselect field) as a JSON list of the values, anything else
+// JSON-encoded.
 // Null entries are dropped, so an object without values is an empty map
 // (custom_fields = {} round-trips); only a missing object yields nil.
 func customFieldValues(v any) map[string]string {
@@ -551,9 +594,15 @@ func customFieldValues(v any) map[string]string {
 				out[name] = strconv.FormatInt(id, 10)
 				continue
 			}
+			if choice, ok := selectionValue(x); ok {
+				out[name] = choice
+				continue
+			}
 			if list, isList := x.([]any); isList {
 				if ids, ok := relatedObjectIDs(list); ok {
 					value = ids
+				} else if choices, ok := selectionValues(list); ok {
+					value = choices
 				}
 			}
 			raw, err := json.Marshal(value)
