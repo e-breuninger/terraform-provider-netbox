@@ -25,7 +25,7 @@ func dataSourceNetboxPrefixes() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `tenant_id`, `site_id`, `role_id`, `region_id`, `description` & `tag`.",
+							Description: "The name of the field to filter on. Supported fields are: `prefix`, `contains`, `vlan_vid`, `vrf_id`, `vlan_id`, `status`, `tenant_id`, `site_id`, `role_id`, `region_id`, `description` & `tag`. `tag` may be repeated to filter on multiple tags; NetBox requires prefixes to match ALL specified tags (logical AND), not any of them.",
 						},
 						"value": {
 							Type:        schema.TypeString,
@@ -159,7 +159,7 @@ func dataSourceNetboxPrefixesRead(d *schema.ResourceData, m interface{}) error {
 			case "description":
 				params.Description = &vString
 			case "tag":
-				params.Tag = []string{vString}
+				params.Tag = append(params.Tag, vString)
 			default:
 				return fmt.Errorf("'%s' is not a supported filter parameter", k)
 			}
