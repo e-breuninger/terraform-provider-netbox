@@ -78,7 +78,6 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	firstName := d.Get("first_name").(string)
 	lastName := d.Get("last_name").(string)
 	active := d.Get("active").(bool)
-	staff := d.Get("staff").(bool)
 	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
@@ -87,7 +86,6 @@ func resourceNetboxUserCreate(d *schema.ResourceData, m interface{}) error {
 	data.FirstName = firstName
 	data.LastName = lastName
 	data.IsActive = active
-	data.IsStaff = staff
 	data.Groups = groupIDs
 	data.DateJoined = strfmt.DateTime(time.Now())
 
@@ -127,7 +125,6 @@ func resourceNetboxUserRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("first_name", res.GetPayload().FirstName)
 	d.Set("last_name", res.GetPayload().LastName)
 
-	d.Set("staff", res.GetPayload().IsStaff)
 	d.Set("active", res.GetPayload().IsActive)
 	d.Set("group_ids", getIDsFromNestedGroup(res.GetPayload().Groups))
 
@@ -147,7 +144,6 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	firstName := d.Get("first_name").(string)
 	lastName := d.Get("last_name").(string)
 	active := d.Get("active").(bool)
-	staff := d.Get("staff").(bool)
 	groupIDs := toInt64List(d.Get("group_ids"))
 
 	data.Username = &username
@@ -156,7 +152,6 @@ func resourceNetboxUserUpdate(d *schema.ResourceData, m interface{}) error {
 	data.FirstName = firstName
 	data.LastName = lastName
 	data.IsActive = active
-	data.IsStaff = staff
 	data.Groups = groupIDs
 	data.DateJoined = strfmt.DateTime(time.Now())
 
