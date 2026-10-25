@@ -233,6 +233,56 @@ resource "netbox_prefix" "test" {
 	})
 }
 
+// TestAccNetboxPrefix_unsetCustomFieldNoDiff is the netbox_prefix counterpart of
+// TestAccNetboxAvailablePrefix_unsetCustomFieldNoDiff. Both resources share
+// resourceNetboxPrefixRead, but they are separate resources with separate schemas,
+// so the plan-level guarantee is asserted for each.
+func TestAccNetboxPrefix_unsetCustomFieldNoDiff(t *testing.T) {
+	testPrefix := "1.1.4.128/25"
+	testSlug := "prefix_cf_unset"
+	testVid := "126"
+	randomSlug := testAccGetTestName(testSlug)
+	testName := testAccGetTestName(testSlug)
+
+	// The custom field is defined on ipam.prefix but deliberately left out of the
+	// netbox_prefix resource, reproducing the unmanaged-field case.
+	config := testAccNetboxPrefixFullDependencies(testName, randomSlug, testVid) + fmt.Sprintf(`
+resource "netbox_custom_field" "unset" {
+  name   = "%s"
+  type   = "text"
+  weight = 100
+  content_types = ["ipam.prefix"]
+}
+
+resource "netbox_prefix" "test" {
+  prefix = "%s"
+  status = "active"
+
+  depends_on = [netbox_custom_field.unset]
+}`, testSlug, testPrefix)
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_prefix.test", "status", "active"),
+					// The unmanaged field must not be persisted into state at all.
+					resource.TestCheckNoResourceAttr("netbox_prefix.test",
+						fmt.Sprintf("custom_fields.%s", testSlug)),
+				),
+			},
+			{
+				// Re-planning the unchanged config must produce no diff.
+				Config:             config,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 func TestAccNetboxPrefix_cf(t *testing.T) {
 	testPrefix := "1.1.2.128/25"
 	testSlug := "prefix_cf"

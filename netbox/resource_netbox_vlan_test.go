@@ -141,6 +141,61 @@ func TestAccNetboxVlan_customFields(t *testing.T) {
 	})
 }
 
+// TestAccNetboxVlan_unsetCustomFieldNoDiff is the netbox_vlan counterpart of
+// TestAccNetboxAvailablePrefix_unsetCustomFieldNoDiff: a custom field defined on
+// ipam.vlan but never set by the resource must not be written into state, or every
+// subsequent plan shows an in-place update that no apply can clear.
+//
+// netbox_vlan is worth covering separately rather than treating as a duplicate of
+// the prefix test. Unlike the other resources, it also calls getCustomFields on the
+// write path (resource_netbox_vlan.go), so filtering there changes what is sent to
+// Netbox, not just what is stored.
+func TestAccNetboxVlan_unsetCustomFieldNoDiff(t *testing.T) {
+	testName := testAccGetTestName("vlan_cf_unset")
+	testField := fmt.Sprintf("vlan_cf_%s", acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz"))
+	testVid := acctest.RandIntRange(1000, 4000)
+
+	// The custom field is defined on ipam.vlan but deliberately left out of the
+	// netbox_vlan resource, reproducing the unmanaged-field case.
+	config := fmt.Sprintf(`
+resource "netbox_custom_field" "unset" {
+	name          = "%[2]s"
+	type          = "text"
+	content_types = ["ipam.vlan"]
+}
+
+resource "netbox_vlan" "test_cf_unset" {
+	name = "%[1]s"
+	vid  = %[3]d
+	tags = []
+
+	depends_on = [netbox_custom_field.unset]
+}
+`, testName, testField, testVid)
+
+	resource.ParallelTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_vlan.test_cf_unset", "name", testName),
+					// The unmanaged field must not be persisted into state at all.
+					resource.TestCheckNoResourceAttr("netbox_vlan.test_cf_unset",
+						fmt.Sprintf("custom_fields.%s", testField)),
+				),
+			},
+			{
+				// Re-planning the unchanged config must produce no diff.
+				Config:             config,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 func testAccNetboxVlanWithCustomFields(testName string, testField string, testVid int, testValue string) string {
 	return fmt.Sprintf(`
 resource "netbox_custom_field" "test" {
