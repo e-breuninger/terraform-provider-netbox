@@ -43,6 +43,8 @@ resource "netbox_asn" "test" {
 
 - `comments` (String) Comments field for the AS Number record.
 - `description` (String) Description field for the AS Number record.
+- `role_id` (Number) ID of the role assigned to the AS Number record.
+- `site_ids` (Set of Number) IDs of the sites the AS Number record is assigned to.
 - `tags` (Set of String)
 
 ### Read-Only

@@ -26,6 +26,16 @@ resource "netbox_rir" "test" {
   name = "%[1]s"
 }
 
+resource "netbox_ipam_role" "test" {
+  name = "%[1]s"
+  slug = "%[1]s"
+}
+
+resource "netbox_site" "test" {
+  name   = "%[1]s"
+  status = "active"
+}
+
 resource "netbox_asn" "test" {
   asn    = 1337
   rir_id = netbox_rir.test.id
@@ -33,12 +43,17 @@ resource "netbox_asn" "test" {
   description = "test"
   comments = "test"
 
+  role_id  = netbox_ipam_role.test.id
+  site_ids = [netbox_site.test.id]
+
   tags = [netbox_tag.test.name]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_asn.test", "asn", "1337"),
 					resource.TestCheckResourceAttr("netbox_asn.test", "description", "test"),
 					resource.TestCheckResourceAttr("netbox_asn.test", "comments", "test"),
+					resource.TestCheckResourceAttrPair("netbox_asn.test", "role_id", "netbox_ipam_role.test", "id"),
+					resource.TestCheckResourceAttr("netbox_asn.test", "site_ids.#", "1"),
 					resource.TestCheckResourceAttr("netbox_asn.test", "tags.#", "1"),
 					resource.TestCheckResourceAttr("netbox_asn.test", "tags.0", testName+"a"),
 				),
