@@ -89,11 +89,10 @@ func resourceNetboxDevice() *schema.Resource {
 				Computed: true,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxDeviceStatusOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxDeviceStatusOptions),
-				Default:      "active",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: buildValidValueDescription(resourceNetboxDeviceStatusOptions) + statusNotEnforcedNote,
+				Default:     "active",
 			},
 			"rack_id": {
 				Type:     schema.TypeInt,

@@ -32,7 +32,7 @@ resource "netbox_prefix" "my_prefix" {
 ### Required
 
 - `prefix` (String)
-- `status` (String) Valid values are `active`, `container`, `reserved` and `deprecated`.
+- `status` (String) Valid values are `active`, `container`, `reserved` and `deprecated`. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider.
 
 ### Optional
 

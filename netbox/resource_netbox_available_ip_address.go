@@ -80,11 +80,10 @@ This resource will retrieve the next available IP address from a given prefix or
 				Optional: true,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressStatusOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxIPAddressStatusOptions),
-				Default:      "active",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: buildValidValueDescription(resourceNetboxIPAddressStatusOptions) + statusNotEnforcedNote,
+				Default:     "active",
 			},
 			"dns_name": {
 				Type:     schema.TypeString,

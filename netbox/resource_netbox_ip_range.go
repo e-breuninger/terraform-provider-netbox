@@ -6,7 +6,6 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 var resourceNetboxIPRangeStatusOptions = []string{"active", "reserved", "deprecated"}
@@ -32,11 +31,10 @@ func resourceNetboxIPRange() *schema.Resource {
 				Required: true,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "active",
-				ValidateFunc: validation.StringInSlice(resourceNetboxIPRangeStatusOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxIPRangeStatusOptions),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "active",
+				Description: buildValidValueDescription(resourceNetboxIPRangeStatusOptions) + statusNotEnforcedNote,
 			},
 			"tenant_id": {
 				Type:     schema.TypeInt,

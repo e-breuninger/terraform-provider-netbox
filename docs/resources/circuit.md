@@ -46,7 +46,7 @@ resource "netbox_circuit" "test" {
 
 - `cid` (String)
 - `provider_id` (Number)
-- `status` (String) Valid values are `planned`, `provisioning`, `active`, `offline`, `deprovisioning` and `decommissioning`.
+- `status` (String) Valid values are `planned`, `provisioning`, `active`, `offline`, `deprovisioning` and `decommissioning`. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider.
 - `type_id` (Number)
 
 ### Optional

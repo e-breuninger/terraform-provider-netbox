@@ -6,7 +6,6 @@ import (
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
 	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 var resourceNetboxCircuitStatusOptions = []string{"planned", "provisioning", "active", "offline", "deprovisioning", "decommissioning"}
@@ -42,10 +41,9 @@ func resourceNetboxCircuit() *schema.Resource {
 				Optional: true,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxCircuitStatusOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxCircuitStatusOptions),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: buildValidValueDescription(resourceNetboxCircuitStatusOptions) + statusNotEnforcedNote,
 			},
 			"description": {
 				Type:     schema.TypeString,

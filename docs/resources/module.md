@@ -60,7 +60,7 @@ resource "netbox_module" "test" {
 - `device_id` (Number)
 - `module_bay_id` (Number)
 - `module_type_id` (Number)
-- `status` (String) One of [offline, active, planned, staged, failed, decommissioning].
+- `status` (String) One of [offline, active, planned, staged, failed, decommissioning]. These are NetBox's stock values; a NetBox installation may define additional or different values, in which case the NetBox API validates the value instead of this provider.
 
 ### Optional
 

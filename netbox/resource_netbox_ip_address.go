@@ -64,10 +64,9 @@ func resourceNetboxIPAddress() *schema.Resource {
 				Optional: true,
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice(resourceNetboxIPAddressStatusOptions, false),
-				Description:  buildValidValueDescription(resourceNetboxIPAddressStatusOptions),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: buildValidValueDescription(resourceNetboxIPAddressStatusOptions) + statusNotEnforcedNote,
 			},
 			"dns_name": {
 				Type:     schema.TypeString,
