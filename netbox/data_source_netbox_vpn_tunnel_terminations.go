@@ -14,7 +14,7 @@ var datasourceNetboxVpnTunnelTerminationRoleOptions = []string{"peer", "hub", "s
 
 func dataSourceNetboxVpnTunnelTerminations() *schema.Resource {
 	return &schema.Resource{
-		Read:        dataSourceNetboxVpnTunnelTerminationsRead,
+		Read: dataSourceNetboxVpnTunnelTerminationsRead,
 		Description: `:meta:subcategory:VPN Tunnels:From the [official documentation](https://docs.netbox.dev/en/stable/features/vpn-tunnels/):
 
 > NetBox can model private tunnels formed among virtual termination points across your network. Typical tunnel implementations include GRE, IP-in-IP, and IPSec. A tunnel may be terminated to two or more device or virtual machine interfaces. For convenient organization, tunnels may be assigned to user-defined groups.`,
@@ -44,12 +44,12 @@ func dataSourceNetboxVpnTunnelTerminations() *schema.Resource {
 							Description: buildValidValueDescription(datasourceNetboxVpnTunnelTerminationRoleOptions),
 						},
 						"termination_type": {
-							Type:         schema.TypeString,
-							Computed:     true,
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"termination_id": {
-							Type:         schema.TypeInt,
-							Computed:     true,
+							Type:     schema.TypeInt,
+							Computed: true,
 						},
 						tagsKey: tagsSchema,
 					},
