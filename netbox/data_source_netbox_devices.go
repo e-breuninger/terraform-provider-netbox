@@ -255,6 +255,9 @@ func dataSourceNetboxDevicesRead(d *schema.ResourceData, m interface{}) error {
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r := regexp.MustCompile(nameRegex.(string))
 		for _, device := range allDevices {
+			if device.Name == nil {
+				continue
+			}
 			if r.MatchString(*device.Name) {
 				filteredDevices = append(filteredDevices, device)
 			}

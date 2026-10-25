@@ -52,7 +52,6 @@ resource "netbox_device" "test" {
 ### Required
 
 - `device_type_id` (Number)
-- `name` (String)
 - `role_id` (Number)
 - `site_id` (Number)
 
@@ -66,6 +65,7 @@ resource "netbox_device" "test" {
 - `description` (String)
 - `local_context_data` (String) This is best managed through the use of `jsonencode` and a map of settings.
 - `location_id` (Number)
+- `name` (String)
 - `platform_id` (Number)
 - `rack_face` (String) Valid values are `front` and `rear`. Required when `rack_position` is set.
 - `rack_id` (Number)
