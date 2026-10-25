@@ -1,19 +1,22 @@
 package netbox
 
 import (
+	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
 	"github.com/fbreckle/go-netbox/netbox/models"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceNetboxAvailableVLAN() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetboxAvailableVLANCreate,
-		Read:   resourceNetboxAvailableVLANRead,
-		Update: resourceNetboxAvailableVLANUpdate,
-		Delete: resourceNetboxAvailableVLANDelete,
+		CreateContext: resourceNetboxAvailableVLANCreate,
+		Read:          resourceNetboxAvailableVLANRead,
+		Update:        resourceNetboxAvailableVLANUpdate,
+		Delete:        resourceNetboxAvailableVLANDelete,
 
 		Description: `:meta:subcategory:IP Address Management (IPAM):Per [the docs](https://netbox.readthedocs.io/en/stable/models/ipam/vlan/):
 
@@ -25,7 +28,9 @@ func resourceNetboxAvailableVLAN() *schema.Resource {
 > * Reserved
 > * Deprecated
 
-This resource will retrieve the next available VLAN ID from a given VLAN group (specified by ID).`,
+This resource will retrieve the next available VLAN ID from a given VLAN group (specified by ID).
+
+Allocations from the same VLAN group are serialized inside the provider, so several of these resources can be created in the same apply without racing each other. Conflicts caused by anything outside the current provider process are retried for a short while but can still fail if contention keeps up.`,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -69,13 +74,13 @@ This resource will retrieve the next available VLAN ID from a given VLAN group (
 	}
 }
 
-func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetboxAvailableVLANCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*providerState)
 	groupID := int64(d.Get("group_id").(int))
 
 	tags, err := getNestedTagListFromResourceDataSet(api, d.Get(tagsKey))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data := &models.WritableCreateAvailableVLAN{
 		Name:        strToPtr(d.Get("name").(string)),
@@ -88,17 +93,38 @@ func resourceNetboxAvailableVLANCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	params := ipam.NewIpamVlanGroupsAvailableVlansCreateParams().WithID(groupID).WithData(data)
-	resp, err := api.Ipam.IpamVlanGroupsAvailableVlansCreate(params, nil)
+
+	// Only the allocation itself is serialized and retried. Everything after it
+	// operates on the VLAN we just got, which nothing else is competing for.
+	unlock, err := api.lockAllocation(ctx, allocationLockKeyVLANGroup(groupID))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
+	}
+	defer unlock()
+	var vlan *models.VLAN
+	err = retryAllocation(ctx, func() error {
+		resp, err := api.Ipam.IpamVlanGroupsAvailableVlansCreate(params, nil)
+		if err != nil {
+			return err
+		}
+		if resp.Payload == nil {
+			return fmt.Errorf("no available VLAN in group %d", groupID)
+		}
+		vlan = resp.Payload
+		return nil
+	})
+	unlock()
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	vlan := resp.Payload
 	d.SetId(strconv.FormatInt(vlan.ID, 10))
 	d.Set("vid", vlan.Vid)
 	d.Set("name", vlan.Name)
-	d.Set("group_id", vlan.Group.ID)
-	return resourceNetboxAvailableVLANRead(d, m)
+	if vlan.Group != nil {
+		d.Set("group_id", vlan.Group.ID)
+	}
+	return diag.FromErr(resourceNetboxAvailableVLANRead(d, m))
 }
 
 func resourceNetboxAvailableVLANRead(d *schema.ResourceData, m interface{}) error {
