@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/fbreckle/go-netbox/netbox/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	log "github.com/sirupsen/logrus"
@@ -432,6 +433,110 @@ func init() {
 				}
 			}
 			return nil
+		},
+	})
+}
+
+func TestAccNetboxDeviceInterface_customFields(t *testing.T) {
+	testName := strings.ReplaceAll(testAccGetTestName("iface_cf"), "-", "_")
+	resourceName := "netbox_device_interface.test"
+	setup := testAccNetboxDeviceInterfaceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_custom_field" "helper" {
+  name          = "%[1]s_helper"
+  type          = "text"
+  content_types = ["dcim.interface"]
+}
+resource "netbox_custom_field" "secondary" {
+  name          = "%[1]s_secondary"
+  type          = "text"
+  content_types = ["dcim.interface"]
+}
+`, testName)
+	config := func(fields string) string {
+		return setup + fmt.Sprintf(`
+resource "netbox_device_interface" "test" {
+  name      = "Vlan100"
+  device_id = netbox_device.test.id
+  type      = "virtual"
+  depends_on = [netbox_custom_field.helper, netbox_custom_field.secondary]
+  %s
+}
+`, fields)
+	}
+	initial := config(`custom_fields = {
+    (netbox_custom_field.helper.name) = "192.0.2.10"
+    (netbox_custom_field.secondary.name) = "192.0.2.11"
+  }`)
+	updated := config(`custom_fields = {
+    (netbox_custom_field.helper.name) = "192.0.2.20"
+  }`)
+	var interfaceID int64
+	check := func(helper, secondary interface{}, count string) resource.TestCheckFunc {
+		return resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(resourceName, "custom_fields.%", count),
+			func(s *terraform.State) error {
+				var err error
+				interfaceID, err = strconv.ParseInt(s.RootModule().Resources[resourceName].Primary.ID, 10, 64)
+				if err != nil {
+					return err
+				}
+				api := testAccProvider.Meta().(*providerState)
+				res, err := api.Dcim.DcimInterfacesRead(dcim.NewDcimInterfacesReadParams().WithID(interfaceID), nil)
+				if err != nil {
+					return err
+				}
+				fields := res.GetPayload().CustomFields.(map[string]interface{})
+				if fields[testName+"_helper"] != helper || fields[testName+"_secondary"] != secondary {
+					return fmt.Errorf("unexpected custom fields in NetBox: %#v", fields)
+				}
+				return nil
+			},
+		)
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDeviceInterfaceDestroy,
+		Steps: []resource.TestStep{
+			{Config: initial, Check: resource.ComposeTestCheckFunc(
+				check("192.0.2.10", "192.0.2.11", "2"),
+				resource.TestCheckResourceAttr(resourceName, "custom_fields."+testName+"_helper", "192.0.2.10"),
+			)},
+			{ResourceName: resourceName, ImportState: true, ImportStateVerify: true},
+			{Config: updated, Check: resource.ComposeTestCheckFunc(
+				check("192.0.2.20", nil, "1"),
+				resource.TestCheckResourceAttr(resourceName, "custom_fields."+testName+"_helper", "192.0.2.20"),
+			)},
+			{
+				PreConfig: func() {
+					api := testAccProvider.Meta().(*providerState)
+					res, err := api.Dcim.DcimInterfacesRead(dcim.NewDcimInterfacesReadParams().WithID(interfaceID), nil)
+					if err != nil {
+						t.Fatal(err)
+					}
+					iface := res.GetPayload()
+					_, err = api.Dcim.DcimInterfacesPartialUpdate(dcim.NewDcimInterfacesPartialUpdateParams().WithID(interfaceID).WithData(&models.WritableInterface{
+						Name:         iface.Name,
+						Device:       &iface.Device.ID,
+						Type:         iface.Type.Value,
+						Enabled:      iface.Enabled,
+						Tags:         []*models.NestedTag{},
+						TaggedVlans:  []int64{},
+						WirelessLans: []int64{},
+						Vdcs:         []int64{},
+						CustomFields: map[string]interface{}{testName + "_helper": "192.0.2.99"},
+					}), nil)
+					if err != nil {
+						t.Fatal(err)
+					}
+				},
+				Config: updated,
+				Check:  check("192.0.2.20", nil, "1"),
+			},
+			{Config: config("custom_fields = {}"), Check: check(nil, nil, "0")},
+			{Config: initial, Check: check("192.0.2.10", "192.0.2.11", "2")},
+			{Config: config(""), Check: check(nil, nil, "0")},
+			{ResourceName: resourceName, ImportState: true, ImportStateVerify: true},
 		},
 	})
 }

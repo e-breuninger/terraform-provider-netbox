@@ -35,6 +35,7 @@ resource "netbox_device_interface" "test" {
 
 ### Optional
 
+- `custom_fields` (Map of String)
 - `description` (String)
 - `enabled` (Boolean) Defaults to `true`.
 - `label` (String)

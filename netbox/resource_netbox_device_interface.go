@@ -112,7 +112,8 @@ func resourceNetboxDeviceInterface() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			tagsKey: tagsSchema,
+			tagsKey:         tagsSchema,
+			customFieldsKey: customFieldsSchema,
 			"tagged_vlans": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -168,6 +169,9 @@ func resourceNetboxDeviceInterfaceCreate(ctx context.Context, d *schema.Resource
 		WirelessLans: []int64{},
 		Vdcs:         []int64{},
 	}
+	if fields := getCustomFields(d.Get(customFieldsKey)); fields != nil {
+		data.CustomFields = fields
+	}
 	if lag, ok := d.Get("lag_device_interface_id").(int); ok && lag != 0 {
 		data.Lag = int64ToPtr(int64(lag))
 	}
@@ -220,6 +224,10 @@ func resourceNetboxDeviceInterfaceRead(ctx context.Context, d *schema.ResourceDa
 	}
 
 	iface := res.GetPayload()
+
+	if err := d.Set(customFieldsKey, flattenCustomFields(getCustomFields(iface.CustomFields))); err != nil {
+		return diag.FromErr(err)
+	}
 
 	d.Set("name", iface.Name)
 	d.Set("description", iface.Description)
@@ -314,6 +322,22 @@ func resourceNetboxDeviceInterfaceUpdate(ctx context.Context, d *schema.Resource
 		Vdcs:         []int64{},
 	}
 	data.Module = getOptionalInt(d, "module_id")
+
+	// NetBox merges custom fields on PATCH; omitted keys retain their values.
+	// Explicitly clear fields removed from the configuration.
+	if d.HasChange(customFieldsKey) {
+		previous, _ := d.GetChange(customFieldsKey)
+		fields := getCustomFields(d.Get(customFieldsKey))
+		if fields == nil {
+			fields = make(map[string]interface{})
+		}
+		for key := range getCustomFields(previous) {
+			if _, ok := fields[key]; !ok {
+				fields[key] = nil
+			}
+		}
+		data.CustomFields = fields
+	}
 
 	if d.HasChange("lag_device_interface_id") {
 		lag := int64(d.Get("lag_device_interface_id").(int))
