@@ -1,4 +1,4 @@
-TEST?=./internal/provider/
+TEST?=./internal/provider/ ./provider/
 TEST_FUNC?=TestAccNetboxMACAddr*
 DOCKER_COMPOSE=docker compose
 
