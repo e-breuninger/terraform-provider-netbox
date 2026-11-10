@@ -891,6 +891,9 @@ resource "netbox_available_asn" "second" {
 				Config: deps + `
 resource "netbox_available_asn" "first" {
   asn_range_id = netbox_asn_range.test.id
+  # NetBox keeps the site assigned, and deleting the ASN while the site is deleted in parallel
+  # fails with a 403 (NetBox turns the vanished site into a PermissionDenied).
+  depends_on = [netbox_site.test]
 }
 resource "netbox_available_asn" "second" {
   depends_on   = [netbox_available_asn.first]
