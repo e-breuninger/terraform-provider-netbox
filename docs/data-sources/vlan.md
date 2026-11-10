@@ -29,32 +29,52 @@ data "netbox_vlan" "test" {
 
 ### Optional
 
+- `available_at_site` (String) Available at site to match.
+- `available_at_site_group` (String) Available at site group to match.
+- `available_on_device` (String) Available on device to match.
+- `available_on_virtualmachine` (String) Available on virtualmachine to match.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `group_id` (Number) Id of the VLAN group.
 - `group_slug` (String) Slug of the VLAN group.
 - `id` (Number) NetBox id.
+- `interface_id` (Number) Id of the interface.
+- `l2vpn` (Number) Id of the L2VPN.
+- `l2vpn_id` (Number) Id of the L2VPN.
+- `last_updated` (String)
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `qinq_role` (String) Q-in-Q role: a service VLAN (svlan) carrying customer VLANs, or a customer VLAN (cvlan) inside one. One of: svlan, cvlan.
+- `qinq_svlan_id` (Number) Id of the service VLAN this customer VLAN is carried in (qinq_role cvlan).
+- `qinq_svlan_vid` (Number) Qinq svlan vid to match.
+- `region_id` (String) Id of the region.
+- `region_slug` (String) Slug of the region.
+- `role_id` (Number) Id of the role.
+- `role_slug` (String) Slug of the role.
+- `site_group_id` (String) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
 - `site_id` (Number) Id of the site.
+- `site_slug` (String) Slug of the site.
 - `status` (String) Operational status. One of: active, reserved, deprecated.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 - `tenant_group_id` (Number) Id of the tenant group.
 - `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
 - `tenant_slug` (String) Slug of the tenant.
 - `vid` (Number) VLAN id (1-4094). Must be a whole number.
+- `vminterface_id` (Number) Id of the vminterface.
 
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `last_updated` (String)
 - `prefix_count` (Number) Number of prefixes on the VLAN.
-- `qinq_role` (String) Q-in-Q role: a service VLAN (svlan) carrying customer VLANs, or a customer VLAN (cvlan) inside one. One of: svlan, cvlan.
-- `qinq_svlan_id` (Number) Id of the service VLAN this customer VLAN is carried in (qinq_role cvlan).
-- `role_id` (Number) Id of the role.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

@@ -62,7 +62,7 @@ func (d *groupsDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex. Repeating a name sends that parameter once per value.",
+				Description: "Query filters, sent as API list parameters. Supported names: description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, notification_group_id, notification_group_id__n, owner, owner__n, owner_id, owner_id__n, permission_id, permission_id__n, q, user_id, user_id__n. Repeating a name sends that parameter once per value.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -179,6 +179,30 @@ func (d *groupsDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	var vNameEmpty *bool
 	var vNameRegex []string
 	var vNameIregex []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vNotificationGroupID []int64
+	var vNotificationGroupIDn []int64
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerID []int64
+	var vOwnerIDn []int64
+	var vPermissionID []int64
+	var vPermissionIDn []int64
+	var vQ *string
+	var vUserID []int64
+	var vUserIDn []int64
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
 		switch name {
@@ -282,6 +306,122 @@ func (d *groupsDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		case "name__iregex":
 			v := value
 			vNameIregex = append(vNameIregex, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "notification_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'notification_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vNotificationGroupID = append(vNotificationGroupID, v)
+		case "notification_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'notification_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vNotificationGroupIDn = append(vNotificationGroupIDn, v)
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerID = append(vOwnerID, v)
+		case "owner_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerIDn = append(vOwnerIDn, v)
+		case "permission_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'permission_id' takes an integer, got %q.", value))
+				return
+			}
+			vPermissionID = append(vPermissionID, v)
+		case "permission_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'permission_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vPermissionIDn = append(vPermissionIDn, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "user_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'user_id' takes an integer, got %q.", value))
+				return
+			}
+			vUserID = append(vUserID, v)
+		case "user_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'user_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vUserIDn = append(vUserIDn, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -346,6 +486,78 @@ func (d *groupsDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 	if len(vNameIregex) > 0 {
 		params.SetNameIregex(vNameIregex)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vNotificationGroupID) > 0 {
+		params.SetNotificationGroupID(vNotificationGroupID)
+	}
+	if len(vNotificationGroupIDn) > 0 {
+		params.SetNotificationGroupIDn(vNotificationGroupIDn)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerID) > 0 {
+		params.SetOwnerID(vOwnerID)
+	}
+	if len(vOwnerIDn) > 0 {
+		params.SetOwnerIDn(vOwnerIDn)
+	}
+	if len(vPermissionID) > 0 {
+		params.SetPermissionID(vPermissionID)
+	}
+	if len(vPermissionIDn) > 0 {
+		params.SetPermissionIDn(vPermissionIDn)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vUserID) > 0 {
+		params.SetUserID(vUserID)
+	}
+	if len(vUserIDn) > 0 {
+		params.SetUserIDn(vUserIDn)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

@@ -296,9 +296,13 @@ func (p *netboxProvider) Configure(ctx context.Context, req provider.ConfigureRe
 		}
 		supported := supportedVersions
 		if !slices.Contains(supported, version) {
+			extracted := ""
+			if version != reported {
+				extracted = fmt.Sprintf(" From that, the provider extracted Netbox version %v.", version)
+			}
 			resp.Diagnostics.AddWarning(
 				"Possibly unsupported Netbox version",
-				fmt.Sprintf("Your Netbox reports version %v. From that, the provider extracted Netbox version %v.\nThe provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", reported, version, strings.Join(supported, ", ")),
+				fmt.Sprintf("Your Netbox reports version %v.%v\nThe provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", reported, extracted, strings.Join(supported, ", ")),
 			)
 		}
 	}

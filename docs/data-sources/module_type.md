@@ -29,35 +29,49 @@ data "netbox_module_type" "test" {
 
 ### Optional
 
+- `airflow` (String) Airflow direction. One of: front-to-rear, rear-to-front, left-to-right, right-to-left, side-to-rear, passive.
+- `console_port_template_count` (Number) Number of console port templates of the module type.
+- `console_ports` (Boolean) Has console ports.
+- `console_server_port_template_count` (Number) Number of console server port templates of the module type.
+- `console_server_ports` (Boolean) Has console server ports.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
+- `front_port_template_count` (Number) Number of front port templates of the module type.
 - `id` (Number) NetBox id.
+- `interface_template_count` (Number) Number of interface templates of the module type.
+- `interfaces` (Boolean) Has interfaces.
+- `last_updated` (String)
+- `manufacturer_id` (Number) Id of the manufacturer.
+- `manufacturer_slug` (String) Slug of the manufacturer.
 - `model` (String) Model name (unique per manufacturer).
+- `module_bay_template_count` (Number) Number of module bay templates of the module type.
+- `module_bays` (Boolean) Has module bays.
+- `module_count` (Number) Number of modules of the module type.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `part_number` (String) Discrete part number.
+- `pass_through_ports` (Boolean) Has pass-through ports.
+- `power_outlet_template_count` (Number) Number of power outlet templates of the module type.
+- `power_outlets` (Boolean) Has power outlets.
+- `power_port_template_count` (Number) Number of power port templates of the module type.
+- `power_ports` (Boolean) Has power ports.
+- `profile_id` (Number) Id of the module type profile.
+- `profile_name` (String) Name of the profile.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `rear_port_template_count` (Number) Number of rear port templates of the module type.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `weight` (Number) Weight of the module type (requires weight_unit).
+- `weight_unit` (String) Unit of weight. One of: kg, g, lb, oz.
 
 ### Read-Only
 
-- `airflow` (String) Airflow direction. One of: front-to-rear, rear-to-front, left-to-right, right-to-left, side-to-rear, passive.
 - `attributes` (String) Attribute values of the module type as JSON text, as the profile's schema defines them (use jsonencode()).
 - `comments` (String)
-- `console_port_template_count` (Number) Number of console port templates of the module type.
-- `console_server_port_template_count` (Number) Number of console server port templates of the module type.
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `front_port_template_count` (Number) Number of front port templates of the module type.
-- `interface_template_count` (Number) Number of interface templates of the module type.
-- `last_updated` (String)
-- `manufacturer_id` (Number) Id of the manufacturer.
-- `module_bay_template_count` (Number) Number of module bay templates of the module type.
-- `module_count` (Number) Number of modules of the module type.
-- `part_number` (String) Discrete part number.
-- `power_outlet_template_count` (Number) Number of power outlet templates of the module type.
-- `power_port_template_count` (Number) Number of power port templates of the module type.
-- `profile_id` (Number) Id of the module type profile.
-- `rear_port_template_count` (Number) Number of rear port templates of the module type.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)
-- `weight` (Number) Weight of the module type (requires weight_unit).
-- `weight_unit` (String) Unit of weight. One of: kg, g, lb, oz.

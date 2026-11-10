@@ -36,6 +36,13 @@ type ipsecProfileDataSource struct {
 type ipsecProfileDataSourceModel struct {
 	ipsecProfileResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	IkePolicyName      types.String `tfsdk:"ike_policy_name"`
+	IpsecPolicyName    types.String `tfsdk:"ipsec_policy_name"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -78,7 +85,11 @@ func (d *ipsecProfileDataSource) Schema(ctx context.Context, req datasource.Sche
 				Description: "Id of the IPSec policy.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -89,9 +100,11 @@ func (d *ipsecProfileDataSource) Schema(ctx context.Context, req datasource.Sche
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -115,6 +128,34 @@ func (d *ipsecProfileDataSource) Schema(ctx context.Context, req datasource.Sche
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"ike_policy_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the IKE policy.",
+			},
+			"ipsec_policy_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the IPSec policy.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -188,6 +229,56 @@ func (d *ipsecProfileDataSource) Read(ctx context.Context, req datasource.ReadRe
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.IkePolicyName.IsNull() {
+		v := state.IkePolicyName.ValueString()
+		params.SetIkePolicy([]string{v})
+		hasInput = true
+	}
+	if !state.IpsecPolicyName.IsNull() {
+		v := state.IpsecPolicyName.ValueString()
+		params.SetIpsecPolicy([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -195,7 +286,7 @@ func (d *ipsecProfileDataSource) Read(ctx context.Context, req datasource.ReadRe
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or mode and/or ike_policy_id and/or ipsec_policy_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_ipsec_profile.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_ipsec_profile.")
 		return
 	}
 	res, err := d.client.Vpn.VpnIpsecProfilesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

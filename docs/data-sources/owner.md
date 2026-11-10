@@ -31,13 +31,19 @@ data "netbox_owner" "test" {
 
 ### Optional
 
+- `description` (String)
+- `group_name` (String) Name of the group.
 - `id` (Number) NetBox id.
 - `name` (String)
 - `owner_group_id` (Number) Id of the owner group the owner belongs to.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `user` (String) User (username).
+- `user_group_id` (Number) Id of the user group.
+- `user_group_name` (String) Name of the user group.
+- `user_id` (Number) Id of the user.
 
 ### Read-Only
 
-- `description` (String)
 - `url` (String)
 - `user_group_ids` (Set of Number) Ids of the user groups that make up the owner.
 - `user_ids` (Set of Number) Ids of the users that make up the owner.

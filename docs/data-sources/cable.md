@@ -29,29 +29,61 @@ data "netbox_cable" "test" {
 
 ### Optional
 
+- `bundle_id` (Number) Id of the cable bundle.
+- `bundle_name` (String) Name of the cable bundle.
+- `circuittermination_id` (Number) Id of the circuittermination.
+- `color` (String) Color to match.
+- `consoleport_id` (Number) Id of the consoleport.
+- `consoleserverport_id` (Number) Id of the consoleserverport.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
+- `device_id` (Number) Id of a device the cable is connected to.
+- `device_name` (String) Name of a device the cable is connected to.
+- `frontport_id` (Number) Id of the frontport.
 - `id` (Number) NetBox id.
+- `interface_id` (Number) Id of the interface.
 - `label` (String) Physical label.
+- `last_updated` (String)
+- `length` (Number) Cable length; requires length_unit.
+- `length_unit` (String) Unit of length. One of: km, m, cm, mi, ft, in.
+- `location_id` (Number) Id of the location a termination of the cable is in.
+- `location_slug` (String) Slug of the location.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `powerfeed_id` (Number) Id of the powerfeed.
+- `poweroutlet_id` (Number) Id of the poweroutlet.
+- `powerport_id` (Number) Id of the powerport.
+- `profile` (String) Cable profile (connectors and positions per side); with one set, each termination's position in the list is its connector. NetBox rejects clearing it, so unset keeps the current value. One of: single-1c1p, single-1c2p, single-1c4p, single-1c6p, single-1c8p, single-1c12p, single-1c16p, trunk-2c1p, trunk-2c2p, trunk-2c4p, trunk-2c4p-shuffle, trunk-2c6p, trunk-2c8p, trunk-2c12p, trunk-4c1p, trunk-4c2p, trunk-4c4p, trunk-4c4p-shuffle, trunk-4c6p, trunk-4c8p, trunk-8c4p, breakout-1c2p-2c1p, breakout-1c4p-4c1p, breakout-1c6p-6c1p, breakout-1c8p-8c1p, breakout-2c4p-8c1p-shuffle.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `rack_id` (Number) Id of the rack a termination of the cable is in.
+- `rack_name` (String) Name of the rack.
+- `rearport_id` (Number) Id of the rearport.
+- `site_id` (Number) Id of the site a termination of the cable is in.
+- `site_slug` (String) Slug of the site a termination of the cable is in.
 - `status` (String) Cable status. One of: connected, planned, decommissioning.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `termination_a_id` (Number) Id of the termination a.
+- `termination_a_type` (String) Termination a type to match.
+- `termination_b_id` (Number) Id of the termination b.
+- `termination_b_type` (String) Termination b type to match.
 - `type` (String) Cable type as its NetBox slug, e.g. cat6, smf-os2, power (any of NetBox's cable type choices).
+- `unterminated` (Boolean) Unterminated.
 
 ### Read-Only
 
 - `a_side` (Attributes) What the A side terminates on: objects of one type (NetBox's rule), one or several for a breakout, in order (with a profile the position is the connector). Give object_type and ids, or exactly one of the typed *_ids lists, which is an alias of the same thing. (see [below for nested schema](#nestedatt--a_side))
 - `b_side` (Attributes) What the B side terminates on: objects of one type (NetBox's rule), one or several for a breakout, in order (with a profile the position is the connector). Give object_type and ids, or exactly one of the typed *_ids lists, which is an alias of the same thing. (see [below for nested schema](#nestedatt--b_side))
-- `bundle_id` (Number) Id of the cable bundle.
 - `color_hex` (String) RGB color in hex (e.g. ff0000).
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `last_updated` (String)
-- `length` (Number) Cable length; requires length_unit.
-- `length_unit` (String) Unit of length. One of: km, m, cm, mi, ft, in.
-- `profile` (String) Cable profile (connectors and positions per side); with one set, each termination's position in the list is its connector. NetBox rejects clearing it, so unset keeps the current value. One of: single-1c1p, single-1c2p, single-1c4p, single-1c6p, single-1c8p, single-1c12p, single-1c16p, trunk-2c1p, trunk-2c2p, trunk-2c4p, trunk-2c4p-shuffle, trunk-2c6p, trunk-2c8p, trunk-2c12p, trunk-4c1p, trunk-4c2p, trunk-4c4p, trunk-4c4p-shuffle, trunk-4c6p, trunk-4c8p, trunk-8c4p, breakout-1c2p-2c1p, breakout-1c4p-4c1p, breakout-1c6p-6c1p, breakout-1c8p-8c1p, breakout-2c4p-8c1p-shuffle.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

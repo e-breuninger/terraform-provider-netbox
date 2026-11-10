@@ -29,25 +29,57 @@ data "netbox_device_rear_port" "test" {
 
 ### Optional
 
+- `cable_connector` (Number) Cable connector to match.
+- `cable_end` (String) Cable end. One of: A, B.
+- `cable_id` (Number) Id of the cable.
+- `cabled` (Boolean) Whether cabled is set.
+- `color` (String) Color to match.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `device_id` (Number) Id of the device.
+- `device_name` (String) Name of the device.
+- `device_role_id` (Number) Id of the device role.
+- `device_role_slug` (String) Slug of the device role.
+- `device_status` (String) Device status to match.
+- `device_type_id` (Number) Id of the device type.
+- `device_type_model` (String) Model of the device type.
+- `front_port_id` (Number) Id of the front port.
 - `id` (Number) NetBox id.
 - `label` (String) Physical label.
+- `last_updated` (String)
+- `location_id` (Number) Id of the location.
+- `location_slug` (String) Slug of the location.
+- `mark_connected` (Boolean) Treat as if a cable is connected.
+- `module_id` (Number) Id of the installed module this component belongs to.
 - `name` (String)
+- `occupied` (Boolean) Whether occupied is set.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `positions` (Number) Number of front ports that can map to this rear port. Must be a whole number.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `rack_id` (Number) Id of the rack.
+- `rack_name` (String) Name of the rack.
+- `region_id` (String) Id of the region.
+- `region_slug` (String) Slug of the region.
+- `site_group_id` (String) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
+- `site_id` (Number) Id of the site.
+- `site_slug` (String) Slug of the site.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
 - `type` (String) Port type as its NetBox slug, e.g. 8p8c, lc, sc (any of NetBox's port type choices).
+- `virtual_chassis` (String) Virtual Chassis.
+- `virtual_chassis_id` (Number) Id of the virtual chassis.
 
 ### Read-Only
 
 - `color_hex` (String) RGB color in hex (e.g. ff0000).
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `last_updated` (String)
-- `mark_connected` (Boolean) Treat as if a cable is connected.
-- `module_id` (Number) Id of the installed module this component belongs to.
-- `positions` (Number) Number of front ports that can map to this rear port. Must be a whole number.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

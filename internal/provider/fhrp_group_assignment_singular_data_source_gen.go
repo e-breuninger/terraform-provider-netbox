@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -27,6 +28,15 @@ func NewFhrpGroupAssignmentDataSource() datasource.DataSource {
 
 type fhrpGroupAssignmentDataSource struct {
 	client *netboxapi.Client
+}
+
+// fhrpGroupAssignmentDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type fhrpGroupAssignmentDataSourceModel struct {
+	fhrpGroupAssignmentResourceModel
+	DeviceName         types.String `tfsdk:"device_name"`
+	DeviceID           types.Int64  `tfsdk:"device_id"`
+	VirtualMachineName types.String `tfsdk:"virtual_machine_name"`
+	VirtualMachineID   types.Int64  `tfsdk:"virtual_machine_id"`
 }
 
 func (d *fhrpGroupAssignmentDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -69,13 +79,31 @@ func (d *fhrpGroupAssignmentDataSource) Schema(ctx context.Context, req datasour
 				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"device_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the device.",
+			},
+			"device_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the device.",
+			},
+			"virtual_machine_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the virtual machine.",
+			},
+			"virtual_machine_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the virtual machine.",
 			},
 		},
 	}
@@ -97,7 +125,7 @@ func (d *fhrpGroupAssignmentDataSource) Configure(ctx context.Context, req datas
 }
 
 func (d *fhrpGroupAssignmentDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data fhrpGroupAssignmentResourceModel
+	var data fhrpGroupAssignmentDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -133,8 +161,38 @@ func (d *fhrpGroupAssignmentDataSource) Read(ctx context.Context, req datasource
 		params.SetPriority([]int64{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceName.IsNull() {
+		v := state.DeviceName.ValueString()
+		params.SetDevice([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceID.IsNull() {
+		v := state.DeviceID.ValueInt64()
+		params.SetDeviceID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineName.IsNull() {
+		v := state.VirtualMachineName.ValueString()
+		params.SetVirtualMachine([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineID.IsNull() {
+		v := state.VirtualMachineID.ValueInt64()
+		params.SetVirtualMachineID([]int64{v})
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or group_id and/or interface_type and/or interface_id and/or priority to look up a netbox_fhrp_group_assignment.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_fhrp_group_assignment.")
 		return
 	}
 	res, err := d.client.Ipam.IpamFhrpGroupAssignmentsListContext(ctx, params, nil)
@@ -153,7 +211,7 @@ func (d *fhrpGroupAssignmentDataSource) Read(ctx context.Context, req datasource
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenFhrpGroupAssignment(ctx, netboxapi.FhrpGroupAssignmentResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenFhrpGroupAssignment(ctx, netboxapi.FhrpGroupAssignmentResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.fhrpGroupAssignmentResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

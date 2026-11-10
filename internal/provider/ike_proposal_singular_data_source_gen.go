@@ -10,6 +10,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/vpn"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -36,6 +37,13 @@ type ikeProposalDataSource struct {
 type ikeProposalDataSourceModel struct {
 	ikeProposalResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	IkePolicyName      types.String `tfsdk:"ike_policy_name"`
+	IkePolicyID        types.Int64  `tfsdk:"ike_policy_id"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -76,19 +84,35 @@ func (d *ikeProposalDataSource) Schema(ctx context.Context, req datasource.Schem
 				},
 			},
 			"authentication_algorithm": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Not needed for GCM encryption algorithms. NetBox does not allow clearing it once set; leaving it unset keeps the current value. One of: hmac-sha1, hmac-sha256, hmac-sha384, hmac-sha512, hmac-md5.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("hmac-sha1", "hmac-sha256", "hmac-sha384", "hmac-sha512", "hmac-md5"),
+				},
 			},
 			"group": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Diffie-Hellman group number. One of: 1, 2, 5, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34.",
+				Validators: []validator.Int64{
+					int64validator.OneOf(1, 2, 5, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34),
+				},
 			},
 			"sa_lifetime": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Security association lifetime in seconds. Must be a whole number.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 2147483647),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -99,9 +123,11 @@ func (d *ikeProposalDataSource) Schema(ctx context.Context, req datasource.Schem
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -125,6 +151,34 @@ func (d *ikeProposalDataSource) Schema(ctx context.Context, req datasource.Schem
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"ike_policy_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the IKE policy.",
+			},
+			"ike_policy_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the IKE policy.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -193,6 +247,71 @@ func (d *ikeProposalDataSource) Read(ctx context.Context, req datasource.ReadReq
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.AuthenticationAlgorithm.IsNull() {
+		v := state.AuthenticationAlgorithm.ValueString()
+		params.SetAuthenticationAlgorithm([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.Group.IsNull() {
+		v := state.Group.ValueInt64()
+		params.SetGroup([]int64{v})
+		hasInput = true
+	}
+	if !state.IkePolicyName.IsNull() {
+		v := state.IkePolicyName.ValueString()
+		params.SetIkePolicy([]string{v})
+		hasInput = true
+	}
+	if !state.IkePolicyID.IsNull() {
+		v := state.IkePolicyID.ValueInt64()
+		params.SetIkePolicyID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.SaLifetime.IsNull() {
+		v := state.SaLifetime.ValueInt64()
+		params.SetSaLifetime([]int64{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -200,7 +319,7 @@ func (d *ikeProposalDataSource) Read(ctx context.Context, req datasource.ReadReq
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or authentication_method and/or encryption_algorithm and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_ike_proposal.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_ike_proposal.")
 		return
 	}
 	res, err := d.client.Vpn.VpnIkeProposalsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

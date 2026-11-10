@@ -71,7 +71,7 @@ func (d *contactAssignmentsDataSource) Schema(ctx context.Context, req datasourc
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: contact_id, contact_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, object_id, object_id__n, object_type, object_type__n, role_id, role_id__n, tag, tag__any, tag__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: contact_id, contact_id__n, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, group, group__n, group_id, group_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, object_id, object_id__empty, object_id__gt, object_id__gte, object_id__lt, object_id__lte, object_id__n, object_type, object_type__n, object_type_id, object_type_id__n, priority, priority__empty, priority__ic, priority__ie, priority__iew, priority__iregex, priority__isw, priority__n, priority__nic, priority__nie, priority__niew, priority__nisw, priority__regex, q, role, role__n, role_id, role_id__n, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -210,6 +210,11 @@ func (d *contactAssignmentsDataSource) Read(ctx context.Context, req datasource.
 	var vObjectTypen []string
 	var vObjectID []int64
 	var vObjectIDn []int64
+	var vObjectIDLt []int64
+	var vObjectIDLte []int64
+	var vObjectIDGt []int64
+	var vObjectIDGte []int64
+	var vObjectIDEmpty *bool
 	var vContactID []int64
 	var vContactIDn []int64
 	var vRoleID []int64
@@ -217,6 +222,45 @@ func (d *contactAssignmentsDataSource) Read(ctx context.Context, req datasource.
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vGroup []string
+	var vGroupn []string
+	var vGroupID []string
+	var vGroupIDn []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vObjectTypeID *int64
+	var vObjectTypeIDn *int64
+	var vPriority *string
+	var vPriorityn *string
+	var vPriorityIc []string
+	var vPriorityNic []string
+	var vPriorityIe []string
+	var vPriorityNie []string
+	var vPriorityIsw []string
+	var vPriorityNisw []string
+	var vPriorityIew []string
+	var vPriorityNiew []string
+	var vPriorityEmpty *bool
+	var vPriorityRegex []string
+	var vPriorityIregex []string
+	var vQ *string
+	var vRole []string
+	var vRolen []string
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -300,6 +344,45 @@ func (d *contactAssignmentsDataSource) Read(ctx context.Context, req datasource.
 				return
 			}
 			vObjectIDn = append(vObjectIDn, v)
+		case "object_id__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'object_id__lt' takes an integer, got %q.", value))
+				return
+			}
+			vObjectIDLt = append(vObjectIDLt, v)
+		case "object_id__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'object_id__lte' takes an integer, got %q.", value))
+				return
+			}
+			vObjectIDLte = append(vObjectIDLte, v)
+		case "object_id__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'object_id__gt' takes an integer, got %q.", value))
+				return
+			}
+			vObjectIDGt = append(vObjectIDGt, v)
+		case "object_id__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'object_id__gte' takes an integer, got %q.", value))
+				return
+			}
+			vObjectIDGte = append(vObjectIDGte, v)
+		case "object_id__empty":
+			if vObjectIDEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'object_id__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'object_id__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vObjectIDEmpty = &v
 		case "contact_id":
 			v, err := strconv.ParseInt(value, 10, 64)
 			if err != nil {
@@ -337,6 +420,171 @@ func (d *contactAssignmentsDataSource) Read(ctx context.Context, req datasource.
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "group":
+			v := value
+			vGroup = append(vGroup, v)
+		case "group__n":
+			v := value
+			vGroupn = append(vGroupn, v)
+		case "group_id":
+			v := value
+			vGroupID = append(vGroupID, v)
+		case "group_id__n":
+			v := value
+			vGroupIDn = append(vGroupIDn, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "object_type_id":
+			if vObjectTypeID != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'object_type_id' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'object_type_id' takes an integer, got %q.", value))
+				return
+			}
+			vObjectTypeID = &v
+		case "object_type_id__n":
+			if vObjectTypeIDn != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'object_type_id__n' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'object_type_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vObjectTypeIDn = &v
+		case "priority":
+			if vPriority != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'priority' takes a single value.")
+				return
+			}
+			v := value
+			vPriority = &v
+		case "priority__n":
+			if vPriorityn != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'priority__n' takes a single value.")
+				return
+			}
+			v := value
+			vPriorityn = &v
+		case "priority__ic":
+			v := value
+			vPriorityIc = append(vPriorityIc, v)
+		case "priority__nic":
+			v := value
+			vPriorityNic = append(vPriorityNic, v)
+		case "priority__ie":
+			v := value
+			vPriorityIe = append(vPriorityIe, v)
+		case "priority__nie":
+			v := value
+			vPriorityNie = append(vPriorityNie, v)
+		case "priority__isw":
+			v := value
+			vPriorityIsw = append(vPriorityIsw, v)
+		case "priority__nisw":
+			v := value
+			vPriorityNisw = append(vPriorityNisw, v)
+		case "priority__iew":
+			v := value
+			vPriorityIew = append(vPriorityIew, v)
+		case "priority__niew":
+			v := value
+			vPriorityNiew = append(vPriorityNiew, v)
+		case "priority__empty":
+			if vPriorityEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'priority__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'priority__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vPriorityEmpty = &v
+		case "priority__regex":
+			v := value
+			vPriorityRegex = append(vPriorityRegex, v)
+		case "priority__iregex":
+			v := value
+			vPriorityIregex = append(vPriorityIregex, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "role":
+			v := value
+			vRole = append(vRole, v)
+		case "role__n":
+			v := value
+			vRolen = append(vRolen, v)
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -375,6 +623,21 @@ func (d *contactAssignmentsDataSource) Read(ctx context.Context, req datasource.
 	if len(vObjectIDn) > 0 {
 		params.SetObjectIDn(vObjectIDn)
 	}
+	if len(vObjectIDLt) > 0 {
+		params.SetObjectIDLt(vObjectIDLt)
+	}
+	if len(vObjectIDLte) > 0 {
+		params.SetObjectIDLte(vObjectIDLte)
+	}
+	if len(vObjectIDGt) > 0 {
+		params.SetObjectIDGt(vObjectIDGt)
+	}
+	if len(vObjectIDGte) > 0 {
+		params.SetObjectIDGte(vObjectIDGte)
+	}
+	if vObjectIDEmpty != nil {
+		params.SetObjectIDEmpty(vObjectIDEmpty)
+	}
 	if len(vContactID) > 0 {
 		params.SetContactID(vContactID)
 	}
@@ -395,6 +658,123 @@ func (d *contactAssignmentsDataSource) Read(ctx context.Context, req datasource.
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vGroup) > 0 {
+		params.SetGroup(vGroup)
+	}
+	if len(vGroupn) > 0 {
+		params.SetGroupn(vGroupn)
+	}
+	if len(vGroupID) > 0 {
+		params.SetGroupID(vGroupID)
+	}
+	if len(vGroupIDn) > 0 {
+		params.SetGroupIDn(vGroupIDn)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if vObjectTypeID != nil {
+		params.SetObjectTypeID(vObjectTypeID)
+	}
+	if vObjectTypeIDn != nil {
+		params.SetObjectTypeIDn(vObjectTypeIDn)
+	}
+	if vPriority != nil {
+		params.SetPriority(vPriority)
+	}
+	if vPriorityn != nil {
+		params.SetPriorityn(vPriorityn)
+	}
+	if len(vPriorityIc) > 0 {
+		params.SetPriorityIc(vPriorityIc)
+	}
+	if len(vPriorityNic) > 0 {
+		params.SetPriorityNic(vPriorityNic)
+	}
+	if len(vPriorityIe) > 0 {
+		params.SetPriorityIe(vPriorityIe)
+	}
+	if len(vPriorityNie) > 0 {
+		params.SetPriorityNie(vPriorityNie)
+	}
+	if len(vPriorityIsw) > 0 {
+		params.SetPriorityIsw(vPriorityIsw)
+	}
+	if len(vPriorityNisw) > 0 {
+		params.SetPriorityNisw(vPriorityNisw)
+	}
+	if len(vPriorityIew) > 0 {
+		params.SetPriorityIew(vPriorityIew)
+	}
+	if len(vPriorityNiew) > 0 {
+		params.SetPriorityNiew(vPriorityNiew)
+	}
+	if vPriorityEmpty != nil {
+		params.SetPriorityEmpty(vPriorityEmpty)
+	}
+	if len(vPriorityRegex) > 0 {
+		params.SetPriorityRegex(vPriorityRegex)
+	}
+	if len(vPriorityIregex) > 0 {
+		params.SetPriorityIregex(vPriorityIregex)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vRole) > 0 {
+		params.SetRole(vRole)
+	}
+	if len(vRolen) > 0 {
+		params.SetRolen(vRolen)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

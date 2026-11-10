@@ -69,7 +69,7 @@ func (d *customFieldChoiceSetsDataSource) Schema(ctx context.Context, req dataso
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, owner_id, owner_id__n. Repeating a name sends that parameter once per value.",
+				Description: "Query filters, sent as API list parameters. Supported names: base_choices, base_choices__empty, base_choices__ic, base_choices__ie, base_choices__iew, base_choices__iregex, base_choices__isw, base_choices__n, base_choices__nic, base_choices__nie, base_choices__niew, base_choices__nisw, base_choices__regex, choice, choice_colors, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, order_alphabetically, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, q. Repeating a name sends that parameter once per value.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -211,6 +211,69 @@ func (d *customFieldChoiceSetsDataSource) Read(ctx context.Context, req datasour
 	var vIDEmpty *bool
 	var vOwnerID []int64
 	var vOwnerIDn []int64
+	var vBaseChoices *string
+	var vBaseChoicesn *string
+	var vBaseChoicesIc []string
+	var vBaseChoicesNic []string
+	var vBaseChoicesIe []string
+	var vBaseChoicesNie []string
+	var vBaseChoicesIsw []string
+	var vBaseChoicesNisw []string
+	var vBaseChoicesIew []string
+	var vBaseChoicesNiew []string
+	var vBaseChoicesEmpty *bool
+	var vBaseChoicesRegex []string
+	var vBaseChoicesIregex []string
+	var vChoice []string
+	var vChoiceColors []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vName []string
+	var vNamen []string
+	var vNameIc []string
+	var vNameNic []string
+	var vNameIe []string
+	var vNameNie []string
+	var vNameIsw []string
+	var vNameNisw []string
+	var vNameIew []string
+	var vNameNiew []string
+	var vNameEmpty *bool
+	var vNameRegex []string
+	var vNameIregex []string
+	var vOrderAlphabetically *bool
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vQ *string
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
 		switch name {
@@ -281,6 +344,247 @@ func (d *customFieldChoiceSetsDataSource) Read(ctx context.Context, req datasour
 				return
 			}
 			vOwnerIDn = append(vOwnerIDn, v)
+		case "base_choices":
+			if vBaseChoices != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'base_choices' takes a single value.")
+				return
+			}
+			v := value
+			vBaseChoices = &v
+		case "base_choices__n":
+			if vBaseChoicesn != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'base_choices__n' takes a single value.")
+				return
+			}
+			v := value
+			vBaseChoicesn = &v
+		case "base_choices__ic":
+			v := value
+			vBaseChoicesIc = append(vBaseChoicesIc, v)
+		case "base_choices__nic":
+			v := value
+			vBaseChoicesNic = append(vBaseChoicesNic, v)
+		case "base_choices__ie":
+			v := value
+			vBaseChoicesIe = append(vBaseChoicesIe, v)
+		case "base_choices__nie":
+			v := value
+			vBaseChoicesNie = append(vBaseChoicesNie, v)
+		case "base_choices__isw":
+			v := value
+			vBaseChoicesIsw = append(vBaseChoicesIsw, v)
+		case "base_choices__nisw":
+			v := value
+			vBaseChoicesNisw = append(vBaseChoicesNisw, v)
+		case "base_choices__iew":
+			v := value
+			vBaseChoicesIew = append(vBaseChoicesIew, v)
+		case "base_choices__niew":
+			v := value
+			vBaseChoicesNiew = append(vBaseChoicesNiew, v)
+		case "base_choices__empty":
+			if vBaseChoicesEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'base_choices__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'base_choices__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vBaseChoicesEmpty = &v
+		case "base_choices__regex":
+			v := value
+			vBaseChoicesRegex = append(vBaseChoicesRegex, v)
+		case "base_choices__iregex":
+			v := value
+			vBaseChoicesIregex = append(vBaseChoicesIregex, v)
+		case "choice":
+			v := value
+			vChoice = append(vChoice, v)
+		case "choice_colors":
+			v := value
+			vChoiceColors = append(vChoiceColors, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "name":
+			v := value
+			vName = append(vName, v)
+		case "name__n":
+			v := value
+			vNamen = append(vNamen, v)
+		case "name__ic":
+			v := value
+			vNameIc = append(vNameIc, v)
+		case "name__nic":
+			v := value
+			vNameNic = append(vNameNic, v)
+		case "name__ie":
+			v := value
+			vNameIe = append(vNameIe, v)
+		case "name__nie":
+			v := value
+			vNameNie = append(vNameNie, v)
+		case "name__isw":
+			v := value
+			vNameIsw = append(vNameIsw, v)
+		case "name__nisw":
+			v := value
+			vNameNisw = append(vNameNisw, v)
+		case "name__iew":
+			v := value
+			vNameIew = append(vNameIew, v)
+		case "name__niew":
+			v := value
+			vNameNiew = append(vNameNiew, v)
+		case "name__empty":
+			if vNameEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'name__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'name__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vNameEmpty = &v
+		case "name__regex":
+			v := value
+			vNameRegex = append(vNameRegex, v)
+		case "name__iregex":
+			v := value
+			vNameIregex = append(vNameIregex, v)
+		case "order_alphabetically":
+			if vOrderAlphabetically != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'order_alphabetically' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'order_alphabetically' takes a boolean, got %q.", value))
+				return
+			}
+			vOrderAlphabetically = &v
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -312,6 +616,195 @@ func (d *customFieldChoiceSetsDataSource) Read(ctx context.Context, req datasour
 	}
 	if len(vOwnerIDn) > 0 {
 		params.SetOwnerIDn(vOwnerIDn)
+	}
+	if vBaseChoices != nil {
+		params.SetBaseChoices(vBaseChoices)
+	}
+	if vBaseChoicesn != nil {
+		params.SetBaseChoicesn(vBaseChoicesn)
+	}
+	if len(vBaseChoicesIc) > 0 {
+		params.SetBaseChoicesIc(vBaseChoicesIc)
+	}
+	if len(vBaseChoicesNic) > 0 {
+		params.SetBaseChoicesNic(vBaseChoicesNic)
+	}
+	if len(vBaseChoicesIe) > 0 {
+		params.SetBaseChoicesIe(vBaseChoicesIe)
+	}
+	if len(vBaseChoicesNie) > 0 {
+		params.SetBaseChoicesNie(vBaseChoicesNie)
+	}
+	if len(vBaseChoicesIsw) > 0 {
+		params.SetBaseChoicesIsw(vBaseChoicesIsw)
+	}
+	if len(vBaseChoicesNisw) > 0 {
+		params.SetBaseChoicesNisw(vBaseChoicesNisw)
+	}
+	if len(vBaseChoicesIew) > 0 {
+		params.SetBaseChoicesIew(vBaseChoicesIew)
+	}
+	if len(vBaseChoicesNiew) > 0 {
+		params.SetBaseChoicesNiew(vBaseChoicesNiew)
+	}
+	if vBaseChoicesEmpty != nil {
+		params.SetBaseChoicesEmpty(vBaseChoicesEmpty)
+	}
+	if len(vBaseChoicesRegex) > 0 {
+		params.SetBaseChoicesRegex(vBaseChoicesRegex)
+	}
+	if len(vBaseChoicesIregex) > 0 {
+		params.SetBaseChoicesIregex(vBaseChoicesIregex)
+	}
+	if len(vChoice) > 0 {
+		params.SetChoice(vChoice)
+	}
+	if len(vChoiceColors) > 0 {
+		params.SetChoiceColors(vChoiceColors)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vName) > 0 {
+		params.SetName(vName)
+	}
+	if len(vNamen) > 0 {
+		params.SetNamen(vNamen)
+	}
+	if len(vNameIc) > 0 {
+		params.SetNameIc(vNameIc)
+	}
+	if len(vNameNic) > 0 {
+		params.SetNameNic(vNameNic)
+	}
+	if len(vNameIe) > 0 {
+		params.SetNameIe(vNameIe)
+	}
+	if len(vNameNie) > 0 {
+		params.SetNameNie(vNameNie)
+	}
+	if len(vNameIsw) > 0 {
+		params.SetNameIsw(vNameIsw)
+	}
+	if len(vNameNisw) > 0 {
+		params.SetNameNisw(vNameNisw)
+	}
+	if len(vNameIew) > 0 {
+		params.SetNameIew(vNameIew)
+	}
+	if len(vNameNiew) > 0 {
+		params.SetNameNiew(vNameNiew)
+	}
+	if vNameEmpty != nil {
+		params.SetNameEmpty(vNameEmpty)
+	}
+	if len(vNameRegex) > 0 {
+		params.SetNameRegex(vNameRegex)
+	}
+	if len(vNameIregex) > 0 {
+		params.SetNameIregex(vNameIregex)
+	}
+	if vOrderAlphabetically != nil {
+		params.SetOrderAlphabetically(vOrderAlphabetically)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

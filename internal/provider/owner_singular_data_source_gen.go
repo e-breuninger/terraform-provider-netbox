@@ -30,6 +30,17 @@ type ownerDataSource struct {
 	client *netboxapi.Client
 }
 
+// ownerDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type ownerDataSourceModel struct {
+	ownerResourceModel
+	GroupName     types.String `tfsdk:"group_name"`
+	Q             types.String `tfsdk:"q"`
+	User          types.String `tfsdk:"user"`
+	UserGroupName types.String `tfsdk:"user_group_name"`
+	UserGroupID   types.Int64  `tfsdk:"user_group_id"`
+	UserID        types.Int64  `tfsdk:"user_id"`
+}
+
 func (d *ownerDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_owner"
 }
@@ -66,10 +77,38 @@ func (d *ownerDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "Ids of the user groups that make up the owner.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"user": schema.StringAttribute{
+				Optional:    true,
+				Description: "User (username).",
+			},
+			"user_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the user group.",
+			},
+			"user_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the user group.",
+			},
+			"user_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the user.",
 			},
 		},
 	}
@@ -91,7 +130,7 @@ func (d *ownerDataSource) Configure(ctx context.Context, req datasource.Configur
 }
 
 func (d *ownerDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data ownerResourceModel
+	var data ownerDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -117,8 +156,43 @@ func (d *ownerDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		params.SetGroupID([]int64{v})
 		hasInput = true
 	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.GroupName.IsNull() {
+		v := state.GroupName.ValueString()
+		params.SetGroup([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.User.IsNull() {
+		v := state.User.ValueString()
+		params.SetUser([]string{v})
+		hasInput = true
+	}
+	if !state.UserGroupName.IsNull() {
+		v := state.UserGroupName.ValueString()
+		params.SetUserGroup([]string{v})
+		hasInput = true
+	}
+	if !state.UserGroupID.IsNull() {
+		v := state.UserGroupID.ValueInt64()
+		params.SetUserGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.UserID.IsNull() {
+		v := state.UserID.ValueInt64()
+		params.SetUserID([]int64{v})
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or owner_group_id to look up a netbox_owner.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_owner.")
 		return
 	}
 	res, err := d.client.Users.UsersOwnersListContext(ctx, params, nil)
@@ -137,7 +211,7 @@ func (d *ownerDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenOwner(ctx, netboxapi.OwnerResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenOwner(ctx, netboxapi.OwnerResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.ownerResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

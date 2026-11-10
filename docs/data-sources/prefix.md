@@ -31,35 +31,63 @@ data "netbox_prefix" "test" {
 
 ### Optional
 
+- `children` (Number) Children to match.
+- `contact` (Number) Id of the contact.
+- `contact_group_slug` (String) Slug of the contact group.
+- `contact_role` (Number) Id of the contact role.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `depth` (Number) Depth to match.
 - `description` (String)
+- `family` (Number) Address family: 4 or 6.
 - `id` (Number) NetBox id.
+- `is_pool` (Boolean) All addresses within this prefix are usable.
+- `last_updated` (String)
+- `location_id` (Number) Id of the location the object is scoped to (scope_type dcim.location).
+- `location_slug` (String) Slug of the location.
+- `mark_utilized` (Boolean) Report space as fully utilized.
+- `mask_length` (Number) Mask length to match.
+- `mask_length__gte` (Number) Mask length is at least this.
+- `mask_length__lte` (Number) Mask length is at most this.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
 - `prefix` (String) IPv4 or IPv6 network with mask, e.g. 10.0.0.0/24.
 - `prefix_contains` (String) Prefixes containing this prefix or IP.
+- `present_in_vrf` (String) Present in vrf to match.
+- `present_in_vrf_id` (String) Id of the present in vrf.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `region_id` (Number) Id of the region the object is scoped to (scope_type dcim.region).
+- `region_slug` (String) Slug of the region.
 - `role_id` (Number) Id of the role.
+- `role_slug` (String) Slug of the role.
+- `scope_id` (Number) Id of the scope object (see scope_type).
+- `scope_type` (String) Content type of the scope. Derived from site_id, location_id, region_id or site_group_id when one of those is set; set it together with scope_id otherwise. One of: dcim.site, dcim.location, dcim.region, dcim.sitegroup.
+- `site_group_id` (Number) Id of the site group the object is scoped to (scope_type dcim.sitegroup).
+- `site_group_slug` (String) Slug of the site group.
 - `site_id` (Number) Id of the site the object is scoped to (scope_type dcim.site). Conflicts with the other scope aliases and with setting the scope_* pair directly.
+- `site_slug` (String) Slug of the site.
 - `status` (String) Operational status. One of: container, active, reserved, deprecated.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `vlan_group_id` (Number) Id of the VLAN group.
+- `vlan_group_slug` (String) Slug of the VLAN group.
 - `vlan_id` (Number) Id of the VLAN.
 - `vlan_vid` (Number) VLAN number (vid) of the VLAN the prefix is assigned to.
+- `vrf` (String) VRF (RD).
 - `vrf_id` (Number) Id of the VRF.
+- `within` (String) Within prefix.
+- `within_include` (String) Within and including prefix.
 
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `family` (Number) Address family: 4 or 6.
-- `is_pool` (Boolean) All addresses within this prefix are usable.
-- `last_updated` (String)
-- `location_id` (Number) Id of the location the object is scoped to (scope_type dcim.location).
-- `mark_utilized` (Boolean) Report space as fully utilized.
-- `scope_id` (Number) Id of the scope object (see scope_type).
-- `scope_type` (String) Content type of the scope. Derived from site_id, location_id, region_id or site_group_id when one of those is set; set it together with scope_id otherwise. One of: dcim.site, dcim.location, dcim.region, dcim.sitegroup.
-- `site_group_id` (Number) Id of the site group the object is scoped to (scope_type dcim.sitegroup).
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

@@ -37,6 +37,21 @@ type l2vpnDataSource struct {
 type l2vpnDataSourceModel struct {
 	l2vpnResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Contact            types.Int64  `tfsdk:"contact"`
+	ContactGroupSlug   types.String `tfsdk:"contact_group_slug"`
+	ContactRole        types.Int64  `tfsdk:"contact_role"`
+	ExportTargetName   types.String `tfsdk:"export_target_name"`
+	ExportTargetID     types.Int64  `tfsdk:"export_target_id"`
+	ImportTargetName   types.String `tfsdk:"import_target_name"`
+	ImportTargetID     types.Int64  `tfsdk:"import_target_id"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	TenantSlug         types.String `tfsdk:"tenant_slug"`
+	TenantGroupSlug    types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID      types.String `tfsdk:"tenant_group_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -78,8 +93,12 @@ func (d *l2vpnDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				},
 			},
 			"status": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Operational status. One of: active, planned, decommissioning.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("active", "planned", "decommissioning"),
+				},
 			},
 			"identifier": schema.Int64Attribute{
 				Optional:    true,
@@ -87,6 +106,7 @@ func (d *l2vpnDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "Numeric identifier (e.g. the VNI or VPLS id), not the NetBox id. Must be a whole number.",
 			},
 			"tenant_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the tenant.",
 			},
@@ -101,7 +121,11 @@ func (d *l2vpnDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "Ids of exported route targets.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -112,9 +136,11 @@ func (d *l2vpnDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -138,6 +164,66 @@ func (d *l2vpnDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"export_target_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the export target.",
+			},
+			"export_target_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the export target.",
+			},
+			"import_target_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the import target.",
+			},
+			"import_target_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the import target.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -211,6 +297,106 @@ func (d *l2vpnDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.ExportTargetName.IsNull() {
+		v := state.ExportTargetName.ValueString()
+		params.SetExportTarget([]string{v})
+		hasInput = true
+	}
+	if !state.ExportTargetID.IsNull() {
+		v := state.ExportTargetID.ValueInt64()
+		params.SetExportTargetID([]int64{v})
+		hasInput = true
+	}
+	if !state.ImportTargetName.IsNull() {
+		v := state.ImportTargetName.ValueString()
+		params.SetImportTarget([]string{v})
+		hasInput = true
+	}
+	if !state.ImportTargetID.IsNull() {
+		v := state.ImportTargetID.ValueInt64()
+		params.SetImportTargetID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.Status.IsNull() {
+		v := state.Status.ValueString()
+		params.SetStatus([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TenantID.IsNull() {
+		v := state.TenantID.ValueInt64()
+		params.SetTenantID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -218,7 +404,7 @@ func (d *l2vpnDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or slug and/or type and/or identifier and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_l2vpn.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_l2vpn.")
 		return
 	}
 	res, err := d.client.Vpn.VpnL2vpnsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

@@ -36,8 +36,26 @@ type vlanGroupDataSource struct {
 // vlanGroupDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type vlanGroupDataSourceModel struct {
 	vlanGroupResourceModel
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	TagSlug            types.String  `tfsdk:"tag_slug"`
+	Cluster            types.Int64   `tfsdk:"cluster"`
+	ClusterGroup       types.Int64   `tfsdk:"cluster_group"`
+	ContainsVid        types.Float64 `tfsdk:"contains_vid"`
+	Location           types.Int64   `tfsdk:"location"`
+	OwnerName          types.String  `tfsdk:"owner_name"`
+	OwnerGroupName     types.String  `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64   `tfsdk:"owner_group_id"`
+	Q                  types.String  `tfsdk:"q"`
+	Rack               types.Int64   `tfsdk:"rack"`
+	RackGroup          types.Float64 `tfsdk:"rack_group"`
+	Region             types.Int64   `tfsdk:"region"`
+	Site               types.Int64   `tfsdk:"site"`
+	SiteGroup          types.Int64   `tfsdk:"site_group"`
+	TagID              types.Int64   `tfsdk:"tag_id"`
+	TenantSlug         types.String  `tfsdk:"tenant_slug"`
+	TenantGroupSlug    types.String  `tfsdk:"tenant_group_slug"`
+	TenantGroupID      types.String  `tfsdk:"tenant_group_id"`
+	TotalVlanIds       types.Int64   `tfsdk:"total_vlan_ids"`
+	CustomFieldFilters types.Map     `tfsdk:"custom_field_filters"`
 }
 
 func (d *vlanGroupDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -96,6 +114,7 @@ func (d *vlanGroupDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "VLAN id ranges of this group as {start, end} pairs.",
 			},
 			"tenant_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the tenant.",
 			},
@@ -134,9 +153,11 @@ func (d *vlanGroupDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -168,6 +189,78 @@ func (d *vlanGroupDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"cluster": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the cluster.",
+			},
+			"cluster_group": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the cluster group.",
+			},
+			"contains_vid": schema.Float64Attribute{
+				Optional:    true,
+				Description: "Id of the contains vid.",
+			},
+			"location": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the location.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"rack": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the rack.",
+			},
+			"rack_group": schema.Float64Attribute{
+				Optional:    true,
+				Description: "Id of the rack group.",
+			},
+			"region": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the region.",
+			},
+			"site": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the site.",
+			},
+			"site_group": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the site group.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
+			},
+			"total_vlan_ids": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the total vlan ids.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -246,6 +339,111 @@ func (d *vlanGroupDataSource) Read(ctx context.Context, req datasource.ReadReque
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Cluster.IsNull() {
+		v := state.Cluster.ValueInt64()
+		params.SetCluster(&v)
+		hasInput = true
+	}
+	if !state.ClusterGroup.IsNull() {
+		v := state.ClusterGroup.ValueInt64()
+		params.SetClusterGroup(&v)
+		hasInput = true
+	}
+	if !state.ContainsVid.IsNull() {
+		v := state.ContainsVid.ValueFloat64()
+		params.SetContainsVid(&v)
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.Location.IsNull() {
+		v := state.Location.ValueInt64()
+		params.SetLocation(&v)
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.Rack.IsNull() {
+		v := state.Rack.ValueInt64()
+		params.SetRack(&v)
+		hasInput = true
+	}
+	if !state.RackGroup.IsNull() {
+		v := state.RackGroup.ValueFloat64()
+		params.SetRackGroup(&v)
+		hasInput = true
+	}
+	if !state.Region.IsNull() {
+		v := state.Region.ValueInt64()
+		params.SetRegion(&v)
+		hasInput = true
+	}
+	if !state.Site.IsNull() {
+		v := state.Site.ValueInt64()
+		params.SetSite(&v)
+		hasInput = true
+	}
+	if !state.SiteGroup.IsNull() {
+		v := state.SiteGroup.ValueInt64()
+		params.SetSiteGroup(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TenantID.IsNull() {
+		v := state.TenantID.ValueInt64()
+		params.SetTenantID([]int64{v})
+		hasInput = true
+	}
+	if !state.TotalVlanIds.IsNull() {
+		v := state.TotalVlanIds.ValueInt64()
+		params.SetTotalVlanIds([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -253,7 +451,7 @@ func (d *vlanGroupDataSource) Read(ctx context.Context, req datasource.ReadReque
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or slug and/or description and/or scope_type and/or scope_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_vlan_group.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_vlan_group.")
 		return
 	}
 	res, err := d.client.Ipam.IpamVlanGroupsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

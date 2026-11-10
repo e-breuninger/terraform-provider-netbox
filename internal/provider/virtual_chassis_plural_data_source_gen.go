@@ -73,7 +73,7 @@ func (d *virtualChassisListDataSource) Schema(ctx context.Context, req datasourc
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: domain, domain__empty, domain__ic, domain__ie, domain__iew, domain__iregex, domain__isw, domain__n, domain__nic, domain__nie, domain__niew, domain__nisw, domain__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, master_id, master_id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner_id, owner_id__n, tag, tag__any, tag__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, domain, domain__empty, domain__ic, domain__ie, domain__iew, domain__iregex, domain__isw, domain__n, domain__nic, domain__nie, domain__niew, domain__nisw, domain__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, master, master__n, master_id, master_id__n, member_count, member_count__empty, member_count__gt, member_count__gte, member_count__lt, member_count__lte, member_count__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, q, region, region__n, region_id, region_id__n, site, site__n, site_group, site_group__n, site_group_id, site_group_id__n, site_id, site_id__n, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, tenant, tenant__n, tenant_id, tenant_id__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -245,6 +245,68 @@ func (d *virtualChassisListDataSource) Read(ctx context.Context, req datasource.
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vMaster []string
+	var vMastern []string
+	var vMemberCount []int64
+	var vMemberCountn []int64
+	var vMemberCountLt []int64
+	var vMemberCountLte []int64
+	var vMemberCountGt []int64
+	var vMemberCountGte []int64
+	var vMemberCountEmpty *bool
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vQ *string
+	var vRegion []string
+	var vRegionn []string
+	var vRegionID []string
+	var vRegionIDn []string
+	var vSite []string
+	var vSiten []string
+	var vSiteGroup []string
+	var vSiteGroupn []string
+	var vSiteGroupID []string
+	var vSiteGroupIDn []string
+	var vSiteID []int64
+	var vSiteIDn []int64
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vTenant []string
+	var vTenantn []string
+	var vTenantID []int64
+	var vTenantIDn []int64
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -439,6 +501,272 @@ func (d *virtualChassisListDataSource) Read(ctx context.Context, req datasource.
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "master":
+			v := value
+			vMaster = append(vMaster, v)
+		case "master__n":
+			v := value
+			vMastern = append(vMastern, v)
+		case "member_count":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_count' takes an integer, got %q.", value))
+				return
+			}
+			vMemberCount = append(vMemberCount, v)
+		case "member_count__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_count__n' takes an integer, got %q.", value))
+				return
+			}
+			vMemberCountn = append(vMemberCountn, v)
+		case "member_count__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_count__lt' takes an integer, got %q.", value))
+				return
+			}
+			vMemberCountLt = append(vMemberCountLt, v)
+		case "member_count__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_count__lte' takes an integer, got %q.", value))
+				return
+			}
+			vMemberCountLte = append(vMemberCountLte, v)
+		case "member_count__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_count__gt' takes an integer, got %q.", value))
+				return
+			}
+			vMemberCountGt = append(vMemberCountGt, v)
+		case "member_count__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_count__gte' takes an integer, got %q.", value))
+				return
+			}
+			vMemberCountGte = append(vMemberCountGte, v)
+		case "member_count__empty":
+			if vMemberCountEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'member_count__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_count__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vMemberCountEmpty = &v
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "region":
+			v := value
+			vRegion = append(vRegion, v)
+		case "region__n":
+			v := value
+			vRegionn = append(vRegionn, v)
+		case "region_id":
+			v := value
+			vRegionID = append(vRegionID, v)
+		case "region_id__n":
+			v := value
+			vRegionIDn = append(vRegionIDn, v)
+		case "site":
+			v := value
+			vSite = append(vSite, v)
+		case "site__n":
+			v := value
+			vSiten = append(vSiten, v)
+		case "site_group":
+			v := value
+			vSiteGroup = append(vSiteGroup, v)
+		case "site_group__n":
+			v := value
+			vSiteGroupn = append(vSiteGroupn, v)
+		case "site_group_id":
+			v := value
+			vSiteGroupID = append(vSiteGroupID, v)
+		case "site_group_id__n":
+			v := value
+			vSiteGroupIDn = append(vSiteGroupIDn, v)
+		case "site_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'site_id' takes an integer, got %q.", value))
+				return
+			}
+			vSiteID = append(vSiteID, v)
+		case "site_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'site_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vSiteIDn = append(vSiteIDn, v)
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "tenant":
+			v := value
+			vTenant = append(vTenant, v)
+		case "tenant__n":
+			v := value
+			vTenantn = append(vTenantn, v)
+		case "tenant_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tenant_id' takes an integer, got %q.", value))
+				return
+			}
+			vTenantID = append(vTenantID, v)
+		case "tenant_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tenant_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTenantIDn = append(vTenantIDn, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -563,6 +891,192 @@ func (d *virtualChassisListDataSource) Read(ctx context.Context, req datasource.
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vMaster) > 0 {
+		params.SetMaster(vMaster)
+	}
+	if len(vMastern) > 0 {
+		params.SetMastern(vMastern)
+	}
+	if len(vMemberCount) > 0 {
+		params.SetMemberCount(vMemberCount)
+	}
+	if len(vMemberCountn) > 0 {
+		params.SetMemberCountn(vMemberCountn)
+	}
+	if len(vMemberCountLt) > 0 {
+		params.SetMemberCountLt(vMemberCountLt)
+	}
+	if len(vMemberCountLte) > 0 {
+		params.SetMemberCountLte(vMemberCountLte)
+	}
+	if len(vMemberCountGt) > 0 {
+		params.SetMemberCountGt(vMemberCountGt)
+	}
+	if len(vMemberCountGte) > 0 {
+		params.SetMemberCountGte(vMemberCountGte)
+	}
+	if vMemberCountEmpty != nil {
+		params.SetMemberCountEmpty(vMemberCountEmpty)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vRegion) > 0 {
+		params.SetRegion(vRegion)
+	}
+	if len(vRegionn) > 0 {
+		params.SetRegionn(vRegionn)
+	}
+	if len(vRegionID) > 0 {
+		params.SetRegionID(vRegionID)
+	}
+	if len(vRegionIDn) > 0 {
+		params.SetRegionIDn(vRegionIDn)
+	}
+	if len(vSite) > 0 {
+		params.SetSite(vSite)
+	}
+	if len(vSiten) > 0 {
+		params.SetSiten(vSiten)
+	}
+	if len(vSiteGroup) > 0 {
+		params.SetSiteGroup(vSiteGroup)
+	}
+	if len(vSiteGroupn) > 0 {
+		params.SetSiteGroupn(vSiteGroupn)
+	}
+	if len(vSiteGroupID) > 0 {
+		params.SetSiteGroupID(vSiteGroupID)
+	}
+	if len(vSiteGroupIDn) > 0 {
+		params.SetSiteGroupIDn(vSiteGroupIDn)
+	}
+	if len(vSiteID) > 0 {
+		params.SetSiteID(vSiteID)
+	}
+	if len(vSiteIDn) > 0 {
+		params.SetSiteIDn(vSiteIDn)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if len(vTenant) > 0 {
+		params.SetTenant(vTenant)
+	}
+	if len(vTenantn) > 0 {
+		params.SetTenantn(vTenantn)
+	}
+	if len(vTenantID) > 0 {
+		params.SetTenantID(vTenantID)
+	}
+	if len(vTenantIDn) > 0 {
+		params.SetTenantIDn(vTenantIDn)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

@@ -31,38 +31,61 @@ data "netbox_ip_address" "test" {
 
 ### Optional
 
+- `assigned` (Boolean) Is assigned.
+- `assigned_object_id` (Number) Id of the object the address is assigned to (see assigned_object_type).
+- `assigned_object_type` (String) Content type of the object the address is assigned to. Derived from device_interface_id or virtual_machine_interface_id when one of those is set; set it together with assigned_object_id for other object types. One of: dcim.interface, virtualization.vminterface, ipam.fhrpgroup.
+- `assigned_to_interface` (Boolean) Is assigned to an interface.
+- `contact` (Number) Id of the contact.
+- `contact_group_slug` (String) Slug of the contact group.
+- `contact_role` (Number) Id of the contact role.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `description` (String)
 - `device` (String) Name of the device the address is assigned to.
 - `device_id` (Number) Id of the device the address is assigned to.
 - `dns_name` (String) Hostname or FQDN (not case-sensitive).
+- `family` (Number) IP family (4 or 6).
+- `fhrpgroup_id` (Number) Id of the FHRP group.
 - `id` (Number) NetBox id of the IP address.
 - `interface_id` (Number) Id of the interface the address is assigned to.
+- `interface_name` (String) Name of the interface.
 - `ip_address` (String) IPv4 or IPv6 address with prefix length (e.g. 10.0.0.1/24).
+- `last_updated` (String)
+- `mask_length` (Number) Mask length to match.
+- `mask_length__gte` (Number) Mask length is at least this.
+- `mask_length__lte` (Number) Mask length is at most this.
+- `nat_inside_id` (Number) Id of the IP address this address is the NAT (outside) IP for.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
 - `parent_prefix` (String) Prefix the address lies within.
+- `present_in_vrf` (String) Present in vrf to match.
+- `present_in_vrf_id` (String) Id of the present in vrf.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `role` (String) Functional role. One of: loopback, secondary, anycast, vip, vrrp, hsrp, glbp, carp.
+- `service_id` (Number) Id of the application service.
 - `status` (String) Operational status. One of: active, reserved, deprecated, dhcp, slaac.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
 - `tenant_slug` (String) Slug of the tenant.
+- `virtual_machine_id` (Number) Id of the virtual machine.
 - `virtual_machine_interface_id` (Number) Id of the virtual machine interface the address is assigned to (assigned_object_type virtualization.vminterface). Conflicts with device_interface_id and with setting the assigned_object_* pair directly.
+- `virtual_machine_name` (String) Name of the virtual machine.
+- `vminterface_name` (String) Name of the VM interface.
 - `vrf_id` (Number) Id of the VRF.
 - `vrf_rd` (String) Route distinguisher of the VRF.
 
 ### Read-Only
 
 - `assigned_object` (Attributes) The interface the address is assigned to. device is null for VM interfaces. (see [below for nested schema](#nestedatt--assigned_object))
-- `assigned_object_id` (Number) Id of the object the address is assigned to (see assigned_object_type).
-- `assigned_object_type` (String) Content type of the object the address is assigned to. Derived from device_interface_id or virtual_machine_interface_id when one of those is set; set it together with assigned_object_id for other object types. One of: dcim.interface, virtualization.vminterface, ipam.fhrpgroup.
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `device_interface_id` (Number) Id of the device interface the address is assigned to (assigned_object_type dcim.interface). Conflicts with virtual_machine_interface_id and with setting the assigned_object_* pair directly.
-- `family` (Number) IP family (4 or 6).
-- `last_updated` (String)
 - `nat_inside_address_id` (Number, Deprecated) Deprecated alias of nat_inside_id.
-- `nat_inside_id` (Number) Id of the IP address this address is the NAT (outside) IP for.
 - `nat_outside_ids` (Set of Number) Ids of the addresses that name this one as their nat_inside_id.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.

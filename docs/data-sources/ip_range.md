@@ -29,18 +29,34 @@ data "netbox_ip_range" "test" {
 
 ### Optional
 
+- `contact` (Number) Id of the contact.
+- `contact_group_slug` (String) Slug of the contact group.
+- `contact_role` (Number) Id of the contact role.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `description` (String)
 - `end_address` (String) Last address of the range with its mask, e.g. 10.0.0.50/24.
+- `family` (Number) Address family: 4 or 6.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
+- `mark_populated` (Boolean) Treat the range as fully populated.
 - `mark_utilized` (Boolean) Treat the range as fully utilized.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `parent` (String) Parent to match.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `range_contains` (String) Ranges containing this IP or prefix.
 - `role_id` (Number) Id of the IPAM role.
 - `role_slug` (String) Slug of the role.
+- `size` (Number) Number of addresses in the range.
 - `start_address` (String) First address of the range with its mask, e.g. 10.0.0.1/24.
 - `status` (String) Operational status. One of: active, reserved, deprecated.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
 - `tenant_slug` (String) Slug of the tenant.
 - `vrf_id` (Number) Id of the VRF.
@@ -49,12 +65,7 @@ data "netbox_ip_range" "test" {
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `family` (Number) Address family: 4 or 6.
-- `last_updated` (String)
-- `mark_populated` (Boolean) Treat the range as fully populated.
-- `size` (Number) Number of addresses in the range.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

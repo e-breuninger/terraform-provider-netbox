@@ -23,7 +23,7 @@ data "netbox_fhrp_group_assignments" "test" {
 
 ### Optional
 
-- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: group_id, group_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, interface_id, interface_id__n, interface_type, interface_type__n, priority, priority__empty, priority__gt, priority__gte, priority__lt, priority__lte, priority__n. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
+- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, device, device_id, group_id, group_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, interface_id, interface_id__empty, interface_id__gt, interface_id__gte, interface_id__lt, interface_id__lte, interface_id__n, interface_type, interface_type__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, priority, priority__empty, priority__gt, priority__gte, priority__lt, priority__lte, priority__n, virtual_machine, virtual_machine_id. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
 - `limit` (Number) The maximum number of objects to return from the API lookup. Defaults to 1000.
 
 ### Read-Only

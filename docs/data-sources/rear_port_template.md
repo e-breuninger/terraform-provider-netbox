@@ -29,18 +29,21 @@ data "netbox_rear_port_template" "test" {
 
 ### Optional
 
+- `color` (String) Color to match.
+- `created` (String)
+- `description` (String)
+- `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
+- `front_port_id` (Number) Id of the front port.
 - `id` (Number) NetBox id.
+- `label` (String) Physical label.
+- `last_updated` (String)
 - `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `name` (String)
+- `positions` (Number) Number of front ports that can map to this rear port. Must be a whole number.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `type` (String) Port type as its NetBox slug, e.g. 8p8c, lc, mpo (any of NetBox's port type choices).
 
 ### Read-Only
 
 - `color_hex` (String) RGB color in hex (e.g. ff0000).
-- `created` (String)
-- `description` (String)
-- `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
-- `label` (String) Physical label.
-- `last_updated` (String)
-- `positions` (Number) Number of front ports that can map to this rear port. Must be a whole number.
 - `url` (String)

@@ -29,21 +29,37 @@ data "netbox_mac_address" "test" {
 
 ### Optional
 
+- `assigned` (Boolean) Is assigned.
+- `assigned_object_id` (Number) Id of the interface the address is assigned to (see assigned_object_type).
+- `assigned_object_type` (String) Content type of the interface the address is assigned to. Derived from device_interface_id or virtual_machine_interface_id when one of those is set. One of: dcim.interface, virtualization.vminterface.
+- `created` (String) Creation time of the object.
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
+- `device_id` (Number) Id of the device.
+- `device_name` (String) Name of the device.
 - `id` (Number) NetBox id.
+- `interface_id` (Number) Id of the interface.
+- `interface_name` (String) Name of the interface.
+- `last_updated` (String)
+- `mac_address` (String) The MAC address (EUI-48) in colon, dash or dot notation, any case; the configured spelling is kept in state (NetBox stores it colon-separated and uppercased).
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `primary` (Boolean) Is primary.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `virtual_machine_id` (Number) Id of the virtual machine.
+- `virtual_machine_name` (String) Name of the virtual machine.
+- `vminterface_id` (Number) Id of the VM interface.
+- `vminterface_name` (String) Name of the VM interface.
 
 ### Read-Only
 
-- `assigned_object_id` (Number) Id of the interface the address is assigned to (see assigned_object_type).
-- `assigned_object_type` (String) Content type of the interface the address is assigned to. Derived from device_interface_id or virtual_machine_interface_id when one of those is set. One of: dcim.interface, virtualization.vminterface.
 - `comments` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
 - `device_interface_id` (Number) Id of the device interface the address is assigned to (assigned_object_type dcim.interface). Conflicts with virtual_machine_interface_id and with setting the assigned_object_* pair directly.
-- `last_updated` (String)
-- `mac_address` (String) The MAC address (EUI-48) in colon, dash or dot notation, any case; the configured spelling is kept in state (NetBox stores it colon-separated and uppercased).
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

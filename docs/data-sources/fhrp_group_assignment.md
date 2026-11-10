@@ -31,14 +31,18 @@ data "netbox_fhrp_group_assignment" "test" {
 
 ### Optional
 
+- `created` (String)
+- `device_id` (Number) Id of the device.
+- `device_name` (String) Name of the device.
 - `group_id` (Number) Id of the FHRP group.
 - `id` (Number) NetBox id.
 - `interface_id` (Number) Id of the interface named by interface_type.
 - `interface_type` (String) Type of the interface the group is assigned to, e.g. dcim.interface or virtualization.vminterface.
+- `last_updated` (String)
 - `priority` (Number) Priority of this interface within the group (0-255). Must be a whole number.
+- `virtual_machine_id` (Number) Id of the virtual machine.
+- `virtual_machine_name` (String) Name of the virtual machine.
 
 ### Read-Only
 
-- `created` (String)
-- `last_updated` (String)
 - `url` (String)

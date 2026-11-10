@@ -31,32 +31,45 @@ data "netbox_circuit_termination" "test" {
 
 ### Optional
 
+- `cable_connector` (Number) Cable connector to match.
+- `cable_end` (String) Cable end. One of: A, B.
+- `cable_id` (Number) Id of the cable.
+- `cabled` (Boolean) Whether cabled is set.
 - `circuit_id` (Number) Id of the circuit.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `id` (Number) NetBox id.
+- `last_updated` (String)
+- `location_id` (Number) Id of the terminating location (termination_type dcim.location). Conflicts with the other aliases and with setting the termination_* pair directly.
+- `location_slug` (String) Slug of the location.
+- `mark_connected` (Boolean) Treat the termination as connected even without a cable.
+- `occupied` (Boolean) Whether occupied is set.
+- `port_speed_kbps` (Number) Physical circuit speed in kbps. Must be a whole number.
+- `pp_info` (String) Patch panel and port information.
+- `provider_id` (Number) Id of the provider.
 - `provider_network_id` (Number) Id of the terminating provider network (termination_type circuits.providernetwork). Conflicts with the other aliases and with setting the termination_* pair directly.
+- `provider_slug` (String) Slug of the provider.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `region_id` (Number) Id of the terminating region (termination_type dcim.region). Conflicts with the other aliases and with setting the termination_* pair directly.
+- `region_slug` (String) Slug of the region.
+- `site_group_id` (Number) Id of the terminating site group (termination_type dcim.sitegroup). Conflicts with the other aliases and with setting the termination_* pair directly.
+- `site_group_slug` (String) Slug of the site group.
 - `site_id` (Number) Id of the terminating site (termination_type dcim.site). Conflicts with the other aliases and with setting the termination_* pair directly.
+- `site_slug` (String) Slug of the site.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 - `term_side` (String) Side of the circuit this terminates. One of: A, Z.
+- `termination_id` (Number) Id of the terminating object (see termination_type).
+- `termination_type` (String) Content type of the termination. Derived from site_id, location_id, region_id, site_group_id or provider_network_id when one of those is set; set it together with termination_id otherwise. One termination is required. One of: dcim.site, dcim.location, dcim.region, dcim.sitegroup, circuits.providernetwork.
+- `upstream_speed_kbps` (Number) Upstream speed in kbps if different from the port speed. Must be a whole number.
+- `xconnect_id` (String) Cross-connect id assigned by the provider.
 
 ### Read-Only
 
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `last_updated` (String)
-- `location_id` (Number) Id of the terminating location (termination_type dcim.location). Conflicts with the other aliases and with setting the termination_* pair directly.
-- `mark_connected` (Boolean) Treat the termination as connected even without a cable.
 - `port_speed` (Number, Deprecated) Deprecated alias of port_speed_kbps.
-- `port_speed_kbps` (Number) Physical circuit speed in kbps. Must be a whole number.
-- `pp_info` (String) Patch panel and port information.
-- `region_id` (Number) Id of the terminating region (termination_type dcim.region). Conflicts with the other aliases and with setting the termination_* pair directly.
-- `site_group_id` (Number) Id of the terminating site group (termination_type dcim.sitegroup). Conflicts with the other aliases and with setting the termination_* pair directly.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
-- `termination_id` (Number) Id of the terminating object (see termination_type).
-- `termination_type` (String) Content type of the termination. Derived from site_id, location_id, region_id, site_group_id or provider_network_id when one of those is set; set it together with termination_id otherwise. One termination is required. One of: dcim.site, dcim.location, dcim.region, dcim.sitegroup, circuits.providernetwork.
 - `upstream_speed` (Number, Deprecated) Deprecated alias of upstream_speed_kbps.
-- `upstream_speed_kbps` (Number) Upstream speed in kbps if different from the port speed. Must be a whole number.
 - `url` (String)
-- `xconnect_id` (String) Cross-connect id assigned by the provider.

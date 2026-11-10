@@ -37,6 +37,27 @@ type moduleDataSource struct {
 type moduleDataSourceModel struct {
 	moduleResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	DeviceName         types.String `tfsdk:"device_name"`
+	LocationSlug       types.String `tfsdk:"location_slug"`
+	LocationID         types.Int64  `tfsdk:"location_id"`
+	ManufacturerSlug   types.String `tfsdk:"manufacturer_slug"`
+	ManufacturerID     types.Int64  `tfsdk:"manufacturer_id"`
+	ModuleTypeModel    types.String `tfsdk:"module_type_model"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	ProfileName        types.String `tfsdk:"profile_name"`
+	ProfileID          types.Int64  `tfsdk:"profile_id"`
+	Q                  types.String `tfsdk:"q"`
+	RackName           types.String `tfsdk:"rack_name"`
+	RackID             types.Int64  `tfsdk:"rack_id"`
+	RegionSlug         types.String `tfsdk:"region_slug"`
+	RegionID           types.String `tfsdk:"region_id"`
+	SiteSlug           types.String `tfsdk:"site_slug"`
+	SiteGroupSlug      types.String `tfsdk:"site_group_slug"`
+	SiteGroupID        types.String `tfsdk:"site_group_id"`
+	SiteID             types.Int64  `tfsdk:"site_id"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -101,7 +122,11 @@ func (d *moduleDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "Whether existing components of the device that match the module type's templates are adopted by the module. Only applied when the module is created.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -112,9 +137,11 @@ func (d *moduleDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -138,6 +165,90 @@ func (d *moduleDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"device_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the device.",
+			},
+			"location_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the location.",
+			},
+			"location_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the location.",
+			},
+			"manufacturer_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the manufacturer.",
+			},
+			"manufacturer_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the manufacturer.",
+			},
+			"module_type_model": schema.StringAttribute{
+				Optional:    true,
+				Description: "Model of the module type.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"profile_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the profile.",
+			},
+			"profile_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the profile.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"rack_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the rack.",
+			},
+			"rack_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the rack.",
+			},
+			"region_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the region.",
+			},
+			"region_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the region.",
+			},
+			"site_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site.",
+			},
+			"site_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site group.",
+			},
+			"site_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the site group.",
+			},
+			"site_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the site.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -221,6 +332,126 @@ func (d *moduleDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceName.IsNull() {
+		v := state.DeviceName.ValueString()
+		params.SetDevice([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.LocationSlug.IsNull() {
+		v := state.LocationSlug.ValueString()
+		params.SetLocation([]string{v})
+		hasInput = true
+	}
+	if !state.LocationID.IsNull() {
+		v := state.LocationID.ValueInt64()
+		params.SetLocationID([]int64{v})
+		hasInput = true
+	}
+	if !state.ManufacturerSlug.IsNull() {
+		v := state.ManufacturerSlug.ValueString()
+		params.SetManufacturer([]string{v})
+		hasInput = true
+	}
+	if !state.ManufacturerID.IsNull() {
+		v := state.ManufacturerID.ValueInt64()
+		params.SetManufacturerID([]int64{v})
+		hasInput = true
+	}
+	if !state.ModuleTypeModel.IsNull() {
+		v := state.ModuleTypeModel.ValueString()
+		params.SetModuleType([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.ProfileName.IsNull() {
+		v := state.ProfileName.ValueString()
+		params.SetProfile([]string{v})
+		hasInput = true
+	}
+	if !state.ProfileID.IsNull() {
+		v := state.ProfileID.ValueInt64()
+		params.SetProfileID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RackName.IsNull() {
+		v := state.RackName.ValueString()
+		params.SetRack([]string{v})
+		hasInput = true
+	}
+	if !state.RackID.IsNull() {
+		v := state.RackID.ValueInt64()
+		params.SetRackID([]int64{v})
+		hasInput = true
+	}
+	if !state.RegionSlug.IsNull() {
+		v := state.RegionSlug.ValueString()
+		params.SetRegion([]string{v})
+		hasInput = true
+	}
+	if !state.RegionID.IsNull() {
+		v := state.RegionID.ValueString()
+		params.SetRegionID([]string{v})
+		hasInput = true
+	}
+	if !state.SiteSlug.IsNull() {
+		v := state.SiteSlug.ValueString()
+		params.SetSite([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupSlug.IsNull() {
+		v := state.SiteGroupSlug.ValueString()
+		params.SetSiteGroup([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupID.IsNull() {
+		v := state.SiteGroupID.ValueString()
+		params.SetSiteGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.SiteID.IsNull() {
+		v := state.SiteID.ValueInt64()
+		params.SetSiteID([]int64{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -228,7 +459,7 @@ func (d *moduleDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or device_id and/or module_type_id and/or module_bay_id and/or status and/or serial and/or asset_tag and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_module.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_module.")
 		return
 	}
 	res, err := d.client.Dcim.DcimModulesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

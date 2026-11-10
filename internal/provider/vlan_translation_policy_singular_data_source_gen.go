@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -27,6 +28,19 @@ func NewVlanTranslationPolicyDataSource() datasource.DataSource {
 
 type vlanTranslationPolicyDataSource struct {
 	client *netboxapi.Client
+}
+
+// vlanTranslationPolicyDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type vlanTranslationPolicyDataSourceModel struct {
+	vlanTranslationPolicyResourceModel
+	Created        types.String `tfsdk:"created"`
+	LastUpdated    types.String `tfsdk:"last_updated"`
+	OwnerName      types.String `tfsdk:"owner_name"`
+	OwnerGroupName types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID   types.Int64  `tfsdk:"owner_group_id"`
+	Q              types.String `tfsdk:"q"`
+	Tag            types.String `tfsdk:"tag"`
+	TagID          types.Int64  `tfsdk:"tag_id"`
 }
 
 func (d *vlanTranslationPolicyDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -50,7 +64,11 @@ func (d *vlanTranslationPolicyDataSource) Schema(ctx context.Context, req dataso
 				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -62,6 +80,38 @@ func (d *vlanTranslationPolicyDataSource) Schema(ctx context.Context, req dataso
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"created": schema.StringAttribute{
+				Optional:    true,
+				Description: "Creation time of the object.",
+			},
+			"last_updated": schema.StringAttribute{
+				Optional:    true,
+				Description: "Last update time of the object.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of a tag the object carries.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 		},
 	}
@@ -83,7 +133,7 @@ func (d *vlanTranslationPolicyDataSource) Configure(ctx context.Context, req dat
 }
 
 func (d *vlanTranslationPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data vlanTranslationPolicyResourceModel
+	var data vlanTranslationPolicyDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -109,8 +159,53 @@ func (d *vlanTranslationPolicyDataSource) Read(ctx context.Context, req datasour
 		params.SetOwnerID([]int64{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.Tag.IsNull() {
+		v := state.Tag.ValueString()
+		params.SetTag([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or owner_id to look up a netbox_vlan_translation_policy.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_vlan_translation_policy.")
 		return
 	}
 	res, err := d.client.Ipam.IpamVlanTranslationPoliciesListContext(ctx, params, nil)
@@ -129,7 +224,7 @@ func (d *vlanTranslationPolicyDataSource) Read(ctx context.Context, req datasour
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenVlanTranslationPolicy(ctx, netboxapi.VlanTranslationPolicyResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenVlanTranslationPolicy(ctx, netboxapi.VlanTranslationPolicyResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.vlanTranslationPolicyResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

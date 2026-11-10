@@ -23,7 +23,7 @@ data "netbox_tokens" "test" {
 
 ### Optional
 
-- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, user_id, user_id__n. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
+- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: created, created__gte, created__lte, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, enabled, expires, expires__gte, expires__lte, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, key, key__empty, key__ic, key__ie, key__iew, key__iregex, key__isw, key__n, key__nic, key__nie, key__niew, key__nisw, key__regex, last_used, last_used__gte, last_used__lte, pepper_id, pepper_id__empty, pepper_id__gt, pepper_id__gte, pepper_id__lt, pepper_id__lte, pepper_id__n, q, user, user__n, user_id, user_id__n, version, version__ic, version__ie, version__iew, version__iregex, version__isw, version__n, version__nic, version__nie, version__niew, version__nisw, version__regex, write_enabled. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
 - `limit` (Number) The maximum number of objects to return from the API lookup. Defaults to 1000.
 
 ### Read-Only

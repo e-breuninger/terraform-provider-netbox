@@ -6,10 +6,12 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/circuits"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -36,6 +38,19 @@ type circuitTerminationDataSource struct {
 type circuitTerminationDataSourceModel struct {
 	circuitTerminationResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	CableConnector     types.Int64  `tfsdk:"cable_connector"`
+	CableEnd           types.String `tfsdk:"cable_end"`
+	CableID            types.Int64  `tfsdk:"cable_id"`
+	Cabled             types.Bool   `tfsdk:"cabled"`
+	LocationSlug       types.String `tfsdk:"location_slug"`
+	Occupied           types.Bool   `tfsdk:"occupied"`
+	ProviderSlug       types.String `tfsdk:"provider_slug"`
+	ProviderID         types.Int64  `tfsdk:"provider_id"`
+	Q                  types.String `tfsdk:"q"`
+	RegionSlug         types.String `tfsdk:"region_slug"`
+	SiteSlug           types.String `tfsdk:"site_slug"`
+	SiteGroupSlug      types.String `tfsdk:"site_group_slug"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -66,10 +81,15 @@ func (d *circuitTerminationDataSource) Schema(ctx context.Context, req datasourc
 				},
 			},
 			"termination_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Content type of the termination. Derived from site_id, location_id, region_id, site_group_id or provider_network_id when one of those is set; set it together with termination_id otherwise. One termination is required. One of: dcim.site, dcim.location, dcim.region, dcim.sitegroup, circuits.providernetwork.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("dcim.site", "dcim.location", "dcim.region", "dcim.sitegroup", "circuits.providernetwork"),
+				},
 			},
 			"termination_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the terminating object (see termination_type).",
 			},
@@ -79,14 +99,17 @@ func (d *circuitTerminationDataSource) Schema(ctx context.Context, req datasourc
 				Description: "Id of the terminating site (termination_type dcim.site). Conflicts with the other aliases and with setting the termination_* pair directly.",
 			},
 			"location_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the terminating location (termination_type dcim.location). Conflicts with the other aliases and with setting the termination_* pair directly.",
 			},
 			"region_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the terminating region (termination_type dcim.region). Conflicts with the other aliases and with setting the termination_* pair directly.",
 			},
 			"site_group_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the terminating site group (termination_type dcim.sitegroup). Conflicts with the other aliases and with setting the termination_* pair directly.",
 			},
@@ -96,8 +119,12 @@ func (d *circuitTerminationDataSource) Schema(ctx context.Context, req datasourc
 				Description: "Id of the terminating provider network (termination_type circuits.providernetwork). Conflicts with the other aliases and with setting the termination_* pair directly.",
 			},
 			"port_speed_kbps": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Physical circuit speed in kbps. Must be a whole number.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 2147483647),
+				},
 			},
 			"port_speed": schema.Int64Attribute{
 				Computed:           true,
@@ -105,8 +132,12 @@ func (d *circuitTerminationDataSource) Schema(ctx context.Context, req datasourc
 				Description:        "Deprecated alias of port_speed_kbps.",
 			},
 			"upstream_speed_kbps": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Upstream speed in kbps if different from the port speed. Must be a whole number.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 2147483647),
+				},
 			},
 			"upstream_speed": schema.Int64Attribute{
 				Computed:           true,
@@ -114,24 +145,39 @@ func (d *circuitTerminationDataSource) Schema(ctx context.Context, req datasourc
 				Description:        "Deprecated alias of upstream_speed_kbps.",
 			},
 			"xconnect_id": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Cross-connect id assigned by the provider.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(50),
+				},
 			},
 			"pp_info": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Patch panel and port information.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(100),
+				},
 			},
 			"mark_connected": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Treat the termination as connected even without a cable.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -155,6 +201,58 @@ func (d *circuitTerminationDataSource) Schema(ctx context.Context, req datasourc
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"cable_connector": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Cable connector to match.",
+			},
+			"cable_end": schema.StringAttribute{
+				Optional:    true,
+				Description: "Cable end. One of: A, B.",
+			},
+			"cable_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the cable.",
+			},
+			"cabled": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Whether cabled is set.",
+			},
+			"location_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the location.",
+			},
+			"occupied": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Whether occupied is set.",
+			},
+			"provider_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the provider.",
+			},
+			"provider_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the provider.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"region_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the region.",
+			},
+			"site_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site.",
+			},
+			"site_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site group.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -223,6 +321,136 @@ func (d *circuitTerminationDataSource) Read(ctx context.Context, req datasource.
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.CableConnector.IsNull() {
+		v := state.CableConnector.ValueInt64()
+		params.SetCableConnector([]int64{v})
+		hasInput = true
+	}
+	if !state.CableEnd.IsNull() {
+		v := state.CableEnd.ValueString()
+		params.SetCableEnd(&v)
+		hasInput = true
+	}
+	if !state.CableID.IsNull() {
+		v := state.CableID.ValueInt64()
+		params.SetCableID([]int64{v})
+		hasInput = true
+	}
+	if !state.Cabled.IsNull() {
+		v := state.Cabled.ValueBool()
+		params.SetCabled(&v)
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.LocationSlug.IsNull() {
+		v := state.LocationSlug.ValueString()
+		params.SetLocation([]string{v})
+		hasInput = true
+	}
+	if !state.LocationID.IsNull() {
+		v := strconv.FormatInt(state.LocationID.ValueInt64(), 10)
+		params.SetLocationID([]string{v})
+		hasInput = true
+	}
+	if !state.MarkConnected.IsNull() {
+		v := state.MarkConnected.ValueBool()
+		params.SetMarkConnected(&v)
+		hasInput = true
+	}
+	if !state.Occupied.IsNull() {
+		v := state.Occupied.ValueBool()
+		params.SetOccupied(&v)
+		hasInput = true
+	}
+	if !state.PortSpeedKbps.IsNull() {
+		v := state.PortSpeedKbps.ValueInt64()
+		params.SetPortSpeed([]int64{v})
+		hasInput = true
+	}
+	if !state.PpInfo.IsNull() {
+		v := state.PpInfo.ValueString()
+		params.SetPpInfo([]string{v})
+		hasInput = true
+	}
+	if !state.ProviderSlug.IsNull() {
+		v := state.ProviderSlug.ValueString()
+		params.SetProvider([]string{v})
+		hasInput = true
+	}
+	if !state.ProviderID.IsNull() {
+		v := state.ProviderID.ValueInt64()
+		params.SetProviderID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RegionSlug.IsNull() {
+		v := state.RegionSlug.ValueString()
+		params.SetRegion([]string{v})
+		hasInput = true
+	}
+	if !state.RegionID.IsNull() {
+		v := strconv.FormatInt(state.RegionID.ValueInt64(), 10)
+		params.SetRegionID([]string{v})
+		hasInput = true
+	}
+	if !state.SiteSlug.IsNull() {
+		v := state.SiteSlug.ValueString()
+		params.SetSite([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupSlug.IsNull() {
+		v := state.SiteGroupSlug.ValueString()
+		params.SetSiteGroup([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupID.IsNull() {
+		v := strconv.FormatInt(state.SiteGroupID.ValueInt64(), 10)
+		params.SetSiteGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TerminationID.IsNull() {
+		v := state.TerminationID.ValueInt64()
+		params.SetTerminationID([]int64{v})
+		hasInput = true
+	}
+	if !state.TerminationType.IsNull() {
+		v := state.TerminationType.ValueString()
+		params.SetTerminationType([]string{v})
+		hasInput = true
+	}
+	if !state.UpstreamSpeedKbps.IsNull() {
+		v := state.UpstreamSpeedKbps.ValueInt64()
+		params.SetUpstreamSpeed([]int64{v})
+		hasInput = true
+	}
+	if !state.XconnectID.IsNull() {
+		v := state.XconnectID.ValueString()
+		params.SetXconnectID([]string{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -230,7 +458,7 @@ func (d *circuitTerminationDataSource) Read(ctx context.Context, req datasource.
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or circuit_id and/or term_side and/or site_id and/or provider_network_id and/or tag_slug and/or custom_field_filters to look up a netbox_circuit_termination.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_circuit_termination.")
 		return
 	}
 	res, err := d.client.Circuits.CircuitsCircuitTerminationsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

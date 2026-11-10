@@ -11,6 +11,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/tenancy"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -36,6 +37,12 @@ type contactAssignmentDataSource struct {
 type contactAssignmentDataSourceModel struct {
 	contactAssignmentResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Group              types.String `tfsdk:"group"`
+	GroupID            types.String `tfsdk:"group_id"`
+	ObjectTypeID       types.Int64  `tfsdk:"object_type_id"`
+	Q                  types.String `tfsdk:"q"`
+	RoleSlug           types.String `tfsdk:"role_slug"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -76,13 +83,19 @@ func (d *contactAssignmentDataSource) Schema(ctx context.Context, req datasource
 				Description: "Id of the contact role. Once set it cannot be removed, only changed: NetBox rejects a null. If you drop it from the config, keep a depends_on on the role so it is destroyed after the assignment.",
 			},
 			"priority": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Priority of the contact for this object. One of: primary, secondary, tertiary, inactive.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("primary", "secondary", "tertiary", "inactive"),
+				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -106,6 +119,30 @@ func (d *contactAssignmentDataSource) Schema(ctx context.Context, req datasource
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"group": schema.StringAttribute{
+				Optional:    true,
+				Description: "Group to match.",
+			},
+			"group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the group.",
+			},
+			"object_type_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the object type.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"role_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact role.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -174,6 +211,51 @@ func (d *contactAssignmentDataSource) Read(ctx context.Context, req datasource.R
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Group.IsNull() {
+		v := state.Group.ValueString()
+		params.SetGroup([]string{v})
+		hasInput = true
+	}
+	if !state.GroupID.IsNull() {
+		v := state.GroupID.ValueString()
+		params.SetGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.ObjectTypeID.IsNull() {
+		v := state.ObjectTypeID.ValueInt64()
+		params.SetObjectTypeID(&v)
+		hasInput = true
+	}
+	if !state.Priority.IsNull() {
+		v := state.Priority.ValueString()
+		params.SetPriority(&v)
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RoleSlug.IsNull() {
+		v := state.RoleSlug.ValueString()
+		params.SetRole([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -181,7 +263,7 @@ func (d *contactAssignmentDataSource) Read(ctx context.Context, req datasource.R
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or object_type and/or object_id and/or contact_id and/or role_id and/or tag_slug and/or custom_field_filters to look up a netbox_contact_assignment.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_contact_assignment.")
 		return
 	}
 	res, err := d.client.Tenancy.TenancyContactAssignmentsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

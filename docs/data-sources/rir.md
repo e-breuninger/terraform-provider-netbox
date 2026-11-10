@@ -29,22 +29,27 @@ data "netbox_rir" "test" {
 
 ### Optional
 
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `id` (Number) NetBox id.
+- `is_private` (Boolean) IP space managed by this RIR is private.
+- `last_updated` (String)
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `slug` (String) URL-friendly unique shorthand; derived from name when not set.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 
 ### Read-Only
 
 - `aggregate_count` (Number) Number of aggregates under the RIR.
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `is_private` (Boolean) IP space managed by this RIR is private.
-- `last_updated` (String)
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

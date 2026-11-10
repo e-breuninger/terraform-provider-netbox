@@ -30,16 +30,26 @@ data "netbox_tag" "test" {
 
 ### Optional
 
+- `color` (String) Color to match.
+- `content_type` (String) Content type to match.
+- `content_type_id` (Number) Id of the content type.
+- `created` (String)
+- `description` (String)
+- `for_object_type_id` (Number) Id of the for object type.
 - `id` (Number) NetBox id of the tag.
+- `last_updated` (String)
 - `name` (String)
+- `object_type_name` (Number) Name of the object types.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
+- `owner_id` (Number) Id of the owner.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `slug` (String) URL-friendly unique shorthand; derived from name when not set.
+- `weight` (Number) Sort weight; tags with a lower weight are listed first. Must be a whole number.
 
 ### Read-Only
 
 - `color_hex` (String) Hex color without the leading #. Defaults to 9e9e9e.
-- `created` (String)
-- `description` (String)
-- `last_updated` (String)
 - `object_types` (Set of String) Object types the tag can be assigned to, e.g. dcim.site.
 - `url` (String)
-- `weight` (Number) Sort weight; tags with a lower weight are listed first. Must be a whole number.

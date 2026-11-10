@@ -36,6 +36,19 @@ type virtualCircuitDataSource struct {
 type virtualCircuitDataSourceModel struct {
 	virtualCircuitResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	ProviderSlug       types.String `tfsdk:"provider_slug"`
+	ProviderAccount    types.String `tfsdk:"provider_account"`
+	ProviderID         types.Int64  `tfsdk:"provider_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	TenantSlug         types.String `tfsdk:"tenant_slug"`
+	TenantGroupSlug    types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID      types.String `tfsdk:"tenant_group_id"`
+	TypeSlug           types.String `tfsdk:"type_slug"`
+	TypeID             types.Int64  `tfsdk:"type_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -83,11 +96,16 @@ func (d *virtualCircuitDataSource) Schema(ctx context.Context, req datasource.Sc
 				},
 			},
 			"tenant_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the tenant the virtual circuit belongs to.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -98,9 +116,11 @@ func (d *virtualCircuitDataSource) Schema(ctx context.Context, req datasource.Sc
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -124,6 +144,58 @@ func (d *virtualCircuitDataSource) Schema(ctx context.Context, req datasource.Sc
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"provider_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the provider.",
+			},
+			"provider_account": schema.StringAttribute{
+				Optional:    true,
+				Description: "Provider account (account).",
+			},
+			"provider_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the provider.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
+			},
+			"type_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the virtual circuit type.",
+			},
+			"type_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the virtual circuit type.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -197,6 +269,91 @@ func (d *virtualCircuitDataSource) Read(ctx context.Context, req datasource.Read
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.ProviderSlug.IsNull() {
+		v := state.ProviderSlug.ValueString()
+		params.SetProvider([]string{v})
+		hasInput = true
+	}
+	if !state.ProviderAccount.IsNull() {
+		v := state.ProviderAccount.ValueString()
+		params.SetProviderAccount([]string{v})
+		hasInput = true
+	}
+	if !state.ProviderID.IsNull() {
+		v := state.ProviderID.ValueInt64()
+		params.SetProviderID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TenantID.IsNull() {
+		v := state.TenantID.ValueInt64()
+		params.SetTenantID([]int64{v})
+		hasInput = true
+	}
+	if !state.TypeSlug.IsNull() {
+		v := state.TypeSlug.ValueString()
+		params.SetType([]string{v})
+		hasInput = true
+	}
+	if !state.TypeID.IsNull() {
+		v := state.TypeID.ValueInt64()
+		params.SetTypeID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -204,7 +361,7 @@ func (d *virtualCircuitDataSource) Read(ctx context.Context, req datasource.Read
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or cid and/or status and/or circuit_provider_network_id and/or circuit_provider_account_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_virtual_circuit.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_virtual_circuit.")
 		return
 	}
 	res, err := d.client.Circuits.CircuitsVirtualCircuitsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

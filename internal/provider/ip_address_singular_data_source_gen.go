@@ -11,6 +11,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -36,14 +37,37 @@ type ipAddressDataSource struct {
 // ipAddressDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type ipAddressDataSourceModel struct {
 	ipAddressResourceModel
-	Device             types.String `tfsdk:"device"`
-	InterfaceID        types.Int64  `tfsdk:"interface_id"`
-	DeviceID           types.Int64  `tfsdk:"device_id"`
-	ParentPrefix       types.String `tfsdk:"parent_prefix"`
-	TenantSlug         types.String `tfsdk:"tenant_slug"`
-	VrfRd              types.String `tfsdk:"vrf_rd"`
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	Device              types.String  `tfsdk:"device"`
+	InterfaceID         types.Int64   `tfsdk:"interface_id"`
+	DeviceID            types.Int64   `tfsdk:"device_id"`
+	ParentPrefix        types.String  `tfsdk:"parent_prefix"`
+	TenantSlug          types.String  `tfsdk:"tenant_slug"`
+	VrfRd               types.String  `tfsdk:"vrf_rd"`
+	TagSlug             types.String  `tfsdk:"tag_slug"`
+	Assigned            types.Bool    `tfsdk:"assigned"`
+	AssignedToInterface types.Bool    `tfsdk:"assigned_to_interface"`
+	Contact             types.Int64   `tfsdk:"contact"`
+	ContactGroupSlug    types.String  `tfsdk:"contact_group_slug"`
+	ContactRole         types.Int64   `tfsdk:"contact_role"`
+	FhrpgroupID         types.Int64   `tfsdk:"fhrpgroup_id"`
+	InterfaceName       types.String  `tfsdk:"interface_name"`
+	MaskLengthGte       types.Float64 `tfsdk:"mask_length__gte"`
+	MaskLengthLte       types.Float64 `tfsdk:"mask_length__lte"`
+	MaskLength          types.Int64   `tfsdk:"mask_length"`
+	OwnerName           types.String  `tfsdk:"owner_name"`
+	OwnerGroupName      types.String  `tfsdk:"owner_group_name"`
+	OwnerGroupID        types.Int64   `tfsdk:"owner_group_id"`
+	PresentInVrf        types.String  `tfsdk:"present_in_vrf"`
+	PresentInVrfID      types.String  `tfsdk:"present_in_vrf_id"`
+	Q                   types.String  `tfsdk:"q"`
+	ServiceID           types.Int64   `tfsdk:"service_id"`
+	TagID               types.Int64   `tfsdk:"tag_id"`
+	TenantGroupSlug     types.String  `tfsdk:"tenant_group_slug"`
+	TenantGroupID       types.String  `tfsdk:"tenant_group_id"`
+	VirtualMachineName  types.String  `tfsdk:"virtual_machine_name"`
+	VirtualMachineID    types.Int64   `tfsdk:"virtual_machine_id"`
+	VminterfaceName     types.String  `tfsdk:"vminterface_name"`
+	CustomFieldFilters  types.Map     `tfsdk:"custom_field_filters"`
 }
 
 func (d *ipAddressDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -114,6 +138,7 @@ func (d *ipAddressDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "Id of the VRF.",
 			},
 			"nat_inside_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the IP address this address is the NAT (outside) IP for.",
 			},
@@ -128,12 +153,20 @@ func (d *ipAddressDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "Ids of the addresses that name this one as their nat_inside_id.",
 			},
 			"assigned_object_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Content type of the object the address is assigned to. Derived from device_interface_id or virtual_machine_interface_id when one of those is set; set it together with assigned_object_id for other object types. One of: dcim.interface, virtualization.vminterface, ipam.fhrpgroup.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("dcim.interface", "virtualization.vminterface", "ipam.fhrpgroup"),
+				},
 			},
 			"assigned_object_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the object the address is assigned to (see assigned_object_type).",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"device_interface_id": schema.Int64Attribute{
 				Computed:    true,
@@ -168,6 +201,7 @@ func (d *ipAddressDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "The interface the address is assigned to. device is null for VM interfaces.",
 			},
 			"family": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "IP family (4 or 6).",
 			},
@@ -177,9 +211,11 @@ func (d *ipAddressDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -227,6 +263,98 @@ func (d *ipAddressDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"assigned": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Is assigned.",
+			},
+			"assigned_to_interface": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Is assigned to an interface.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"fhrpgroup_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the FHRP group.",
+			},
+			"interface_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the interface.",
+			},
+			"mask_length__gte": schema.Float64Attribute{
+				Optional:    true,
+				Description: "Mask length is at least this.",
+			},
+			"mask_length__lte": schema.Float64Attribute{
+				Optional:    true,
+				Description: "Mask length is at most this.",
+			},
+			"mask_length": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Mask length to match.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"present_in_vrf": schema.StringAttribute{
+				Optional:    true,
+				Description: "Present in vrf to match.",
+			},
+			"present_in_vrf_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the present in vrf.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"service_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the application service.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
+			},
+			"virtual_machine_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the virtual machine.",
+			},
+			"virtual_machine_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the virtual machine.",
+			},
+			"vminterface_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the VM interface.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -350,6 +478,151 @@ func (d *ipAddressDataSource) Read(ctx context.Context, req datasource.ReadReque
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Assigned.IsNull() {
+		v := state.Assigned.ValueBool()
+		params.SetAssigned(&v)
+		hasInput = true
+	}
+	if !state.AssignedObjectID.IsNull() {
+		v := state.AssignedObjectID.ValueInt64()
+		params.SetAssignedObjectID([]int64{v})
+		hasInput = true
+	}
+	if !state.AssignedObjectType.IsNull() {
+		v := state.AssignedObjectType.ValueString()
+		params.SetAssignedObjectType([]string{v})
+		hasInput = true
+	}
+	if !state.AssignedToInterface.IsNull() {
+		v := state.AssignedToInterface.ValueBool()
+		params.SetAssignedToInterface(&v)
+		hasInput = true
+	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Family.IsNull() {
+		v := float64(state.Family.ValueInt64())
+		params.SetFamily(&v)
+		hasInput = true
+	}
+	if !state.FhrpgroupID.IsNull() {
+		v := state.FhrpgroupID.ValueInt64()
+		params.SetFhrpgroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.InterfaceName.IsNull() {
+		v := state.InterfaceName.ValueString()
+		params.SetInterface([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.MaskLengthGte.IsNull() {
+		v := state.MaskLengthGte.ValueFloat64()
+		params.SetMaskLengthGte(&v)
+		hasInput = true
+	}
+	if !state.MaskLengthLte.IsNull() {
+		v := state.MaskLengthLte.ValueFloat64()
+		params.SetMaskLengthLte(&v)
+		hasInput = true
+	}
+	if !state.MaskLength.IsNull() {
+		v := state.MaskLength.ValueInt64()
+		params.SetMaskLength([]int64{v})
+		hasInput = true
+	}
+	if !state.NatInsideID.IsNull() {
+		v := state.NatInsideID.ValueInt64()
+		params.SetNatInsideID([]int64{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.PresentInVrf.IsNull() {
+		v := state.PresentInVrf.ValueString()
+		params.SetPresentInVrf(&v)
+		hasInput = true
+	}
+	if !state.PresentInVrfID.IsNull() {
+		v := state.PresentInVrfID.ValueString()
+		params.SetPresentInVrfID(&v)
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.ServiceID.IsNull() {
+		v := state.ServiceID.ValueInt64()
+		params.SetServiceID([]int64{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineName.IsNull() {
+		v := state.VirtualMachineName.ValueString()
+		params.SetVirtualMachine([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineID.IsNull() {
+		v := state.VirtualMachineID.ValueInt64()
+		params.SetVirtualMachineID([]int64{v})
+		hasInput = true
+	}
+	if !state.VminterfaceName.IsNull() {
+		v := state.VminterfaceName.ValueString()
+		params.SetVminterface([]string{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -357,7 +630,7 @@ func (d *ipAddressDataSource) Read(ctx context.Context, req datasource.ReadReque
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or ip_address and/or dns_name and/or vrf_id and/or tenant_id and/or device and/or interface_id and/or status and/or role and/or description and/or virtual_machine_interface_id and/or device_id and/or parent_prefix and/or tenant_slug and/or vrf_rd and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_ip_address.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_ip_address.")
 		return
 	}
 	res, err := d.client.Ipam.IpamIPAddressesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

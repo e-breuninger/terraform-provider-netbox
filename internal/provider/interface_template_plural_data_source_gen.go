@@ -73,7 +73,7 @@ func (d *interfaceTemplatesDataSource) Schema(ctx context.Context, req datasourc
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, mgmt_only, module_type_id, module_type_id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, type, type__empty, type__ic, type__ie, type__iew, type__iregex, type__isw, type__n, type__nic, type__nie, type__niew, type__nisw, type__regex. Repeating a name sends that parameter once per value.",
+				Description: "Query filters, sent as API list parameters. Supported names: bridge_id, bridge_id__n, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, device_type_id, device_type_id__n, enabled, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, label, label__empty, label__ic, label__ie, label__iew, label__iregex, label__isw, label__n, label__nic, label__nie, label__niew, label__nisw, label__regex, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, mgmt_only, module_type_id, module_type_id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, poe_mode, poe_mode__empty, poe_mode__ic, poe_mode__ie, poe_mode__iew, poe_mode__iregex, poe_mode__isw, poe_mode__n, poe_mode__nic, poe_mode__nie, poe_mode__niew, poe_mode__nisw, poe_mode__regex, poe_type, poe_type__empty, poe_type__ic, poe_type__ie, poe_type__iew, poe_type__iregex, poe_type__isw, poe_type__n, poe_type__nic, poe_type__nie, poe_type__niew, poe_type__nisw, poe_type__regex, q, rf_role, rf_role__empty, rf_role__ic, rf_role__ie, rf_role__iew, rf_role__iregex, rf_role__isw, rf_role__n, rf_role__nic, rf_role__nie, rf_role__niew, rf_role__nisw, rf_role__regex, type, type__empty, type__ic, type__ie, type__iew, type__iregex, type__isw, type__n, type__nic, type__nie, type__niew, type__nisw, type__regex. Repeating a name sends that parameter once per value.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -248,6 +248,91 @@ func (d *interfaceTemplatesDataSource) Read(ctx context.Context, req datasource.
 	var vMgmtOnly *bool
 	var vModuleTypeID []int64
 	var vModuleTypeIDn []int64
+	var vBridgeID []int64
+	var vBridgeIDn []int64
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vDeviceTypeID []int64
+	var vDeviceTypeIDn []int64
+	var vEnabled *bool
+	var vLabel []string
+	var vLabeln []string
+	var vLabelIc []string
+	var vLabelNic []string
+	var vLabelIe []string
+	var vLabelNie []string
+	var vLabelIsw []string
+	var vLabelNisw []string
+	var vLabelIew []string
+	var vLabelNiew []string
+	var vLabelEmpty *bool
+	var vLabelRegex []string
+	var vLabelIregex []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vPoeMode []string
+	var vPoeModen []string
+	var vPoeModeIc []string
+	var vPoeModeNic []string
+	var vPoeModeIe []string
+	var vPoeModeNie []string
+	var vPoeModeIsw []string
+	var vPoeModeNisw []string
+	var vPoeModeIew []string
+	var vPoeModeNiew []string
+	var vPoeModeEmpty *bool
+	var vPoeModeRegex []string
+	var vPoeModeIregex []string
+	var vPoeType []string
+	var vPoeTypen []string
+	var vPoeTypeIc []string
+	var vPoeTypeNic []string
+	var vPoeTypeIe []string
+	var vPoeTypeNie []string
+	var vPoeTypeIsw []string
+	var vPoeTypeNisw []string
+	var vPoeTypeIew []string
+	var vPoeTypeNiew []string
+	var vPoeTypeEmpty *bool
+	var vPoeTypeRegex []string
+	var vPoeTypeIregex []string
+	var vQ *string
+	var vRfRole []string
+	var vRfRolen []string
+	var vRfRoleIc []string
+	var vRfRoleNic []string
+	var vRfRoleIe []string
+	var vRfRoleNie []string
+	var vRfRoleIsw []string
+	var vRfRoleNisw []string
+	var vRfRoleIew []string
+	var vRfRoleNiew []string
+	var vRfRoleEmpty *bool
+	var vRfRoleRegex []string
+	var vRfRoleIregex []string
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
 		switch name {
@@ -423,6 +508,329 @@ func (d *interfaceTemplatesDataSource) Read(ctx context.Context, req datasource.
 				return
 			}
 			vModuleTypeIDn = append(vModuleTypeIDn, v)
+		case "bridge_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'bridge_id' takes an integer, got %q.", value))
+				return
+			}
+			vBridgeID = append(vBridgeID, v)
+		case "bridge_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'bridge_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vBridgeIDn = append(vBridgeIDn, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "device_type_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_type_id' takes an integer, got %q.", value))
+				return
+			}
+			vDeviceTypeID = append(vDeviceTypeID, v)
+		case "device_type_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_type_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vDeviceTypeIDn = append(vDeviceTypeIDn, v)
+		case "enabled":
+			if vEnabled != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'enabled' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'enabled' takes a boolean, got %q.", value))
+				return
+			}
+			vEnabled = &v
+		case "label":
+			v := value
+			vLabel = append(vLabel, v)
+		case "label__n":
+			v := value
+			vLabeln = append(vLabeln, v)
+		case "label__ic":
+			v := value
+			vLabelIc = append(vLabelIc, v)
+		case "label__nic":
+			v := value
+			vLabelNic = append(vLabelNic, v)
+		case "label__ie":
+			v := value
+			vLabelIe = append(vLabelIe, v)
+		case "label__nie":
+			v := value
+			vLabelNie = append(vLabelNie, v)
+		case "label__isw":
+			v := value
+			vLabelIsw = append(vLabelIsw, v)
+		case "label__nisw":
+			v := value
+			vLabelNisw = append(vLabelNisw, v)
+		case "label__iew":
+			v := value
+			vLabelIew = append(vLabelIew, v)
+		case "label__niew":
+			v := value
+			vLabelNiew = append(vLabelNiew, v)
+		case "label__empty":
+			if vLabelEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'label__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'label__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vLabelEmpty = &v
+		case "label__regex":
+			v := value
+			vLabelRegex = append(vLabelRegex, v)
+		case "label__iregex":
+			v := value
+			vLabelIregex = append(vLabelIregex, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "poe_mode":
+			v := value
+			vPoeMode = append(vPoeMode, v)
+		case "poe_mode__n":
+			v := value
+			vPoeModen = append(vPoeModen, v)
+		case "poe_mode__ic":
+			v := value
+			vPoeModeIc = append(vPoeModeIc, v)
+		case "poe_mode__nic":
+			v := value
+			vPoeModeNic = append(vPoeModeNic, v)
+		case "poe_mode__ie":
+			v := value
+			vPoeModeIe = append(vPoeModeIe, v)
+		case "poe_mode__nie":
+			v := value
+			vPoeModeNie = append(vPoeModeNie, v)
+		case "poe_mode__isw":
+			v := value
+			vPoeModeIsw = append(vPoeModeIsw, v)
+		case "poe_mode__nisw":
+			v := value
+			vPoeModeNisw = append(vPoeModeNisw, v)
+		case "poe_mode__iew":
+			v := value
+			vPoeModeIew = append(vPoeModeIew, v)
+		case "poe_mode__niew":
+			v := value
+			vPoeModeNiew = append(vPoeModeNiew, v)
+		case "poe_mode__empty":
+			if vPoeModeEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'poe_mode__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'poe_mode__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vPoeModeEmpty = &v
+		case "poe_mode__regex":
+			v := value
+			vPoeModeRegex = append(vPoeModeRegex, v)
+		case "poe_mode__iregex":
+			v := value
+			vPoeModeIregex = append(vPoeModeIregex, v)
+		case "poe_type":
+			v := value
+			vPoeType = append(vPoeType, v)
+		case "poe_type__n":
+			v := value
+			vPoeTypen = append(vPoeTypen, v)
+		case "poe_type__ic":
+			v := value
+			vPoeTypeIc = append(vPoeTypeIc, v)
+		case "poe_type__nic":
+			v := value
+			vPoeTypeNic = append(vPoeTypeNic, v)
+		case "poe_type__ie":
+			v := value
+			vPoeTypeIe = append(vPoeTypeIe, v)
+		case "poe_type__nie":
+			v := value
+			vPoeTypeNie = append(vPoeTypeNie, v)
+		case "poe_type__isw":
+			v := value
+			vPoeTypeIsw = append(vPoeTypeIsw, v)
+		case "poe_type__nisw":
+			v := value
+			vPoeTypeNisw = append(vPoeTypeNisw, v)
+		case "poe_type__iew":
+			v := value
+			vPoeTypeIew = append(vPoeTypeIew, v)
+		case "poe_type__niew":
+			v := value
+			vPoeTypeNiew = append(vPoeTypeNiew, v)
+		case "poe_type__empty":
+			if vPoeTypeEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'poe_type__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'poe_type__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vPoeTypeEmpty = &v
+		case "poe_type__regex":
+			v := value
+			vPoeTypeRegex = append(vPoeTypeRegex, v)
+		case "poe_type__iregex":
+			v := value
+			vPoeTypeIregex = append(vPoeTypeIregex, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "rf_role":
+			v := value
+			vRfRole = append(vRfRole, v)
+		case "rf_role__n":
+			v := value
+			vRfRolen = append(vRfRolen, v)
+		case "rf_role__ic":
+			v := value
+			vRfRoleIc = append(vRfRoleIc, v)
+		case "rf_role__nic":
+			v := value
+			vRfRoleNic = append(vRfRoleNic, v)
+		case "rf_role__ie":
+			v := value
+			vRfRoleIe = append(vRfRoleIe, v)
+		case "rf_role__nie":
+			v := value
+			vRfRoleNie = append(vRfRoleNie, v)
+		case "rf_role__isw":
+			v := value
+			vRfRoleIsw = append(vRfRoleIsw, v)
+		case "rf_role__nisw":
+			v := value
+			vRfRoleNisw = append(vRfRoleNisw, v)
+		case "rf_role__iew":
+			v := value
+			vRfRoleIew = append(vRfRoleIew, v)
+		case "rf_role__niew":
+			v := value
+			vRfRoleNiew = append(vRfRoleNiew, v)
+		case "rf_role__empty":
+			if vRfRoleEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'rf_role__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'rf_role__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vRfRoleEmpty = &v
+		case "rf_role__regex":
+			v := value
+			vRfRoleRegex = append(vRfRoleRegex, v)
+		case "rf_role__iregex":
+			v := value
+			vRfRoleIregex = append(vRfRoleIregex, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -535,6 +943,261 @@ func (d *interfaceTemplatesDataSource) Read(ctx context.Context, req datasource.
 	}
 	if len(vModuleTypeIDn) > 0 {
 		params.SetModuleTypeIDn(vModuleTypeIDn)
+	}
+	if len(vBridgeID) > 0 {
+		params.SetBridgeID(vBridgeID)
+	}
+	if len(vBridgeIDn) > 0 {
+		params.SetBridgeIDn(vBridgeIDn)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vDeviceTypeID) > 0 {
+		params.SetDeviceTypeID(vDeviceTypeID)
+	}
+	if len(vDeviceTypeIDn) > 0 {
+		params.SetDeviceTypeIDn(vDeviceTypeIDn)
+	}
+	if vEnabled != nil {
+		params.SetEnabled(vEnabled)
+	}
+	if len(vLabel) > 0 {
+		params.SetLabel(vLabel)
+	}
+	if len(vLabeln) > 0 {
+		params.SetLabeln(vLabeln)
+	}
+	if len(vLabelIc) > 0 {
+		params.SetLabelIc(vLabelIc)
+	}
+	if len(vLabelNic) > 0 {
+		params.SetLabelNic(vLabelNic)
+	}
+	if len(vLabelIe) > 0 {
+		params.SetLabelIe(vLabelIe)
+	}
+	if len(vLabelNie) > 0 {
+		params.SetLabelNie(vLabelNie)
+	}
+	if len(vLabelIsw) > 0 {
+		params.SetLabelIsw(vLabelIsw)
+	}
+	if len(vLabelNisw) > 0 {
+		params.SetLabelNisw(vLabelNisw)
+	}
+	if len(vLabelIew) > 0 {
+		params.SetLabelIew(vLabelIew)
+	}
+	if len(vLabelNiew) > 0 {
+		params.SetLabelNiew(vLabelNiew)
+	}
+	if vLabelEmpty != nil {
+		params.SetLabelEmpty(vLabelEmpty)
+	}
+	if len(vLabelRegex) > 0 {
+		params.SetLabelRegex(vLabelRegex)
+	}
+	if len(vLabelIregex) > 0 {
+		params.SetLabelIregex(vLabelIregex)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vPoeMode) > 0 {
+		params.SetPoeMode(vPoeMode)
+	}
+	if len(vPoeModen) > 0 {
+		params.SetPoeModen(vPoeModen)
+	}
+	if len(vPoeModeIc) > 0 {
+		params.SetPoeModeIc(vPoeModeIc)
+	}
+	if len(vPoeModeNic) > 0 {
+		params.SetPoeModeNic(vPoeModeNic)
+	}
+	if len(vPoeModeIe) > 0 {
+		params.SetPoeModeIe(vPoeModeIe)
+	}
+	if len(vPoeModeNie) > 0 {
+		params.SetPoeModeNie(vPoeModeNie)
+	}
+	if len(vPoeModeIsw) > 0 {
+		params.SetPoeModeIsw(vPoeModeIsw)
+	}
+	if len(vPoeModeNisw) > 0 {
+		params.SetPoeModeNisw(vPoeModeNisw)
+	}
+	if len(vPoeModeIew) > 0 {
+		params.SetPoeModeIew(vPoeModeIew)
+	}
+	if len(vPoeModeNiew) > 0 {
+		params.SetPoeModeNiew(vPoeModeNiew)
+	}
+	if vPoeModeEmpty != nil {
+		params.SetPoeModeEmpty(vPoeModeEmpty)
+	}
+	if len(vPoeModeRegex) > 0 {
+		params.SetPoeModeRegex(vPoeModeRegex)
+	}
+	if len(vPoeModeIregex) > 0 {
+		params.SetPoeModeIregex(vPoeModeIregex)
+	}
+	if len(vPoeType) > 0 {
+		params.SetPoeType(vPoeType)
+	}
+	if len(vPoeTypen) > 0 {
+		params.SetPoeTypen(vPoeTypen)
+	}
+	if len(vPoeTypeIc) > 0 {
+		params.SetPoeTypeIc(vPoeTypeIc)
+	}
+	if len(vPoeTypeNic) > 0 {
+		params.SetPoeTypeNic(vPoeTypeNic)
+	}
+	if len(vPoeTypeIe) > 0 {
+		params.SetPoeTypeIe(vPoeTypeIe)
+	}
+	if len(vPoeTypeNie) > 0 {
+		params.SetPoeTypeNie(vPoeTypeNie)
+	}
+	if len(vPoeTypeIsw) > 0 {
+		params.SetPoeTypeIsw(vPoeTypeIsw)
+	}
+	if len(vPoeTypeNisw) > 0 {
+		params.SetPoeTypeNisw(vPoeTypeNisw)
+	}
+	if len(vPoeTypeIew) > 0 {
+		params.SetPoeTypeIew(vPoeTypeIew)
+	}
+	if len(vPoeTypeNiew) > 0 {
+		params.SetPoeTypeNiew(vPoeTypeNiew)
+	}
+	if vPoeTypeEmpty != nil {
+		params.SetPoeTypeEmpty(vPoeTypeEmpty)
+	}
+	if len(vPoeTypeRegex) > 0 {
+		params.SetPoeTypeRegex(vPoeTypeRegex)
+	}
+	if len(vPoeTypeIregex) > 0 {
+		params.SetPoeTypeIregex(vPoeTypeIregex)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vRfRole) > 0 {
+		params.SetRfRole(vRfRole)
+	}
+	if len(vRfRolen) > 0 {
+		params.SetRfRolen(vRfRolen)
+	}
+	if len(vRfRoleIc) > 0 {
+		params.SetRfRoleIc(vRfRoleIc)
+	}
+	if len(vRfRoleNic) > 0 {
+		params.SetRfRoleNic(vRfRoleNic)
+	}
+	if len(vRfRoleIe) > 0 {
+		params.SetRfRoleIe(vRfRoleIe)
+	}
+	if len(vRfRoleNie) > 0 {
+		params.SetRfRoleNie(vRfRoleNie)
+	}
+	if len(vRfRoleIsw) > 0 {
+		params.SetRfRoleIsw(vRfRoleIsw)
+	}
+	if len(vRfRoleNisw) > 0 {
+		params.SetRfRoleNisw(vRfRoleNisw)
+	}
+	if len(vRfRoleIew) > 0 {
+		params.SetRfRoleIew(vRfRoleIew)
+	}
+	if len(vRfRoleNiew) > 0 {
+		params.SetRfRoleNiew(vRfRoleNiew)
+	}
+	if vRfRoleEmpty != nil {
+		params.SetRfRoleEmpty(vRfRoleEmpty)
+	}
+	if len(vRfRoleRegex) > 0 {
+		params.SetRfRoleRegex(vRfRoleRegex)
+	}
+	if len(vRfRoleIregex) > 0 {
+		params.SetRfRoleIregex(vRfRoleIregex)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

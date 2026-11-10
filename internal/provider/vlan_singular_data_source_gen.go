@@ -37,12 +37,32 @@ type vlanDataSource struct {
 // vlanDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type vlanDataSourceModel struct {
 	vlanResourceModel
-	GroupSlug          types.String `tfsdk:"group_slug"`
-	TenantSlug         types.String `tfsdk:"tenant_slug"`
-	TenantGroupSlug    types.String `tfsdk:"tenant_group_slug"`
-	TenantGroupID      types.Int64  `tfsdk:"tenant_group_id"`
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	GroupSlug                 types.String `tfsdk:"group_slug"`
+	TenantSlug                types.String `tfsdk:"tenant_slug"`
+	TenantGroupSlug           types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID             types.Int64  `tfsdk:"tenant_group_id"`
+	TagSlug                   types.String `tfsdk:"tag_slug"`
+	AvailableAtSite           types.String `tfsdk:"available_at_site"`
+	AvailableAtSiteGroup      types.String `tfsdk:"available_at_site_group"`
+	AvailableOnDevice         types.String `tfsdk:"available_on_device"`
+	AvailableOnVirtualmachine types.String `tfsdk:"available_on_virtualmachine"`
+	InterfaceID               types.Int64  `tfsdk:"interface_id"`
+	L2vpn                     types.Int64  `tfsdk:"l2vpn"`
+	L2vpnID                   types.Int64  `tfsdk:"l2vpn_id"`
+	OwnerName                 types.String `tfsdk:"owner_name"`
+	OwnerGroupName            types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID              types.Int64  `tfsdk:"owner_group_id"`
+	Q                         types.String `tfsdk:"q"`
+	QinqSvlanVid              types.Int64  `tfsdk:"qinq_svlan_vid"`
+	RegionSlug                types.String `tfsdk:"region_slug"`
+	RegionID                  types.String `tfsdk:"region_id"`
+	RoleSlug                  types.String `tfsdk:"role_slug"`
+	SiteSlug                  types.String `tfsdk:"site_slug"`
+	SiteGroupSlug             types.String `tfsdk:"site_group_slug"`
+	SiteGroupID               types.String `tfsdk:"site_group_id"`
+	TagID                     types.Int64  `tfsdk:"tag_id"`
+	VminterfaceID             types.Int64  `tfsdk:"vminterface_id"`
+	CustomFieldFilters        types.Map    `tfsdk:"custom_field_filters"`
 }
 
 func (d *vlanDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -97,19 +117,29 @@ func (d *vlanDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				Description: "Id of the tenant.",
 			},
 			"role_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the role.",
 			},
 			"qinq_role": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Q-in-Q role: a service VLAN (svlan) carrying customer VLANs, or a customer VLAN (cvlan) inside one. One of: svlan, cvlan.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("svlan", "cvlan"),
+				},
 			},
 			"qinq_svlan_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the service VLAN this customer VLAN is carried in (qinq_role cvlan).",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -120,9 +150,11 @@ func (d *vlanDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -166,6 +198,86 @@ func (d *vlanDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"available_at_site": schema.StringAttribute{
+				Optional:    true,
+				Description: "Available at site to match.",
+			},
+			"available_at_site_group": schema.StringAttribute{
+				Optional:    true,
+				Description: "Available at site group to match.",
+			},
+			"available_on_device": schema.StringAttribute{
+				Optional:    true,
+				Description: "Available on device to match.",
+			},
+			"available_on_virtualmachine": schema.StringAttribute{
+				Optional:    true,
+				Description: "Available on virtualmachine to match.",
+			},
+			"interface_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the interface.",
+			},
+			"l2vpn": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the L2VPN.",
+			},
+			"l2vpn_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the L2VPN.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"qinq_svlan_vid": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Qinq svlan vid to match.",
+			},
+			"region_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the region.",
+			},
+			"region_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the region.",
+			},
+			"role_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the role.",
+			},
+			"site_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site.",
+			},
+			"site_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site group.",
+			},
+			"site_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the site group.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"vminterface_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the vminterface.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -269,6 +381,136 @@ func (d *vlanDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.AvailableAtSite.IsNull() {
+		v := state.AvailableAtSite.ValueString()
+		params.SetAvailableAtSite(&v)
+		hasInput = true
+	}
+	if !state.AvailableAtSiteGroup.IsNull() {
+		v := state.AvailableAtSiteGroup.ValueString()
+		params.SetAvailableAtSiteGroup(&v)
+		hasInput = true
+	}
+	if !state.AvailableOnDevice.IsNull() {
+		v := state.AvailableOnDevice.ValueString()
+		params.SetAvailableOnDevice(&v)
+		hasInput = true
+	}
+	if !state.AvailableOnVirtualmachine.IsNull() {
+		v := state.AvailableOnVirtualmachine.ValueString()
+		params.SetAvailableOnVirtualmachine(&v)
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.InterfaceID.IsNull() {
+		v := state.InterfaceID.ValueInt64()
+		params.SetInterfaceID(&v)
+		hasInput = true
+	}
+	if !state.L2vpn.IsNull() {
+		v := state.L2vpn.ValueInt64()
+		params.SetL2vpn([]int64{v})
+		hasInput = true
+	}
+	if !state.L2vpnID.IsNull() {
+		v := state.L2vpnID.ValueInt64()
+		params.SetL2vpnID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.QinqRole.IsNull() {
+		v := state.QinqRole.ValueString()
+		params.SetQinqRole([]string{v})
+		hasInput = true
+	}
+	if !state.QinqSvlanID.IsNull() {
+		v := state.QinqSvlanID.ValueInt64()
+		params.SetQinqSvlanID([]int64{v})
+		hasInput = true
+	}
+	if !state.QinqSvlanVid.IsNull() {
+		v := state.QinqSvlanVid.ValueInt64()
+		params.SetQinqSvlanVid([]int64{v})
+		hasInput = true
+	}
+	if !state.RegionSlug.IsNull() {
+		v := state.RegionSlug.ValueString()
+		params.SetRegion([]string{v})
+		hasInput = true
+	}
+	if !state.RegionID.IsNull() {
+		v := state.RegionID.ValueString()
+		params.SetRegionID([]string{v})
+		hasInput = true
+	}
+	if !state.RoleSlug.IsNull() {
+		v := state.RoleSlug.ValueString()
+		params.SetRole([]string{v})
+		hasInput = true
+	}
+	if !state.RoleID.IsNull() {
+		v := state.RoleID.ValueInt64()
+		params.SetRoleID([]int64{v})
+		hasInput = true
+	}
+	if !state.SiteSlug.IsNull() {
+		v := state.SiteSlug.ValueString()
+		params.SetSite([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupSlug.IsNull() {
+		v := state.SiteGroupSlug.ValueString()
+		params.SetSiteGroup([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupID.IsNull() {
+		v := state.SiteGroupID.ValueString()
+		params.SetSiteGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.VminterfaceID.IsNull() {
+		v := state.VminterfaceID.ValueInt64()
+		params.SetVminterfaceID(&v)
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -276,7 +518,7 @@ func (d *vlanDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or vid and/or status and/or site_id and/or group_id and/or tenant_id and/or group_slug and/or tenant_slug and/or tenant_group_slug and/or tenant_group_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_vlan.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_vlan.")
 		return
 	}
 	res, err := d.client.Ipam.IpamVlansListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

@@ -31,11 +31,17 @@ data "netbox_group" "test" {
 
 ### Optional
 
+- `description` (String)
 - `id` (Number) NetBox id.
 - `name` (String)
+- `notification_group_id` (Number) Id of the notification group.
+- `owner_id` (Number) Id of the owner.
+- `owner_name` (String) Name of the owner.
+- `permission_id` (Number) Id of the permission.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `user_id` (Number) Id of the user.
 
 ### Read-Only
 
-- `description` (String)
 - `url` (String)
 - `user_count` (Number) Number of users in the group.

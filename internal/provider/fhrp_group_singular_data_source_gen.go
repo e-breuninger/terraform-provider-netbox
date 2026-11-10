@@ -37,6 +37,12 @@ type fhrpGroupDataSource struct {
 type fhrpGroupDataSourceModel struct {
 	fhrpGroupResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Q                  types.String `tfsdk:"q"`
+	RelatedIP          types.String `tfsdk:"related_ip"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -85,12 +91,20 @@ func (d *fhrpGroupDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				},
 			},
 			"auth_key": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Sensitive:   true,
 				Description: "Authentication key.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(255),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -101,9 +115,11 @@ func (d *fhrpGroupDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -127,6 +143,30 @@ func (d *fhrpGroupDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"related_ip": schema.StringAttribute{
+				Optional:    true,
+				Description: "Related ip to match.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -200,6 +240,56 @@ func (d *fhrpGroupDataSource) Read(ctx context.Context, req datasource.ReadReque
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.AuthKey.IsNull() {
+		v := state.AuthKey.ValueString()
+		params.SetAuthKey([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RelatedIP.IsNull() {
+		v := state.RelatedIP.ValueString()
+		params.SetRelatedIP([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -207,7 +297,7 @@ func (d *fhrpGroupDataSource) Read(ctx context.Context, req datasource.ReadReque
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or protocol and/or group_id and/or auth_type and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_fhrp_group.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_fhrp_group.")
 		return
 	}
 	res, err := d.client.Ipam.IpamFhrpGroupsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

@@ -74,7 +74,7 @@ func (d *ikePoliciesDataSource) Schema(ctx context.Context, req datasource.Schem
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, mode, mode__empty, mode__ic, mode__ie, mode__iew, mode__iregex, mode__isw, mode__n, mode__nic, mode__nie, mode__niew, mode__nisw, mode__regex, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner_id, owner_id__n, tag, tag__any, tag__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, ike_proposal, ike_proposal__n, ike_proposal_id, ike_proposal_id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, mode, mode__empty, mode__ic, mode__ie, mode__iew, mode__iregex, mode__isw, mode__n, mode__nic, mode__nie, mode__niew, mode__nisw, mode__regex, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, preshared_key, preshared_key__ic, preshared_key__ie, preshared_key__iew, preshared_key__iregex, preshared_key__isw, preshared_key__n, preshared_key__nic, preshared_key__nie, preshared_key__niew, preshared_key__nisw, preshared_key__regex, q, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, version, version__ic, version__ie, version__iew, version__iregex, version__isw, version__n, version__nic, version__nie, version__niew, version__nisw, version__regex. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -250,6 +250,71 @@ func (d *ikePoliciesDataSource) Read(ctx context.Context, req datasource.ReadReq
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vIkeProposal []string
+	var vIkeProposaln []string
+	var vIkeProposalID []int64
+	var vIkeProposalIDn []int64
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vPresharedKey *string
+	var vPresharedKeyn *string
+	var vPresharedKeyIc *string
+	var vPresharedKeyNic *string
+	var vPresharedKeyIe *string
+	var vPresharedKeyNie *string
+	var vPresharedKeyIsw *string
+	var vPresharedKeyNisw *string
+	var vPresharedKeyIew *string
+	var vPresharedKeyNiew *string
+	var vPresharedKeyRegex *string
+	var vPresharedKeyIregex *string
+	var vQ *string
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vVersion []int64
+	var vVersionn []int64
+	var vVersionIc []int64
+	var vVersionNic []int64
+	var vVersionIe []int64
+	var vVersionNie []int64
+	var vVersionIsw []int64
+	var vVersionNisw []int64
+	var vVersionIew []int64
+	var vVersionNiew []int64
+	var vVersionRegex []int64
+	var vVersionIregex []int64
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -430,6 +495,337 @@ func (d *ikePoliciesDataSource) Read(ctx context.Context, req datasource.ReadReq
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "ike_proposal":
+			v := value
+			vIkeProposal = append(vIkeProposal, v)
+		case "ike_proposal__n":
+			v := value
+			vIkeProposaln = append(vIkeProposaln, v)
+		case "ike_proposal_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'ike_proposal_id' takes an integer, got %q.", value))
+				return
+			}
+			vIkeProposalID = append(vIkeProposalID, v)
+		case "ike_proposal_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'ike_proposal_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vIkeProposalIDn = append(vIkeProposalIDn, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "preshared_key":
+			if vPresharedKey != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKey = &v
+		case "preshared_key__n":
+			if vPresharedKeyn != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__n' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyn = &v
+		case "preshared_key__ic":
+			if vPresharedKeyIc != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__ic' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyIc = &v
+		case "preshared_key__nic":
+			if vPresharedKeyNic != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__nic' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyNic = &v
+		case "preshared_key__ie":
+			if vPresharedKeyIe != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__ie' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyIe = &v
+		case "preshared_key__nie":
+			if vPresharedKeyNie != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__nie' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyNie = &v
+		case "preshared_key__isw":
+			if vPresharedKeyIsw != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__isw' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyIsw = &v
+		case "preshared_key__nisw":
+			if vPresharedKeyNisw != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__nisw' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyNisw = &v
+		case "preshared_key__iew":
+			if vPresharedKeyIew != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__iew' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyIew = &v
+		case "preshared_key__niew":
+			if vPresharedKeyNiew != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__niew' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyNiew = &v
+		case "preshared_key__regex":
+			if vPresharedKeyRegex != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__regex' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyRegex = &v
+		case "preshared_key__iregex":
+			if vPresharedKeyIregex != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'preshared_key__iregex' takes a single value.")
+				return
+			}
+			v := value
+			vPresharedKeyIregex = &v
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "version":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version' takes an integer, got %q.", value))
+				return
+			}
+			vVersion = append(vVersion, v)
+		case "version__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__n' takes an integer, got %q.", value))
+				return
+			}
+			vVersionn = append(vVersionn, v)
+		case "version__ic":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__ic' takes an integer, got %q.", value))
+				return
+			}
+			vVersionIc = append(vVersionIc, v)
+		case "version__nic":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__nic' takes an integer, got %q.", value))
+				return
+			}
+			vVersionNic = append(vVersionNic, v)
+		case "version__ie":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__ie' takes an integer, got %q.", value))
+				return
+			}
+			vVersionIe = append(vVersionIe, v)
+		case "version__nie":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__nie' takes an integer, got %q.", value))
+				return
+			}
+			vVersionNie = append(vVersionNie, v)
+		case "version__isw":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__isw' takes an integer, got %q.", value))
+				return
+			}
+			vVersionIsw = append(vVersionIsw, v)
+		case "version__nisw":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__nisw' takes an integer, got %q.", value))
+				return
+			}
+			vVersionNisw = append(vVersionNisw, v)
+		case "version__iew":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__iew' takes an integer, got %q.", value))
+				return
+			}
+			vVersionIew = append(vVersionIew, v)
+		case "version__niew":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__niew' takes an integer, got %q.", value))
+				return
+			}
+			vVersionNiew = append(vVersionNiew, v)
+		case "version__regex":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__regex' takes an integer, got %q.", value))
+				return
+			}
+			vVersionRegex = append(vVersionRegex, v)
+		case "version__iregex":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'version__iregex' takes an integer, got %q.", value))
+				return
+			}
+			vVersionIregex = append(vVersionIregex, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -548,6 +944,201 @@ func (d *ikePoliciesDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vIkeProposal) > 0 {
+		params.SetIkeProposal(vIkeProposal)
+	}
+	if len(vIkeProposaln) > 0 {
+		params.SetIkeProposaln(vIkeProposaln)
+	}
+	if len(vIkeProposalID) > 0 {
+		params.SetIkeProposalID(vIkeProposalID)
+	}
+	if len(vIkeProposalIDn) > 0 {
+		params.SetIkeProposalIDn(vIkeProposalIDn)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if vPresharedKey != nil {
+		params.SetPresharedKey(vPresharedKey)
+	}
+	if vPresharedKeyn != nil {
+		params.SetPresharedKeyn(vPresharedKeyn)
+	}
+	if vPresharedKeyIc != nil {
+		params.SetPresharedKeyIc(vPresharedKeyIc)
+	}
+	if vPresharedKeyNic != nil {
+		params.SetPresharedKeyNic(vPresharedKeyNic)
+	}
+	if vPresharedKeyIe != nil {
+		params.SetPresharedKeyIe(vPresharedKeyIe)
+	}
+	if vPresharedKeyNie != nil {
+		params.SetPresharedKeyNie(vPresharedKeyNie)
+	}
+	if vPresharedKeyIsw != nil {
+		params.SetPresharedKeyIsw(vPresharedKeyIsw)
+	}
+	if vPresharedKeyNisw != nil {
+		params.SetPresharedKeyNisw(vPresharedKeyNisw)
+	}
+	if vPresharedKeyIew != nil {
+		params.SetPresharedKeyIew(vPresharedKeyIew)
+	}
+	if vPresharedKeyNiew != nil {
+		params.SetPresharedKeyNiew(vPresharedKeyNiew)
+	}
+	if vPresharedKeyRegex != nil {
+		params.SetPresharedKeyRegex(vPresharedKeyRegex)
+	}
+	if vPresharedKeyIregex != nil {
+		params.SetPresharedKeyIregex(vPresharedKeyIregex)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if len(vVersion) > 0 {
+		params.SetVersion(vVersion)
+	}
+	if len(vVersionn) > 0 {
+		params.SetVersionn(vVersionn)
+	}
+	if len(vVersionIc) > 0 {
+		params.SetVersionIc(vVersionIc)
+	}
+	if len(vVersionNic) > 0 {
+		params.SetVersionNic(vVersionNic)
+	}
+	if len(vVersionIe) > 0 {
+		params.SetVersionIe(vVersionIe)
+	}
+	if len(vVersionNie) > 0 {
+		params.SetVersionNie(vVersionNie)
+	}
+	if len(vVersionIsw) > 0 {
+		params.SetVersionIsw(vVersionIsw)
+	}
+	if len(vVersionNisw) > 0 {
+		params.SetVersionNisw(vVersionNisw)
+	}
+	if len(vVersionIew) > 0 {
+		params.SetVersionIew(vVersionIew)
+	}
+	if len(vVersionNiew) > 0 {
+		params.SetVersionNiew(vVersionNiew)
+	}
+	if len(vVersionRegex) > 0 {
+		params.SetVersionRegex(vVersionRegex)
+	}
+	if len(vVersionIregex) > 0 {
+		params.SetVersionIregex(vVersionIregex)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

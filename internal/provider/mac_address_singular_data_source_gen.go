@@ -10,8 +10,11 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -34,6 +37,22 @@ type macAddressDataSource struct {
 type macAddressDataSourceModel struct {
 	macAddressResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Assigned           types.Bool   `tfsdk:"assigned"`
+	Created            types.String `tfsdk:"created"`
+	DeviceName         types.String `tfsdk:"device_name"`
+	DeviceID           types.Int64  `tfsdk:"device_id"`
+	InterfaceName      types.String `tfsdk:"interface_name"`
+	InterfaceID        types.Int64  `tfsdk:"interface_id"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Primary            types.Bool   `tfsdk:"primary"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	VirtualMachineName types.String `tfsdk:"virtual_machine_name"`
+	VirtualMachineID   types.Int64  `tfsdk:"virtual_machine_id"`
+	VminterfaceName    types.String `tfsdk:"vminterface_name"`
+	VminterfaceID      types.Int64  `tfsdk:"vminterface_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -52,16 +71,28 @@ func (d *macAddressDataSource) Schema(ctx context.Context, req datasource.Schema
 			},
 			"mac_address": schema.StringAttribute{
 				CustomType:  conv.MACAddressType{},
+				Optional:    true,
 				Computed:    true,
 				Description: "The MAC address (EUI-48) in colon, dash or dot notation, any case; the configured spelling is kept in state (NetBox stores it colon-separated and uppercased).",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"assigned_object_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Content type of the interface the address is assigned to. Derived from device_interface_id or virtual_machine_interface_id when one of those is set. One of: dcim.interface, virtualization.vminterface.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("dcim.interface", "virtualization.vminterface"),
+				},
 			},
 			"assigned_object_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the interface the address is assigned to (see assigned_object_type).",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"device_interface_id": schema.Int64Attribute{
 				Computed:    true,
@@ -72,7 +103,11 @@ func (d *macAddressDataSource) Schema(ctx context.Context, req datasource.Schema
 				Description: "Id of the virtual machine interface the address is assigned to (assigned_object_type virtualization.vminterface). Conflicts with device_interface_id and with setting the assigned_object_* pair directly.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -83,6 +118,7 @@ func (d *macAddressDataSource) Schema(ctx context.Context, req datasource.Schema
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -106,6 +142,70 @@ func (d *macAddressDataSource) Schema(ctx context.Context, req datasource.Schema
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"assigned": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Is assigned.",
+			},
+			"created": schema.StringAttribute{
+				Optional:    true,
+				Description: "Creation time of the object.",
+			},
+			"device_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the device.",
+			},
+			"device_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the device.",
+			},
+			"interface_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the interface.",
+			},
+			"interface_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the interface.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"primary": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Is primary.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"virtual_machine_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the virtual machine.",
+			},
+			"virtual_machine_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the virtual machine.",
+			},
+			"vminterface_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the VM interface.",
+			},
+			"vminterface_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the VM interface.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -159,6 +259,111 @@ func (d *macAddressDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Assigned.IsNull() {
+		v := state.Assigned.ValueBool()
+		params.SetAssigned(&v)
+		hasInput = true
+	}
+	if !state.AssignedObjectID.IsNull() {
+		v := state.AssignedObjectID.ValueInt64()
+		params.SetAssignedObjectID([]int64{v})
+		hasInput = true
+	}
+	if !state.AssignedObjectType.IsNull() {
+		v := state.AssignedObjectType.ValueString()
+		params.SetAssignedObjectType([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceName.IsNull() {
+		v := state.DeviceName.ValueString()
+		params.SetDevice([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceID.IsNull() {
+		v := state.DeviceID.ValueInt64()
+		params.SetDeviceID([]int64{v})
+		hasInput = true
+	}
+	if !state.InterfaceName.IsNull() {
+		v := state.InterfaceName.ValueString()
+		params.SetInterface([]string{v})
+		hasInput = true
+	}
+	if !state.InterfaceID.IsNull() {
+		v := state.InterfaceID.ValueInt64()
+		params.SetInterfaceID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.MacAddress.IsNull() {
+		v := state.MacAddress.ValueString()
+		params.SetMacAddress([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Primary.IsNull() {
+		v := state.Primary.ValueBool()
+		params.SetPrimary(&v)
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineName.IsNull() {
+		v := state.VirtualMachineName.ValueString()
+		params.SetVirtualMachine([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineID.IsNull() {
+		v := state.VirtualMachineID.ValueInt64()
+		params.SetVirtualMachineID([]int64{v})
+		hasInput = true
+	}
+	if !state.VminterfaceName.IsNull() {
+		v := state.VminterfaceName.ValueString()
+		params.SetVminterface([]string{v})
+		hasInput = true
+	}
+	if !state.VminterfaceID.IsNull() {
+		v := state.VminterfaceID.ValueInt64()
+		params.SetVminterfaceID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -166,7 +371,7 @@ func (d *macAddressDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_mac_address.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_mac_address.")
 		return
 	}
 	res, err := d.client.Dcim.DcimMacAddressesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

@@ -29,21 +29,23 @@ data "netbox_front_port_template" "test" {
 
 ### Optional
 
+- `color` (String) Color to match.
+- `created` (String)
+- `description` (String)
+- `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `id` (Number) NetBox id.
+- `label` (String) Physical label.
+- `last_updated` (String)
 - `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `name` (String)
+- `positions` (Number) Number of positions on the front port, at least the number of rear_ports mappings. NetBox checks a lower value against the mappings it already holds, so remove mappings in one apply and lower positions in the next. Must be a whole number.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `rear_port_id` (Number) Rear port of a single-position front port: the same as rear_ports = [{position = 1, rear_port_id = ..., rear_port_position = ...}]. Conflicts with rear_ports and with positions > 1.
 - `type` (String) Port type as its NetBox slug, e.g. 8p8c, lc, mpo (any of NetBox's port type choices).
 
 ### Read-Only
 
 - `color_hex` (String) RGB color in hex (e.g. ff0000).
-- `created` (String)
-- `description` (String)
-- `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
-- `label` (String) Physical label.
-- `last_updated` (String)
-- `positions` (Number) Number of positions on the front port, at least the number of rear_ports mappings. NetBox checks a lower value against the mappings it already holds, so remove mappings in one apply and lower positions in the next. Must be a whole number.
-- `rear_port_id` (Number) Rear port of a single-position front port: the same as rear_ports = [{position = 1, rear_port_id = ..., rear_port_position = ...}]. Conflicts with rear_ports and with positions > 1.
 - `rear_port_position` (Number) Position on rear_port_id. Requires rear_port_id. Must be a whole number.
 - `rear_ports` (Attributes Set) Mappings of the front port's positions onto rear port templates of the same device type or module type, one object per position. Derived from rear_port_id and rear_port_position when those are set; an empty set, or neither form, leaves the port unmapped. Changing the set recreates every mapping, since NetBox 4.6 rejects an update that resends an existing one. (see [below for nested schema](#nestedatt--rear_ports))
 - `url` (String)

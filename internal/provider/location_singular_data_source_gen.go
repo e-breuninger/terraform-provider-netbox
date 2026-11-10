@@ -39,6 +39,23 @@ type locationDataSourceModel struct {
 	Site               types.String `tfsdk:"site"`
 	TenantSlug         types.String `tfsdk:"tenant_slug"`
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Ancestor           types.String `tfsdk:"ancestor"`
+	AncestorID         types.String `tfsdk:"ancestor_id"`
+	Contact            types.Int64  `tfsdk:"contact"`
+	ContactGroupSlug   types.String `tfsdk:"contact_group_slug"`
+	ContactRole        types.Int64  `tfsdk:"contact_role"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	ParentSlug         types.String `tfsdk:"parent_slug"`
+	Q                  types.String `tfsdk:"q"`
+	RegionSlug         types.String `tfsdk:"region_slug"`
+	RegionID           types.String `tfsdk:"region_id"`
+	SiteGroupSlug      types.String `tfsdk:"site_group_slug"`
+	SiteGroupID        types.String `tfsdk:"site_group_id"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	TenantGroupSlug    types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID      types.String `tfsdk:"tenant_group_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -95,11 +112,19 @@ func (d *locationDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Description: "Id of the tenant.",
 			},
 			"facility": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Local facility ID or description.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(50),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -114,9 +139,11 @@ func (d *locationDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -160,6 +187,74 @@ func (d *locationDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"ancestor": schema.StringAttribute{
+				Optional:    true,
+				Description: "Ancestor to match.",
+			},
+			"ancestor_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the ancestor.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"parent_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the parent location.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"region_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the region.",
+			},
+			"region_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the region.",
+			},
+			"site_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site group.",
+			},
+			"site_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the site group.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -253,6 +348,111 @@ func (d *locationDataSource) Read(ctx context.Context, req datasource.ReadReques
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Ancestor.IsNull() {
+		v := state.Ancestor.ValueString()
+		params.SetAncestor([]string{v})
+		hasInput = true
+	}
+	if !state.AncestorID.IsNull() {
+		v := state.AncestorID.ValueString()
+		params.SetAncestorID([]string{v})
+		hasInput = true
+	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.Facility.IsNull() {
+		v := state.Facility.ValueString()
+		params.SetFacility([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.ParentSlug.IsNull() {
+		v := state.ParentSlug.ValueString()
+		params.SetParent([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RegionSlug.IsNull() {
+		v := state.RegionSlug.ValueString()
+		params.SetRegion([]string{v})
+		hasInput = true
+	}
+	if !state.RegionID.IsNull() {
+		v := state.RegionID.ValueString()
+		params.SetRegionID([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupSlug.IsNull() {
+		v := state.SiteGroupSlug.ValueString()
+		params.SetSiteGroup([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupID.IsNull() {
+		v := state.SiteGroupID.ValueString()
+		params.SetSiteGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -260,7 +460,7 @@ func (d *locationDataSource) Read(ctx context.Context, req datasource.ReadReques
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or slug and/or site_id and/or parent_id and/or status and/or site and/or tenant_id and/or tenant_slug and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_location.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_location.")
 		return
 	}
 	res, err := d.client.Dcim.DcimLocationsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

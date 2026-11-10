@@ -10,6 +10,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -35,8 +36,40 @@ type cableDataSource struct {
 // cableDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type cableDataSourceModel struct {
 	cableResourceModel
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	TagSlug              types.String `tfsdk:"tag_slug"`
+	SiteID               types.Int64  `tfsdk:"site_id"`
+	SiteSlug             types.String `tfsdk:"site_slug"`
+	LocationID           types.Int64  `tfsdk:"location_id"`
+	RackID               types.Int64  `tfsdk:"rack_id"`
+	DeviceID             types.Int64  `tfsdk:"device_id"`
+	DeviceName           types.String `tfsdk:"device_name"`
+	BundleName           types.String `tfsdk:"bundle_name"`
+	CircuitterminationID types.Int64  `tfsdk:"circuittermination_id"`
+	Color                types.String `tfsdk:"color"`
+	ConsoleportID        types.Int64  `tfsdk:"consoleport_id"`
+	ConsoleserverportID  types.Int64  `tfsdk:"consoleserverport_id"`
+	FrontportID          types.Int64  `tfsdk:"frontport_id"`
+	InterfaceID          types.Int64  `tfsdk:"interface_id"`
+	LocationSlug         types.String `tfsdk:"location_slug"`
+	OwnerName            types.String `tfsdk:"owner_name"`
+	OwnerGroupName       types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID         types.Int64  `tfsdk:"owner_group_id"`
+	PowerfeedID          types.Int64  `tfsdk:"powerfeed_id"`
+	PoweroutletID        types.Int64  `tfsdk:"poweroutlet_id"`
+	PowerportID          types.Int64  `tfsdk:"powerport_id"`
+	Q                    types.String `tfsdk:"q"`
+	RackName             types.String `tfsdk:"rack_name"`
+	RearportID           types.Int64  `tfsdk:"rearport_id"`
+	TagID                types.Int64  `tfsdk:"tag_id"`
+	TenantSlug           types.String `tfsdk:"tenant_slug"`
+	TenantGroupSlug      types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID        types.String `tfsdk:"tenant_group_id"`
+	TerminationAID       types.Int64  `tfsdk:"termination_a_id"`
+	TerminationAType     types.String `tfsdk:"termination_a_type"`
+	TerminationBID       types.Int64  `tfsdk:"termination_b_id"`
+	TerminationBType     types.String `tfsdk:"termination_b_type"`
+	Unterminated         types.Bool   `tfsdk:"unterminated"`
+	CustomFieldFilters   types.Map    `tfsdk:"custom_field_filters"`
 }
 
 func (d *cableDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -186,8 +219,12 @@ func (d *cableDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				},
 			},
 			"profile": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Cable profile (connectors and positions per side); with one set, each termination's position in the list is its connector. NetBox rejects clearing it, so unset keeps the current value. One of: single-1c1p, single-1c2p, single-1c4p, single-1c6p, single-1c8p, single-1c12p, single-1c16p, trunk-2c1p, trunk-2c2p, trunk-2c4p, trunk-2c4p-shuffle, trunk-2c6p, trunk-2c8p, trunk-2c12p, trunk-4c1p, trunk-4c2p, trunk-4c4p, trunk-4c4p-shuffle, trunk-4c6p, trunk-4c8p, trunk-8c4p, breakout-1c2p-2c1p, breakout-1c4p-4c1p, breakout-1c6p-6c1p, breakout-1c8p-8c1p, breakout-2c4p-8c1p-shuffle.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("single-1c1p", "single-1c2p", "single-1c4p", "single-1c6p", "single-1c8p", "single-1c12p", "single-1c16p", "trunk-2c1p", "trunk-2c2p", "trunk-2c4p", "trunk-2c4p-shuffle", "trunk-2c6p", "trunk-2c8p", "trunk-2c12p", "trunk-4c1p", "trunk-4c2p", "trunk-4c4p", "trunk-4c4p-shuffle", "trunk-4c6p", "trunk-4c8p", "trunk-8c4p", "breakout-1c2p-2c1p", "breakout-1c4p-4c1p", "breakout-1c6p-6c1p", "breakout-1c8p-8c1p", "breakout-2c4p-8c1p-shuffle"),
+				},
 			},
 			"tenant_id": schema.Int64Attribute{
 				Optional:    true,
@@ -195,6 +232,7 @@ func (d *cableDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "Id of the tenant.",
 			},
 			"bundle_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the cable bundle.",
 			},
@@ -211,15 +249,27 @@ func (d *cableDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "RGB color in hex (e.g. ff0000).",
 			},
 			"length": schema.Float64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Cable length; requires length_unit.",
+				Validators: []validator.Float64{
+					float64validator.Between(-1000000, 1000000),
+				},
 			},
 			"length_unit": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Unit of length. One of: km, m, cm, mi, ft, in.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("km", "m", "cm", "mi", "ft", "in"),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -230,9 +280,11 @@ func (d *cableDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -256,6 +308,134 @@ func (d *cableDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"site_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the site a termination of the cable is in.",
+			},
+			"site_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site a termination of the cable is in.",
+			},
+			"location_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the location a termination of the cable is in.",
+			},
+			"rack_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the rack a termination of the cable is in.",
+			},
+			"device_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a device the cable is connected to.",
+			},
+			"device_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of a device the cable is connected to.",
+			},
+			"bundle_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the cable bundle.",
+			},
+			"circuittermination_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the circuittermination.",
+			},
+			"color": schema.StringAttribute{
+				Optional:    true,
+				Description: "Color to match.",
+			},
+			"consoleport_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the consoleport.",
+			},
+			"consoleserverport_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the consoleserverport.",
+			},
+			"frontport_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the frontport.",
+			},
+			"interface_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the interface.",
+			},
+			"location_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the location.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"powerfeed_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the powerfeed.",
+			},
+			"poweroutlet_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the poweroutlet.",
+			},
+			"powerport_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the powerport.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"rack_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the rack.",
+			},
+			"rearport_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the rearport.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
+			},
+			"termination_a_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the termination a.",
+			},
+			"termination_a_type": schema.StringAttribute{
+				Optional:    true,
+				Description: "Termination a type to match.",
+			},
+			"termination_b_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the termination b.",
+			},
+			"termination_b_type": schema.StringAttribute{
+				Optional:    true,
+				Description: "Termination b type to match.",
+			},
+			"unterminated": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Unterminated.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -329,6 +509,201 @@ func (d *cableDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.SiteID.IsNull() {
+		v := state.SiteID.ValueInt64()
+		params.SetSiteID([]int64{v})
+		hasInput = true
+	}
+	if !state.SiteSlug.IsNull() {
+		v := state.SiteSlug.ValueString()
+		params.SetSite([]string{v})
+		hasInput = true
+	}
+	if !state.LocationID.IsNull() {
+		v := state.LocationID.ValueInt64()
+		params.SetLocationID([]int64{v})
+		hasInput = true
+	}
+	if !state.RackID.IsNull() {
+		v := state.RackID.ValueInt64()
+		params.SetRackID([]int64{v})
+		hasInput = true
+	}
+	if !state.DeviceID.IsNull() {
+		v := state.DeviceID.ValueInt64()
+		params.SetDeviceID([]int64{v})
+		hasInput = true
+	}
+	if !state.DeviceName.IsNull() {
+		v := state.DeviceName.ValueString()
+		params.SetDevice([]string{v})
+		hasInput = true
+	}
+	if !state.BundleName.IsNull() {
+		v := state.BundleName.ValueString()
+		params.SetBundle([]string{v})
+		hasInput = true
+	}
+	if !state.BundleID.IsNull() {
+		v := state.BundleID.ValueInt64()
+		params.SetBundleID([]int64{v})
+		hasInput = true
+	}
+	if !state.CircuitterminationID.IsNull() {
+		v := state.CircuitterminationID.ValueInt64()
+		params.SetCircuitterminationID([]int64{v})
+		hasInput = true
+	}
+	if !state.Color.IsNull() {
+		v := state.Color.ValueString()
+		params.SetColor([]string{v})
+		hasInput = true
+	}
+	if !state.ConsoleportID.IsNull() {
+		v := state.ConsoleportID.ValueInt64()
+		params.SetConsoleportID([]int64{v})
+		hasInput = true
+	}
+	if !state.ConsoleserverportID.IsNull() {
+		v := state.ConsoleserverportID.ValueInt64()
+		params.SetConsoleserverportID([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.FrontportID.IsNull() {
+		v := state.FrontportID.ValueInt64()
+		params.SetFrontportID([]int64{v})
+		hasInput = true
+	}
+	if !state.InterfaceID.IsNull() {
+		v := state.InterfaceID.ValueInt64()
+		params.SetInterfaceID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.Length.IsNull() {
+		v := state.Length.ValueFloat64()
+		params.SetLength([]float64{v})
+		hasInput = true
+	}
+	if !state.LengthUnit.IsNull() {
+		v := state.LengthUnit.ValueString()
+		params.SetLengthUnit(&v)
+		hasInput = true
+	}
+	if !state.LocationSlug.IsNull() {
+		v := state.LocationSlug.ValueString()
+		params.SetLocation([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.PowerfeedID.IsNull() {
+		v := state.PowerfeedID.ValueInt64()
+		params.SetPowerfeedID([]int64{v})
+		hasInput = true
+	}
+	if !state.PoweroutletID.IsNull() {
+		v := state.PoweroutletID.ValueInt64()
+		params.SetPoweroutletID([]int64{v})
+		hasInput = true
+	}
+	if !state.PowerportID.IsNull() {
+		v := state.PowerportID.ValueInt64()
+		params.SetPowerportID([]int64{v})
+		hasInput = true
+	}
+	if !state.Profile.IsNull() {
+		v := state.Profile.ValueString()
+		params.SetProfile([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RackName.IsNull() {
+		v := state.RackName.ValueString()
+		params.SetRack([]string{v})
+		hasInput = true
+	}
+	if !state.RearportID.IsNull() {
+		v := state.RearportID.ValueInt64()
+		params.SetRearportID([]int64{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TerminationAID.IsNull() {
+		v := state.TerminationAID.ValueInt64()
+		params.SetTerminationaID([]int64{v})
+		hasInput = true
+	}
+	if !state.TerminationAType.IsNull() {
+		v := state.TerminationAType.ValueString()
+		params.SetTerminationaType([]string{v})
+		hasInput = true
+	}
+	if !state.TerminationBID.IsNull() {
+		v := state.TerminationBID.ValueInt64()
+		params.SetTerminationbID([]int64{v})
+		hasInput = true
+	}
+	if !state.TerminationBType.IsNull() {
+		v := state.TerminationBType.ValueString()
+		params.SetTerminationbType([]string{v})
+		hasInput = true
+	}
+	if !state.Unterminated.IsNull() {
+		v := state.Unterminated.ValueBool()
+		params.SetUnterminated(&v)
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -336,7 +711,7 @@ func (d *cableDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or label and/or status and/or type and/or tenant_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_cable.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_cable.")
 		return
 	}
 	res, err := d.client.Dcim.DcimCablesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

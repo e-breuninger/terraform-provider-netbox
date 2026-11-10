@@ -8,10 +8,12 @@ import (
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -29,6 +31,14 @@ type rearPortTemplateDataSource struct {
 	client *netboxapi.Client
 }
 
+// rearPortTemplateDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type rearPortTemplateDataSourceModel struct {
+	rearPortTemplateResourceModel
+	Color       types.String `tfsdk:"color"`
+	FrontPortID types.Int64  `tfsdk:"front_port_id"`
+	Q           types.String `tfsdk:"q"`
+}
+
 func (d *rearPortTemplateDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_rear_port_template"
 }
@@ -43,6 +53,7 @@ func (d *rearPortTemplateDataSource) Schema(ctx context.Context, req datasource.
 				Description: "NetBox id.",
 			},
 			"device_type_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.",
 			},
@@ -64,28 +75,54 @@ func (d *rearPortTemplateDataSource) Schema(ctx context.Context, req datasource.
 				Description: "Port type as its NetBox slug, e.g. 8p8c, lc, mpo (any of NetBox's port type choices).",
 			},
 			"positions": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Number of front ports that can map to this rear port. Must be a whole number.",
+				Validators: []validator.Int64{
+					int64validator.Between(1, 1024),
+				},
 			},
 			"color_hex": schema.StringAttribute{
 				Computed:    true,
 				Description: "RGB color in hex (e.g. ff0000).",
 			},
 			"label": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Physical label.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(64),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"color": schema.StringAttribute{
+				Optional:    true,
+				Description: "Color to match.",
+			},
+			"front_port_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the front port.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
 			},
 		},
 	}
@@ -107,7 +144,7 @@ func (d *rearPortTemplateDataSource) Configure(ctx context.Context, req datasour
 }
 
 func (d *rearPortTemplateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data rearPortTemplateResourceModel
+	var data rearPortTemplateDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -138,8 +175,53 @@ func (d *rearPortTemplateDataSource) Read(ctx context.Context, req datasource.Re
 		params.SetModuleTypeID([]int64{v})
 		hasInput = true
 	}
+	if !state.Color.IsNull() {
+		v := state.Color.ValueString()
+		params.SetColor([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceTypeID.IsNull() {
+		v := state.DeviceTypeID.ValueInt64()
+		params.SetDeviceTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.FrontPortID.IsNull() {
+		v := state.FrontPortID.ValueInt64()
+		params.SetFrontPortID([]int64{v})
+		hasInput = true
+	}
+	if !state.Label.IsNull() {
+		v := state.Label.ValueString()
+		params.SetLabel([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.Positions.IsNull() {
+		v := state.Positions.ValueInt64()
+		params.SetPositions([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or type and/or module_type_id to look up a netbox_rear_port_template.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_rear_port_template.")
 		return
 	}
 	res, err := d.client.Dcim.DcimRearPortTemplatesListContext(ctx, params, nil)
@@ -158,7 +240,7 @@ func (d *rearPortTemplateDataSource) Read(ctx context.Context, req datasource.Re
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenRearPortTemplate(ctx, netboxapi.RearPortTemplateResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenRearPortTemplate(ctx, netboxapi.RearPortTemplateResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.rearPortTemplateResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

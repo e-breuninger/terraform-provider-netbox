@@ -23,7 +23,7 @@ data "netbox_circuit_group_assignments" "test" {
 
 ### Optional
 
-- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: group_id, group_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, member_id, member_id__n, member_type, member_type__n, priority, priority__empty, priority__ic, priority__ie, priority__iew, priority__iregex, priority__isw, priority__n, priority__nic, priority__nie, priority__niew, priority__nisw, priority__regex, tag, tag__any, tag__n. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
+- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: circuit, circuit_id, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, group, group__n, group_id, group_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, member_id, member_id__empty, member_id__gt, member_id__gte, member_id__lt, member_id__lte, member_id__n, member_type, member_type__n, member_type_id, member_type_id__n, priority, priority__empty, priority__ic, priority__ie, priority__iew, priority__iregex, priority__isw, priority__n, priority__nic, priority__nie, priority__niew, priority__nisw, priority__regex, provider, provider_id, q, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, virtual_circuit, virtual_circuit_id. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
 - `limit` (Number) The maximum number of objects to return from the API lookup. Defaults to 1000.
 
 ### Read-Only

@@ -36,8 +36,18 @@ type platformDataSource struct {
 // platformDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type platformDataSourceModel struct {
 	platformResourceModel
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	TagSlug                types.String `tfsdk:"tag_slug"`
+	Ancestor               types.String `tfsdk:"ancestor"`
+	AncestorID             types.String `tfsdk:"ancestor_id"`
+	AvailableForDeviceType types.String `tfsdk:"available_for_device_type"`
+	ManufacturerSlug       types.String `tfsdk:"manufacturer_slug"`
+	OwnerName              types.String `tfsdk:"owner_name"`
+	OwnerGroupName         types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID           types.Int64  `tfsdk:"owner_group_id"`
+	ParentSlug             types.String `tfsdk:"parent_slug"`
+	Q                      types.String `tfsdk:"q"`
+	TagID                  types.Int64  `tfsdk:"tag_id"`
+	CustomFieldFilters     types.Map    `tfsdk:"custom_field_filters"`
 }
 
 func (d *platformDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -70,20 +80,27 @@ func (d *platformDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
 			},
 			"manufacturer_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the manufacturer.",
 			},
 			"parent_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the parent platform.",
 			},
 			"config_template_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the config template.",
 			},
@@ -93,9 +110,11 @@ func (d *platformDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -127,6 +146,46 @@ func (d *platformDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"ancestor": schema.StringAttribute{
+				Optional:    true,
+				Description: "Ancestor to match.",
+			},
+			"ancestor_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the ancestor.",
+			},
+			"available_for_device_type": schema.StringAttribute{
+				Optional:    true,
+				Description: "Available for device type to match.",
+			},
+			"manufacturer_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the manufacturer.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"parent_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the immediate parent platform.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -190,6 +249,86 @@ func (d *platformDataSource) Read(ctx context.Context, req datasource.ReadReques
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Ancestor.IsNull() {
+		v := state.Ancestor.ValueString()
+		params.SetAncestor([]string{v})
+		hasInput = true
+	}
+	if !state.AncestorID.IsNull() {
+		v := state.AncestorID.ValueString()
+		params.SetAncestorID([]string{v})
+		hasInput = true
+	}
+	if !state.AvailableForDeviceType.IsNull() {
+		v := state.AvailableForDeviceType.ValueString()
+		params.SetAvailableForDeviceType(&v)
+		hasInput = true
+	}
+	if !state.ConfigTemplateID.IsNull() {
+		v := state.ConfigTemplateID.ValueInt64()
+		params.SetConfigTemplateID([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.ManufacturerSlug.IsNull() {
+		v := state.ManufacturerSlug.ValueString()
+		params.SetManufacturer([]string{v})
+		hasInput = true
+	}
+	if !state.ManufacturerID.IsNull() {
+		v := state.ManufacturerID.ValueInt64()
+		params.SetManufacturerID([]int64{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.ParentSlug.IsNull() {
+		v := state.ParentSlug.ValueString()
+		params.SetParent([]string{v})
+		hasInput = true
+	}
+	if !state.ParentID.IsNull() {
+		v := state.ParentID.ValueInt64()
+		params.SetParentID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -197,7 +336,7 @@ func (d *platformDataSource) Read(ctx context.Context, req datasource.ReadReques
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or slug and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_platform.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_platform.")
 		return
 	}
 	res, err := d.client.Dcim.DcimPlatformsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

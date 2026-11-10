@@ -25,7 +25,7 @@ data "netbox_groups" "test" {
 
 ### Optional
 
-- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
+- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, notification_group_id, notification_group_id__n, owner, owner__n, owner_id, owner_id__n, permission_id, permission_id__n, q, user_id, user_id__n. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
 - `limit` (Number) The maximum number of objects to return from the API lookup. Defaults to 1000.
 
 ### Read-Only

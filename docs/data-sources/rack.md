@@ -35,30 +35,56 @@ data "netbox_rack" "test" {
 
 ### Optional
 
+- `airflow` (String) Airflow direction. One of: front-to-rear, rear-to-front.
 - `asset_tag` (String) Unique asset tag.
 - `contact_group_id` (Number) Id of a contact group with a contact assigned to the rack.
 - `contact_id` (Number) Id of a contact assigned to the rack.
 - `contact_role_id` (Number) Id of the role a contact is assigned to the rack with.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `desc_units` (Boolean) Units are numbered top-to-bottom.
+- `description` (String)
 - `facility_id` (String) Locally-assigned facility identifier.
+- `form_factor` (String) Rack form factor. One of: 2-post-frame, 4-post-frame, 4-post-cabinet, wall-frame, wall-frame-vertical, wall-cabinet, wall-cabinet-vertical.
+- `group_id` (Number) Id of the rack group.
+- `group_slug` (String) Slug of the group.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
 - `location_id` (Number) Id of the location within the site.
+- `location_slug` (String) Slug of the location.
+- `manufacturer_id` (Number) Id of the manufacturer.
+- `manufacturer_slug` (String) Slug of the manufacturer.
 - `max_weight` (Number) Maximum load capacity (requires weight_unit). Must be a whole number.
 - `mounting_depth` (Number) Maximum depth of a mounted device in millimeters. Must be a whole number.
 - `name` (String)
 - `outer_depth` (Number) Outer depth (requires outer_unit). Must be a whole number.
+- `outer_height` (Number) Outer height (requires outer_unit). Must be a whole number.
 - `outer_unit` (String) Unit of the outer dimensions. One of: mm, in.
 - `outer_width` (Number) Outer width (requires outer_unit). Must be a whole number.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `rack_type_id` (Number) Id of the rack type. NetBox copies the type's form factor, width, height and outer dimensions onto the rack; set the same values here too, or the next plan shows them as drift.
+- `rack_type_slug` (String) Slug of the rack type.
 - `region_id` (Number) Id of the region of the site.
+- `region_slug` (String) Slug of the region.
 - `role_id` (Number) Id of the rack role.
+- `role_slug` (String) Slug of the role.
 - `serial` (String) Serial number.
+- `site_group_id` (String) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
 - `site_id` (Number) Id of the site the rack belongs to.
+- `site_slug` (String) Slug of the site.
+- `starting_unit` (Number) Lowest unit number. Must be a whole number.
 - `status` (String) Operational status. One of: reserved, available, planned, active, deprecated.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
 - `u_height` (Number) Height in rack units. Must be a whole number.
 - `weight` (Number) Weight of the rack (requires weight_unit).
 - `weight_unit` (String) Unit of weight and max_weight. One of: kg, g, lb, oz.
@@ -66,18 +92,10 @@ data "netbox_rack" "test" {
 
 ### Read-Only
 
-- `airflow` (String) Airflow direction. One of: front-to-rear, rear-to-front.
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
 - `device_count` (Number) Number of devices in the rack.
-- `form_factor` (String) Rack form factor. One of: 2-post-frame, 4-post-frame, 4-post-cabinet, wall-frame, wall-frame-vertical, wall-cabinet, wall-cabinet-vertical.
-- `group_id` (Number) Id of the rack group.
-- `last_updated` (String)
-- `outer_height` (Number) Outer height (requires outer_unit). Must be a whole number.
 - `power_feed_count` (Number) Number of power feeds in the rack.
-- `starting_unit` (Number) Lowest unit number. Must be a whole number.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

@@ -34,7 +34,16 @@ type configTemplateDataSource struct {
 // configTemplateDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type configTemplateDataSourceModel struct {
 	configTemplateResourceModel
-	TagSlug types.String `tfsdk:"tag_slug"`
+	TagSlug         types.String `tfsdk:"tag_slug"`
+	AutoSyncEnabled types.Bool   `tfsdk:"auto_sync_enabled"`
+	DataFileID      types.Int64  `tfsdk:"data_file_id"`
+	DataSourceID    types.Int64  `tfsdk:"data_source_id"`
+	DataSynced      types.String `tfsdk:"data_synced"`
+	OwnerName       types.String `tfsdk:"owner_name"`
+	OwnerGroupName  types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID    types.Int64  `tfsdk:"owner_group_id"`
+	Q               types.String `tfsdk:"q"`
+	TagID           types.Int64  `tfsdk:"tag_id"`
 }
 
 func (d *configTemplateDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -58,7 +67,11 @@ func (d *configTemplateDataSource) Schema(ctx context.Context, req datasource.Sc
 				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"template_code": schema.StringAttribute{
 				Computed:    true,
@@ -70,22 +83,36 @@ func (d *configTemplateDataSource) Schema(ctx context.Context, req datasource.Sc
 				Description: "Parameters for the Jinja2 environment, as JSON text (use jsonencode()).",
 			},
 			"mime_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "MIME type of the rendered output.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(50),
+				},
 			},
 			"file_name": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "File name of the rendered output.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"file_extension": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "File extension of the rendered output.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(15),
+				},
 			},
 			"as_attachment": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Serve the rendered output as a download.",
 			},
 			"debug": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Render with Jinja2 debugging enabled.",
 			},
@@ -95,9 +122,11 @@ func (d *configTemplateDataSource) Schema(ctx context.Context, req datasource.Sc
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -116,6 +145,42 @@ func (d *configTemplateDataSource) Schema(ctx context.Context, req datasource.Sc
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"auto_sync_enabled": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Whether auto sync enabled is set.",
+			},
+			"data_file_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the data file.",
+			},
+			"data_source_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the data source.",
+			},
+			"data_synced": schema.StringAttribute{
+				Optional:    true,
+				Description: "Data synced to match.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 		},
 	}
@@ -168,8 +233,93 @@ func (d *configTemplateDataSource) Read(ctx context.Context, req datasource.Read
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.AsAttachment.IsNull() {
+		v := state.AsAttachment.ValueBool()
+		params.SetAsAttachment(&v)
+		hasInput = true
+	}
+	if !state.AutoSyncEnabled.IsNull() {
+		v := state.AutoSyncEnabled.ValueBool()
+		params.SetAutoSyncEnabled(&v)
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.DataFileID.IsNull() {
+		v := state.DataFileID.ValueInt64()
+		params.SetDataFileID([]int64{v})
+		hasInput = true
+	}
+	if !state.DataSourceID.IsNull() {
+		v := state.DataSourceID.ValueInt64()
+		params.SetDataSourceID([]int64{v})
+		hasInput = true
+	}
+	if !state.DataSynced.IsNull() {
+		v := state.DataSynced.ValueString()
+		params.SetDataSynced([]string{v})
+		hasInput = true
+	}
+	if !state.Debug.IsNull() {
+		v := state.Debug.ValueBool()
+		params.SetDebug(&v)
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.FileExtension.IsNull() {
+		v := state.FileExtension.ValueString()
+		params.SetFileExtension([]string{v})
+		hasInput = true
+	}
+	if !state.FileName.IsNull() {
+		v := state.FileName.ValueString()
+		params.SetFileName([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.MimeType.IsNull() {
+		v := state.MimeType.ValueString()
+		params.SetMimeType([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or owner_id and/or tag_slug to look up a netbox_config_template.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_config_template.")
 		return
 	}
 	res, err := d.client.Extras.ExtrasConfigTemplatesListContext(ctx, params, nil)

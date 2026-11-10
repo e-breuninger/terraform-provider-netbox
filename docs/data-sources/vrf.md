@@ -29,12 +29,24 @@ data "netbox_vrf" "test" {
 
 ### Optional
 
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `description` (String)
+- `enforce_unique` (Boolean) Prevent duplicate prefixes/IP addresses within this VRF.
+- `export_target_id` (Number) Id of the export target.
+- `export_target_name` (String) Name of the export target.
 - `id` (Number) NetBox id.
+- `import_target_id` (Number) Id of the import target.
+- `import_target_name` (String) Name of the import target.
+- `last_updated` (String)
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `rd` (String) Route distinguisher (unique).
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 - `tenant_group_id` (Number) Id of the tenant group.
 - `tenant_group_slug` (String) Slug of the tenant group.
@@ -44,13 +56,10 @@ data "netbox_vrf" "test" {
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `enforce_unique` (Boolean) Prevent duplicate prefixes/IP addresses within this VRF.
 - `export_target_ids` (Set of Number) Ids of exported route targets.
 - `import_target_ids` (Set of Number) Ids of imported route targets.
 - `ip_address_count` (Number) Number of IP addresses in the VRF.
-- `last_updated` (String)
 - `prefix_count` (Number) Number of prefixes in the VRF.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.

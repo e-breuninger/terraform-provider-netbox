@@ -30,22 +30,29 @@ data "netbox_ipsec_proposal" "test" {
 ### Optional
 
 - `authentication_algorithm` (String) Authentication algorithm; not needed for GCM encryption algorithms. NetBox does not allow clearing it once set; leaving it unset keeps the current value. One of: hmac-sha1, hmac-sha256, hmac-sha384, hmac-sha512, hmac-md5.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `encryption_algorithm` (String) Encryption algorithm. NetBox requires an encryption algorithm, an authentication algorithm, or both, and does not allow clearing either once set; leaving it unset keeps the current value. One of: aes-128-cbc, aes-128-gcm, aes-192-cbc, aes-192-gcm, aes-256-cbc, aes-256-gcm, 3des-cbc, des-cbc.
 - `id` (Number) NetBox id.
+- `ipsec_policy_id` (Number) Id of the IPSec policy.
+- `ipsec_policy_name` (String) Name of the IPSec policy.
+- `last_updated` (String)
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `sa_lifetime_data` (Number) Security association lifetime in kilobytes. Must be a whole number.
+- `sa_lifetime_seconds` (Number) Security association lifetime in seconds. Must be a whole number.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `last_updated` (String)
-- `sa_lifetime_data` (Number) Security association lifetime in kilobytes. Must be a whole number.
-- `sa_lifetime_seconds` (Number) Security association lifetime in seconds. Must be a whole number.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

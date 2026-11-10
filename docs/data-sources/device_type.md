@@ -29,41 +29,59 @@ data "netbox_device_type" "test" {
 
 ### Optional
 
-- `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
-- `id` (Number) NetBox id.
-- `model` (String) Model name (unique per manufacturer).
-- `owner_id` (Number) Id of the owner the object is assigned to.
-- `slug` (String) URL-friendly unique shorthand; derived from model when not set.
-- `tag_slug` (String) Slug of a tag the object carries.
-
-### Read-Only
-
 - `airflow` (String) Airflow direction. One of: front-to-rear, rear-to-front, left-to-right, right-to-left, side-to-rear, passive, mixed, rear-to-side, bottom-to-top, top-to-bottom.
-- `comments` (String)
 - `console_port_template_count` (Number) Number of console port templates of the device type.
+- `console_ports` (Boolean) Has console ports.
 - `console_server_port_template_count` (Number) Number of console server port templates of the device type.
+- `console_server_ports` (Boolean) Has console server ports.
 - `created` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `default_platform` (String) Default platform to match.
 - `default_platform_id` (Number) Id of the platform assigned to new devices of this type.
 - `description` (String)
 - `device_bay_template_count` (Number) Number of device bay templates of the device type.
+- `device_bays` (Boolean) Has device bays.
 - `device_count` (Number) Number of devices of the device type.
 - `exclude_from_utilization` (Boolean) Whether devices of this type are left out of the rack utilization.
 - `front_port_template_count` (Number) Number of front port templates of the device type.
+- `has_front_image` (Boolean) Has a front image.
+- `has_rear_image` (Boolean) Has a rear image.
+- `id` (Number) NetBox id.
 - `interface_template_count` (Number) Number of interface templates of the device type.
+- `interfaces` (Boolean) Has interfaces.
 - `inventory_item_template_count` (Number) Number of inventory item templates of the device type.
+- `inventory_items` (Boolean) Has inventory items.
 - `is_full_depth` (Boolean) Device consumes both the front and rear rack faces.
 - `last_updated` (String)
 - `manufacturer_id` (Number) Id of the manufacturer.
+- `manufacturer_slug` (String) Slug of the manufacturer.
+- `model` (String) Model name (unique per manufacturer).
 - `module_bay_template_count` (Number) Number of module bay templates of the device type.
+- `module_bays` (Boolean) Has module bays.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
+- `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
 - `part_number` (String) Discrete part number.
+- `pass_through_ports` (Boolean) Has pass-through ports.
 - `power_outlet_template_count` (Number) Number of power outlet templates of the device type.
+- `power_outlets` (Boolean) Has power outlets.
 - `power_port_template_count` (Number) Number of power port templates of the device type.
+- `power_ports` (Boolean) Has power ports.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `rear_port_template_count` (Number) Number of rear port templates of the device type.
+- `slug` (String) URL-friendly unique shorthand; derived from model when not set.
 - `subdevice_role` (String) Parent devices house child devices in device bays. One of: parent, child.
-- `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
-- `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
+- `tag_id` (Number) Id of a tag the object carries.
+- `tag_slug` (String) Slug of a tag the object carries.
 - `u_height` (Number) Height in rack units (0.5 steps).
-- `url` (String)
 - `weight` (Number) Weight of the device type (requires weight_unit).
 - `weight_unit` (String) Unit of weight. One of: kg, g, lb, oz.
+
+### Read-Only
+
+- `comments` (String)
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
+- `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
+- `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
+- `url` (String)

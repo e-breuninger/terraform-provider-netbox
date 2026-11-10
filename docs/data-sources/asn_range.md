@@ -29,25 +29,40 @@ data "netbox_asn_range" "test" {
 
 ### Optional
 
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
+- `end` (Number) Last AS number in the range. Must be a whole number.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `rir_id` (Number) Id of the RIR the range is allocated by.
+- `rir_slug` (String) Slug of the RIR.
 - `slug` (String) URL-friendly unique shorthand; derived from name when not set.
+- `start__empty` (Boolean) Whether start is empty.
+- `start__gt` (Number) Start of the range is greater than this.
+- `start__gte` (Number) Start of the range is at least this.
+- `start__lt` (Number) Start of the range is less than this.
+- `start__lte` (Number) Start of the range is at most this.
+- `start__n` (Number) Excluded start of the range.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
+- `tenant_id` (Number) Id of the tenant the range belongs to.
+- `tenant_slug` (String) Slug of the tenant.
 
 ### Read-Only
 
 - `asn_count` (Number) Number of ASNs in the range.
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `end` (Number) Last AS number in the range. Must be a whole number.
-- `last_updated` (String)
 - `start` (Number) First AS number in the range. Must be a whole number.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
-- `tenant_id` (Number) Id of the tenant the range belongs to.
 - `url` (String)

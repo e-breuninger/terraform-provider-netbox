@@ -33,25 +33,40 @@ data "netbox_service" "test" {
 
 ### Optional
 
+- `contact` (Number) Id of the contact.
+- `contact_group_slug` (String) Slug of the contact group.
+- `contact_role` (Number) Id of the contact role.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `description` (String)
 - `device_id` (Number) Id of the device the service runs on (parent_object_type dcim.device). Conflicts with virtual_machine_id and with setting the parent_object_* pair directly.
+- `device_name` (String) Name of the device.
+- `fhrpgroup` (String) Fhrpgroup to match.
+- `fhrpgroup_id` (Number) Id of the fhrpgroup.
 - `id` (Number) NetBox id.
+- `ip_address` (String) IP address.
+- `ip_address_id` (Number) Id of the IP address.
+- `last_updated` (String)
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `parent_object_id` (Number) Id of the object named by parent_object_type.
+- `parent_object_type` (String) Content type of the object the service runs on. Derived from device_id or virtual_machine_id when one of those is set; set it together with parent_object_id to address the object directly. One of: dcim.device, virtualization.virtualmachine.
+- `port` (Number) Port to match.
 - `protocol` (String) Transport protocol. One of: tcp, udp, sctp.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 - `virtual_machine_id` (Number) Id of the virtual machine the service runs on (parent_object_type virtualization.virtualmachine). Conflicts with device_id and with setting the parent_object_* pair directly.
+- `virtual_machine_name` (String) Name of the virtual machine.
 
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `ip_address_ids` (Set of Number) Ids of the IP addresses the service is bound to; all of the parent object's addresses when unset.
-- `last_updated` (String)
-- `parent_object_id` (Number) Id of the object named by parent_object_type.
-- `parent_object_type` (String) Content type of the object the service runs on. Derived from device_id or virtual_machine_id when one of those is set; set it together with parent_object_id to address the object directly. One of: dcim.device, virtualization.virtualmachine.
 - `ports` (Set of Number) Port numbers the service listens on.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.

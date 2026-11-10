@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -29,6 +30,12 @@ type moduleBayTemplateDataSource struct {
 	client *netboxapi.Client
 }
 
+// moduleBayTemplateDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type moduleBayTemplateDataSourceModel struct {
+	moduleBayTemplateResourceModel
+	Q types.String `tfsdk:"q"`
+}
+
 func (d *moduleBayTemplateDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_module_bay_template"
 }
@@ -43,10 +50,12 @@ func (d *moduleBayTemplateDataSource) Schema(ctx context.Context, req datasource
 				Description: "NetBox id.",
 			},
 			"device_type_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.",
 			},
 			"module_type_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.",
 			},
@@ -58,28 +67,47 @@ func (d *moduleBayTemplateDataSource) Schema(ctx context.Context, req datasource
 				},
 			},
 			"position": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Identifier of the bay's position, substituted into the names of the module's components.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(30),
+				},
 			},
 			"label": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Physical label.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(64),
+				},
 			},
 			"enabled": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Whether the module bay is enabled.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
 			},
 		},
 	}
@@ -101,7 +129,7 @@ func (d *moduleBayTemplateDataSource) Configure(ctx context.Context, req datasou
 }
 
 func (d *moduleBayTemplateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data moduleBayTemplateResourceModel
+	var data moduleBayTemplateDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -122,8 +150,53 @@ func (d *moduleBayTemplateDataSource) Read(ctx context.Context, req datasource.R
 		params.SetName([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceTypeID.IsNull() {
+		v := state.DeviceTypeID.ValueInt64()
+		params.SetDeviceTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.Enabled.IsNull() {
+		v := state.Enabled.ValueBool()
+		params.SetEnabled(&v)
+		hasInput = true
+	}
+	if !state.Label.IsNull() {
+		v := state.Label.ValueString()
+		params.SetLabel([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.ModuleTypeID.IsNull() {
+		v := state.ModuleTypeID.ValueInt64()
+		params.SetModuleTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.Position.IsNull() {
+		v := state.Position.ValueString()
+		params.SetPosition([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name to look up a netbox_module_bay_template.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_module_bay_template.")
 		return
 	}
 	res, err := d.client.Dcim.DcimModuleBayTemplatesListContext(ctx, params, nil)
@@ -142,7 +215,7 @@ func (d *moduleBayTemplateDataSource) Read(ctx context.Context, req datasource.R
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenModuleBayTemplate(ctx, netboxapi.ModuleBayTemplateResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenModuleBayTemplate(ctx, netboxapi.ModuleBayTemplateResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.moduleBayTemplateResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

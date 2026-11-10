@@ -32,20 +32,26 @@ data "netbox_custom_field_choice_set" "test" {
 
 ### Optional
 
-- `id` (Number) NetBox id of the choice set.
-- `owner_id` (Number) Id of the owner the object is assigned to.
-
-### Read-Only
-
 - `base_choices` (String) Predefined set of choices to start from. One of: IATA, ISO_3166, UN_LOCODE.
-- `choice_colors` (Map of String) Colors of choices, by choice value. One of blue, indigo, purple, pink, red, orange, yellow, green, teal, cyan, gray, black or white each.
-- `choices_count` (Number)
+- `choice` (String) Choice to match.
+- `choice_color` (String) Choice colors.
 - `created` (String)
 - `description` (String)
-- `extra_choices` (Attributes List) Additional choices as value/label pairs. (see [below for nested schema](#nestedatt--extra_choices))
+- `id` (Number) NetBox id of the choice set.
 - `last_updated` (String)
 - `name` (String)
 - `order_alphabetically` (Boolean) Sort choices alphabetically instead of by definition order.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
+- `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+
+### Read-Only
+
+- `choice_colors` (Map of String) Colors of choices, by choice value. One of blue, indigo, purple, pink, red, orange, yellow, green, teal, cyan, gray, black or white each.
+- `choices_count` (Number)
+- `extra_choices` (Attributes List) Additional choices as value/label pairs. (see [below for nested schema](#nestedatt--extra_choices))
 - `url` (String)
 
 <a id="nestedatt--extra_choices"></a>

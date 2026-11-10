@@ -36,6 +36,15 @@ type circuitProviderAccountDataSource struct {
 type circuitProviderAccountDataSourceModel struct {
 	circuitProviderAccountResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Contact            types.Int64  `tfsdk:"contact"`
+	ContactGroupSlug   types.String `tfsdk:"contact_group_slug"`
+	ContactRole        types.Int64  `tfsdk:"contact_role"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	ProviderSlug       types.String `tfsdk:"provider_slug"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -74,7 +83,11 @@ func (d *circuitProviderAccountDataSource) Schema(ctx context.Context, req datas
 				Description: "Id of the provider the account is held with.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -85,9 +98,11 @@ func (d *circuitProviderAccountDataSource) Schema(ctx context.Context, req datas
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -111,6 +126,42 @@ func (d *circuitProviderAccountDataSource) Schema(ctx context.Context, req datas
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"provider_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the provider.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -179,6 +230,66 @@ func (d *circuitProviderAccountDataSource) Read(ctx context.Context, req datasou
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.ProviderSlug.IsNull() {
+		v := state.ProviderSlug.ValueString()
+		params.SetProvider([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -186,7 +297,7 @@ func (d *circuitProviderAccountDataSource) Read(ctx context.Context, req datasou
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or account and/or circuit_provider_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_circuit_provider_account.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_circuit_provider_account.")
 		return
 	}
 	res, err := d.client.Circuits.CircuitsProviderAccountsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))
