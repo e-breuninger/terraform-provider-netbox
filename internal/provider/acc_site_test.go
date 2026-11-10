@@ -263,6 +263,9 @@ resource "netbox_tag" "test" {
 }
 resource "netbox_site" "test" {
   name = "%[1]s"
+  # NetBox keeps the ASN assigned, and deleting the site while the ASN is deleted in parallel
+  # fails with a 403 (NetBox turns the vanished ASN into a PermissionDenied).
+  depends_on = [netbox_asn.test]
 }`, testName, asn),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("netbox_site.test", "region_id"),
