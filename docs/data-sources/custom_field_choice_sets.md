@@ -23,7 +23,7 @@ data "netbox_custom_field_choice_sets" "test" {
 
 ### Optional
 
-- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, owner_id, owner_id__n. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
+- `filters` (Attributes Set) Query filters, sent as API list parameters. Supported names: base_choices, base_choices__empty, base_choices__ic, base_choices__ie, base_choices__iew, base_choices__iregex, base_choices__isw, base_choices__n, base_choices__nic, base_choices__nie, base_choices__niew, base_choices__nisw, base_choices__regex, choice, choice_colors, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, order_alphabetically, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, q. Repeating a name sends that parameter once per value. (see [below for nested schema](#nestedatt--filters))
 - `limit` (Number) The maximum number of objects to return from the API lookup. Defaults to 1000.
 
 ### Read-Only

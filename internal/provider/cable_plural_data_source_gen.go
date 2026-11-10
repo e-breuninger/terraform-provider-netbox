@@ -80,7 +80,7 @@ func (d *cablesDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, label, label__empty, label__ic, label__ie, label__iew, label__iregex, label__isw, label__n, label__nic, label__nie, label__niew, label__nisw, label__regex, owner_id, owner_id__n, status, status__empty, status__ic, status__ie, status__iew, status__iregex, status__isw, status__n, status__nic, status__nie, status__niew, status__nisw, status__regex, tag, tag__any, tag__n, tenant_id, tenant_id__n, type, type__empty, type__ic, type__ie, type__iew, type__iregex, type__isw, type__n, type__nic, type__nie, type__niew, type__nisw, type__regex. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: bundle, bundle__n, bundle_id, bundle_id__n, circuittermination_id, color, color__empty, color__ic, color__ie, color__iew, color__iregex, color__isw, color__n, color__nic, color__nie, color__niew, color__nisw, color__regex, consoleport_id, consoleserverport_id, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, device, device_id, frontport_id, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, interface_id, label, label__empty, label__ic, label__ie, label__iew, label__iregex, label__isw, label__n, label__nic, label__nie, label__niew, label__nisw, label__regex, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, length, length__empty, length__gt, length__gte, length__lt, length__lte, length__n, length_unit, length_unit__empty, length_unit__ic, length_unit__ie, length_unit__iew, length_unit__iregex, length_unit__isw, length_unit__n, length_unit__nic, length_unit__nie, length_unit__niew, length_unit__nisw, length_unit__regex, location, location_id, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, powerfeed_id, poweroutlet_id, powerport_id, profile, profile__empty, profile__ic, profile__ie, profile__iew, profile__iregex, profile__isw, profile__n, profile__nic, profile__nie, profile__niew, profile__nisw, profile__regex, q, rack, rack_id, rearport_id, site, site_id, status, status__empty, status__ic, status__ie, status__iew, status__iregex, status__isw, status__n, status__nic, status__nie, status__niew, status__nisw, status__regex, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, tenant, tenant__n, tenant_group, tenant_group__n, tenant_group_id, tenant_group_id__n, tenant_id, tenant_id__n, termination_a_id, termination_a_type, termination_a_type__n, termination_b_id, termination_b_type, termination_b_type__n, type, type__empty, type__ic, type__ie, type__iew, type__iregex, type__isw, type__n, type__nic, type__nie, type__niew, type__nisw, type__regex, unterminated. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -407,6 +407,123 @@ func (d *cablesDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vSiteID []int64
+	var vSite []string
+	var vLocationID []int64
+	var vRackID []int64
+	var vDeviceID []int64
+	var vDevice []string
+	var vBundle []string
+	var vBundlen []string
+	var vBundleID []int64
+	var vBundleIDn []int64
+	var vCircuitterminationID []int64
+	var vColor []string
+	var vColorn []string
+	var vColorIc []string
+	var vColorNic []string
+	var vColorIe []string
+	var vColorNie []string
+	var vColorIsw []string
+	var vColorNisw []string
+	var vColorIew []string
+	var vColorNiew []string
+	var vColorEmpty *bool
+	var vColorRegex []string
+	var vColorIregex []string
+	var vConsoleportID []int64
+	var vConsoleserverportID []int64
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vFrontportID []int64
+	var vInterfaceID []int64
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vLength []float64
+	var vLengthn []float64
+	var vLengthLt []float64
+	var vLengthLte []float64
+	var vLengthGt []float64
+	var vLengthGte []float64
+	var vLengthEmpty *bool
+	var vLengthUnit *string
+	var vLengthUnitn *string
+	var vLengthUnitIc []string
+	var vLengthUnitNic []string
+	var vLengthUnitIe []string
+	var vLengthUnitNie []string
+	var vLengthUnitIsw []string
+	var vLengthUnitNisw []string
+	var vLengthUnitIew []string
+	var vLengthUnitNiew []string
+	var vLengthUnitEmpty *bool
+	var vLengthUnitRegex []string
+	var vLengthUnitIregex []string
+	var vLocation []string
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vPowerfeedID []int64
+	var vPoweroutletID []int64
+	var vPowerportID []int64
+	var vProfile []string
+	var vProfilen []string
+	var vProfileIc []string
+	var vProfileNic []string
+	var vProfileIe []string
+	var vProfileNie []string
+	var vProfileIsw []string
+	var vProfileNisw []string
+	var vProfileIew []string
+	var vProfileNiew []string
+	var vProfileEmpty *bool
+	var vProfileRegex []string
+	var vProfileIregex []string
+	var vQ *string
+	var vRack []string
+	var vRearportID []int64
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vTenant []string
+	var vTenantn []string
+	var vTenantGroup []string
+	var vTenantGroupn []string
+	var vTenantGroupID []string
+	var vTenantGroupIDn []string
+	var vTerminationaID []int64
+	var vTerminationaType []string
+	var vTerminationaTypen []string
+	var vTerminationbID []int64
+	var vTerminationbType []string
+	var vTerminationbTypen []string
+	var vUnterminated *bool
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -648,6 +765,529 @@ func (d *cablesDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "site_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'site_id' takes an integer, got %q.", value))
+				return
+			}
+			vSiteID = append(vSiteID, v)
+		case "site":
+			v := value
+			vSite = append(vSite, v)
+		case "location_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'location_id' takes an integer, got %q.", value))
+				return
+			}
+			vLocationID = append(vLocationID, v)
+		case "rack_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'rack_id' takes an integer, got %q.", value))
+				return
+			}
+			vRackID = append(vRackID, v)
+		case "device_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_id' takes an integer, got %q.", value))
+				return
+			}
+			vDeviceID = append(vDeviceID, v)
+		case "device":
+			v := value
+			vDevice = append(vDevice, v)
+		case "bundle":
+			v := value
+			vBundle = append(vBundle, v)
+		case "bundle__n":
+			v := value
+			vBundlen = append(vBundlen, v)
+		case "bundle_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'bundle_id' takes an integer, got %q.", value))
+				return
+			}
+			vBundleID = append(vBundleID, v)
+		case "bundle_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'bundle_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vBundleIDn = append(vBundleIDn, v)
+		case "circuittermination_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'circuittermination_id' takes an integer, got %q.", value))
+				return
+			}
+			vCircuitterminationID = append(vCircuitterminationID, v)
+		case "color":
+			v := value
+			vColor = append(vColor, v)
+		case "color__n":
+			v := value
+			vColorn = append(vColorn, v)
+		case "color__ic":
+			v := value
+			vColorIc = append(vColorIc, v)
+		case "color__nic":
+			v := value
+			vColorNic = append(vColorNic, v)
+		case "color__ie":
+			v := value
+			vColorIe = append(vColorIe, v)
+		case "color__nie":
+			v := value
+			vColorNie = append(vColorNie, v)
+		case "color__isw":
+			v := value
+			vColorIsw = append(vColorIsw, v)
+		case "color__nisw":
+			v := value
+			vColorNisw = append(vColorNisw, v)
+		case "color__iew":
+			v := value
+			vColorIew = append(vColorIew, v)
+		case "color__niew":
+			v := value
+			vColorNiew = append(vColorNiew, v)
+		case "color__empty":
+			if vColorEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'color__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'color__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vColorEmpty = &v
+		case "color__regex":
+			v := value
+			vColorRegex = append(vColorRegex, v)
+		case "color__iregex":
+			v := value
+			vColorIregex = append(vColorIregex, v)
+		case "consoleport_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'consoleport_id' takes an integer, got %q.", value))
+				return
+			}
+			vConsoleportID = append(vConsoleportID, v)
+		case "consoleserverport_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'consoleserverport_id' takes an integer, got %q.", value))
+				return
+			}
+			vConsoleserverportID = append(vConsoleserverportID, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "frontport_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'frontport_id' takes an integer, got %q.", value))
+				return
+			}
+			vFrontportID = append(vFrontportID, v)
+		case "interface_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id' takes an integer, got %q.", value))
+				return
+			}
+			vInterfaceID = append(vInterfaceID, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "length":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'length' takes a number, got %q.", value))
+				return
+			}
+			vLength = append(vLength, v)
+		case "length__n":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'length__n' takes a number, got %q.", value))
+				return
+			}
+			vLengthn = append(vLengthn, v)
+		case "length__lt":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'length__lt' takes a number, got %q.", value))
+				return
+			}
+			vLengthLt = append(vLengthLt, v)
+		case "length__lte":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'length__lte' takes a number, got %q.", value))
+				return
+			}
+			vLengthLte = append(vLengthLte, v)
+		case "length__gt":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'length__gt' takes a number, got %q.", value))
+				return
+			}
+			vLengthGt = append(vLengthGt, v)
+		case "length__gte":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'length__gte' takes a number, got %q.", value))
+				return
+			}
+			vLengthGte = append(vLengthGte, v)
+		case "length__empty":
+			if vLengthEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'length__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'length__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vLengthEmpty = &v
+		case "length_unit":
+			if vLengthUnit != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'length_unit' takes a single value.")
+				return
+			}
+			v := value
+			vLengthUnit = &v
+		case "length_unit__n":
+			if vLengthUnitn != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'length_unit__n' takes a single value.")
+				return
+			}
+			v := value
+			vLengthUnitn = &v
+		case "length_unit__ic":
+			v := value
+			vLengthUnitIc = append(vLengthUnitIc, v)
+		case "length_unit__nic":
+			v := value
+			vLengthUnitNic = append(vLengthUnitNic, v)
+		case "length_unit__ie":
+			v := value
+			vLengthUnitIe = append(vLengthUnitIe, v)
+		case "length_unit__nie":
+			v := value
+			vLengthUnitNie = append(vLengthUnitNie, v)
+		case "length_unit__isw":
+			v := value
+			vLengthUnitIsw = append(vLengthUnitIsw, v)
+		case "length_unit__nisw":
+			v := value
+			vLengthUnitNisw = append(vLengthUnitNisw, v)
+		case "length_unit__iew":
+			v := value
+			vLengthUnitIew = append(vLengthUnitIew, v)
+		case "length_unit__niew":
+			v := value
+			vLengthUnitNiew = append(vLengthUnitNiew, v)
+		case "length_unit__empty":
+			if vLengthUnitEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'length_unit__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'length_unit__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vLengthUnitEmpty = &v
+		case "length_unit__regex":
+			v := value
+			vLengthUnitRegex = append(vLengthUnitRegex, v)
+		case "length_unit__iregex":
+			v := value
+			vLengthUnitIregex = append(vLengthUnitIregex, v)
+		case "location":
+			v := value
+			vLocation = append(vLocation, v)
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "powerfeed_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'powerfeed_id' takes an integer, got %q.", value))
+				return
+			}
+			vPowerfeedID = append(vPowerfeedID, v)
+		case "poweroutlet_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'poweroutlet_id' takes an integer, got %q.", value))
+				return
+			}
+			vPoweroutletID = append(vPoweroutletID, v)
+		case "powerport_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'powerport_id' takes an integer, got %q.", value))
+				return
+			}
+			vPowerportID = append(vPowerportID, v)
+		case "profile":
+			v := value
+			vProfile = append(vProfile, v)
+		case "profile__n":
+			v := value
+			vProfilen = append(vProfilen, v)
+		case "profile__ic":
+			v := value
+			vProfileIc = append(vProfileIc, v)
+		case "profile__nic":
+			v := value
+			vProfileNic = append(vProfileNic, v)
+		case "profile__ie":
+			v := value
+			vProfileIe = append(vProfileIe, v)
+		case "profile__nie":
+			v := value
+			vProfileNie = append(vProfileNie, v)
+		case "profile__isw":
+			v := value
+			vProfileIsw = append(vProfileIsw, v)
+		case "profile__nisw":
+			v := value
+			vProfileNisw = append(vProfileNisw, v)
+		case "profile__iew":
+			v := value
+			vProfileIew = append(vProfileIew, v)
+		case "profile__niew":
+			v := value
+			vProfileNiew = append(vProfileNiew, v)
+		case "profile__empty":
+			if vProfileEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'profile__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'profile__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vProfileEmpty = &v
+		case "profile__regex":
+			v := value
+			vProfileRegex = append(vProfileRegex, v)
+		case "profile__iregex":
+			v := value
+			vProfileIregex = append(vProfileIregex, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "rack":
+			v := value
+			vRack = append(vRack, v)
+		case "rearport_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'rearport_id' takes an integer, got %q.", value))
+				return
+			}
+			vRearportID = append(vRearportID, v)
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "tenant":
+			v := value
+			vTenant = append(vTenant, v)
+		case "tenant__n":
+			v := value
+			vTenantn = append(vTenantn, v)
+		case "tenant_group":
+			v := value
+			vTenantGroup = append(vTenantGroup, v)
+		case "tenant_group__n":
+			v := value
+			vTenantGroupn = append(vTenantGroupn, v)
+		case "tenant_group_id":
+			v := value
+			vTenantGroupID = append(vTenantGroupID, v)
+		case "tenant_group_id__n":
+			v := value
+			vTenantGroupIDn = append(vTenantGroupIDn, v)
+		case "termination_a_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'termination_a_id' takes an integer, got %q.", value))
+				return
+			}
+			vTerminationaID = append(vTerminationaID, v)
+		case "termination_a_type":
+			v := value
+			vTerminationaType = append(vTerminationaType, v)
+		case "termination_a_type__n":
+			v := value
+			vTerminationaTypen = append(vTerminationaTypen, v)
+		case "termination_b_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'termination_b_id' takes an integer, got %q.", value))
+				return
+			}
+			vTerminationbID = append(vTerminationbID, v)
+		case "termination_b_type":
+			v := value
+			vTerminationbType = append(vTerminationbType, v)
+		case "termination_b_type__n":
+			v := value
+			vTerminationbTypen = append(vTerminationbTypen, v)
+		case "unterminated":
+			if vUnterminated != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'unterminated' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'unterminated' takes a boolean, got %q.", value))
+				return
+			}
+			vUnterminated = &v
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -811,6 +1451,357 @@ func (d *cablesDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vSiteID) > 0 {
+		params.SetSiteID(vSiteID)
+	}
+	if len(vSite) > 0 {
+		params.SetSite(vSite)
+	}
+	if len(vLocationID) > 0 {
+		params.SetLocationID(vLocationID)
+	}
+	if len(vRackID) > 0 {
+		params.SetRackID(vRackID)
+	}
+	if len(vDeviceID) > 0 {
+		params.SetDeviceID(vDeviceID)
+	}
+	if len(vDevice) > 0 {
+		params.SetDevice(vDevice)
+	}
+	if len(vBundle) > 0 {
+		params.SetBundle(vBundle)
+	}
+	if len(vBundlen) > 0 {
+		params.SetBundlen(vBundlen)
+	}
+	if len(vBundleID) > 0 {
+		params.SetBundleID(vBundleID)
+	}
+	if len(vBundleIDn) > 0 {
+		params.SetBundleIDn(vBundleIDn)
+	}
+	if len(vCircuitterminationID) > 0 {
+		params.SetCircuitterminationID(vCircuitterminationID)
+	}
+	if len(vColor) > 0 {
+		params.SetColor(vColor)
+	}
+	if len(vColorn) > 0 {
+		params.SetColorn(vColorn)
+	}
+	if len(vColorIc) > 0 {
+		params.SetColorIc(vColorIc)
+	}
+	if len(vColorNic) > 0 {
+		params.SetColorNic(vColorNic)
+	}
+	if len(vColorIe) > 0 {
+		params.SetColorIe(vColorIe)
+	}
+	if len(vColorNie) > 0 {
+		params.SetColorNie(vColorNie)
+	}
+	if len(vColorIsw) > 0 {
+		params.SetColorIsw(vColorIsw)
+	}
+	if len(vColorNisw) > 0 {
+		params.SetColorNisw(vColorNisw)
+	}
+	if len(vColorIew) > 0 {
+		params.SetColorIew(vColorIew)
+	}
+	if len(vColorNiew) > 0 {
+		params.SetColorNiew(vColorNiew)
+	}
+	if vColorEmpty != nil {
+		params.SetColorEmpty(vColorEmpty)
+	}
+	if len(vColorRegex) > 0 {
+		params.SetColorRegex(vColorRegex)
+	}
+	if len(vColorIregex) > 0 {
+		params.SetColorIregex(vColorIregex)
+	}
+	if len(vConsoleportID) > 0 {
+		params.SetConsoleportID(vConsoleportID)
+	}
+	if len(vConsoleserverportID) > 0 {
+		params.SetConsoleserverportID(vConsoleserverportID)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vFrontportID) > 0 {
+		params.SetFrontportID(vFrontportID)
+	}
+	if len(vInterfaceID) > 0 {
+		params.SetInterfaceID(vInterfaceID)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vLength) > 0 {
+		params.SetLength(vLength)
+	}
+	if len(vLengthn) > 0 {
+		params.SetLengthn(vLengthn)
+	}
+	if len(vLengthLt) > 0 {
+		params.SetLengthLt(vLengthLt)
+	}
+	if len(vLengthLte) > 0 {
+		params.SetLengthLte(vLengthLte)
+	}
+	if len(vLengthGt) > 0 {
+		params.SetLengthGt(vLengthGt)
+	}
+	if len(vLengthGte) > 0 {
+		params.SetLengthGte(vLengthGte)
+	}
+	if vLengthEmpty != nil {
+		params.SetLengthEmpty(vLengthEmpty)
+	}
+	if vLengthUnit != nil {
+		params.SetLengthUnit(vLengthUnit)
+	}
+	if vLengthUnitn != nil {
+		params.SetLengthUnitn(vLengthUnitn)
+	}
+	if len(vLengthUnitIc) > 0 {
+		params.SetLengthUnitIc(vLengthUnitIc)
+	}
+	if len(vLengthUnitNic) > 0 {
+		params.SetLengthUnitNic(vLengthUnitNic)
+	}
+	if len(vLengthUnitIe) > 0 {
+		params.SetLengthUnitIe(vLengthUnitIe)
+	}
+	if len(vLengthUnitNie) > 0 {
+		params.SetLengthUnitNie(vLengthUnitNie)
+	}
+	if len(vLengthUnitIsw) > 0 {
+		params.SetLengthUnitIsw(vLengthUnitIsw)
+	}
+	if len(vLengthUnitNisw) > 0 {
+		params.SetLengthUnitNisw(vLengthUnitNisw)
+	}
+	if len(vLengthUnitIew) > 0 {
+		params.SetLengthUnitIew(vLengthUnitIew)
+	}
+	if len(vLengthUnitNiew) > 0 {
+		params.SetLengthUnitNiew(vLengthUnitNiew)
+	}
+	if vLengthUnitEmpty != nil {
+		params.SetLengthUnitEmpty(vLengthUnitEmpty)
+	}
+	if len(vLengthUnitRegex) > 0 {
+		params.SetLengthUnitRegex(vLengthUnitRegex)
+	}
+	if len(vLengthUnitIregex) > 0 {
+		params.SetLengthUnitIregex(vLengthUnitIregex)
+	}
+	if len(vLocation) > 0 {
+		params.SetLocation(vLocation)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if len(vPowerfeedID) > 0 {
+		params.SetPowerfeedID(vPowerfeedID)
+	}
+	if len(vPoweroutletID) > 0 {
+		params.SetPoweroutletID(vPoweroutletID)
+	}
+	if len(vPowerportID) > 0 {
+		params.SetPowerportID(vPowerportID)
+	}
+	if len(vProfile) > 0 {
+		params.SetProfile(vProfile)
+	}
+	if len(vProfilen) > 0 {
+		params.SetProfilen(vProfilen)
+	}
+	if len(vProfileIc) > 0 {
+		params.SetProfileIc(vProfileIc)
+	}
+	if len(vProfileNic) > 0 {
+		params.SetProfileNic(vProfileNic)
+	}
+	if len(vProfileIe) > 0 {
+		params.SetProfileIe(vProfileIe)
+	}
+	if len(vProfileNie) > 0 {
+		params.SetProfileNie(vProfileNie)
+	}
+	if len(vProfileIsw) > 0 {
+		params.SetProfileIsw(vProfileIsw)
+	}
+	if len(vProfileNisw) > 0 {
+		params.SetProfileNisw(vProfileNisw)
+	}
+	if len(vProfileIew) > 0 {
+		params.SetProfileIew(vProfileIew)
+	}
+	if len(vProfileNiew) > 0 {
+		params.SetProfileNiew(vProfileNiew)
+	}
+	if vProfileEmpty != nil {
+		params.SetProfileEmpty(vProfileEmpty)
+	}
+	if len(vProfileRegex) > 0 {
+		params.SetProfileRegex(vProfileRegex)
+	}
+	if len(vProfileIregex) > 0 {
+		params.SetProfileIregex(vProfileIregex)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vRack) > 0 {
+		params.SetRack(vRack)
+	}
+	if len(vRearportID) > 0 {
+		params.SetRearportID(vRearportID)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if len(vTenant) > 0 {
+		params.SetTenant(vTenant)
+	}
+	if len(vTenantn) > 0 {
+		params.SetTenantn(vTenantn)
+	}
+	if len(vTenantGroup) > 0 {
+		params.SetTenantGroup(vTenantGroup)
+	}
+	if len(vTenantGroupn) > 0 {
+		params.SetTenantGroupn(vTenantGroupn)
+	}
+	if len(vTenantGroupID) > 0 {
+		params.SetTenantGroupID(vTenantGroupID)
+	}
+	if len(vTenantGroupIDn) > 0 {
+		params.SetTenantGroupIDn(vTenantGroupIDn)
+	}
+	if len(vTerminationaID) > 0 {
+		params.SetTerminationaID(vTerminationaID)
+	}
+	if len(vTerminationaType) > 0 {
+		params.SetTerminationaType(vTerminationaType)
+	}
+	if len(vTerminationaTypen) > 0 {
+		params.SetTerminationaTypen(vTerminationaTypen)
+	}
+	if len(vTerminationbID) > 0 {
+		params.SetTerminationbID(vTerminationbID)
+	}
+	if len(vTerminationbType) > 0 {
+		params.SetTerminationbType(vTerminationbType)
+	}
+	if len(vTerminationbTypen) > 0 {
+		params.SetTerminationbTypen(vTerminationbTypen)
+	}
+	if vUnterminated != nil {
+		params.SetUnterminated(vUnterminated)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

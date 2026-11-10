@@ -34,7 +34,16 @@ type configContextProfileDataSource struct {
 // configContextProfileDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type configContextProfileDataSourceModel struct {
 	configContextProfileResourceModel
-	TagSlug types.String `tfsdk:"tag_slug"`
+	TagSlug         types.String `tfsdk:"tag_slug"`
+	AutoSyncEnabled types.Bool   `tfsdk:"auto_sync_enabled"`
+	DataFileID      types.Int64  `tfsdk:"data_file_id"`
+	DataSourceID    types.Int64  `tfsdk:"data_source_id"`
+	DataSynced      types.String `tfsdk:"data_synced"`
+	OwnerName       types.String `tfsdk:"owner_name"`
+	OwnerGroupName  types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID    types.Int64  `tfsdk:"owner_group_id"`
+	Q               types.String `tfsdk:"q"`
+	TagID           types.Int64  `tfsdk:"tag_id"`
 }
 
 func (d *configContextProfileDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -63,7 +72,11 @@ func (d *configContextProfileDataSource) Schema(ctx context.Context, req datasou
 				Description: "JSON schema the config contexts with this profile must satisfy (use jsonencode()).",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -74,9 +87,11 @@ func (d *configContextProfileDataSource) Schema(ctx context.Context, req datasou
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -95,6 +110,42 @@ func (d *configContextProfileDataSource) Schema(ctx context.Context, req datasou
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"auto_sync_enabled": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Whether auto sync enabled is set.",
+			},
+			"data_file_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the data file.",
+			},
+			"data_source_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the data source.",
+			},
+			"data_synced": schema.StringAttribute{
+				Optional:    true,
+				Description: "Data synced to match.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 		},
 	}
@@ -147,8 +198,68 @@ func (d *configContextProfileDataSource) Read(ctx context.Context, req datasourc
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.AutoSyncEnabled.IsNull() {
+		v := state.AutoSyncEnabled.ValueBool()
+		params.SetAutoSyncEnabled(&v)
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.DataFileID.IsNull() {
+		v := state.DataFileID.ValueInt64()
+		params.SetDataFileID([]int64{v})
+		hasInput = true
+	}
+	if !state.DataSourceID.IsNull() {
+		v := state.DataSourceID.ValueInt64()
+		params.SetDataSourceID([]int64{v})
+		hasInput = true
+	}
+	if !state.DataSynced.IsNull() {
+		v := state.DataSynced.ValueString()
+		params.SetDataSynced([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or owner_id and/or tag_slug to look up a netbox_config_context_profile.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_config_context_profile.")
 		return
 	}
 	res, err := d.client.Extras.ExtrasConfigContextProfilesListContext(ctx, params, nil)

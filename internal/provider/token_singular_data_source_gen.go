@@ -8,8 +8,12 @@ import (
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -25,6 +29,13 @@ func NewTokenDataSource() datasource.DataSource {
 
 type tokenDataSource struct {
 	client *netboxapi.Client
+}
+
+// tokenDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type tokenDataSourceModel struct {
+	tokenResourceModel
+	Q        types.String `tfsdk:"q"`
+	UserName types.String `tfsdk:"user_name"`
 }
 
 func (d *tokenDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -46,6 +57,7 @@ func (d *tokenDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "Id of the user the token belongs to.",
 			},
 			"key": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Identification key NetBox generated for the token; not the secret.",
 			},
@@ -55,37 +67,59 @@ func (d *tokenDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Description: "The secret. NetBox returns it in the create response only, so an imported token has none in state and a secret changed outside Terraform goes unnoticed. Changing it replaces the token.",
 			},
 			"enabled": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Whether the token can authenticate; disabling keeps the token but rejects its use.",
 			},
 			"version": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Token format version (1 legacy plaintext, 2 hashed). Defaults to 2. Changing it replaces the token. One of: 1, 2.",
+				Validators: []validator.Int64{
+					int64validator.OneOf(1, 2),
+				},
 			},
 			"pepper_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the pepper the secret was hashed with.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"write_enabled": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Whether the token permits write operations.",
 			},
 			"expires": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Expiry as an RFC 3339 timestamp with milliseconds (2030-01-01T00:00:00.000Z); never expires when unset.",
 			},
 			"last_used": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "When the token was last used.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"user_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the user.",
 			},
 		},
 	}
@@ -107,7 +141,7 @@ func (d *tokenDataSource) Configure(ctx context.Context, req datasource.Configur
 }
 
 func (d *tokenDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data tokenResourceModel
+	var data tokenDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -128,8 +162,63 @@ func (d *tokenDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		params.SetUserID([]int64{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated(&v)
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.Enabled.IsNull() {
+		v := state.Enabled.ValueBool()
+		params.SetEnabled(&v)
+		hasInput = true
+	}
+	if !state.Expires.IsNull() {
+		v := state.Expires.ValueString()
+		params.SetExpires(&v)
+		hasInput = true
+	}
+	if !state.Key.IsNull() {
+		v := state.Key.ValueString()
+		params.SetKey([]string{v})
+		hasInput = true
+	}
+	if !state.LastUsed.IsNull() {
+		v := state.LastUsed.ValueString()
+		params.SetLastUsed(&v)
+		hasInput = true
+	}
+	if !state.PepperID.IsNull() {
+		v := state.PepperID.ValueInt64()
+		params.SetPepperID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.UserName.IsNull() {
+		v := state.UserName.ValueString()
+		params.SetUser([]string{v})
+		hasInput = true
+	}
+	if !state.Version.IsNull() {
+		v := state.Version.ValueInt64()
+		params.SetVersion(&v)
+		hasInput = true
+	}
+	if !state.WriteEnabled.IsNull() {
+		v := state.WriteEnabled.ValueBool()
+		params.SetWriteEnabled(&v)
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or user_id to look up a netbox_token.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_token.")
 		return
 	}
 	res, err := d.client.Users.UsersTokensListContext(ctx, params, nil)
@@ -148,7 +237,7 @@ func (d *tokenDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenToken(ctx, netboxapi.TokenResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenToken(ctx, netboxapi.TokenResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.tokenResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

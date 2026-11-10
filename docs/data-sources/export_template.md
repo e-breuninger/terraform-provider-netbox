@@ -29,20 +29,30 @@ data "netbox_export_template" "test" {
 
 ### Optional
 
+- `as_attachment` (Boolean) Download the rendered output as a file instead of displaying it.
+- `auto_sync_enabled` (Boolean) Whether auto sync enabled is set.
+- `created` (String)
+- `data_file_id` (Number) Id of the data file.
+- `data_source_id` (Number) Id of the data source.
+- `data_synced` (String) Data synced to match.
+- `description` (String)
+- `file_extension` (String) Extension appended to the file name, e.g. csv.
+- `file_name` (String) File name of the rendered output, without extension.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
+- `mime_type` (String) MIME type of the rendered output, e.g. text/csv.
 - `name` (String)
+- `object_type` (String) Object type to match.
+- `object_type_id` (Number) Id of the object type.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 
 ### Read-Only
 
-- `as_attachment` (Boolean) Download the rendered output as a file instead of displaying it.
-- `created` (String)
-- `description` (String)
 - `environment_params` (String) Parameters for the Jinja2 environment as JSON text (use jsonencode()).
-- `file_extension` (String) Extension appended to the file name, e.g. csv.
-- `file_name` (String) File name of the rendered output, without extension.
-- `last_updated` (String)
-- `mime_type` (String) MIME type of the rendered output, e.g. text/csv.
 - `object_types` (Set of String) Object types the template can export, as app-labelled content types (dcim.device).
 - `template_code` (String) Jinja2 template code; the queryset is available as {{ queryset }}.
 - `url` (String)

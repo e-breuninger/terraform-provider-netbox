@@ -36,10 +36,38 @@ type prefixDataSource struct {
 // prefixDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type prefixDataSourceModel struct {
 	prefixResourceModel
-	PrefixContains     types.String `tfsdk:"prefix_contains"`
-	VlanVid            types.Int64  `tfsdk:"vlan_vid"`
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	PrefixContains     types.String  `tfsdk:"prefix_contains"`
+	VlanVid            types.Int64   `tfsdk:"vlan_vid"`
+	TagSlug            types.String  `tfsdk:"tag_slug"`
+	Children           types.Int64   `tfsdk:"children"`
+	Contact            types.Int64   `tfsdk:"contact"`
+	ContactGroupSlug   types.String  `tfsdk:"contact_group_slug"`
+	ContactRole        types.Int64   `tfsdk:"contact_role"`
+	Depth              types.Int64   `tfsdk:"depth"`
+	LocationSlug       types.String  `tfsdk:"location_slug"`
+	MaskLengthGte      types.Float64 `tfsdk:"mask_length__gte"`
+	MaskLengthLte      types.Float64 `tfsdk:"mask_length__lte"`
+	MaskLength         types.Int64   `tfsdk:"mask_length"`
+	OwnerName          types.String  `tfsdk:"owner_name"`
+	OwnerGroupName     types.String  `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64   `tfsdk:"owner_group_id"`
+	PresentInVrf       types.String  `tfsdk:"present_in_vrf"`
+	PresentInVrfID     types.String  `tfsdk:"present_in_vrf_id"`
+	Q                  types.String  `tfsdk:"q"`
+	RegionSlug         types.String  `tfsdk:"region_slug"`
+	RoleSlug           types.String  `tfsdk:"role_slug"`
+	SiteSlug           types.String  `tfsdk:"site_slug"`
+	SiteGroupSlug      types.String  `tfsdk:"site_group_slug"`
+	TagID              types.Int64   `tfsdk:"tag_id"`
+	TenantSlug         types.String  `tfsdk:"tenant_slug"`
+	TenantGroupSlug    types.String  `tfsdk:"tenant_group_slug"`
+	TenantGroupID      types.String  `tfsdk:"tenant_group_id"`
+	VlanGroupSlug      types.String  `tfsdk:"vlan_group_slug"`
+	VlanGroupID        types.Int64   `tfsdk:"vlan_group_id"`
+	Vrf                types.String  `tfsdk:"vrf"`
+	Within             types.String  `tfsdk:"within"`
+	WithinInclude      types.String  `tfsdk:"within_include"`
+	CustomFieldFilters types.Map     `tfsdk:"custom_field_filters"`
 }
 
 func (d *prefixDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -93,14 +121,17 @@ func (d *prefixDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "Id of the VRF.",
 			},
 			"is_pool": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "All addresses within this prefix are usable.",
 			},
 			"mark_utilized": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Report space as fully utilized.",
 			},
 			"family": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Address family: 4 or 6.",
 			},
@@ -115,10 +146,15 @@ func (d *prefixDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed: true,
 			},
 			"scope_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Content type of the scope. Derived from site_id, location_id, region_id or site_group_id when one of those is set; set it together with scope_id otherwise. One of: dcim.site, dcim.location, dcim.region, dcim.sitegroup.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("dcim.site", "dcim.location", "dcim.region", "dcim.sitegroup"),
+				},
 			},
 			"scope_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the scope object (see scope_type).",
 			},
@@ -128,6 +164,7 @@ func (d *prefixDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "Id of the site the object is scoped to (scope_type dcim.site). Conflicts with the other scope aliases and with setting the scope_* pair directly.",
 			},
 			"location_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the location the object is scoped to (scope_type dcim.location).",
 			},
@@ -137,6 +174,7 @@ func (d *prefixDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "Id of the region the object is scoped to (scope_type dcim.region).",
 			},
 			"site_group_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the site group the object is scoped to (scope_type dcim.sitegroup).",
 			},
@@ -146,9 +184,11 @@ func (d *prefixDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -180,6 +220,118 @@ func (d *prefixDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"children": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Children to match.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"depth": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Depth to match.",
+			},
+			"location_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the location.",
+			},
+			"mask_length__gte": schema.Float64Attribute{
+				Optional:    true,
+				Description: "Mask length is at least this.",
+			},
+			"mask_length__lte": schema.Float64Attribute{
+				Optional:    true,
+				Description: "Mask length is at most this.",
+			},
+			"mask_length": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Mask length to match.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"present_in_vrf": schema.StringAttribute{
+				Optional:    true,
+				Description: "Present in vrf to match.",
+			},
+			"present_in_vrf_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the present in vrf.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"region_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the region.",
+			},
+			"role_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the role.",
+			},
+			"site_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site.",
+			},
+			"site_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site group.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
+			},
+			"vlan_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the VLAN group.",
+			},
+			"vlan_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the VLAN group.",
+			},
+			"vrf": schema.StringAttribute{
+				Optional:    true,
+				Description: "VRF (RD).",
+			},
+			"within": schema.StringAttribute{
+				Optional:    true,
+				Description: "Within prefix.",
+			},
+			"within_include": schema.StringAttribute{
+				Optional:    true,
+				Description: "Within and including prefix.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -288,6 +440,191 @@ func (d *prefixDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Children.IsNull() {
+		v := state.Children.ValueInt64()
+		params.SetChildren([]int64{v})
+		hasInput = true
+	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Depth.IsNull() {
+		v := state.Depth.ValueInt64()
+		params.SetDepth([]int64{v})
+		hasInput = true
+	}
+	if !state.Family.IsNull() {
+		v := float64(state.Family.ValueInt64())
+		params.SetFamily(&v)
+		hasInput = true
+	}
+	if !state.IsPool.IsNull() {
+		v := state.IsPool.ValueBool()
+		params.SetIsPool(&v)
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.LocationSlug.IsNull() {
+		v := state.LocationSlug.ValueString()
+		params.SetLocation([]string{v})
+		hasInput = true
+	}
+	if !state.LocationID.IsNull() {
+		v := strconv.FormatInt(state.LocationID.ValueInt64(), 10)
+		params.SetLocationID([]string{v})
+		hasInput = true
+	}
+	if !state.MarkUtilized.IsNull() {
+		v := state.MarkUtilized.ValueBool()
+		params.SetMarkUtilized(&v)
+		hasInput = true
+	}
+	if !state.MaskLengthGte.IsNull() {
+		v := state.MaskLengthGte.ValueFloat64()
+		params.SetMaskLengthGte(&v)
+		hasInput = true
+	}
+	if !state.MaskLengthLte.IsNull() {
+		v := state.MaskLengthLte.ValueFloat64()
+		params.SetMaskLengthLte(&v)
+		hasInput = true
+	}
+	if !state.MaskLength.IsNull() {
+		v := state.MaskLength.ValueInt64()
+		params.SetMaskLength([]int64{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.PresentInVrf.IsNull() {
+		v := state.PresentInVrf.ValueString()
+		params.SetPresentInVrf(&v)
+		hasInput = true
+	}
+	if !state.PresentInVrfID.IsNull() {
+		v := state.PresentInVrfID.ValueString()
+		params.SetPresentInVrfID(&v)
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RegionSlug.IsNull() {
+		v := state.RegionSlug.ValueString()
+		params.SetRegion([]string{v})
+		hasInput = true
+	}
+	if !state.RoleSlug.IsNull() {
+		v := state.RoleSlug.ValueString()
+		params.SetRole([]string{v})
+		hasInput = true
+	}
+	if !state.ScopeID.IsNull() {
+		v := state.ScopeID.ValueInt64()
+		params.SetScopeID([]int64{v})
+		hasInput = true
+	}
+	if !state.ScopeType.IsNull() {
+		v := state.ScopeType.ValueString()
+		params.SetScopeType([]string{v})
+		hasInput = true
+	}
+	if !state.SiteSlug.IsNull() {
+		v := state.SiteSlug.ValueString()
+		params.SetSite([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupSlug.IsNull() {
+		v := state.SiteGroupSlug.ValueString()
+		params.SetSiteGroup([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupID.IsNull() {
+		v := strconv.FormatInt(state.SiteGroupID.ValueInt64(), 10)
+		params.SetSiteGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.VlanGroupSlug.IsNull() {
+		v := state.VlanGroupSlug.ValueString()
+		params.SetVlanGroup([]string{v})
+		hasInput = true
+	}
+	if !state.VlanGroupID.IsNull() {
+		v := state.VlanGroupID.ValueInt64()
+		params.SetVlanGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Vrf.IsNull() {
+		v := state.Vrf.ValueString()
+		params.SetVrf([]string{v})
+		hasInput = true
+	}
+	if !state.Within.IsNull() {
+		v := state.Within.ValueString()
+		params.SetWithin(&v)
+		hasInput = true
+	}
+	if !state.WithinInclude.IsNull() {
+		v := state.WithinInclude.ValueString()
+		params.SetWithinInclude(&v)
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -295,7 +632,7 @@ func (d *prefixDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or prefix and/or vrf_id and/or prefix_contains and/or status and/or role_id and/or tenant_id and/or vlan_id and/or vlan_vid and/or site_id and/or region_id and/or description and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_prefix.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_prefix.")
 		return
 	}
 	res, err := d.client.Ipam.IpamPrefixesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

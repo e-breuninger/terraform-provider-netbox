@@ -11,6 +11,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
 	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -37,6 +38,14 @@ type eventRuleDataSource struct {
 type eventRuleDataSourceModel struct {
 	eventRuleResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	EventType          types.String `tfsdk:"event_type"`
+	ObjectType         types.String `tfsdk:"object_type"`
+	ObjectTypeID       types.Int64  `tfsdk:"object_type_id"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -89,15 +98,24 @@ func (d *eventRuleDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				},
 			},
 			"action_object_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Content type of the action object: extras.webhook or extras.script.",
 			},
 			"action_object_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the webhook or script to run.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"owner_id": schema.Int64Attribute{
 				Optional:    true,
@@ -105,9 +123,11 @@ func (d *eventRuleDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -131,6 +151,38 @@ func (d *eventRuleDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"event_type": schema.StringAttribute{
+				Optional:    true,
+				Description: "Event type to match.",
+			},
+			"object_type": schema.StringAttribute{
+				Optional:    true,
+				Description: "Object type to match.",
+			},
+			"object_type_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the object type.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -199,6 +251,71 @@ func (d *eventRuleDataSource) Read(ctx context.Context, req datasource.ReadReque
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.ActionObjectID.IsNull() {
+		v := state.ActionObjectID.ValueInt64()
+		params.SetActionObjectID([]int64{v})
+		hasInput = true
+	}
+	if !state.ActionObjectType.IsNull() {
+		v := state.ActionObjectType.ValueString()
+		params.SetActionObjectType([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.EventType.IsNull() {
+		v := state.EventType.ValueString()
+		params.SetEventType([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.ObjectType.IsNull() {
+		v := state.ObjectType.ValueString()
+		params.SetObjectType([]string{v})
+		hasInput = true
+	}
+	if !state.ObjectTypeID.IsNull() {
+		v := state.ObjectTypeID.ValueInt64()
+		params.SetObjectTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -206,7 +323,7 @@ func (d *eventRuleDataSource) Read(ctx context.Context, req datasource.ReadReque
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or enabled and/or action_type and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_event_rule.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_event_rule.")
 		return
 	}
 	res, err := d.client.Extras.ExtrasEventRulesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

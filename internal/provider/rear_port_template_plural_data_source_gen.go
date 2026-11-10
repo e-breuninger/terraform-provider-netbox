@@ -69,7 +69,7 @@ func (d *rearPortTemplatesDataSource) Schema(ctx context.Context, req datasource
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, module_type_id, module_type_id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, type, type__empty, type__ic, type__ie, type__iew, type__iregex, type__isw, type__n, type__nic, type__nie, type__niew, type__nisw, type__regex. Repeating a name sends that parameter once per value.",
+				Description: "Query filters, sent as API list parameters. Supported names: color, color__empty, color__ic, color__ie, color__iew, color__iregex, color__isw, color__n, color__nic, color__nie, color__niew, color__nisw, color__regex, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, device_type_id, device_type_id__n, front_port_id, front_port_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, label, label__empty, label__ic, label__ie, label__iew, label__iregex, label__isw, label__n, label__nic, label__nie, label__niew, label__nisw, label__regex, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, module_type_id, module_type_id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, positions, positions__empty, positions__gt, positions__gte, positions__lt, positions__lte, positions__n, q, type, type__empty, type__ic, type__ie, type__iew, type__iregex, type__isw, type__n, type__nic, type__nie, type__niew, type__nisw, type__regex. Repeating a name sends that parameter once per value.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -227,6 +227,71 @@ func (d *rearPortTemplatesDataSource) Read(ctx context.Context, req datasource.R
 	var vTypeIregex []string
 	var vModuleTypeID []int64
 	var vModuleTypeIDn []int64
+	var vColor []string
+	var vColorn []string
+	var vColorIc []string
+	var vColorNic []string
+	var vColorIe []string
+	var vColorNie []string
+	var vColorIsw []string
+	var vColorNisw []string
+	var vColorIew []string
+	var vColorNiew []string
+	var vColorEmpty *bool
+	var vColorRegex []string
+	var vColorIregex []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vDeviceTypeID []int64
+	var vDeviceTypeIDn []int64
+	var vFrontPortID []int64
+	var vFrontPortIDn []int64
+	var vLabel []string
+	var vLabeln []string
+	var vLabelIc []string
+	var vLabelNic []string
+	var vLabelIe []string
+	var vLabelNie []string
+	var vLabelIsw []string
+	var vLabelNisw []string
+	var vLabelIew []string
+	var vLabelNiew []string
+	var vLabelEmpty *bool
+	var vLabelRegex []string
+	var vLabelIregex []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vPositions []int64
+	var vPositionsn []int64
+	var vPositionsLt []int64
+	var vPositionsLte []int64
+	var vPositionsGt []int64
+	var vPositionsGte []int64
+	var vPositionsEmpty *bool
+	var vQ *string
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
 		switch name {
@@ -391,6 +456,277 @@ func (d *rearPortTemplatesDataSource) Read(ctx context.Context, req datasource.R
 				return
 			}
 			vModuleTypeIDn = append(vModuleTypeIDn, v)
+		case "color":
+			v := value
+			vColor = append(vColor, v)
+		case "color__n":
+			v := value
+			vColorn = append(vColorn, v)
+		case "color__ic":
+			v := value
+			vColorIc = append(vColorIc, v)
+		case "color__nic":
+			v := value
+			vColorNic = append(vColorNic, v)
+		case "color__ie":
+			v := value
+			vColorIe = append(vColorIe, v)
+		case "color__nie":
+			v := value
+			vColorNie = append(vColorNie, v)
+		case "color__isw":
+			v := value
+			vColorIsw = append(vColorIsw, v)
+		case "color__nisw":
+			v := value
+			vColorNisw = append(vColorNisw, v)
+		case "color__iew":
+			v := value
+			vColorIew = append(vColorIew, v)
+		case "color__niew":
+			v := value
+			vColorNiew = append(vColorNiew, v)
+		case "color__empty":
+			if vColorEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'color__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'color__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vColorEmpty = &v
+		case "color__regex":
+			v := value
+			vColorRegex = append(vColorRegex, v)
+		case "color__iregex":
+			v := value
+			vColorIregex = append(vColorIregex, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "device_type_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_type_id' takes an integer, got %q.", value))
+				return
+			}
+			vDeviceTypeID = append(vDeviceTypeID, v)
+		case "device_type_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_type_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vDeviceTypeIDn = append(vDeviceTypeIDn, v)
+		case "front_port_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'front_port_id' takes an integer, got %q.", value))
+				return
+			}
+			vFrontPortID = append(vFrontPortID, v)
+		case "front_port_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'front_port_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vFrontPortIDn = append(vFrontPortIDn, v)
+		case "label":
+			v := value
+			vLabel = append(vLabel, v)
+		case "label__n":
+			v := value
+			vLabeln = append(vLabeln, v)
+		case "label__ic":
+			v := value
+			vLabelIc = append(vLabelIc, v)
+		case "label__nic":
+			v := value
+			vLabelNic = append(vLabelNic, v)
+		case "label__ie":
+			v := value
+			vLabelIe = append(vLabelIe, v)
+		case "label__nie":
+			v := value
+			vLabelNie = append(vLabelNie, v)
+		case "label__isw":
+			v := value
+			vLabelIsw = append(vLabelIsw, v)
+		case "label__nisw":
+			v := value
+			vLabelNisw = append(vLabelNisw, v)
+		case "label__iew":
+			v := value
+			vLabelIew = append(vLabelIew, v)
+		case "label__niew":
+			v := value
+			vLabelNiew = append(vLabelNiew, v)
+		case "label__empty":
+			if vLabelEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'label__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'label__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vLabelEmpty = &v
+		case "label__regex":
+			v := value
+			vLabelRegex = append(vLabelRegex, v)
+		case "label__iregex":
+			v := value
+			vLabelIregex = append(vLabelIregex, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "positions":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'positions' takes an integer, got %q.", value))
+				return
+			}
+			vPositions = append(vPositions, v)
+		case "positions__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'positions__n' takes an integer, got %q.", value))
+				return
+			}
+			vPositionsn = append(vPositionsn, v)
+		case "positions__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'positions__lt' takes an integer, got %q.", value))
+				return
+			}
+			vPositionsLt = append(vPositionsLt, v)
+		case "positions__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'positions__lte' takes an integer, got %q.", value))
+				return
+			}
+			vPositionsLte = append(vPositionsLte, v)
+		case "positions__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'positions__gt' takes an integer, got %q.", value))
+				return
+			}
+			vPositionsGt = append(vPositionsGt, v)
+		case "positions__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'positions__gte' takes an integer, got %q.", value))
+				return
+			}
+			vPositionsGte = append(vPositionsGte, v)
+		case "positions__empty":
+			if vPositionsEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'positions__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'positions__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vPositionsEmpty = &v
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -500,6 +836,201 @@ func (d *rearPortTemplatesDataSource) Read(ctx context.Context, req datasource.R
 	}
 	if len(vModuleTypeIDn) > 0 {
 		params.SetModuleTypeIDn(vModuleTypeIDn)
+	}
+	if len(vColor) > 0 {
+		params.SetColor(vColor)
+	}
+	if len(vColorn) > 0 {
+		params.SetColorn(vColorn)
+	}
+	if len(vColorIc) > 0 {
+		params.SetColorIc(vColorIc)
+	}
+	if len(vColorNic) > 0 {
+		params.SetColorNic(vColorNic)
+	}
+	if len(vColorIe) > 0 {
+		params.SetColorIe(vColorIe)
+	}
+	if len(vColorNie) > 0 {
+		params.SetColorNie(vColorNie)
+	}
+	if len(vColorIsw) > 0 {
+		params.SetColorIsw(vColorIsw)
+	}
+	if len(vColorNisw) > 0 {
+		params.SetColorNisw(vColorNisw)
+	}
+	if len(vColorIew) > 0 {
+		params.SetColorIew(vColorIew)
+	}
+	if len(vColorNiew) > 0 {
+		params.SetColorNiew(vColorNiew)
+	}
+	if vColorEmpty != nil {
+		params.SetColorEmpty(vColorEmpty)
+	}
+	if len(vColorRegex) > 0 {
+		params.SetColorRegex(vColorRegex)
+	}
+	if len(vColorIregex) > 0 {
+		params.SetColorIregex(vColorIregex)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vDeviceTypeID) > 0 {
+		params.SetDeviceTypeID(vDeviceTypeID)
+	}
+	if len(vDeviceTypeIDn) > 0 {
+		params.SetDeviceTypeIDn(vDeviceTypeIDn)
+	}
+	if len(vFrontPortID) > 0 {
+		params.SetFrontPortID(vFrontPortID)
+	}
+	if len(vFrontPortIDn) > 0 {
+		params.SetFrontPortIDn(vFrontPortIDn)
+	}
+	if len(vLabel) > 0 {
+		params.SetLabel(vLabel)
+	}
+	if len(vLabeln) > 0 {
+		params.SetLabeln(vLabeln)
+	}
+	if len(vLabelIc) > 0 {
+		params.SetLabelIc(vLabelIc)
+	}
+	if len(vLabelNic) > 0 {
+		params.SetLabelNic(vLabelNic)
+	}
+	if len(vLabelIe) > 0 {
+		params.SetLabelIe(vLabelIe)
+	}
+	if len(vLabelNie) > 0 {
+		params.SetLabelNie(vLabelNie)
+	}
+	if len(vLabelIsw) > 0 {
+		params.SetLabelIsw(vLabelIsw)
+	}
+	if len(vLabelNisw) > 0 {
+		params.SetLabelNisw(vLabelNisw)
+	}
+	if len(vLabelIew) > 0 {
+		params.SetLabelIew(vLabelIew)
+	}
+	if len(vLabelNiew) > 0 {
+		params.SetLabelNiew(vLabelNiew)
+	}
+	if vLabelEmpty != nil {
+		params.SetLabelEmpty(vLabelEmpty)
+	}
+	if len(vLabelRegex) > 0 {
+		params.SetLabelRegex(vLabelRegex)
+	}
+	if len(vLabelIregex) > 0 {
+		params.SetLabelIregex(vLabelIregex)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vPositions) > 0 {
+		params.SetPositions(vPositions)
+	}
+	if len(vPositionsn) > 0 {
+		params.SetPositionsn(vPositionsn)
+	}
+	if len(vPositionsLt) > 0 {
+		params.SetPositionsLt(vPositionsLt)
+	}
+	if len(vPositionsLte) > 0 {
+		params.SetPositionsLte(vPositionsLte)
+	}
+	if len(vPositionsGt) > 0 {
+		params.SetPositionsGt(vPositionsGt)
+	}
+	if len(vPositionsGte) > 0 {
+		params.SetPositionsGte(vPositionsGte)
+	}
+	if vPositionsEmpty != nil {
+		params.SetPositionsEmpty(vPositionsEmpty)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

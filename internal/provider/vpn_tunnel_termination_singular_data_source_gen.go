@@ -10,8 +10,11 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/vpn"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -34,6 +37,12 @@ type vpnTunnelTerminationDataSource struct {
 type vpnTunnelTerminationDataSourceModel struct {
 	vpnTunnelTerminationResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	InterfaceName      types.String `tfsdk:"interface_name"`
+	OutsideIPID        types.Int64  `tfsdk:"outside_ip_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	TunnelName         types.String `tfsdk:"tunnel_name"`
+	VminterfaceName    types.String `tfsdk:"vminterface_name"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -56,16 +65,28 @@ func (d *vpnTunnelTerminationDataSource) Schema(ctx context.Context, req datasou
 				Description: "Id of the tunnel.",
 			},
 			"role": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Role of the termination in the tunnel topology. One of: peer, hub, spoke.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("peer", "hub", "spoke"),
+				},
 			},
 			"termination_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Content type of the terminating interface. Derived from device_interface_id or virtual_machine_interface_id when one of those is set; set it together with termination_id otherwise. One assignment is required. One of: dcim.interface, virtualization.vminterface.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("dcim.interface", "virtualization.vminterface"),
+				},
 			},
 			"termination_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the terminating interface (see termination_type).",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"device_interface_id": schema.Int64Attribute{
 				Optional:    true,
@@ -82,9 +103,11 @@ func (d *vpnTunnelTerminationDataSource) Schema(ctx context.Context, req datasou
 				Description: "Id of the outside IP address of the termination.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -108,6 +131,30 @@ func (d *vpnTunnelTerminationDataSource) Schema(ctx context.Context, req datasou
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"interface_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the interface.",
+			},
+			"outside_ip_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the outside IP.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tunnel_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the tunnel.",
+			},
+			"vminterface_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the VM interface.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -171,6 +218,61 @@ func (d *vpnTunnelTerminationDataSource) Read(ctx context.Context, req datasourc
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.InterfaceName.IsNull() {
+		v := state.InterfaceName.ValueString()
+		params.SetInterface([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OutsideIPID.IsNull() {
+		v := state.OutsideIPID.ValueInt64()
+		params.SetOutsideIPID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.Role.IsNull() {
+		v := state.Role.ValueString()
+		params.SetRole([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TerminationID.IsNull() {
+		v := state.TerminationID.ValueInt64()
+		params.SetTerminationID([]int64{v})
+		hasInput = true
+	}
+	if !state.TerminationType.IsNull() {
+		v := state.TerminationType.ValueString()
+		params.SetTerminationType([]string{v})
+		hasInput = true
+	}
+	if !state.TunnelName.IsNull() {
+		v := state.TunnelName.ValueString()
+		params.SetTunnel([]string{v})
+		hasInput = true
+	}
+	if !state.VminterfaceName.IsNull() {
+		v := state.VminterfaceName.ValueString()
+		params.SetVminterface([]string{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -178,7 +280,7 @@ func (d *vpnTunnelTerminationDataSource) Read(ctx context.Context, req datasourc
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or vpn_tunnel_id and/or device_interface_id and/or virtual_machine_interface_id and/or tag_slug and/or custom_field_filters to look up a netbox_vpn_tunnel_termination.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_vpn_tunnel_termination.")
 		return
 	}
 	res, err := d.client.Vpn.VpnTunnelTerminationsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

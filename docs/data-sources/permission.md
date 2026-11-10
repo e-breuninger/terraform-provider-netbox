@@ -31,15 +31,27 @@ data "netbox_permission" "test" {
 
 ### Optional
 
+- `can_add` (Boolean) Whether can add is set.
+- `can_change` (Boolean) Whether can change is set.
+- `can_delete` (Boolean) Whether can delete is set.
+- `can_view` (Boolean) Whether can view is set.
+- `description` (String)
+- `enabled` (Boolean) Whether the permission is in effect.
+- `group_id` (Number) Id of the group.
+- `group_name` (String) Name of the group.
 - `id` (Number) NetBox id.
 - `name` (String)
+- `object_type` (String) Object type to match.
+- `object_type_id` (Number) Id of the object type.
+- `object_type_name` (Number) Name of the object types.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `user_id` (Number) Id of the user.
+- `user_name` (String) Name of the user.
 
 ### Read-Only
 
 - `actions` (Set of String) Permitted actions: view, add, change, delete or a custom action name.
 - `constraints` (String) Queryset filter as JSON text, an object or a list of objects (use jsonencode()).
-- `description` (String)
-- `enabled` (Boolean) Whether the permission is in effect.
 - `group_ids` (Set of Number) Ids of the groups the permission is granted to.
 - `groups` (Set of Number, Deprecated) Deprecated alias of group_ids.
 - `object_types` (Set of String) Object types the permission applies to, as app-labelled content types (dcim.device).

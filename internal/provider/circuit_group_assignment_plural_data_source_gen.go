@@ -67,7 +67,7 @@ func (d *circuitGroupAssignmentsDataSource) Schema(ctx context.Context, req data
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: group_id, group_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, member_id, member_id__n, member_type, member_type__n, priority, priority__empty, priority__ic, priority__ie, priority__iew, priority__iregex, priority__isw, priority__n, priority__nic, priority__nie, priority__niew, priority__nisw, priority__regex, tag, tag__any, tag__n. Repeating a name sends that parameter once per value.",
+				Description: "Query filters, sent as API list parameters. Supported names: circuit, circuit_id, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, group, group__n, group_id, group_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, member_id, member_id__empty, member_id__gt, member_id__gte, member_id__lt, member_id__lte, member_id__n, member_type, member_type__n, member_type_id, member_type_id__n, priority, priority__empty, priority__ic, priority__ie, priority__iew, priority__iregex, priority__isw, priority__n, priority__nic, priority__nie, priority__niew, priority__nisw, priority__regex, provider, provider_id, q, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, virtual_circuit, virtual_circuit_id. Repeating a name sends that parameter once per value.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -199,6 +199,11 @@ func (d *circuitGroupAssignmentsDataSource) Read(ctx context.Context, req dataso
 	var vMemberTypen []string
 	var vMemberID []int64
 	var vMemberIDn []int64
+	var vMemberIDLt []int64
+	var vMemberIDLte []int64
+	var vMemberIDGt []int64
+	var vMemberIDGte []int64
+	var vMemberIDEmpty *bool
 	var vPriority *string
 	var vPriorityn *string
 	var vPriorityIc []string
@@ -215,6 +220,34 @@ func (d *circuitGroupAssignmentsDataSource) Read(ctx context.Context, req dataso
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vCircuit []string
+	var vCircuitID []int64
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vGroup []string
+	var vGroupn []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vMemberTypeID []int64
+	var vMemberTypeIDn []int64
+	var vProvider []string
+	var vProviderID []int64
+	var vQ *string
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vVirtualCircuit []string
+	var vVirtualCircuitID []int64
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
 		switch name {
@@ -305,6 +338,45 @@ func (d *circuitGroupAssignmentsDataSource) Read(ctx context.Context, req dataso
 				return
 			}
 			vMemberIDn = append(vMemberIDn, v)
+		case "member_id__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_id__lt' takes an integer, got %q.", value))
+				return
+			}
+			vMemberIDLt = append(vMemberIDLt, v)
+		case "member_id__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_id__lte' takes an integer, got %q.", value))
+				return
+			}
+			vMemberIDLte = append(vMemberIDLte, v)
+		case "member_id__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_id__gt' takes an integer, got %q.", value))
+				return
+			}
+			vMemberIDGt = append(vMemberIDGt, v)
+		case "member_id__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_id__gte' takes an integer, got %q.", value))
+				return
+			}
+			vMemberIDGte = append(vMemberIDGte, v)
+		case "member_id__empty":
+			if vMemberIDEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'member_id__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_id__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vMemberIDEmpty = &v
 		case "priority":
 			if vPriority != nil {
 				resp.Diagnostics.AddError("Duplicate filter", "Filter 'priority' takes a single value.")
@@ -369,6 +441,126 @@ func (d *circuitGroupAssignmentsDataSource) Read(ctx context.Context, req dataso
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "circuit":
+			v := value
+			vCircuit = append(vCircuit, v)
+		case "circuit_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'circuit_id' takes an integer, got %q.", value))
+				return
+			}
+			vCircuitID = append(vCircuitID, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "group":
+			v := value
+			vGroup = append(vGroup, v)
+		case "group__n":
+			v := value
+			vGroupn = append(vGroupn, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "member_type_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_type_id' takes an integer, got %q.", value))
+				return
+			}
+			vMemberTypeID = append(vMemberTypeID, v)
+		case "member_type_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'member_type_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vMemberTypeIDn = append(vMemberTypeIDn, v)
+		case "provider":
+			v := value
+			vProvider = append(vProvider, v)
+		case "provider_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'provider_id' takes an integer, got %q.", value))
+				return
+			}
+			vProviderID = append(vProviderID, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "virtual_circuit":
+			v := value
+			vVirtualCircuit = append(vVirtualCircuit, v)
+		case "virtual_circuit_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_circuit_id' takes an integer, got %q.", value))
+				return
+			}
+			vVirtualCircuitID = append(vVirtualCircuitID, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -412,6 +604,21 @@ func (d *circuitGroupAssignmentsDataSource) Read(ctx context.Context, req dataso
 	}
 	if len(vMemberIDn) > 0 {
 		params.SetMemberIDn(vMemberIDn)
+	}
+	if len(vMemberIDLt) > 0 {
+		params.SetMemberIDLt(vMemberIDLt)
+	}
+	if len(vMemberIDLte) > 0 {
+		params.SetMemberIDLte(vMemberIDLte)
+	}
+	if len(vMemberIDGt) > 0 {
+		params.SetMemberIDGt(vMemberIDGt)
+	}
+	if len(vMemberIDGte) > 0 {
+		params.SetMemberIDGte(vMemberIDGte)
+	}
+	if vMemberIDEmpty != nil {
+		params.SetMemberIDEmpty(vMemberIDEmpty)
 	}
 	if vPriority != nil {
 		params.SetPriority(vPriority)
@@ -460,6 +667,90 @@ func (d *circuitGroupAssignmentsDataSource) Read(ctx context.Context, req dataso
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vCircuit) > 0 {
+		params.SetCircuit(vCircuit)
+	}
+	if len(vCircuitID) > 0 {
+		params.SetCircuitID(vCircuitID)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vGroup) > 0 {
+		params.SetGroup(vGroup)
+	}
+	if len(vGroupn) > 0 {
+		params.SetGroupn(vGroupn)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vMemberTypeID) > 0 {
+		params.SetMemberTypeID(vMemberTypeID)
+	}
+	if len(vMemberTypeIDn) > 0 {
+		params.SetMemberTypeIDn(vMemberTypeIDn)
+	}
+	if len(vProvider) > 0 {
+		params.SetProvider(vProvider)
+	}
+	if len(vProviderID) > 0 {
+		params.SetProviderID(vProviderID)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if len(vVirtualCircuit) > 0 {
+		params.SetVirtualCircuit(vVirtualCircuit)
+	}
+	if len(vVirtualCircuitID) > 0 {
+		params.SetVirtualCircuitID(vVirtualCircuitID)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

@@ -32,22 +32,31 @@ data "netbox_config_template" "test" {
 
 ### Optional
 
+- `as_attachment` (Boolean) Serve the rendered output as a download.
+- `auto_sync_enabled` (Boolean) Whether auto sync enabled is set.
+- `created` (String)
+- `data_file_id` (Number) Id of the data file.
+- `data_source_id` (Number) Id of the data source.
+- `data_synced` (String) Data synced to match.
+- `debug` (Boolean) Render with Jinja2 debugging enabled.
+- `description` (String)
+- `file_extension` (String) File extension of the rendered output.
+- `file_name` (String) File name of the rendered output.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
+- `mime_type` (String) MIME type of the rendered output.
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 
 ### Read-Only
 
-- `as_attachment` (Boolean) Serve the rendered output as a download.
-- `created` (String)
-- `debug` (Boolean) Render with Jinja2 debugging enabled.
-- `description` (String)
 - `environment_params` (String) Parameters for the Jinja2 environment, as JSON text (use jsonencode()).
-- `file_extension` (String) File extension of the rendered output.
-- `file_name` (String) File name of the rendered output.
-- `last_updated` (String)
-- `mime_type` (String) MIME type of the rendered output.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `template_code` (String) Jinja2 template code.

@@ -31,20 +31,23 @@ data "netbox_inventory_item_template" "test" {
 
 ### Optional
 
-- `device_type_id` (Number) Id of the device type. NetBox refuses to move a template to another type.
-- `id` (Number) NetBox id.
-- `label` (String) Physical label.
-- `manufacturer_id` (Number) Id of the manufacturer.
-- `name` (String)
-- `parent_id` (Number) Id of the parent inventory item template.
-- `role_id` (Number) Id of the inventory item role.
-
-### Read-Only
-
 - `component_id` (Number) Id of the component template named by component_type.
 - `component_type` (String) Type of the component template the item is bound to, e.g. dcim.interfacetemplate. Requires component_id.
 - `created` (String)
 - `description` (String)
+- `device_type_id` (Number) Id of the device type. NetBox refuses to move a template to another type.
+- `id` (Number) NetBox id.
+- `label` (String) Physical label.
 - `last_updated` (String)
+- `manufacturer_id` (Number) Id of the manufacturer.
+- `manufacturer_slug` (String) Slug of the manufacturer.
+- `name` (String)
+- `parent_id` (Number) Id of the parent inventory item template.
 - `part_id` (String) Manufacturer part number.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `role_id` (Number) Id of the inventory item role.
+- `role_slug` (String) Slug of the role.
+
+### Read-Only
+
 - `url` (String)

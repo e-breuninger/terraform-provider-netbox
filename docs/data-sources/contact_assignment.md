@@ -30,19 +30,25 @@ data "netbox_contact_assignment" "test" {
 ### Optional
 
 - `contact_id` (Number) Id of the contact.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `group` (String) Group to match.
+- `group_id` (String) Id of the group.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
 - `object_id` (Number) Id of the object the contact is assigned to.
 - `object_type` (String) Content type of the object the contact is assigned to (dcim.site, dcim.device, tenancy.tenant, ...).
+- `object_type_id` (Number) Id of the object type.
+- `priority` (String) Priority of the contact for this object. One of: primary, secondary, tertiary, inactive.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `role_id` (Number) Id of the contact role. Once set it cannot be removed, only changed: NetBox rejects a null. If you drop it from the config, keep a depends_on on the role so it is destroyed after the assignment.
+- `role_slug` (String) Slug of the contact role.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 
 ### Read-Only
 
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `last_updated` (String)
-- `priority` (String) Priority of the contact for this object. One of: primary, secondary, tertiary, inactive.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

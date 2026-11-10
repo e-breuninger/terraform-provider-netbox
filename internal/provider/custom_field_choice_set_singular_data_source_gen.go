@@ -8,8 +8,10 @@ import (
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/extras"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -28,6 +30,17 @@ type customFieldChoiceSetDataSource struct {
 	client *netboxapi.Client
 }
 
+// customFieldChoiceSetDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type customFieldChoiceSetDataSourceModel struct {
+	customFieldChoiceSetResourceModel
+	Choice         types.String `tfsdk:"choice"`
+	ChoiceColor    types.String `tfsdk:"choice_color"`
+	OwnerName      types.String `tfsdk:"owner_name"`
+	OwnerGroupName types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID   types.Int64  `tfsdk:"owner_group_id"`
+	Q              types.String `tfsdk:"q"`
+}
+
 func (d *customFieldChoiceSetDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_custom_field_choice_set"
 }
@@ -42,14 +55,26 @@ func (d *customFieldChoiceSetDataSource) Schema(ctx context.Context, req datasou
 				Description: "NetBox id of the choice set.",
 			},
 			"name": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, 100),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"base_choices": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Predefined set of choices to start from. One of: IATA, ISO_3166, UN_LOCODE.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("IATA", "ISO_3166", "UN_LOCODE"),
+				},
 			},
 			"extra_choices": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -71,6 +96,7 @@ func (d *customFieldChoiceSetDataSource) Schema(ctx context.Context, req datasou
 				Description: "Colors of choices, by choice value. One of blue, indigo, purple, pink, red, orange, yellow, green, teal, cyan, gray, black or white each.",
 			},
 			"order_alphabetically": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Sort choices alphabetically instead of by definition order.",
 			},
@@ -83,13 +109,39 @@ func (d *customFieldChoiceSetDataSource) Schema(ctx context.Context, req datasou
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"choice": schema.StringAttribute{
+				Optional:    true,
+				Description: "Choice to match.",
+			},
+			"choice_color": schema.StringAttribute{
+				Optional:    true,
+				Description: "Choice colors.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
 			},
 		},
 	}
@@ -111,7 +163,7 @@ func (d *customFieldChoiceSetDataSource) Configure(ctx context.Context, req data
 }
 
 func (d *customFieldChoiceSetDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data customFieldChoiceSetResourceModel
+	var data customFieldChoiceSetDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -132,8 +184,68 @@ func (d *customFieldChoiceSetDataSource) Read(ctx context.Context, req datasourc
 		params.SetOwnerID([]int64{v})
 		hasInput = true
 	}
+	if !state.BaseChoices.IsNull() {
+		v := state.BaseChoices.ValueString()
+		params.SetBaseChoices(&v)
+		hasInput = true
+	}
+	if !state.Choice.IsNull() {
+		v := state.Choice.ValueString()
+		params.SetChoice([]string{v})
+		hasInput = true
+	}
+	if !state.ChoiceColor.IsNull() {
+		v := state.ChoiceColor.ValueString()
+		params.SetChoiceColors([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.Name.IsNull() {
+		v := state.Name.ValueString()
+		params.SetName([]string{v})
+		hasInput = true
+	}
+	if !state.OrderAlphabetically.IsNull() {
+		v := state.OrderAlphabetically.ValueBool()
+		params.SetOrderAlphabetically(&v)
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or owner_id to look up a netbox_custom_field_choice_set.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_custom_field_choice_set.")
 		return
 	}
 	res, err := d.client.Extras.ExtrasCustomFieldChoiceSetsListContext(ctx, params, nil)
@@ -152,7 +264,7 @@ func (d *customFieldChoiceSetDataSource) Read(ctx context.Context, req datasourc
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenCustomFieldChoiceSet(ctx, netboxapi.CustomFieldChoiceSetResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenCustomFieldChoiceSet(ctx, netboxapi.CustomFieldChoiceSetResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.customFieldChoiceSetResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

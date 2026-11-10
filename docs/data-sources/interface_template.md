@@ -29,22 +29,23 @@ data "netbox_interface_template" "test" {
 
 ### Optional
 
-- `id` (Number) NetBox id.
-- `mgmt_only` (Boolean) Whether the interface is used for out-of-band management only.
-- `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
-- `name` (String)
-- `type` (String) Interface type as its NetBox slug, e.g. virtual, lag, bridge, 1000base-t, 10gbase-x-sfpp (any of NetBox's interface type choices).
-
-### Read-Only
-
 - `bridge_id` (Number) Id of the bridge interface template.
 - `created` (String)
 - `description` (String)
 - `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `enabled` (Boolean) Whether the interface is enabled.
+- `id` (Number) NetBox id.
 - `label` (String) Physical label.
 - `last_updated` (String)
+- `mgmt_only` (Boolean) Whether the interface is used for out-of-band management only.
+- `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
+- `name` (String)
 - `poe_mode` (String) Power over Ethernet mode. One of: pd, pse.
 - `poe_type` (String) Power over Ethernet type as its NetBox slug, e.g. type1-ieee802.3af, type3-ieee802.3bt, passive-24v-2pair (any of NetBox's PoE type choices).
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `rf_role` (String) Wireless role. One of: ap, station.
+- `type` (String) Interface type as its NetBox slug, e.g. virtual, lag, bridge, 1000base-t, 10gbase-x-sfpp (any of NetBox's interface type choices).
+
+### Read-Only
+
 - `url` (String)

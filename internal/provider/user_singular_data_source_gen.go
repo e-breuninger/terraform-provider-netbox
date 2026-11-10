@@ -31,6 +31,19 @@ type userDataSource struct {
 	client *netboxapi.Client
 }
 
+// userDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type userDataSourceModel struct {
+	userResourceModel
+	GroupName           types.String `tfsdk:"group_name"`
+	GroupID             types.Int64  `tfsdk:"group_id"`
+	IsSuperuser         types.Bool   `tfsdk:"is_superuser"`
+	NotificationGroupID types.Int64  `tfsdk:"notification_group_id"`
+	OwnerName           types.String `tfsdk:"owner_name"`
+	OwnerID             types.Int64  `tfsdk:"owner_id"`
+	PermissionID        types.Int64  `tfsdk:"permission_id"`
+	Q                   types.String `tfsdk:"q"`
+}
+
 func (d *userDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_user"
 }
@@ -58,16 +71,29 @@ func (d *userDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				Description: "Password of the user. Never returned by NetBox, so changes made outside Terraform go unnoticed.",
 			},
 			"first_name": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(150),
+				},
 			},
 			"last_name": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(150),
+				},
 			},
 			"email": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Email address.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(254),
+				},
 			},
 			"is_active": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Whether the user may log in.",
 			},
@@ -82,15 +108,49 @@ func (d *userDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				Description: "Ids of the groups the user belongs to.",
 			},
 			"date_joined": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "When the account was created.",
 			},
 			"last_login": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "When the user last logged in; null until the first login.",
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the group.",
+			},
+			"group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the group.",
+			},
+			"is_superuser": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Whether is superuser is set.",
+			},
+			"notification_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the notification group.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner.",
+			},
+			"permission_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the permission.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
 			},
 		},
 	}
@@ -112,7 +172,7 @@ func (d *userDataSource) Configure(ctx context.Context, req datasource.Configure
 }
 
 func (d *userDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data userResourceModel
+	var data userDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -133,8 +193,78 @@ func (d *userDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		params.SetUsername([]string{v})
 		hasInput = true
 	}
+	if !state.DateJoined.IsNull() {
+		v := state.DateJoined.ValueString()
+		params.SetDateJoined([]string{v})
+		hasInput = true
+	}
+	if !state.Email.IsNull() {
+		v := state.Email.ValueString()
+		params.SetEmail([]string{v})
+		hasInput = true
+	}
+	if !state.FirstName.IsNull() {
+		v := state.FirstName.ValueString()
+		params.SetFirstName([]string{v})
+		hasInput = true
+	}
+	if !state.GroupName.IsNull() {
+		v := state.GroupName.ValueString()
+		params.SetGroup([]string{v})
+		hasInput = true
+	}
+	if !state.GroupID.IsNull() {
+		v := state.GroupID.ValueInt64()
+		params.SetGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.IsActive.IsNull() {
+		v := state.IsActive.ValueBool()
+		params.SetIsActive(&v)
+		hasInput = true
+	}
+	if !state.IsSuperuser.IsNull() {
+		v := state.IsSuperuser.ValueBool()
+		params.SetIsSuperuser(&v)
+		hasInput = true
+	}
+	if !state.LastLogin.IsNull() {
+		v := state.LastLogin.ValueString()
+		params.SetLastLogin([]string{v})
+		hasInput = true
+	}
+	if !state.LastName.IsNull() {
+		v := state.LastName.ValueString()
+		params.SetLastName([]string{v})
+		hasInput = true
+	}
+	if !state.NotificationGroupID.IsNull() {
+		v := state.NotificationGroupID.ValueInt64()
+		params.SetNotificationGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerID.IsNull() {
+		v := state.OwnerID.ValueInt64()
+		params.SetOwnerID([]int64{v})
+		hasInput = true
+	}
+	if !state.PermissionID.IsNull() {
+		v := state.PermissionID.ValueInt64()
+		params.SetPermissionID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or username to look up a netbox_user.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_user.")
 		return
 	}
 	res, err := d.client.Users.UsersUsersListContext(ctx, params, nil)
@@ -153,7 +283,7 @@ func (d *userDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenUser(ctx, netboxapi.UserResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenUser(ctx, netboxapi.UserResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.userResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

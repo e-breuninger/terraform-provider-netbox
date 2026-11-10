@@ -29,45 +29,71 @@ data "netbox_virtual_machine" "test" {
 
 ### Optional
 
+- `cluster` (String) Cluster.
+- `cluster_group_id` (Number) Id of the cluster group.
 - `cluster_group_slug` (String) Slug of the cluster group.
 - `cluster_id` (Number) Id of the cluster (a virtual machine needs a cluster or a site).
+- `cluster_type_id` (Number) Id of the cluster type.
+- `cluster_type_slug` (String) Slug of the cluster type.
+- `config_template_id` (Number) Id of the config template.
+- `contact` (Number) Id of the contact.
+- `contact_group_slug` (String) Slug of the contact group.
+- `contact_role` (Number) Id of the contact role.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `device_id` (Number) Id of the device hosting the VM.
 - `device_name` (String) Name of the device hosting the virtual machine.
+- `disk` (Number) Disk to match.
+- `has_local_context_data` (Boolean) Whether the object has local config context data.
+- `has_primary_ip` (Boolean) Has a primary IP.
 - `id` (Number) NetBox id.
+- `interface_count` (Number) Number of interfaces on the virtual machine.
+- `last_updated` (String)
+- `mac_address` (String) Mac address to match.
+- `memory` (Number) Memory to match.
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
 - `platform_id` (Number) Id of the platform.
 - `platform_slug` (String) Slug of the platform.
+- `primary_ip4` (String) Primary IPv4 (address).
+- `primary_ip4_id` (Number) Id of the primary IPv4 address (managed by netbox_primary_ip).
+- `primary_ip6` (String) Primary IPv6 (address).
+- `primary_ip6_id` (Number) Id of the primary IPv6 address (managed by netbox_primary_ip).
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `region_id` (String) Id of the region.
 - `region_slug` (String) Slug of the region of the site.
 - `role_id` (Number) Id of the functional device role.
 - `role_slug` (String) Slug of the role.
+- `serial` (String) Serial number.
+- `site_group_id` (String) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
 - `site_id` (Number) Id of the site (a virtual machine needs a cluster or a site).
 - `site_slug` (String) Slug of the site.
+- `start_on_boot` (String) Power state the virtual machine takes when its host boots. One of: on, off, laststate.
 - `status` (String) Operational status. One of: offline, active, planned, staged, failed, decommissioning, paused.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `vcpus` (Number) Number of virtual CPUs (fractions allowed).
+- `virtual_disk_count` (Number) Number of virtual disks on the virtual machine.
+- `virtual_machine_type_id` (Number) Id of the virtual machine type.
+- `virtual_machine_type_slug` (String) Slug of the virtual machine type.
 
 ### Read-Only
 
 - `comments` (String)
 - `config_context` (String) Rendered config context (local_context_data merged with the context assigned through cluster, platform, role, site, tenant and tags) as JSON text, decode with jsondecode().
-- `config_template_id` (Number) Id of the config template.
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
 - `disk_size_mb` (Number) Disk size in MB. Once the machine has virtual disks NetBox computes it as their sum and it can no longer be set; leave it unset then. Must be a whole number.
-- `interface_count` (Number) Number of interfaces on the virtual machine.
-- `last_updated` (String)
 - `local_context_data` (String) Local config context data as JSON text (use jsonencode()).
 - `memory_mb` (Number) Memory in MB. Must be a whole number.
-- `primary_ip4_id` (Number) Id of the primary IPv4 address (managed by netbox_primary_ip).
-- `primary_ip6_id` (Number) Id of the primary IPv6 address (managed by netbox_primary_ip).
-- `serial` (String) Serial number.
-- `start_on_boot` (String) Power state the virtual machine takes when its host boots. One of: on, off, laststate.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)
-- `vcpus` (Number) Number of virtual CPUs (fractions allowed).
-- `virtual_disk_count` (Number) Number of virtual disks on the virtual machine.
-- `virtual_machine_type_id` (Number) Id of the virtual machine type.

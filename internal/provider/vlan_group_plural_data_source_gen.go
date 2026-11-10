@@ -81,7 +81,7 @@ func (d *vlanGroupsDataSource) Schema(ctx context.Context, req datasource.Schema
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner_id, owner_id__n, scope_id, scope_id__empty, scope_id__gt, scope_id__gte, scope_id__lt, scope_id__lte, scope_id__n, scope_type, scope_type__n, slug, slug__empty, slug__ic, slug__ie, slug__iew, slug__iregex, slug__isw, slug__n, slug__nic, slug__nie, slug__niew, slug__nisw, slug__regex, tag, tag__any, tag__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: cluster, cluster_group, contains_vid, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, location, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, q, rack, rack_group, region, scope_id, scope_id__empty, scope_id__gt, scope_id__gte, scope_id__lt, scope_id__lte, scope_id__n, scope_type, scope_type__n, site, site_group, slug, slug__empty, slug__ic, slug__ie, slug__iew, slug__iregex, slug__isw, slug__n, slug__nic, slug__nie, slug__niew, slug__nisw, slug__regex, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, tenant, tenant__n, tenant_group, tenant_group__n, tenant_group_id, tenant_group_id__n, tenant_id, tenant_id__n, total_vlan_ids, total_vlan_ids__empty, total_vlan_ids__gt, total_vlan_ids__gte, total_vlan_ids__lt, total_vlan_ids__lte, total_vlan_ids__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -318,6 +318,54 @@ func (d *vlanGroupsDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vCluster *int64
+	var vClusterGroup *int64
+	var vContainsVid *float64
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vLocation *int64
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vQ *string
+	var vRack *int64
+	var vRackGroup *float64
+	var vRegion *int64
+	var vSite *int64
+	var vSiteGroup *int64
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vTenant []string
+	var vTenantn []string
+	var vTenantGroup []string
+	var vTenantGroupn []string
+	var vTenantGroupID []string
+	var vTenantGroupIDn []string
+	var vTenantID []int64
+	var vTenantIDn []int64
+	var vTotalVlanIds []int64
+	var vTotalVlanIdsn []int64
+	var vTotalVlanIdsLt []int64
+	var vTotalVlanIdsLte []int64
+	var vTotalVlanIdsGt []int64
+	var vTotalVlanIdsGte []int64
+	var vTotalVlanIdsEmpty *bool
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -604,6 +652,286 @@ func (d *vlanGroupsDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "cluster":
+			if vCluster != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'cluster' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'cluster' takes an integer, got %q.", value))
+				return
+			}
+			vCluster = &v
+		case "cluster_group":
+			if vClusterGroup != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'cluster_group' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'cluster_group' takes an integer, got %q.", value))
+				return
+			}
+			vClusterGroup = &v
+		case "contains_vid":
+			if vContainsVid != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'contains_vid' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contains_vid' takes a number, got %q.", value))
+				return
+			}
+			vContainsVid = &v
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "location":
+			if vLocation != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'location' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'location' takes an integer, got %q.", value))
+				return
+			}
+			vLocation = &v
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "rack":
+			if vRack != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'rack' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'rack' takes an integer, got %q.", value))
+				return
+			}
+			vRack = &v
+		case "rack_group":
+			if vRackGroup != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'rack_group' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'rack_group' takes a number, got %q.", value))
+				return
+			}
+			vRackGroup = &v
+		case "region":
+			if vRegion != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'region' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'region' takes an integer, got %q.", value))
+				return
+			}
+			vRegion = &v
+		case "site":
+			if vSite != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'site' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'site' takes an integer, got %q.", value))
+				return
+			}
+			vSite = &v
+		case "site_group":
+			if vSiteGroup != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'site_group' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'site_group' takes an integer, got %q.", value))
+				return
+			}
+			vSiteGroup = &v
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "tenant":
+			v := value
+			vTenant = append(vTenant, v)
+		case "tenant__n":
+			v := value
+			vTenantn = append(vTenantn, v)
+		case "tenant_group":
+			v := value
+			vTenantGroup = append(vTenantGroup, v)
+		case "tenant_group__n":
+			v := value
+			vTenantGroupn = append(vTenantGroupn, v)
+		case "tenant_group_id":
+			v := value
+			vTenantGroupID = append(vTenantGroupID, v)
+		case "tenant_group_id__n":
+			v := value
+			vTenantGroupIDn = append(vTenantGroupIDn, v)
+		case "tenant_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tenant_id' takes an integer, got %q.", value))
+				return
+			}
+			vTenantID = append(vTenantID, v)
+		case "tenant_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tenant_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTenantIDn = append(vTenantIDn, v)
+		case "total_vlan_ids":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'total_vlan_ids' takes an integer, got %q.", value))
+				return
+			}
+			vTotalVlanIds = append(vTotalVlanIds, v)
+		case "total_vlan_ids__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'total_vlan_ids__n' takes an integer, got %q.", value))
+				return
+			}
+			vTotalVlanIdsn = append(vTotalVlanIdsn, v)
+		case "total_vlan_ids__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'total_vlan_ids__lt' takes an integer, got %q.", value))
+				return
+			}
+			vTotalVlanIdsLt = append(vTotalVlanIdsLt, v)
+		case "total_vlan_ids__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'total_vlan_ids__lte' takes an integer, got %q.", value))
+				return
+			}
+			vTotalVlanIdsLte = append(vTotalVlanIdsLte, v)
+		case "total_vlan_ids__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'total_vlan_ids__gt' takes an integer, got %q.", value))
+				return
+			}
+			vTotalVlanIdsGt = append(vTotalVlanIdsGt, v)
+		case "total_vlan_ids__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'total_vlan_ids__gte' takes an integer, got %q.", value))
+				return
+			}
+			vTotalVlanIdsGte = append(vTotalVlanIdsGte, v)
+		case "total_vlan_ids__empty":
+			if vTotalVlanIdsEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'total_vlan_ids__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'total_vlan_ids__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vTotalVlanIdsEmpty = &v
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -788,6 +1116,150 @@ func (d *vlanGroupsDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if vCluster != nil {
+		params.SetCluster(vCluster)
+	}
+	if vClusterGroup != nil {
+		params.SetClusterGroup(vClusterGroup)
+	}
+	if vContainsVid != nil {
+		params.SetContainsVid(vContainsVid)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if vLocation != nil {
+		params.SetLocation(vLocation)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if vRack != nil {
+		params.SetRack(vRack)
+	}
+	if vRackGroup != nil {
+		params.SetRackGroup(vRackGroup)
+	}
+	if vRegion != nil {
+		params.SetRegion(vRegion)
+	}
+	if vSite != nil {
+		params.SetSite(vSite)
+	}
+	if vSiteGroup != nil {
+		params.SetSiteGroup(vSiteGroup)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if len(vTenant) > 0 {
+		params.SetTenant(vTenant)
+	}
+	if len(vTenantn) > 0 {
+		params.SetTenantn(vTenantn)
+	}
+	if len(vTenantGroup) > 0 {
+		params.SetTenantGroup(vTenantGroup)
+	}
+	if len(vTenantGroupn) > 0 {
+		params.SetTenantGroupn(vTenantGroupn)
+	}
+	if len(vTenantGroupID) > 0 {
+		params.SetTenantGroupID(vTenantGroupID)
+	}
+	if len(vTenantGroupIDn) > 0 {
+		params.SetTenantGroupIDn(vTenantGroupIDn)
+	}
+	if len(vTenantID) > 0 {
+		params.SetTenantID(vTenantID)
+	}
+	if len(vTenantIDn) > 0 {
+		params.SetTenantIDn(vTenantIDn)
+	}
+	if len(vTotalVlanIds) > 0 {
+		params.SetTotalVlanIds(vTotalVlanIds)
+	}
+	if len(vTotalVlanIdsn) > 0 {
+		params.SetTotalVlanIdsn(vTotalVlanIdsn)
+	}
+	if len(vTotalVlanIdsLt) > 0 {
+		params.SetTotalVlanIdsLt(vTotalVlanIdsLt)
+	}
+	if len(vTotalVlanIdsLte) > 0 {
+		params.SetTotalVlanIdsLte(vTotalVlanIdsLte)
+	}
+	if len(vTotalVlanIdsGt) > 0 {
+		params.SetTotalVlanIdsGt(vTotalVlanIdsGt)
+	}
+	if len(vTotalVlanIdsGte) > 0 {
+		params.SetTotalVlanIdsGte(vTotalVlanIdsGte)
+	}
+	if vTotalVlanIdsEmpty != nil {
+		params.SetTotalVlanIdsEmpty(vTotalVlanIdsEmpty)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

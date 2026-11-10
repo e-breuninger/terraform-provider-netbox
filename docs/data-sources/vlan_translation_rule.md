@@ -31,12 +31,18 @@ data "netbox_vlan_translation_rule" "test" {
 
 ### Optional
 
+- `created` (String) Creation time of the object.
+- `description` (String)
 - `id` (Number) NetBox id.
+- `last_updated` (String) Last update time of the object.
 - `local_vid` (Number) VLAN id on the local side (1-4094). Must be a whole number.
+- `policy_name` (String) Name of the VLAN translation policy.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `remote_vid` (Number) VLAN id on the remote side (1-4094). Must be a whole number.
+- `tag` (String) Slug of a tag the object carries.
+- `tag_id` (Number) Id of a tag the object carries.
 - `vlan_translation_policy_id` (Number) Id of the translation policy the rule belongs to.
 
 ### Read-Only
 
-- `description` (String)
 - `url` (String)

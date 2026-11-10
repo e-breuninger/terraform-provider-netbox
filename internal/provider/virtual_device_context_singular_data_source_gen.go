@@ -37,6 +37,19 @@ type virtualDeviceContextDataSource struct {
 type virtualDeviceContextDataSourceModel struct {
 	virtualDeviceContextResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Device             types.Int64  `tfsdk:"device"`
+	HasPrimaryIP       types.Bool   `tfsdk:"has_primary_ip"`
+	InterfaceID        types.Int64  `tfsdk:"interface_id"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	PrimaryIp4         types.String `tfsdk:"primary_ip4"`
+	PrimaryIp6         types.String `tfsdk:"primary_ip6"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	TenantSlug         types.String `tfsdk:"tenant_slug"`
+	TenantGroupSlug    types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID      types.String `tfsdk:"tenant_group_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -87,10 +100,12 @@ func (d *virtualDeviceContextDataSource) Schema(ctx context.Context, req datasou
 				Description: "Id of the tenant.",
 			},
 			"primary_ip4_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the primary IPv4 address; it must be assigned to an interface of the device.",
 			},
 			"primary_ip6_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the primary IPv6 address; it must be assigned to an interface of the device.",
 			},
@@ -99,7 +114,11 @@ func (d *virtualDeviceContextDataSource) Schema(ctx context.Context, req datasou
 				Description: "Number of interfaces assigned to the context.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -110,9 +129,11 @@ func (d *virtualDeviceContextDataSource) Schema(ctx context.Context, req datasou
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -136,6 +157,58 @@ func (d *virtualDeviceContextDataSource) Schema(ctx context.Context, req datasou
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"device": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the device model.",
+			},
+			"has_primary_ip": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Has a primary IP.",
+			},
+			"interface_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the interface.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"primary_ip4": schema.StringAttribute{
+				Optional:    true,
+				Description: "Primary IPv4 (address).",
+			},
+			"primary_ip6": schema.StringAttribute{
+				Optional:    true,
+				Description: "Primary IPv6 (address).",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -214,6 +287,96 @@ func (d *virtualDeviceContextDataSource) Read(ctx context.Context, req datasourc
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.Device.IsNull() {
+		v := state.Device.ValueInt64()
+		params.SetDevice([]int64{v})
+		hasInput = true
+	}
+	if !state.HasPrimaryIP.IsNull() {
+		v := state.HasPrimaryIP.ValueBool()
+		params.SetHasPrimaryIP(&v)
+		hasInput = true
+	}
+	if !state.InterfaceID.IsNull() {
+		v := state.InterfaceID.ValueInt64()
+		params.SetInterfaceID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.PrimaryIp4.IsNull() {
+		v := state.PrimaryIp4.ValueString()
+		params.SetPrimaryIp4([]string{v})
+		hasInput = true
+	}
+	if !state.PrimaryIp4ID.IsNull() {
+		v := state.PrimaryIp4ID.ValueInt64()
+		params.SetPrimaryIp4ID([]int64{v})
+		hasInput = true
+	}
+	if !state.PrimaryIp6.IsNull() {
+		v := state.PrimaryIp6.ValueString()
+		params.SetPrimaryIp6([]string{v})
+		hasInput = true
+	}
+	if !state.PrimaryIp6ID.IsNull() {
+		v := state.PrimaryIp6ID.ValueInt64()
+		params.SetPrimaryIp6ID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -221,7 +384,7 @@ func (d *virtualDeviceContextDataSource) Read(ctx context.Context, req datasourc
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or device_id and/or status and/or tenant_id and/or identifier and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_virtual_device_context.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_virtual_device_context.")
 		return
 	}
 	res, err := d.client.Dcim.DcimVirtualDeviceContextsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

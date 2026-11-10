@@ -31,19 +31,21 @@ data "netbox_token" "test" {
 
 ### Optional
 
-- `id` (Number) NetBox id.
-- `user_id` (Number) Id of the user the token belongs to.
-
-### Read-Only
-
 - `created` (String)
 - `description` (String)
 - `enabled` (Boolean) Whether the token can authenticate; disabling keeps the token but rejects its use.
 - `expires` (String) Expiry as an RFC 3339 timestamp with milliseconds (2030-01-01T00:00:00.000Z); never expires when unset.
+- `id` (Number) NetBox id.
 - `key` (String) Identification key NetBox generated for the token; not the secret.
 - `last_used` (String) When the token was last used.
 - `pepper_id` (Number) Id of the pepper the secret was hashed with.
-- `token` (String, Sensitive) The secret. NetBox returns it in the create response only, so an imported token has none in state and a secret changed outside Terraform goes unnoticed. Changing it replaces the token.
-- `url` (String)
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `user_id` (Number) Id of the user the token belongs to.
+- `user_name` (String) Name of the user.
 - `version` (Number) Token format version (1 legacy plaintext, 2 hashed). Defaults to 2. Changing it replaces the token. One of: 1, 2.
 - `write_enabled` (Boolean) Whether the token permits write operations.
+
+### Read-Only
+
+- `token` (String, Sensitive) The secret. NetBox returns it in the create response only, so an imported token has none in state and a secret changed outside Terraform goes unnoticed. Changing it replaces the token.
+- `url` (String)

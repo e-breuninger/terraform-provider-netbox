@@ -29,17 +29,18 @@ data "netbox_module_bay_template" "test" {
 
 ### Optional
 
-- `id` (Number) NetBox id.
-- `name` (String)
-
-### Read-Only
-
 - `created` (String)
 - `description` (String)
 - `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `enabled` (Boolean) Whether the module bay is enabled.
+- `id` (Number) NetBox id.
 - `label` (String) Physical label.
 - `last_updated` (String)
 - `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
+- `name` (String)
 - `position` (String) Identifier of the bay's position, substituted into the names of the module's components.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+
+### Read-Only
+
 - `url` (String)

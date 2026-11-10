@@ -29,17 +29,27 @@ data "netbox_circuit_group_assignment" "test" {
 
 ### Optional
 
+- `circuit` (String) Circuit to match.
 - `circuit_group_id` (Number) Id of the circuit group the member is assigned to.
+- `circuit_id` (Number) Id of the circuit.
+- `created` (String)
+- `group_slug` (String) Slug of the circuit group.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
 - `member_id` (Number) Id of the assigned circuit or virtual circuit.
 - `member_type` (String) Content type of the assigned member. One of: circuits.circuit, circuits.virtualcircuit.
+- `member_type_id` (Number) Id of the member type.
 - `priority` (String) Priority of this member within the group. One of: primary, secondary, tertiary, inactive.
+- `provider_id` (Number) Id of the provider.
+- `provider_slug` (String) Slug of the provider.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `virtual_circuit` (String) Virtual circuit to match.
+- `virtual_circuit_id` (Number) Id of the virtual circuit.
 
 ### Read-Only
 
-- `created` (String)
-- `last_updated` (String)
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

@@ -31,34 +31,42 @@ data "netbox_custom_field" "test" {
 
 ### Optional
 
-- `id` (Number) NetBox id of the custom field.
-- `name` (String) Internal field name (also the key in custom_fields).
-
-### Read-Only
-
+- `choice_set` (String) Choice set to match.
 - `choice_set_id` (Number) Id of the choice set (select and multiselect fields).
-- `comments` (String)
 - `created` (String)
-- `default` (String) Default value as JSON text, e.g. jsonencode("foo") or jsonencode(5).
 - `description` (String)
 - `filter_logic` (String) How the field is matched when filtering. One of: disabled, loose, exact.
 - `group_name` (String) Custom fields in the same group are shown together.
+- `id` (Number) NetBox id of the custom field.
 - `is_cloneable` (Boolean) Whether the value is copied when an object is cloned.
 - `label` (String) Human-readable label.
 - `last_updated` (String)
-- `object_types` (Set of String) Object types the field applies to, e.g. dcim.site.
+- `name` (String) Internal field name (also the key in custom_fields).
+- `object_type` (String) Object type to match.
+- `object_type_id` (Number) Id of the object type.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
-- `related_object_filter` (String) Query parameters that narrow the objects offered for object and multiobject fields, as JSON text, e.g. jsonencode({ status = "active" }).
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `related_object_type` (String) Content type of the related objects for object and multiobject fields, e.g. dcim.device.
+- `related_object_type_id` (Number) Id of the related object type.
 - `required` (Boolean) Whether a value is required when creating objects.
 - `search_weight` (Number) Weight of the field in the global search; lower values rank higher and 0 leaves the field out. Must be a whole number.
 - `type` (String) Field data type. One of: text, longtext, integer, decimal, boolean, date, datetime, url, json, select, multiselect, object, multiobject.
 - `ui_editable` (String) Whether the field value can be edited in the UI. One of: yes, no, hidden.
 - `ui_visible` (String) Whether the field is displayed in the UI. One of: always, if-set, hidden.
 - `unique` (Boolean) Whether the value must be unique among the objects the field is assigned to.
-- `url` (String)
 - `validation_maximum` (Number) Maximum allowed value (numeric fields).
 - `validation_minimum` (Number) Minimum allowed value (numeric fields).
 - `validation_regex` (String) Regular expression text values must match.
-- `validation_schema` (String) JSON schema that values of a json field must match, as JSON text (use jsonencode()).
 - `weight` (Number) Order within a group. Must be a whole number.
+
+### Read-Only
+
+- `comments` (String)
+- `default` (String) Default value as JSON text, e.g. jsonencode("foo") or jsonencode(5).
+- `object_types` (Set of String) Object types the field applies to, e.g. dcim.site.
+- `related_object_filter` (String) Query parameters that narrow the objects offered for object and multiobject fields, as JSON text, e.g. jsonencode({ status = "active" }).
+- `url` (String)
+- `validation_schema` (String) JSON schema that values of a json field must match, as JSON text (use jsonencode()).

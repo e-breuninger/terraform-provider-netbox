@@ -10,8 +10,11 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/vpn"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -33,8 +36,24 @@ type l2vpnTerminationDataSource struct {
 // l2vpnTerminationDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type l2vpnTerminationDataSourceModel struct {
 	l2vpnTerminationResourceModel
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	TagSlug              types.String `tfsdk:"tag_slug"`
+	AssignedObjectTypeID types.Int64  `tfsdk:"assigned_object_type_id"`
+	DeviceName           types.String `tfsdk:"device_name"`
+	DeviceID             types.Int64  `tfsdk:"device_id"`
+	InterfaceName        types.String `tfsdk:"interface_name"`
+	L2vpnSlug            types.String `tfsdk:"l2vpn_slug"`
+	Q                    types.String `tfsdk:"q"`
+	RegionSlug           types.String `tfsdk:"region_slug"`
+	RegionID             types.Int64  `tfsdk:"region_id"`
+	SiteSlug             types.String `tfsdk:"site_slug"`
+	SiteID               types.Int64  `tfsdk:"site_id"`
+	TagID                types.Int64  `tfsdk:"tag_id"`
+	VirtualMachineName   types.String `tfsdk:"virtual_machine_name"`
+	VirtualMachineID     types.Int64  `tfsdk:"virtual_machine_id"`
+	VlanName             types.String `tfsdk:"vlan_name"`
+	VlanVid              types.Int64  `tfsdk:"vlan_vid"`
+	VminterfaceName      types.String `tfsdk:"vminterface_name"`
+	CustomFieldFilters   types.Map    `tfsdk:"custom_field_filters"`
 }
 
 func (d *l2vpnTerminationDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -56,12 +75,20 @@ func (d *l2vpnTerminationDataSource) Schema(ctx context.Context, req datasource.
 				Description: "Id of the L2VPN.",
 			},
 			"assigned_object_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Content type of the terminating object. Derived from device_interface_id, virtual_machine_interface_id or vlan_id when one of those is set; set it together with assigned_object_id otherwise. One assignment is required. One of: dcim.interface, virtualization.vminterface, ipam.vlan.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("dcim.interface", "virtualization.vminterface", "ipam.vlan"),
+				},
 			},
 			"assigned_object_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the terminating object (see assigned_object_type).",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"device_interface_id": schema.Int64Attribute{
 				Optional:    true,
@@ -79,9 +106,11 @@ func (d *l2vpnTerminationDataSource) Schema(ctx context.Context, req datasource.
 				Description: "Id of the terminating VLAN (assigned_object_type ipam.vlan). Conflicts with the other aliases and with setting the assigned_object_* pair directly.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -105,6 +134,70 @@ func (d *l2vpnTerminationDataSource) Schema(ctx context.Context, req datasource.
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"assigned_object_type_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the assigned object type.",
+			},
+			"device_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the device.",
+			},
+			"device_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the device.",
+			},
+			"interface_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the interface.",
+			},
+			"l2vpn_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the L2VPN.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"region_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the region.",
+			},
+			"region_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the region.",
+			},
+			"site_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site.",
+			},
+			"site_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the site.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"virtual_machine_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the virtual machine.",
+			},
+			"virtual_machine_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the virtual machine.",
+			},
+			"vlan_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the VLAN.",
+			},
+			"vlan_vid": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the VLAN number (1-4094).",
+			},
+			"vminterface_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the VM interface.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -173,6 +266,106 @@ func (d *l2vpnTerminationDataSource) Read(ctx context.Context, req datasource.Re
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.AssignedObjectID.IsNull() {
+		v := state.AssignedObjectID.ValueInt64()
+		params.SetAssignedObjectID([]int64{v})
+		hasInput = true
+	}
+	if !state.AssignedObjectType.IsNull() {
+		v := state.AssignedObjectType.ValueString()
+		params.SetAssignedObjectType([]string{v})
+		hasInput = true
+	}
+	if !state.AssignedObjectTypeID.IsNull() {
+		v := state.AssignedObjectTypeID.ValueInt64()
+		params.SetAssignedObjectTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceName.IsNull() {
+		v := state.DeviceName.ValueString()
+		params.SetDevice([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceID.IsNull() {
+		v := state.DeviceID.ValueInt64()
+		params.SetDeviceID([]int64{v})
+		hasInput = true
+	}
+	if !state.InterfaceName.IsNull() {
+		v := state.InterfaceName.ValueString()
+		params.SetInterface([]string{v})
+		hasInput = true
+	}
+	if !state.L2vpnSlug.IsNull() {
+		v := state.L2vpnSlug.ValueString()
+		params.SetL2vpn([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RegionSlug.IsNull() {
+		v := state.RegionSlug.ValueString()
+		params.SetRegion([]string{v})
+		hasInput = true
+	}
+	if !state.RegionID.IsNull() {
+		v := state.RegionID.ValueInt64()
+		params.SetRegionID([]int64{v})
+		hasInput = true
+	}
+	if !state.SiteSlug.IsNull() {
+		v := state.SiteSlug.ValueString()
+		params.SetSite([]string{v})
+		hasInput = true
+	}
+	if !state.SiteID.IsNull() {
+		v := state.SiteID.ValueInt64()
+		params.SetSiteID([]int64{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineName.IsNull() {
+		v := state.VirtualMachineName.ValueString()
+		params.SetVirtualMachine([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineID.IsNull() {
+		v := state.VirtualMachineID.ValueInt64()
+		params.SetVirtualMachineID([]int64{v})
+		hasInput = true
+	}
+	if !state.VlanName.IsNull() {
+		v := state.VlanName.ValueString()
+		params.SetVlan([]string{v})
+		hasInput = true
+	}
+	if !state.VlanVid.IsNull() {
+		v := state.VlanVid.ValueInt64()
+		params.SetVlanVid(&v)
+		hasInput = true
+	}
+	if !state.VminterfaceName.IsNull() {
+		v := state.VminterfaceName.ValueString()
+		params.SetVminterface([]string{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -180,7 +373,7 @@ func (d *l2vpnTerminationDataSource) Read(ctx context.Context, req datasource.Re
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or l2vpn_id and/or vlan_id and/or device_interface_id and/or virtual_machine_interface_id and/or tag_slug and/or custom_field_filters to look up a netbox_l2vpn_termination.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_l2vpn_termination.")
 		return
 	}
 	res, err := d.client.Vpn.VpnL2vpnTerminationsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

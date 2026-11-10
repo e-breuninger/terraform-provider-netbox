@@ -10,6 +10,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -36,6 +37,33 @@ type inventoryItemDataSource struct {
 type inventoryItemDataSourceModel struct {
 	inventoryItemResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	DeviceName         types.String `tfsdk:"device_name"`
+	DeviceRoleSlug     types.String `tfsdk:"device_role_slug"`
+	DeviceRoleID       types.Int64  `tfsdk:"device_role_id"`
+	DeviceStatus       types.String `tfsdk:"device_status"`
+	DeviceTypeModel    types.String `tfsdk:"device_type_model"`
+	DeviceTypeID       types.Int64  `tfsdk:"device_type_id"`
+	LocationSlug       types.String `tfsdk:"location_slug"`
+	LocationID         types.Int64  `tfsdk:"location_id"`
+	ManufacturerSlug   types.String `tfsdk:"manufacturer_slug"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Q                  types.String `tfsdk:"q"`
+	RackName           types.String `tfsdk:"rack_name"`
+	RackID             types.Int64  `tfsdk:"rack_id"`
+	RegionSlug         types.String `tfsdk:"region_slug"`
+	RegionID           types.String `tfsdk:"region_id"`
+	RoleSlug           types.String `tfsdk:"role_slug"`
+	SiteSlug           types.String `tfsdk:"site_slug"`
+	SiteGroupSlug      types.String `tfsdk:"site_group_slug"`
+	SiteGroupID        types.String `tfsdk:"site_group_id"`
+	SiteID             types.Int64  `tfsdk:"site_id"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	TenantSlug         types.String `tfsdk:"tenant_slug"`
+	TenantID           types.Int64  `tfsdk:"tenant_id"`
+	VirtualChassis     types.String `tfsdk:"virtual_chassis"`
+	VirtualChassisID   types.Int64  `tfsdk:"virtual_chassis_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -75,8 +103,12 @@ func (d *inventoryItemDataSource) Schema(ctx context.Context, req datasource.Sch
 				Description: "Id of the inventory item role.",
 			},
 			"status": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Operational status. One of: offline, active, planned, staged, failed, decommissioning.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("offline", "active", "planned", "staged", "failed", "decommissioning"),
+				},
 			},
 			"manufacturer_id": schema.Int64Attribute{
 				Optional:    true,
@@ -84,8 +116,12 @@ func (d *inventoryItemDataSource) Schema(ctx context.Context, req datasource.Sch
 				Description: "Id of the manufacturer.",
 			},
 			"part_id": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Manufacturer part number.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(50),
+				},
 			},
 			"serial": schema.StringAttribute{
 				Optional:    true,
@@ -109,12 +145,17 @@ func (d *inventoryItemDataSource) Schema(ctx context.Context, req datasource.Sch
 				Description: "Whether the item was discovered automatically.",
 			},
 			"component_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Type of the device component the item is bound to, e.g. dcim.interface. Requires component_id.",
 			},
 			"component_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the device component named by component_type.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"label": schema.StringAttribute{
 				Optional:    true,
@@ -125,7 +166,11 @@ func (d *inventoryItemDataSource) Schema(ctx context.Context, req datasource.Sch
 				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"owner_id": schema.Int64Attribute{
 				Optional:    true,
@@ -133,9 +178,11 @@ func (d *inventoryItemDataSource) Schema(ctx context.Context, req datasource.Sch
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -159,6 +206,114 @@ func (d *inventoryItemDataSource) Schema(ctx context.Context, req datasource.Sch
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"device_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the device.",
+			},
+			"device_role_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the device role.",
+			},
+			"device_role_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the device role.",
+			},
+			"device_status": schema.StringAttribute{
+				Optional:    true,
+				Description: "Device status to match.",
+			},
+			"device_type_model": schema.StringAttribute{
+				Optional:    true,
+				Description: "Model of the device type.",
+			},
+			"device_type_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the device type.",
+			},
+			"location_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the location.",
+			},
+			"location_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the location.",
+			},
+			"manufacturer_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the manufacturer.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"rack_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the rack.",
+			},
+			"rack_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the rack.",
+			},
+			"region_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the region.",
+			},
+			"region_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the region.",
+			},
+			"role_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the role.",
+			},
+			"site_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site.",
+			},
+			"site_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site group.",
+			},
+			"site_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the site group.",
+			},
+			"site_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the site.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the tenant.",
+			},
+			"virtual_chassis": schema.StringAttribute{
+				Optional:    true,
+				Description: "Virtual Chassis.",
+			},
+			"virtual_chassis_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the virtual chassis.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -257,6 +412,176 @@ func (d *inventoryItemDataSource) Read(ctx context.Context, req datasource.ReadR
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.ComponentID.IsNull() {
+		v := state.ComponentID.ValueInt64()
+		params.SetComponentID([]int64{v})
+		hasInput = true
+	}
+	if !state.ComponentType.IsNull() {
+		v := state.ComponentType.ValueString()
+		params.SetComponentType([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceName.IsNull() {
+		v := state.DeviceName.ValueString()
+		params.SetDevice([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceRoleSlug.IsNull() {
+		v := state.DeviceRoleSlug.ValueString()
+		params.SetDeviceRole([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceRoleID.IsNull() {
+		v := state.DeviceRoleID.ValueInt64()
+		params.SetDeviceRoleID([]int64{v})
+		hasInput = true
+	}
+	if !state.DeviceStatus.IsNull() {
+		v := state.DeviceStatus.ValueString()
+		params.SetDeviceStatus([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceTypeModel.IsNull() {
+		v := state.DeviceTypeModel.ValueString()
+		params.SetDeviceType([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceTypeID.IsNull() {
+		v := state.DeviceTypeID.ValueInt64()
+		params.SetDeviceTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.LocationSlug.IsNull() {
+		v := state.LocationSlug.ValueString()
+		params.SetLocation([]string{v})
+		hasInput = true
+	}
+	if !state.LocationID.IsNull() {
+		v := state.LocationID.ValueInt64()
+		params.SetLocationID([]int64{v})
+		hasInput = true
+	}
+	if !state.ManufacturerSlug.IsNull() {
+		v := state.ManufacturerSlug.ValueString()
+		params.SetManufacturer([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.PartID.IsNull() {
+		v := state.PartID.ValueString()
+		params.SetPartID([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RackName.IsNull() {
+		v := state.RackName.ValueString()
+		params.SetRack([]string{v})
+		hasInput = true
+	}
+	if !state.RackID.IsNull() {
+		v := state.RackID.ValueInt64()
+		params.SetRackID([]int64{v})
+		hasInput = true
+	}
+	if !state.RegionSlug.IsNull() {
+		v := state.RegionSlug.ValueString()
+		params.SetRegion([]string{v})
+		hasInput = true
+	}
+	if !state.RegionID.IsNull() {
+		v := state.RegionID.ValueString()
+		params.SetRegionID([]string{v})
+		hasInput = true
+	}
+	if !state.RoleSlug.IsNull() {
+		v := state.RoleSlug.ValueString()
+		params.SetRole([]string{v})
+		hasInput = true
+	}
+	if !state.SiteSlug.IsNull() {
+		v := state.SiteSlug.ValueString()
+		params.SetSite([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupSlug.IsNull() {
+		v := state.SiteGroupSlug.ValueString()
+		params.SetSiteGroup([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupID.IsNull() {
+		v := state.SiteGroupID.ValueString()
+		params.SetSiteGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.SiteID.IsNull() {
+		v := state.SiteID.ValueInt64()
+		params.SetSiteID([]int64{v})
+		hasInput = true
+	}
+	if !state.Status.IsNull() {
+		v := state.Status.ValueString()
+		params.SetStatus([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantID.IsNull() {
+		v := state.TenantID.ValueInt64()
+		params.SetTenantID([]int64{v})
+		hasInput = true
+	}
+	if !state.VirtualChassis.IsNull() {
+		v := state.VirtualChassis.ValueString()
+		params.SetVirtualChassis([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualChassisID.IsNull() {
+		v := state.VirtualChassisID.ValueInt64()
+		params.SetVirtualChassisID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -264,7 +589,7 @@ func (d *inventoryItemDataSource) Read(ctx context.Context, req datasource.ReadR
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or device_id and/or label and/or role_id and/or manufacturer_id and/or serial and/or asset_tag and/or discovered and/or parent_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_inventory_item.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_inventory_item.")
 		return
 	}
 	res, err := d.client.Dcim.DcimInventoryItemsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

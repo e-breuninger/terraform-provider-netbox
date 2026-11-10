@@ -31,29 +31,47 @@ data "netbox_vlan_group" "test" {
 
 ### Optional
 
+- `cluster` (Number) Id of the cluster.
+- `cluster_group` (Number) Id of the cluster group.
+- `contains_vid` (Number) Id of the contains vid.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `description` (String)
 - `id` (Number) NetBox id.
+- `last_updated` (String)
+- `location` (Number) Id of the location.
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `rack` (Number) Id of the rack.
+- `rack_group` (Number) Id of the rack group.
+- `region` (Number) Id of the region.
 - `scope_id` (Number) Id of the scope object (see scope_type).
 - `scope_type` (String) Content type of the scope. Derived from site_id, location_id, region_id or site_group_id when one of those is set; set it together with scope_id otherwise. One of: dcim.site, dcim.location, dcim.region, dcim.sitegroup.
+- `site` (Number) Id of the site.
+- `site_group` (Number) Id of the site group.
 - `slug` (String) URL-friendly unique shorthand; derived from name when not set.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
+- `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `total_vlan_ids` (Number) Id of the total vlan ids.
 
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `last_updated` (String)
 - `location_id` (Number) Id of the location the object is scoped to (scope_type dcim.location).
 - `region_id` (Number) Id of the region the object is scoped to (scope_type dcim.region).
 - `site_group_id` (Number) Id of the site group the object is scoped to (scope_type dcim.sitegroup).
 - `site_id` (Number) Id of the site the object is scoped to (scope_type dcim.site). Conflicts with the other scope aliases and with setting the scope_* pair directly.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
-- `tenant_id` (Number) Id of the tenant.
 - `url` (String)
 - `utilization` (String) Share of the VID ranges in use, as NetBox reports it, e.g. "12.50%".
 - `vid_ranges` (Attributes List) VLAN id ranges of this group as {start, end} pairs. (see [below for nested schema](#nestedatt--vid_ranges))

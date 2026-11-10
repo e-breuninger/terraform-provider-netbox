@@ -29,55 +29,102 @@ data "netbox_device" "test" {
 
 ### Optional
 
+- `airflow` (String) One of: front-to-rear, rear-to-front, left-to-right, right-to-left, side-to-rear, passive, mixed, rear-to-side, bottom-to-top, top-to-bottom.
 - `asset_tag` (String) Unique asset tag.
+- `cluster_group_id` (Number) Id of the cluster group.
+- `cluster_group_slug` (String) Slug of the cluster group.
 - `cluster_id` (Number) Id of the virtualization cluster the device hosts.
+- `config_template_id` (Number) Id of the config template.
+- `console_port_count` (Number) Number of console ports on the device.
+- `console_ports` (Boolean) Has console ports.
+- `console_server_port_count` (Number) Number of console server ports on the device.
+- `console_server_ports` (Boolean) Has console server ports.
+- `contact` (Number) Id of the contact.
+- `contact_group_slug` (String) Slug of the contact group.
+- `contact_role` (Number) Id of the contact role.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
+- `device_bay_count` (Number) Number of device bays on the device.
+- `device_bays` (Boolean) Has device bays.
 - `device_type_id` (Number) Id of the device type.
+- `device_type_slug` (String) Slug of the device type.
+- `face` (String) Face. One of: front, rear.
+- `front_port_count` (Number) Number of front ports on the device.
+- `has_local_context_data` (Boolean) Whether the object has local config context data.
+- `has_oob_ip` (Boolean) Has an out-of-band IP.
+- `has_primary_ip` (Boolean) Has a primary IP.
+- `has_virtual_device_context` (Boolean) Has virtual device context.
 - `id` (Number) NetBox id.
+- `interface_count` (Number) Number of interfaces on the device.
+- `interfaces` (Boolean) Has interfaces.
+- `inventory_item_count` (Number) Number of inventory items on the device.
+- `is_full_depth` (Boolean) Is full depth.
+- `last_updated` (String)
+- `latitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
 - `location_id` (Number) Id of the location within the site.
+- `location_slug` (String) Slug of the location.
+- `longitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
+- `mac_address` (String) Mac address to match.
+- `manufacturer_id` (Number) Id of the manufacturer.
+- `manufacturer_slug` (String) Slug of the manufacturer.
+- `model_slug` (String) Slug of the device model.
+- `module_bay_count` (Number) Number of module bays on the device.
+- `module_bays` (Boolean) Has module bays.
 - `name` (String) Device name; NetBox allows unnamed devices.
+- `oob_ip_id` (Number) Id of the out-of-band management IP address (managed by netbox_device_oob_ip).
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `parent_bay_id` (Number) Id of the parent bay.
+- `parent_device_id` (Number) Id of the parent device.
+- `pass_through_ports` (Boolean) Has pass-through ports.
+- `platform` (String) Platform to match.
 - `platform_id` (Number) Id of the platform.
+- `position` (Number) Position to match.
+- `power_outlet_count` (Number) Number of power outlets on the device.
+- `power_outlets` (Boolean) Has power outlets.
+- `power_port_count` (Number) Number of power ports on the device.
+- `power_ports` (Boolean) Has power ports.
+- `primary_ip4` (String) Primary IPv4 (address).
+- `primary_ip4_id` (Number) Id of the primary IPv4 address (managed by netbox_primary_ip).
+- `primary_ip6` (String) Primary IPv6 (address).
+- `primary_ip6_id` (Number) Id of the primary IPv6 address (managed by netbox_primary_ip).
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `rack_id` (Number) Id of the rack.
+- `rear_port_count` (Number) Number of rear ports on the device.
+- `region_id` (String) Id of the region.
 - `region_slug` (String) Slug of the region of the site.
 - `role_id` (Number) Id of the device role.
+- `role_slug` (String) Slug of the role.
 - `serial` (String) Chassis serial number.
+- `site_group_id` (String) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
 - `site_id` (Number) Id of the site.
+- `site_slug` (String) Slug of the site.
 - `status` (String) Operational status. One of: offline, active, planned, staged, failed, inventory, decommissioning.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `vc_position` (Number) Vc position to match.
+- `vc_priority` (Number) Vc priority to match.
+- `virtual_chassis_id` (Number) Id of the virtual chassis.
+- `virtual_chassis_member` (Boolean) Is a virtual chassis member.
 
 ### Read-Only
 
-- `airflow` (String) One of: front-to-rear, rear-to-front, left-to-right, right-to-left, side-to-rear, passive, mixed, rear-to-side, bottom-to-top, top-to-bottom.
 - `comments` (String)
 - `config_context` (String) Rendered config context (local_context_data merged with the context assigned through cluster, platform, role, site, tenant and tags) as JSON text, decode with jsondecode().
-- `config_template_id` (Number) Id of the config template.
-- `console_port_count` (Number) Number of console ports on the device.
-- `console_server_port_count` (Number) Number of console server ports on the device.
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `device_bay_count` (Number) Number of device bays on the device.
-- `front_port_count` (Number) Number of front ports on the device.
-- `interface_count` (Number) Number of interfaces on the device.
-- `inventory_item_count` (Number) Number of inventory items on the device.
-- `last_updated` (String)
-- `latitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
 - `local_context_data` (String) Local config context data as JSON text (use jsonencode()).
-- `longitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
-- `module_bay_count` (Number) Number of module bays on the device.
-- `oob_ip_id` (Number) Id of the out-of-band management IP address (managed by netbox_device_oob_ip).
-- `power_outlet_count` (Number) Number of power outlets on the device.
-- `power_port_count` (Number) Number of power ports on the device.
-- `primary_ip4_id` (Number) Id of the primary IPv4 address (managed by netbox_primary_ip).
-- `primary_ip6_id` (Number) Id of the primary IPv6 address (managed by netbox_primary_ip).
 - `rack_face` (String) Rack face the device is mounted on. One of: front, rear.
 - `rack_position` (Number) Lowest rack unit occupied by the device; half units (e.g. 1.5) are allowed.
-- `rear_port_count` (Number) Number of rear ports on the device.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)
-- `virtual_chassis_id` (Number) Id of the virtual chassis.
 - `virtual_chassis_position` (Number) Position in the virtual chassis (0-255). Must be a whole number.
 - `virtual_chassis_priority` (Number) Master election priority in the virtual chassis (0-255). Must be a whole number.

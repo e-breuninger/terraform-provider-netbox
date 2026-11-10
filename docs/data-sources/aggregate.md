@@ -29,23 +29,35 @@ data "netbox_aggregate" "test" {
 
 ### Optional
 
+- `contact` (Number) Id of the contact.
+- `contact_group_slug` (String) Slug of the contact group.
+- `contact_role` (Number) Id of the contact role.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `date_added` (String) Date the aggregate was added, as YYYY-MM-DD. Keeps its value when removed from the configuration.
 - `description` (String)
+- `family` (Number) Address family: 4 or 6.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
 - `prefix` (String) The aggregate in CIDR notation, e.g. 10.0.0.0/8.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `rir_id` (Number) Id of the RIR that allocated the aggregate.
+- `rir_slug` (String) Slug of the RIR.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
 - `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
 
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `date_added` (String) Date the aggregate was added, as YYYY-MM-DD. Keeps its value when removed from the configuration.
-- `family` (Number) Address family: 4 or 6.
-- `last_updated` (String)
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

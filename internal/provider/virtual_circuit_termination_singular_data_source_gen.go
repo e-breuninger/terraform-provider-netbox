@@ -36,6 +36,13 @@ type virtualCircuitTerminationDataSource struct {
 type virtualCircuitTerminationDataSourceModel struct {
 	virtualCircuitTerminationResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	ProviderSlug       types.String `tfsdk:"provider_slug"`
+	ProviderAccount    types.String `tfsdk:"provider_account"`
+	ProviderAccountID  types.Int64  `tfsdk:"provider_account_id"`
+	ProviderID         types.Int64  `tfsdk:"provider_id"`
+	ProviderNetworkID  types.Int64  `tfsdk:"provider_network_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -71,12 +78,18 @@ func (d *virtualCircuitTerminationDataSource) Schema(ctx context.Context, req da
 				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -100,6 +113,34 @@ func (d *virtualCircuitTerminationDataSource) Schema(ctx context.Context, req da
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"provider_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the provider.",
+			},
+			"provider_account": schema.StringAttribute{
+				Optional:    true,
+				Description: "Provider account (account).",
+			},
+			"provider_account_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the provider account.",
+			},
+			"provider_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the provider.",
+			},
+			"provider_network_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the provider network.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -163,6 +204,56 @@ func (d *virtualCircuitTerminationDataSource) Read(ctx context.Context, req data
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.ProviderSlug.IsNull() {
+		v := state.ProviderSlug.ValueString()
+		params.SetProvider([]string{v})
+		hasInput = true
+	}
+	if !state.ProviderAccount.IsNull() {
+		v := state.ProviderAccount.ValueString()
+		params.SetProviderAccount([]string{v})
+		hasInput = true
+	}
+	if !state.ProviderAccountID.IsNull() {
+		v := state.ProviderAccountID.ValueInt64()
+		params.SetProviderAccountID([]int64{v})
+		hasInput = true
+	}
+	if !state.ProviderID.IsNull() {
+		v := state.ProviderID.ValueInt64()
+		params.SetProviderID([]int64{v})
+		hasInput = true
+	}
+	if !state.ProviderNetworkID.IsNull() {
+		v := state.ProviderNetworkID.ValueInt64()
+		params.SetProviderNetworkID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -170,7 +261,7 @@ func (d *virtualCircuitTerminationDataSource) Read(ctx context.Context, req data
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or virtual_circuit_id and/or device_interface_id and/or role and/or tag_slug and/or custom_field_filters to look up a netbox_virtual_circuit_termination.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_virtual_circuit_termination.")
 		return
 	}
 	res, err := d.client.Circuits.CircuitsVirtualCircuitTerminationsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

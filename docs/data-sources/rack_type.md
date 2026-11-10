@@ -29,36 +29,42 @@ data "netbox_rack_type" "test" {
 
 ### Optional
 
-- `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
-- `id` (Number) NetBox id.
-- `manufacturer_id` (Number) Id of the manufacturer.
-- `model` (String)
-- `owner_id` (Number) Id of the owner the object is assigned to.
-- `slug` (String) URL-friendly unique shorthand; derived from model when not set.
-- `tag_slug` (String) Slug of a tag the object carries.
-
-### Read-Only
-
-- `comments` (String)
 - `created` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `desc_units` (Boolean) Units are numbered top-to-bottom.
 - `description` (String)
 - `form_factor` (String) Rack form factor. One of: 2-post-frame, 4-post-frame, 4-post-cabinet, wall-frame, wall-frame-vertical, wall-cabinet, wall-cabinet-vertical.
+- `id` (Number) NetBox id.
 - `last_updated` (String)
+- `manufacturer_id` (Number) Id of the manufacturer.
+- `manufacturer_slug` (String) Slug of the manufacturer.
 - `max_weight` (Number) Maximum load capacity (requires weight_unit). Must be a whole number.
+- `model` (String)
 - `mounting_depth` (Number) Maximum depth of a mounted device, in millimetres. Must be a whole number.
-- `mounting_depth_mm` (Number, Deprecated) Deprecated alias of mounting_depth.
 - `outer_depth` (Number) Outer depth (requires outer_unit). Must be a whole number.
 - `outer_height` (Number) Outer height (requires outer_unit). Must be a whole number.
 - `outer_unit` (String) Unit of the outer dimensions. One of: mm, in.
 - `outer_width` (Number) Outer width (requires outer_unit). Must be a whole number.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
+- `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `rack_count` (Number) Number of racks of the rack type.
+- `slug` (String) URL-friendly unique shorthand; derived from model when not set.
 - `starting_unit` (Number) Lowest unit number. Must be a whole number.
-- `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
-- `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
+- `tag_id` (Number) Id of a tag the object carries.
+- `tag_slug` (String) Slug of a tag the object carries.
 - `u_height` (Number) Height in rack units. Must be a whole number.
-- `url` (String)
 - `weight` (Number) Weight of the rack (requires weight_unit).
 - `weight_unit` (String) Unit of weight and max_weight. One of: kg, g, lb, oz.
 - `width` (Number) Rail-to-rail width in inches. One of: 10, 19, 21, 23.
+
+### Read-Only
+
+- `comments` (String)
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
+- `mounting_depth_mm` (Number, Deprecated) Deprecated alias of mounting_depth.
+- `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
+- `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
+- `url` (String)

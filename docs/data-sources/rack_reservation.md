@@ -29,24 +29,46 @@ data "netbox_rack_reservation" "test" {
 
 ### Optional
 
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String) Purpose of the reservation.
+- `group_id` (Number) Id of the group.
+- `group_slug` (String) Slug of the group.
 - `id` (Number) NetBox id.
+- `last_updated` (String)
+- `location_id` (String) Id of the location.
+- `location_slug` (String) Slug of the location.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `rack_id` (Number) Id of the rack.
+- `region_id` (String) Id of the region.
+- `region_slug` (String) Slug of the region.
+- `site_group_id` (String) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
+- `site_id` (Number) Id of the site.
+- `site_slug` (String) Slug of the site.
+- `status` (String) Status of the reservation. One of: pending, active, stale.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
+- `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `unit` (Number) Unit to match.
+- `unit_count_max` (Number) Maximum unit count.
+- `unit_count_min` (Number) Minimum unit count.
+- `user_id` (Number) Id of the NetBox user holding the reservation.
+- `user_name` (String) Name of the user.
 
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String) Purpose of the reservation.
-- `last_updated` (String)
-- `rack_id` (Number) Id of the rack.
-- `status` (String) Status of the reservation. One of: pending, active, stale.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
-- `tenant_id` (Number) Id of the tenant.
 - `unit_count` (Number) Number of rack units reserved.
 - `units` (Set of Number) Rack unit numbers being reserved.
 - `url` (String)
-- `user_id` (Number) Id of the NetBox user holding the reservation.

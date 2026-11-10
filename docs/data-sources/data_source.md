@@ -29,25 +29,31 @@ data "netbox_data_source" "test" {
 
 ### Optional
 
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `enabled` (Boolean) Whether NetBox synchronises from this source.
 - `id` (Number) NetBox id.
+- `last_synced` (String) When NetBox last synchronised the source.
+- `last_updated` (String)
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `source_url` (String) URL or path of the source.
 - `status` (String) Synchronisation status reported by NetBox.
+- `sync_interval` (Number) Automatic synchronisation interval in minutes. One of: 1, 60, 720, 1440, 10080, 43200.
+- `tag` (String) Slug of a tag the object carries.
+- `tag_id` (Number) Id of a tag the object carries.
+- `type` (String) Kind of backing store. One of: local, git, amazon-s3.
 
 ### Read-Only
 
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
 - `file_count` (Number) Number of files synced from the data source.
 - `ignore_rules` (String) Newline-separated glob patterns of files to ignore when synchronising.
-- `last_synced` (String) When NetBox last synchronised the source.
-- `last_updated` (String)
 - `parameters` (String) Backend-specific parameters as JSON text (use jsonencode()).
-- `sync_interval` (Number) Automatic synchronisation interval in minutes. One of: 1, 60, 720, 1440, 10080, 43200.
-- `type` (String) Kind of backing store. One of: local, git, amazon-s3.
 - `url` (String)

@@ -29,16 +29,17 @@ data "netbox_console_server_port_template" "test" {
 
 ### Optional
 
+- `created` (String)
+- `description` (String)
+- `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `id` (Number) NetBox id.
+- `label` (String) Physical label.
+- `last_updated` (String)
 - `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `name` (String)
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `type` (String) Port type as its NetBox slug, e.g. de-9, rj-45, usb-a (any of NetBox's console port type choices).
 
 ### Read-Only
 
-- `created` (String)
-- `description` (String)
-- `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
-- `label` (String) Physical label.
-- `last_updated` (String)
 - `url` (String)

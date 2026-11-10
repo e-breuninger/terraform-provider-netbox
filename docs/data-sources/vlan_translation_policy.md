@@ -45,12 +45,20 @@ data "netbox_vlan_translation_policy" "test" {
 
 ### Optional
 
+- `created` (String) Creation time of the object.
+- `description` (String)
 - `id` (Number) NetBox id.
+- `last_updated` (String) Last update time of the object.
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `tag` (String) Slug of a tag the object carries.
+- `tag_id` (Number) Id of a tag the object carries.
 
 ### Read-Only
 
 - `comments` (String)
-- `description` (String)
 - `url` (String)

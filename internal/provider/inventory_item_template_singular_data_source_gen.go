@@ -8,10 +8,12 @@ import (
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -27,6 +29,14 @@ func NewInventoryItemTemplateDataSource() datasource.DataSource {
 
 type inventoryItemTemplateDataSource struct {
 	client *netboxapi.Client
+}
+
+// inventoryItemTemplateDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type inventoryItemTemplateDataSourceModel struct {
+	inventoryItemTemplateResourceModel
+	ManufacturerSlug types.String `tfsdk:"manufacturer_slug"`
+	Q                types.String `tfsdk:"q"`
+	RoleSlug         types.String `tfsdk:"role_slug"`
 }
 
 func (d *inventoryItemTemplateDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -70,8 +80,12 @@ func (d *inventoryItemTemplateDataSource) Schema(ctx context.Context, req dataso
 				Description: "Id of the manufacturer.",
 			},
 			"part_id": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Manufacturer part number.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(50),
+				},
 			},
 			"label": schema.StringAttribute{
 				Optional:    true,
@@ -82,24 +96,47 @@ func (d *inventoryItemTemplateDataSource) Schema(ctx context.Context, req dataso
 				},
 			},
 			"component_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Type of the component template the item is bound to, e.g. dcim.interfacetemplate. Requires component_id.",
 			},
 			"component_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the component template named by component_type.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"manufacturer_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the manufacturer.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"role_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the role.",
 			},
 		},
 	}
@@ -121,7 +158,7 @@ func (d *inventoryItemTemplateDataSource) Configure(ctx context.Context, req dat
 }
 
 func (d *inventoryItemTemplateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data inventoryItemTemplateResourceModel
+	var data inventoryItemTemplateDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -167,8 +204,53 @@ func (d *inventoryItemTemplateDataSource) Read(ctx context.Context, req datasour
 		params.SetParentID([]int64{v})
 		hasInput = true
 	}
+	if !state.ComponentID.IsNull() {
+		v := state.ComponentID.ValueInt64()
+		params.SetComponentID([]int64{v})
+		hasInput = true
+	}
+	if !state.ComponentType.IsNull() {
+		v := state.ComponentType.ValueString()
+		params.SetComponentType([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.ManufacturerSlug.IsNull() {
+		v := state.ManufacturerSlug.ValueString()
+		params.SetManufacturer([]string{v})
+		hasInput = true
+	}
+	if !state.PartID.IsNull() {
+		v := state.PartID.ValueString()
+		params.SetPartID([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RoleSlug.IsNull() {
+		v := state.RoleSlug.ValueString()
+		params.SetRole([]string{v})
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or device_type_id and/or label and/or role_id and/or manufacturer_id and/or parent_id to look up a netbox_inventory_item_template.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_inventory_item_template.")
 		return
 	}
 	res, err := d.client.Dcim.DcimInventoryItemTemplatesListContext(ctx, params, nil)
@@ -187,7 +269,7 @@ func (d *inventoryItemTemplateDataSource) Read(ctx context.Context, req datasour
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenInventoryItemTemplate(ctx, netboxapi.InventoryItemTemplateResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenInventoryItemTemplate(ctx, netboxapi.InventoryItemTemplateResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.inventoryItemTemplateResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return

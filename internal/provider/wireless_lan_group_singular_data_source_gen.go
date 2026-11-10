@@ -37,6 +37,14 @@ type wirelessLanGroupDataSource struct {
 type wirelessLanGroupDataSourceModel struct {
 	wirelessLanGroupResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Ancestor           types.String `tfsdk:"ancestor"`
+	AncestorID         types.String `tfsdk:"ancestor_id"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Parent             types.String `tfsdk:"parent"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -75,7 +83,11 @@ func (d *wirelessLanGroupDataSource) Schema(ctx context.Context, req datasource.
 				Description: "Id of the parent wireless LAN group.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -86,9 +98,11 @@ func (d *wirelessLanGroupDataSource) Schema(ctx context.Context, req datasource.
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -116,6 +130,38 @@ func (d *wirelessLanGroupDataSource) Schema(ctx context.Context, req datasource.
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"ancestor": schema.StringAttribute{
+				Optional:    true,
+				Description: "Ancestor to match.",
+			},
+			"ancestor_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the ancestor.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"parent": schema.StringAttribute{
+				Optional:    true,
+				Description: "Parent to match.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -184,6 +230,61 @@ func (d *wirelessLanGroupDataSource) Read(ctx context.Context, req datasource.Re
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Ancestor.IsNull() {
+		v := state.Ancestor.ValueString()
+		params.SetAncestor([]string{v})
+		hasInput = true
+	}
+	if !state.AncestorID.IsNull() {
+		v := state.AncestorID.ValueString()
+		params.SetAncestorID([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Parent.IsNull() {
+		v := state.Parent.ValueString()
+		params.SetParent([]string{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -191,7 +292,7 @@ func (d *wirelessLanGroupDataSource) Read(ctx context.Context, req datasource.Re
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or slug and/or parent_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_wireless_lan_group.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_wireless_lan_group.")
 		return
 	}
 	res, err := d.client.Wireless.WirelessWirelessLanGroupsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

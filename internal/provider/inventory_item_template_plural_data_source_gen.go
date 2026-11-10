@@ -71,7 +71,7 @@ func (d *inventoryItemTemplatesDataSource) Schema(ctx context.Context, req datas
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: device_type_id, device_type_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, label, label__empty, label__ic, label__ie, label__iew, label__iregex, label__isw, label__n, label__nic, label__nie, label__niew, label__nisw, label__regex, manufacturer_id, manufacturer_id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, parent_id, parent_id__n, role_id, role_id__n. Repeating a name sends that parameter once per value.",
+				Description: "Query filters, sent as API list parameters. Supported names: component_id, component_id__empty, component_id__gt, component_id__gte, component_id__lt, component_id__lte, component_id__n, component_type, component_type__n, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, device_type_id, device_type_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, label, label__empty, label__ic, label__ie, label__iew, label__iregex, label__isw, label__n, label__nic, label__nie, label__niew, label__nisw, label__regex, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, manufacturer, manufacturer__n, manufacturer_id, manufacturer_id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, parent_id, parent_id__n, part_id, part_id__empty, part_id__ic, part_id__ie, part_id__iew, part_id__iregex, part_id__isw, part_id__n, part_id__nic, part_id__nie, part_id__niew, part_id__nisw, part_id__regex, q, role, role__n, role_id, role_id__n. Repeating a name sends that parameter once per value.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -243,6 +243,60 @@ func (d *inventoryItemTemplatesDataSource) Read(ctx context.Context, req datasou
 	var vManufacturerIDn []int64
 	var vParentID []int64
 	var vParentIDn []int64
+	var vComponentID []int64
+	var vComponentIDn []int64
+	var vComponentIDLt []int64
+	var vComponentIDLte []int64
+	var vComponentIDGt []int64
+	var vComponentIDGte []int64
+	var vComponentIDEmpty []int64
+	var vComponentType []string
+	var vComponentTypen []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vManufacturer []string
+	var vManufacturern []string
+	var vPartID []string
+	var vPartIDn []string
+	var vPartIDIc []string
+	var vPartIDNic []string
+	var vPartIDIe []string
+	var vPartIDNie []string
+	var vPartIDIsw []string
+	var vPartIDNisw []string
+	var vPartIDIew []string
+	var vPartIDNiew []string
+	var vPartIDEmpty *bool
+	var vPartIDRegex []string
+	var vPartIDIregex []string
+	var vQ *string
+	var vRole []string
+	var vRolen []string
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
 		switch name {
@@ -449,6 +503,216 @@ func (d *inventoryItemTemplatesDataSource) Read(ctx context.Context, req datasou
 				return
 			}
 			vParentIDn = append(vParentIDn, v)
+		case "component_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'component_id' takes an integer, got %q.", value))
+				return
+			}
+			vComponentID = append(vComponentID, v)
+		case "component_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'component_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vComponentIDn = append(vComponentIDn, v)
+		case "component_id__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'component_id__lt' takes an integer, got %q.", value))
+				return
+			}
+			vComponentIDLt = append(vComponentIDLt, v)
+		case "component_id__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'component_id__lte' takes an integer, got %q.", value))
+				return
+			}
+			vComponentIDLte = append(vComponentIDLte, v)
+		case "component_id__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'component_id__gt' takes an integer, got %q.", value))
+				return
+			}
+			vComponentIDGt = append(vComponentIDGt, v)
+		case "component_id__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'component_id__gte' takes an integer, got %q.", value))
+				return
+			}
+			vComponentIDGte = append(vComponentIDGte, v)
+		case "component_id__empty":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'component_id__empty' takes an integer, got %q.", value))
+				return
+			}
+			vComponentIDEmpty = append(vComponentIDEmpty, v)
+		case "component_type":
+			v := value
+			vComponentType = append(vComponentType, v)
+		case "component_type__n":
+			v := value
+			vComponentTypen = append(vComponentTypen, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "manufacturer":
+			v := value
+			vManufacturer = append(vManufacturer, v)
+		case "manufacturer__n":
+			v := value
+			vManufacturern = append(vManufacturern, v)
+		case "part_id":
+			v := value
+			vPartID = append(vPartID, v)
+		case "part_id__n":
+			v := value
+			vPartIDn = append(vPartIDn, v)
+		case "part_id__ic":
+			v := value
+			vPartIDIc = append(vPartIDIc, v)
+		case "part_id__nic":
+			v := value
+			vPartIDNic = append(vPartIDNic, v)
+		case "part_id__ie":
+			v := value
+			vPartIDIe = append(vPartIDIe, v)
+		case "part_id__nie":
+			v := value
+			vPartIDNie = append(vPartIDNie, v)
+		case "part_id__isw":
+			v := value
+			vPartIDIsw = append(vPartIDIsw, v)
+		case "part_id__nisw":
+			v := value
+			vPartIDNisw = append(vPartIDNisw, v)
+		case "part_id__iew":
+			v := value
+			vPartIDIew = append(vPartIDIew, v)
+		case "part_id__niew":
+			v := value
+			vPartIDNiew = append(vPartIDNiew, v)
+		case "part_id__empty":
+			if vPartIDEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'part_id__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'part_id__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vPartIDEmpty = &v
+		case "part_id__regex":
+			v := value
+			vPartIDRegex = append(vPartIDRegex, v)
+		case "part_id__iregex":
+			v := value
+			vPartIDIregex = append(vPartIDIregex, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "role":
+			v := value
+			vRole = append(vRole, v)
+		case "role__n":
+			v := value
+			vRolen = append(vRolen, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -576,6 +840,168 @@ func (d *inventoryItemTemplatesDataSource) Read(ctx context.Context, req datasou
 	}
 	if len(vParentIDn) > 0 {
 		params.SetParentIDn(vParentIDn)
+	}
+	if len(vComponentID) > 0 {
+		params.SetComponentID(vComponentID)
+	}
+	if len(vComponentIDn) > 0 {
+		params.SetComponentIDn(vComponentIDn)
+	}
+	if len(vComponentIDLt) > 0 {
+		params.SetComponentIDLt(vComponentIDLt)
+	}
+	if len(vComponentIDLte) > 0 {
+		params.SetComponentIDLte(vComponentIDLte)
+	}
+	if len(vComponentIDGt) > 0 {
+		params.SetComponentIDGt(vComponentIDGt)
+	}
+	if len(vComponentIDGte) > 0 {
+		params.SetComponentIDGte(vComponentIDGte)
+	}
+	if len(vComponentIDEmpty) > 0 {
+		params.SetComponentIDEmpty(vComponentIDEmpty)
+	}
+	if len(vComponentType) > 0 {
+		params.SetComponentType(vComponentType)
+	}
+	if len(vComponentTypen) > 0 {
+		params.SetComponentTypen(vComponentTypen)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vManufacturer) > 0 {
+		params.SetManufacturer(vManufacturer)
+	}
+	if len(vManufacturern) > 0 {
+		params.SetManufacturern(vManufacturern)
+	}
+	if len(vPartID) > 0 {
+		params.SetPartID(vPartID)
+	}
+	if len(vPartIDn) > 0 {
+		params.SetPartIDn(vPartIDn)
+	}
+	if len(vPartIDIc) > 0 {
+		params.SetPartIDIc(vPartIDIc)
+	}
+	if len(vPartIDNic) > 0 {
+		params.SetPartIDNic(vPartIDNic)
+	}
+	if len(vPartIDIe) > 0 {
+		params.SetPartIDIe(vPartIDIe)
+	}
+	if len(vPartIDNie) > 0 {
+		params.SetPartIDNie(vPartIDNie)
+	}
+	if len(vPartIDIsw) > 0 {
+		params.SetPartIDIsw(vPartIDIsw)
+	}
+	if len(vPartIDNisw) > 0 {
+		params.SetPartIDNisw(vPartIDNisw)
+	}
+	if len(vPartIDIew) > 0 {
+		params.SetPartIDIew(vPartIDIew)
+	}
+	if len(vPartIDNiew) > 0 {
+		params.SetPartIDNiew(vPartIDNiew)
+	}
+	if vPartIDEmpty != nil {
+		params.SetPartIDEmpty(vPartIDEmpty)
+	}
+	if len(vPartIDRegex) > 0 {
+		params.SetPartIDRegex(vPartIDRegex)
+	}
+	if len(vPartIDIregex) > 0 {
+		params.SetPartIDIregex(vPartIDIregex)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vRole) > 0 {
+		params.SetRole(vRole)
+	}
+	if len(vRolen) > 0 {
+		params.SetRolen(vRolen)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

@@ -36,13 +36,25 @@ type virtualMachineInterfaceDataSource struct {
 // virtualMachineInterfaceDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type virtualMachineInterfaceDataSourceModel struct {
 	virtualMachineInterfaceResourceModel
-	ClusterID          types.Int64  `tfsdk:"cluster_id"`
-	MacAddress         types.String `tfsdk:"mac_address"`
-	VirtualMachineName types.String `tfsdk:"virtual_machine_name"`
-	ClusterName        types.String `tfsdk:"cluster_name"`
-	VrfRd              types.String `tfsdk:"vrf_rd"`
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	ClusterID             types.Int64  `tfsdk:"cluster_id"`
+	MacAddress            types.String `tfsdk:"mac_address"`
+	VirtualMachineName    types.String `tfsdk:"virtual_machine_name"`
+	ClusterName           types.String `tfsdk:"cluster_name"`
+	VrfRd                 types.String `tfsdk:"vrf_rd"`
+	TagSlug               types.String `tfsdk:"tag_slug"`
+	L2vpn                 types.Int64  `tfsdk:"l2vpn"`
+	L2vpnID               types.Int64  `tfsdk:"l2vpn_id"`
+	OwnerName             types.String `tfsdk:"owner_name"`
+	OwnerGroupName        types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID          types.Int64  `tfsdk:"owner_group_id"`
+	PrimaryMacAddress     types.String `tfsdk:"primary_mac_address"`
+	PrimaryMacAddressID   types.Int64  `tfsdk:"primary_mac_address_id"`
+	Q                     types.String `tfsdk:"q"`
+	TagID                 types.Int64  `tfsdk:"tag_id"`
+	Vlan                  types.String `tfsdk:"vlan"`
+	VlanID                types.String `tfsdk:"vlan_id"`
+	VlanTranslationPolicy types.String `tfsdk:"vlan_translation_policy"`
+	CustomFieldFilters    types.Map    `tfsdk:"custom_field_filters"`
 }
 
 func (d *virtualMachineInterfaceDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -105,6 +117,7 @@ func (d *virtualMachineInterfaceDataSource) Schema(ctx context.Context, req data
 				Description: "Id of the Q-in-Q service VLAN.",
 			},
 			"vlan_translation_policy_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the VLAN translation policy.",
 			},
@@ -136,9 +149,11 @@ func (d *virtualMachineInterfaceDataSource) Schema(ctx context.Context, req data
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -182,6 +197,54 @@ func (d *virtualMachineInterfaceDataSource) Schema(ctx context.Context, req data
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"l2vpn": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the L2VPN.",
+			},
+			"l2vpn_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the L2VPN.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"primary_mac_address": schema.StringAttribute{
+				Optional:    true,
+				Description: "Primary MAC address.",
+			},
+			"primary_mac_address_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the primary MAC address.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"vlan": schema.StringAttribute{
+				Optional:    true,
+				Description: "Assigned VID.",
+			},
+			"vlan_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Assigned VLAN.",
+			},
+			"vlan_translation_policy": schema.StringAttribute{
+				Optional:    true,
+				Description: "VLAN Translation Policy.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -305,6 +368,81 @@ func (d *virtualMachineInterfaceDataSource) Read(ctx context.Context, req dataso
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.L2vpn.IsNull() {
+		v := state.L2vpn.ValueInt64()
+		params.SetL2vpn([]int64{v})
+		hasInput = true
+	}
+	if !state.L2vpnID.IsNull() {
+		v := state.L2vpnID.ValueInt64()
+		params.SetL2vpnID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.PrimaryMacAddress.IsNull() {
+		v := state.PrimaryMacAddress.ValueString()
+		params.SetPrimaryMacAddress([]string{v})
+		hasInput = true
+	}
+	if !state.PrimaryMacAddressID.IsNull() {
+		v := state.PrimaryMacAddressID.ValueInt64()
+		params.SetPrimaryMacAddressID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.Vlan.IsNull() {
+		v := state.Vlan.ValueString()
+		params.SetVlan(&v)
+		hasInput = true
+	}
+	if !state.VlanID.IsNull() {
+		v := state.VlanID.ValueString()
+		params.SetVlanID(&v)
+		hasInput = true
+	}
+	if !state.VlanTranslationPolicy.IsNull() {
+		v := state.VlanTranslationPolicy.ValueString()
+		params.SetVlanTranslationPolicy([]string{v})
+		hasInput = true
+	}
+	if !state.VlanTranslationPolicyID.IsNull() {
+		v := state.VlanTranslationPolicyID.ValueInt64()
+		params.SetVlanTranslationPolicyID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -312,7 +450,7 @@ func (d *virtualMachineInterfaceDataSource) Read(ctx context.Context, req dataso
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or virtual_machine_id and/or cluster_id and/or mac_address and/or enabled and/or mode and/or mtu and/or vrf_id and/or parent_id and/or bridge_id and/or description and/or virtual_machine_name and/or cluster_name and/or vrf_rd and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_virtual_machine_interface.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_virtual_machine_interface.")
 		return
 	}
 	res, err := d.client.Virtualization.VirtualizationInterfacesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

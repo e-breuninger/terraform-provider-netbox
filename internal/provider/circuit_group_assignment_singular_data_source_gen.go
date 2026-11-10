@@ -34,7 +34,17 @@ type circuitGroupAssignmentDataSource struct {
 // circuitGroupAssignmentDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type circuitGroupAssignmentDataSourceModel struct {
 	circuitGroupAssignmentResourceModel
-	TagSlug types.String `tfsdk:"tag_slug"`
+	TagSlug          types.String `tfsdk:"tag_slug"`
+	Circuit          types.String `tfsdk:"circuit"`
+	CircuitID        types.Int64  `tfsdk:"circuit_id"`
+	GroupSlug        types.String `tfsdk:"group_slug"`
+	MemberTypeID     types.Int64  `tfsdk:"member_type_id"`
+	ProviderSlug     types.String `tfsdk:"provider_slug"`
+	ProviderID       types.Int64  `tfsdk:"provider_id"`
+	Q                types.String `tfsdk:"q"`
+	TagID            types.Int64  `tfsdk:"tag_id"`
+	VirtualCircuit   types.String `tfsdk:"virtual_circuit"`
+	VirtualCircuitID types.Int64  `tfsdk:"virtual_circuit_id"`
 }
 
 func (d *circuitGroupAssignmentDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -80,9 +90,11 @@ func (d *circuitGroupAssignmentDataSource) Schema(ctx context.Context, req datas
 				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -101,6 +113,46 @@ func (d *circuitGroupAssignmentDataSource) Schema(ctx context.Context, req datas
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"circuit": schema.StringAttribute{
+				Optional:    true,
+				Description: "Circuit to match.",
+			},
+			"circuit_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the circuit.",
+			},
+			"group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the circuit group.",
+			},
+			"member_type_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the member type.",
+			},
+			"provider_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the provider.",
+			},
+			"provider_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the provider.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"virtual_circuit": schema.StringAttribute{
+				Optional:    true,
+				Description: "Virtual circuit to match.",
+			},
+			"virtual_circuit_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the virtual circuit.",
 			},
 		},
 	}
@@ -163,8 +215,68 @@ func (d *circuitGroupAssignmentDataSource) Read(ctx context.Context, req datasou
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Circuit.IsNull() {
+		v := state.Circuit.ValueString()
+		params.SetCircuit([]string{v})
+		hasInput = true
+	}
+	if !state.CircuitID.IsNull() {
+		v := state.CircuitID.ValueInt64()
+		params.SetCircuitID([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.GroupSlug.IsNull() {
+		v := state.GroupSlug.ValueString()
+		params.SetGroup([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.MemberTypeID.IsNull() {
+		v := state.MemberTypeID.ValueInt64()
+		params.SetMemberTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.ProviderSlug.IsNull() {
+		v := state.ProviderSlug.ValueString()
+		params.SetProvider([]string{v})
+		hasInput = true
+	}
+	if !state.ProviderID.IsNull() {
+		v := state.ProviderID.ValueInt64()
+		params.SetProviderID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.VirtualCircuit.IsNull() {
+		v := state.VirtualCircuit.ValueString()
+		params.SetVirtualCircuit([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualCircuitID.IsNull() {
+		v := state.VirtualCircuitID.ValueInt64()
+		params.SetVirtualCircuitID([]int64{v})
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or circuit_group_id and/or member_type and/or member_id and/or priority and/or tag_slug to look up a netbox_circuit_group_assignment.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_circuit_group_assignment.")
 		return
 	}
 	res, err := d.client.Circuits.CircuitsCircuitGroupAssignmentsListContext(ctx, params, nil)

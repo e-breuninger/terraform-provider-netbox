@@ -29,11 +29,12 @@ data "netbox_owner_group" "test" {
 
 ### Optional
 
+- `description` (String)
 - `id` (Number) NetBox id.
 - `name` (String)
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 
 ### Read-Only
 
-- `description` (String)
 - `member_count` (Number) Number of members of the group.
 - `url` (String)

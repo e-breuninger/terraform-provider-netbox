@@ -8,10 +8,12 @@ import (
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -29,6 +31,13 @@ type frontPortTemplateDataSource struct {
 	client *netboxapi.Client
 }
 
+// frontPortTemplateDataSourceModel is the data source model: the resource model plus lookup-only inputs.
+type frontPortTemplateDataSourceModel struct {
+	frontPortTemplateResourceModel
+	Color types.String `tfsdk:"color"`
+	Q     types.String `tfsdk:"q"`
+}
+
 func (d *frontPortTemplateDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_front_port_template"
 }
@@ -43,6 +52,7 @@ func (d *frontPortTemplateDataSource) Schema(ctx context.Context, req datasource
 				Description: "NetBox id.",
 			},
 			"device_type_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.",
 			},
@@ -64,8 +74,12 @@ func (d *frontPortTemplateDataSource) Schema(ctx context.Context, req datasource
 				Description: "Port type as its NetBox slug, e.g. 8p8c, lc, mpo (any of NetBox's port type choices).",
 			},
 			"positions": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Number of positions on the front port, at least the number of rear_ports mappings. NetBox checks a lower value against the mappings it already holds, so remove mappings in one apply and lower positions in the next. Must be a whole number.",
+				Validators: []validator.Int64{
+					int64validator.Between(1, 1024),
+				},
 			},
 			"rear_ports": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -88,6 +102,7 @@ func (d *frontPortTemplateDataSource) Schema(ctx context.Context, req datasource
 				Description: "Mappings of the front port's positions onto rear port templates of the same device type or module type, one object per position. Derived from rear_port_id and rear_port_position when those are set; an empty set, or neither form, leaves the port unmapped. Changing the set recreates every mapping, since NetBox 4.6 rejects an update that resends an existing one.",
 			},
 			"rear_port_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Rear port of a single-position front port: the same as rear_ports = [{position = 1, rear_port_id = ..., rear_port_position = ...}]. Conflicts with rear_ports and with positions > 1.",
 			},
@@ -100,20 +115,38 @@ func (d *frontPortTemplateDataSource) Schema(ctx context.Context, req datasource
 				Description: "RGB color in hex (e.g. ff0000).",
 			},
 			"label": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Physical label.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(64),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
+			},
+			"color": schema.StringAttribute{
+				Optional:    true,
+				Description: "Color to match.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
 			},
 		},
 	}
@@ -135,7 +168,7 @@ func (d *frontPortTemplateDataSource) Configure(ctx context.Context, req datasou
 }
 
 func (d *frontPortTemplateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data frontPortTemplateResourceModel
+	var data frontPortTemplateDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -166,8 +199,53 @@ func (d *frontPortTemplateDataSource) Read(ctx context.Context, req datasource.R
 		params.SetModuleTypeID([]int64{v})
 		hasInput = true
 	}
+	if !state.Color.IsNull() {
+		v := state.Color.ValueString()
+		params.SetColor([]string{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceTypeID.IsNull() {
+		v := state.DeviceTypeID.ValueInt64()
+		params.SetDeviceTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.Label.IsNull() {
+		v := state.Label.ValueString()
+		params.SetLabel([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.Positions.IsNull() {
+		v := state.Positions.ValueInt64()
+		params.SetPositions([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RearPortID.IsNull() {
+		v := state.RearPortID.ValueInt64()
+		params.SetRearPortID([]int64{v})
+		hasInput = true
+	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or type and/or module_type_id to look up a netbox_front_port_template.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_front_port_template.")
 		return
 	}
 	res, err := d.client.Dcim.DcimFrontPortTemplatesListContext(ctx, params, nil)
@@ -186,7 +264,7 @@ func (d *frontPortTemplateDataSource) Read(ctx context.Context, req datasource.R
 		)
 		return
 	}
-	resp.Diagnostics.Append(flattenFrontPortTemplate(ctx, netboxapi.FrontPortTemplateResponseDTOFromGoNetbox(res.Payload.Results[0]), state)...)
+	resp.Diagnostics.Append(flattenFrontPortTemplate(ctx, netboxapi.FrontPortTemplateResponseDTOFromGoNetbox(res.Payload.Results[0]), &state.frontPortTemplateResourceModel)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -194,7 +272,7 @@ func (d *frontPortTemplateDataSource) Read(ctx context.Context, req datasource.R
 	// The resource's post_read companion hook (spec hooks) derives attributes from what the API
 	// returned (aliases of a polymorphic pair, and the like); a data source reads the same object,
 	// so it runs the hook on the embedded resource model.
-	(&frontPortTemplateResource{client: d.client}).postReadHook(ctx, state, &resp.Diagnostics)
+	(&frontPortTemplateResource{client: d.client}).postReadHook(ctx, &state.frontPortTemplateResourceModel, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

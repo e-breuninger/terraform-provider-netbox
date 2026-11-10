@@ -77,7 +77,7 @@ func (d *servicesDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, device_id, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner_id, owner_id__n, protocol, protocol__empty, protocol__ic, protocol__ie, protocol__iew, protocol__iregex, protocol__isw, protocol__n, protocol__nic, protocol__nie, protocol__niew, protocol__nisw, protocol__regex, tag, tag__any, tag__n, virtual_machine_id. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: contact, contact__n, contact_group, contact_group__n, contact_role, contact_role__n, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, device, device_id, fhrpgroup, fhrpgroup_id, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, ip_address, ip_address__n, ip_address_id, ip_address_id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, parent_object_id, parent_object_id__empty, parent_object_id__gt, parent_object_id__gte, parent_object_id__lt, parent_object_id__lte, parent_object_id__n, parent_object_type, parent_object_type__n, port, port__empty, port__gt, port__gte, port__lt, port__lte, port__n, protocol, protocol__empty, protocol__ic, protocol__ie, protocol__iew, protocol__iregex, protocol__isw, protocol__n, protocol__nic, protocol__nie, protocol__niew, protocol__nisw, protocol__regex, q, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, virtual_machine, virtual_machine_id. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -281,6 +281,60 @@ func (d *servicesDataSource) Read(ctx context.Context, req datasource.ReadReques
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vContact []int64
+	var vContactn []int64
+	var vContactGroup []string
+	var vContactGroupn []string
+	var vContactRole []int64
+	var vContactRolen []int64
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDevice []string
+	var vFhrpgroup []string
+	var vFhrpgroupID []int64
+	var vIPAddress []string
+	var vIPAddressn []string
+	var vIPAddressID []int64
+	var vIPAddressIDn []int64
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vParentObjectID []int64
+	var vParentObjectIDn []int64
+	var vParentObjectIDLt []int64
+	var vParentObjectIDLte []int64
+	var vParentObjectIDGt []int64
+	var vParentObjectIDGte []int64
+	var vParentObjectIDEmpty *bool
+	var vParentObjectType []string
+	var vParentObjectTypen []string
+	var vPort *float64
+	var vPortn *float64
+	var vPortLt *float64
+	var vPortLte *float64
+	var vPortGt *float64
+	var vPortGte *float64
+	var vPortEmpty *float64
+	var vQ *string
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vVirtualMachine []string
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -530,6 +584,308 @@ func (d *servicesDataSource) Read(ctx context.Context, req datasource.ReadReques
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "contact":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact' takes an integer, got %q.", value))
+				return
+			}
+			vContact = append(vContact, v)
+		case "contact__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact__n' takes an integer, got %q.", value))
+				return
+			}
+			vContactn = append(vContactn, v)
+		case "contact_group":
+			v := value
+			vContactGroup = append(vContactGroup, v)
+		case "contact_group__n":
+			v := value
+			vContactGroupn = append(vContactGroupn, v)
+		case "contact_role":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact_role' takes an integer, got %q.", value))
+				return
+			}
+			vContactRole = append(vContactRole, v)
+		case "contact_role__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact_role__n' takes an integer, got %q.", value))
+				return
+			}
+			vContactRolen = append(vContactRolen, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "device":
+			v := value
+			vDevice = append(vDevice, v)
+		case "fhrpgroup":
+			v := value
+			vFhrpgroup = append(vFhrpgroup, v)
+		case "fhrpgroup_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'fhrpgroup_id' takes an integer, got %q.", value))
+				return
+			}
+			vFhrpgroupID = append(vFhrpgroupID, v)
+		case "ip_address":
+			v := value
+			vIPAddress = append(vIPAddress, v)
+		case "ip_address__n":
+			v := value
+			vIPAddressn = append(vIPAddressn, v)
+		case "ip_address_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'ip_address_id' takes an integer, got %q.", value))
+				return
+			}
+			vIPAddressID = append(vIPAddressID, v)
+		case "ip_address_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'ip_address_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vIPAddressIDn = append(vIPAddressIDn, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "parent_object_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'parent_object_id' takes an integer, got %q.", value))
+				return
+			}
+			vParentObjectID = append(vParentObjectID, v)
+		case "parent_object_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'parent_object_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vParentObjectIDn = append(vParentObjectIDn, v)
+		case "parent_object_id__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'parent_object_id__lt' takes an integer, got %q.", value))
+				return
+			}
+			vParentObjectIDLt = append(vParentObjectIDLt, v)
+		case "parent_object_id__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'parent_object_id__lte' takes an integer, got %q.", value))
+				return
+			}
+			vParentObjectIDLte = append(vParentObjectIDLte, v)
+		case "parent_object_id__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'parent_object_id__gt' takes an integer, got %q.", value))
+				return
+			}
+			vParentObjectIDGt = append(vParentObjectIDGt, v)
+		case "parent_object_id__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'parent_object_id__gte' takes an integer, got %q.", value))
+				return
+			}
+			vParentObjectIDGte = append(vParentObjectIDGte, v)
+		case "parent_object_id__empty":
+			if vParentObjectIDEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'parent_object_id__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'parent_object_id__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vParentObjectIDEmpty = &v
+		case "parent_object_type":
+			v := value
+			vParentObjectType = append(vParentObjectType, v)
+		case "parent_object_type__n":
+			v := value
+			vParentObjectTypen = append(vParentObjectTypen, v)
+		case "port":
+			if vPort != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'port' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'port' takes a number, got %q.", value))
+				return
+			}
+			vPort = &v
+		case "port__n":
+			if vPortn != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'port__n' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'port__n' takes a number, got %q.", value))
+				return
+			}
+			vPortn = &v
+		case "port__lt":
+			if vPortLt != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'port__lt' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'port__lt' takes a number, got %q.", value))
+				return
+			}
+			vPortLt = &v
+		case "port__lte":
+			if vPortLte != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'port__lte' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'port__lte' takes a number, got %q.", value))
+				return
+			}
+			vPortLte = &v
+		case "port__gt":
+			if vPortGt != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'port__gt' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'port__gt' takes a number, got %q.", value))
+				return
+			}
+			vPortGt = &v
+		case "port__gte":
+			if vPortGte != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'port__gte' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'port__gte' takes a number, got %q.", value))
+				return
+			}
+			vPortGte = &v
+		case "port__empty":
+			if vPortEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'port__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'port__empty' takes a number, got %q.", value))
+				return
+			}
+			vPortEmpty = &v
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "virtual_machine":
+			v := value
+			vVirtualMachine = append(vVirtualMachine, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -693,6 +1049,168 @@ func (d *servicesDataSource) Read(ctx context.Context, req datasource.ReadReques
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vContact) > 0 {
+		params.SetContact(vContact)
+	}
+	if len(vContactn) > 0 {
+		params.SetContactn(vContactn)
+	}
+	if len(vContactGroup) > 0 {
+		params.SetContactGroup(vContactGroup)
+	}
+	if len(vContactGroupn) > 0 {
+		params.SetContactGroupn(vContactGroupn)
+	}
+	if len(vContactRole) > 0 {
+		params.SetContactRole(vContactRole)
+	}
+	if len(vContactRolen) > 0 {
+		params.SetContactRolen(vContactRolen)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDevice) > 0 {
+		params.SetDevice(vDevice)
+	}
+	if len(vFhrpgroup) > 0 {
+		params.SetFhrpgroup(vFhrpgroup)
+	}
+	if len(vFhrpgroupID) > 0 {
+		params.SetFhrpgroupID(vFhrpgroupID)
+	}
+	if len(vIPAddress) > 0 {
+		params.SetIPAddress(vIPAddress)
+	}
+	if len(vIPAddressn) > 0 {
+		params.SetIPAddressn(vIPAddressn)
+	}
+	if len(vIPAddressID) > 0 {
+		params.SetIPAddressID(vIPAddressID)
+	}
+	if len(vIPAddressIDn) > 0 {
+		params.SetIPAddressIDn(vIPAddressIDn)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if len(vParentObjectID) > 0 {
+		params.SetParentObjectID(vParentObjectID)
+	}
+	if len(vParentObjectIDn) > 0 {
+		params.SetParentObjectIDn(vParentObjectIDn)
+	}
+	if len(vParentObjectIDLt) > 0 {
+		params.SetParentObjectIDLt(vParentObjectIDLt)
+	}
+	if len(vParentObjectIDLte) > 0 {
+		params.SetParentObjectIDLte(vParentObjectIDLte)
+	}
+	if len(vParentObjectIDGt) > 0 {
+		params.SetParentObjectIDGt(vParentObjectIDGt)
+	}
+	if len(vParentObjectIDGte) > 0 {
+		params.SetParentObjectIDGte(vParentObjectIDGte)
+	}
+	if vParentObjectIDEmpty != nil {
+		params.SetParentObjectIDEmpty(vParentObjectIDEmpty)
+	}
+	if len(vParentObjectType) > 0 {
+		params.SetParentObjectType(vParentObjectType)
+	}
+	if len(vParentObjectTypen) > 0 {
+		params.SetParentObjectTypen(vParentObjectTypen)
+	}
+	if vPort != nil {
+		params.SetPort(vPort)
+	}
+	if vPortn != nil {
+		params.SetPortn(vPortn)
+	}
+	if vPortLt != nil {
+		params.SetPortLt(vPortLt)
+	}
+	if vPortLte != nil {
+		params.SetPortLte(vPortLte)
+	}
+	if vPortGt != nil {
+		params.SetPortGt(vPortGt)
+	}
+	if vPortGte != nil {
+		params.SetPortGte(vPortGte)
+	}
+	if vPortEmpty != nil {
+		params.SetPortEmpty(vPortEmpty)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if len(vVirtualMachine) > 0 {
+		params.SetVirtualMachine(vVirtualMachine)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

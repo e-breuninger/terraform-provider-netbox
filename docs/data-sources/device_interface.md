@@ -29,51 +29,103 @@ data "netbox_device_interface" "test" {
 
 ### Optional
 
+- `bridge_id` (Number) Id of the bridge interface.
+- `cable_connector` (Number) Cable connector to match.
+- `cable_end` (String) Cable end. One of: A, B.
+- `cable_id` (Number) Id of the cable.
+- `cabled` (Boolean) Whether cabled is set.
+- `connected` (Boolean) Whether connected is set.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `device_id` (Number) Id of the device.
+- `device_name` (String) Name of the device.
+- `device_role_id` (Number) Id of the device role.
+- `device_role_slug` (String) Slug of the device role.
+- `device_status` (String) Device status to match.
+- `device_type_id` (Number) Id of the device type.
+- `device_type_model` (String) Model of the device type.
+- `duplex` (String) One of: half, full, auto.
 - `enabled` (Boolean) Whether the interface is enabled.
 - `id` (Number) NetBox id.
-- `lag_device_interface_id` (Number) Id of the parent LAG interface.
-- `mac_address` (String) MAC address assigned to the interface.
-- `mode` (String) 802.1Q tagging mode. One of: access, tagged, tagged-all, q-in-q.
-- `name` (String)
-- `owner_id` (Number) Id of the owner the object is assigned to.
-- `tag_slug` (String) Slug of a tag the object carries.
-- `type` (String) Interface type as its NetBox slug, e.g. virtual, lag, bridge, 1000base-t, 10gbase-x-sfpp (any of NetBox's interface type choices).
-
-### Read-Only
-
-- `bridge_id` (Number) Id of the bridge interface.
-- `created` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
-- `duplex` (String) One of: half, full, auto.
+- `kind` (String) Kind of interface.
+- `l2vpn` (Number) Id of the L2VPN.
+- `l2vpn_id` (Number) Id of the L2VPN.
 - `label` (String) Physical label.
+- `lag_device_interface_id` (Number) Id of the parent LAG interface.
 - `last_updated` (String)
+- `location_id` (Number) Id of the location.
+- `location_slug` (String) Slug of the location.
+- `mac_address` (String) MAC address assigned to the interface.
 - `mark_connected` (Boolean) Treat as if a cable is connected.
 - `mgmt_only` (Boolean) Whether the interface is used for out-of-band management only.
-- `mgmtonly` (Boolean, Deprecated) Deprecated alias of mgmt_only.
+- `mode` (String) 802.1Q tagging mode. One of: access, tagged, tagged-all, q-in-q.
 - `module_id` (Number) Id of the installed module this interface belongs to.
 - `mtu` (Number) Must be a whole number.
-- `parent_device_interface_id` (Number) Id of the parent interface.
+- `name` (String)
+- `occupied` (Boolean) Whether occupied is set.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
+- `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `parent_id` (Number) Id of the parent interface.
 - `poe_mode` (String) Power over Ethernet mode. One of: pd, pse.
 - `poe_type` (String) Power over Ethernet type as its NetBox slug, e.g. type1-ieee802.3af, type3-ieee802.3bt, passive-24v-2pair (any of NetBox's PoE type choices).
-- `qinq_svlan_id` (Number) Id of the Q-in-Q service VLAN.
+- `primary_mac_address` (String) Primary MAC address.
+- `primary_mac_address_id` (Number) Id of the primary MAC address.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `rack_id` (Number) Id of the rack.
+- `rack_name` (String) Name of the rack.
+- `region_id` (String) Id of the region.
+- `region_slug` (String) Slug of the region.
 - `rf_channel` (String) Wireless channel as its NetBox slug, e.g. 2.4g-1-2412-22, 5g-36-5180-20 (any of NetBox's wireless channel choices).
 - `rf_channel_frequency` (Number) Channel frequency in MHz. NetBox derives it from rf_channel when that is set.
 - `rf_channel_width` (Number) Channel width in MHz. NetBox derives it from rf_channel when that is set.
 - `rf_role` (String) Wireless role. One of: ap, station.
+- `site_group_id` (String) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
+- `site_id` (Number) Id of the site.
+- `site_slug` (String) Slug of the site.
 - `speed` (Number) Speed in kbps. Must be a whole number.
+- `tag_id` (Number) Id of a tag the object carries.
+- `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `tx_power` (Number) Transmit power in dBm. Must be a whole number.
+- `type` (String) Interface type as its NetBox slug, e.g. virtual, lag, bridge, 1000base-t, 10gbase-x-sfpp (any of NetBox's interface type choices).
+- `vdc` (String) Virtual Device Context.
+- `vdc_id` (Number) Id of the virtual device context.
+- `vdc_identifier` (Number) Virtual Device Context (Identifier).
+- `virtual_chassis` (String) Virtual Chassis.
+- `virtual_chassis_id` (Number) Id of the virtual chassis.
+- `virtual_chassis_member` (String) Virtual chassis member to match.
+- `virtual_chassis_member_id` (Number) Id of the virtual chassis member.
+- `virtual_chassis_member_or_master` (String) Virtual chassis member or master to match.
+- `virtual_chassis_member_or_master_id` (Number) Id of the virtual chassis member or master.
+- `virtual_circuit_id` (Number) Id of the virtual circuit.
+- `virtual_circuit_termination_id` (Number) Id of the virtual circuit termination.
+- `vlan` (String) Assigned VID.
+- `vlan_id` (String) Assigned VLAN.
+- `vlan_translation_policy` (String) VLAN Translation Policy.
+- `vlan_translation_policy_id` (Number) Id of the VLAN translation policy.
+- `vrf` (String) VRF (RD).
+- `vrf_id` (Number) Id of the VRF.
+- `wireless_lan_id` (Number) Id of the wireless LAN.
+- `wireless_link_id` (Number) Id of the wireless link.
+- `wwn` (String) 64-bit World Wide Name.
+
+### Read-Only
+
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
+- `mgmtonly` (Boolean, Deprecated) Deprecated alias of mgmt_only.
+- `parent_device_interface_id` (Number) Id of the parent interface.
+- `qinq_svlan_id` (Number) Id of the Q-in-Q service VLAN.
 - `tagged_vlan_ids` (Set of Number) Ids of the tagged VLANs.
 - `tagged_vlans` (Set of Number, Deprecated) Deprecated alias of tagged_vlan_ids.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
-- `tx_power` (Number) Transmit power in dBm. Must be a whole number.
 - `untagged_vlan` (Number, Deprecated) Deprecated alias of untagged_vlan_id.
 - `untagged_vlan_id` (Number) Id of the untagged VLAN.
 - `url` (String)
 - `vdc_ids` (Set of Number) Ids of the virtual device contexts.
-- `vlan_translation_policy_id` (Number) Id of the VLAN translation policy.
-- `vrf_id` (Number) Id of the VRF.
 - `wireless_lan_ids` (Set of Number) Ids of the wireless LANs.
-- `wwn` (String) 64-bit World Wide Name.

@@ -30,29 +30,56 @@ data "netbox_inventory_item" "test" {
 ### Optional
 
 - `asset_tag` (String) Unique asset tag.
-- `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
-- `device_id` (Number) Id of the device.
-- `discovered` (Boolean) Whether the item was discovered automatically.
-- `id` (Number) NetBox id.
-- `label` (String) Physical label.
-- `manufacturer_id` (Number) Id of the manufacturer.
-- `name` (String)
-- `owner_id` (Number) Id of the owner the object is assigned to.
-- `parent_id` (Number) Id of the parent inventory item.
-- `role_id` (Number) Id of the inventory item role.
-- `serial` (String) Serial number.
-- `tag_slug` (String) Slug of a tag the object carries.
-
-### Read-Only
-
 - `component_id` (Number) Id of the device component named by component_type.
 - `component_type` (String) Type of the device component the item is bound to, e.g. dcim.interface. Requires component_id.
 - `created` (String)
-- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
+- `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `description` (String)
+- `device_id` (Number) Id of the device.
+- `device_name` (String) Name of the device.
+- `device_role_id` (Number) Id of the device role.
+- `device_role_slug` (String) Slug of the device role.
+- `device_status` (String) Device status to match.
+- `device_type_id` (Number) Id of the device type.
+- `device_type_model` (String) Model of the device type.
+- `discovered` (Boolean) Whether the item was discovered automatically.
+- `id` (Number) NetBox id.
+- `label` (String) Physical label.
 - `last_updated` (String)
+- `location_id` (Number) Id of the location.
+- `location_slug` (String) Slug of the location.
+- `manufacturer_id` (Number) Id of the manufacturer.
+- `manufacturer_slug` (String) Slug of the manufacturer.
+- `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
+- `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `parent_id` (Number) Id of the parent inventory item.
 - `part_id` (String) Manufacturer part number.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `rack_id` (Number) Id of the rack.
+- `rack_name` (String) Name of the rack.
+- `region_id` (String) Id of the region.
+- `region_slug` (String) Slug of the region.
+- `role_id` (Number) Id of the inventory item role.
+- `role_slug` (String) Slug of the role.
+- `serial` (String) Serial number.
+- `site_group_id` (String) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
+- `site_id` (Number) Id of the site.
+- `site_slug` (String) Slug of the site.
 - `status` (String) Operational status. One of: offline, active, planned, staged, failed, decommissioning.
+- `tag_id` (Number) Id of a tag the object carries.
+- `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `virtual_chassis` (String) Virtual Chassis.
+- `virtual_chassis_id` (Number) Id of the virtual chassis.
+
+### Read-Only
+
+- `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

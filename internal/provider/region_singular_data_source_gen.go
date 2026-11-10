@@ -37,6 +37,18 @@ type regionDataSource struct {
 type regionDataSourceModel struct {
 	regionResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Ancestor           types.String `tfsdk:"ancestor"`
+	AncestorID         types.String `tfsdk:"ancestor_id"`
+	Contact            types.Int64  `tfsdk:"contact"`
+	ContactGroupSlug   types.String `tfsdk:"contact_group_slug"`
+	ContactRole        types.Int64  `tfsdk:"contact_role"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	ParentSlug         types.String `tfsdk:"parent_slug"`
+	ParentID           types.Int64  `tfsdk:"parent_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -70,7 +82,11 @@ func (d *regionDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -85,9 +101,11 @@ func (d *regionDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -119,6 +137,54 @@ func (d *regionDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"ancestor": schema.StringAttribute{
+				Optional:    true,
+				Description: "Ancestor to match.",
+			},
+			"ancestor_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the ancestor.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"parent_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the parent region.",
+			},
+			"parent_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the parent region.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -182,6 +248,81 @@ func (d *regionDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Ancestor.IsNull() {
+		v := state.Ancestor.ValueString()
+		params.SetAncestor([]string{v})
+		hasInput = true
+	}
+	if !state.AncestorID.IsNull() {
+		v := state.AncestorID.ValueString()
+		params.SetAncestorID([]string{v})
+		hasInput = true
+	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.ParentSlug.IsNull() {
+		v := state.ParentSlug.ValueString()
+		params.SetParent([]string{v})
+		hasInput = true
+	}
+	if !state.ParentID.IsNull() {
+		v := state.ParentID.ValueInt64()
+		params.SetParentID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -189,7 +330,7 @@ func (d *regionDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or slug and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_region.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_region.")
 		return
 	}
 	res, err := d.client.Dcim.DcimRegionsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

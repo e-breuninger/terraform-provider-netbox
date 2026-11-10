@@ -75,7 +75,7 @@ func (d *ikeProposalsDataSource) Schema(ctx context.Context, req datasource.Sche
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: authentication_method, authentication_method__empty, authentication_method__ic, authentication_method__ie, authentication_method__iew, authentication_method__iregex, authentication_method__isw, authentication_method__n, authentication_method__nic, authentication_method__nie, authentication_method__niew, authentication_method__nisw, authentication_method__regex, encryption_algorithm, encryption_algorithm__empty, encryption_algorithm__ic, encryption_algorithm__ie, encryption_algorithm__iew, encryption_algorithm__iregex, encryption_algorithm__isw, encryption_algorithm__n, encryption_algorithm__nic, encryption_algorithm__nie, encryption_algorithm__niew, encryption_algorithm__nisw, encryption_algorithm__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner_id, owner_id__n, tag, tag__any, tag__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: authentication_algorithm, authentication_algorithm__empty, authentication_algorithm__ic, authentication_algorithm__ie, authentication_algorithm__iew, authentication_algorithm__iregex, authentication_algorithm__isw, authentication_algorithm__n, authentication_algorithm__nic, authentication_algorithm__nie, authentication_algorithm__niew, authentication_algorithm__nisw, authentication_algorithm__regex, authentication_method, authentication_method__empty, authentication_method__ic, authentication_method__ie, authentication_method__iew, authentication_method__iregex, authentication_method__isw, authentication_method__n, authentication_method__nic, authentication_method__nie, authentication_method__niew, authentication_method__nisw, authentication_method__regex, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, encryption_algorithm, encryption_algorithm__empty, encryption_algorithm__ic, encryption_algorithm__ie, encryption_algorithm__iew, encryption_algorithm__iregex, encryption_algorithm__isw, encryption_algorithm__n, encryption_algorithm__nic, encryption_algorithm__nie, encryption_algorithm__niew, encryption_algorithm__nisw, encryption_algorithm__regex, group, group__ic, group__ie, group__iew, group__iregex, group__isw, group__n, group__nic, group__nie, group__niew, group__nisw, group__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, ike_policy, ike_policy__n, ike_policy_id, ike_policy_id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, q, sa_lifetime, sa_lifetime__empty, sa_lifetime__gt, sa_lifetime__gte, sa_lifetime__lt, sa_lifetime__lte, sa_lifetime__n, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -267,6 +267,79 @@ func (d *ikeProposalsDataSource) Read(ctx context.Context, req datasource.ReadRe
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vAuthenticationAlgorithm []string
+	var vAuthenticationAlgorithmn []string
+	var vAuthenticationAlgorithmIc []string
+	var vAuthenticationAlgorithmNic []string
+	var vAuthenticationAlgorithmIe []string
+	var vAuthenticationAlgorithmNie []string
+	var vAuthenticationAlgorithmIsw []string
+	var vAuthenticationAlgorithmNisw []string
+	var vAuthenticationAlgorithmIew []string
+	var vAuthenticationAlgorithmNiew []string
+	var vAuthenticationAlgorithmEmpty *bool
+	var vAuthenticationAlgorithmRegex []string
+	var vAuthenticationAlgorithmIregex []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vGroup []int64
+	var vGroupn []int64
+	var vGroupIc []int64
+	var vGroupNic []int64
+	var vGroupIe []int64
+	var vGroupNie []int64
+	var vGroupIsw []int64
+	var vGroupNisw []int64
+	var vGroupIew []int64
+	var vGroupNiew []int64
+	var vGroupRegex []int64
+	var vGroupIregex []int64
+	var vIkePolicy []string
+	var vIkePolicyn []string
+	var vIkePolicyID []int64
+	var vIkePolicyIDn []int64
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vQ *string
+	var vSaLifetime []int64
+	var vSaLifetimen []int64
+	var vSaLifetimeLt []int64
+	var vSaLifetimeLte []int64
+	var vSaLifetimeGt []int64
+	var vSaLifetimeGte []int64
+	var vSaLifetimeEmpty *bool
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -494,6 +567,353 @@ func (d *ikeProposalsDataSource) Read(ctx context.Context, req datasource.ReadRe
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "authentication_algorithm":
+			v := value
+			vAuthenticationAlgorithm = append(vAuthenticationAlgorithm, v)
+		case "authentication_algorithm__n":
+			v := value
+			vAuthenticationAlgorithmn = append(vAuthenticationAlgorithmn, v)
+		case "authentication_algorithm__ic":
+			v := value
+			vAuthenticationAlgorithmIc = append(vAuthenticationAlgorithmIc, v)
+		case "authentication_algorithm__nic":
+			v := value
+			vAuthenticationAlgorithmNic = append(vAuthenticationAlgorithmNic, v)
+		case "authentication_algorithm__ie":
+			v := value
+			vAuthenticationAlgorithmIe = append(vAuthenticationAlgorithmIe, v)
+		case "authentication_algorithm__nie":
+			v := value
+			vAuthenticationAlgorithmNie = append(vAuthenticationAlgorithmNie, v)
+		case "authentication_algorithm__isw":
+			v := value
+			vAuthenticationAlgorithmIsw = append(vAuthenticationAlgorithmIsw, v)
+		case "authentication_algorithm__nisw":
+			v := value
+			vAuthenticationAlgorithmNisw = append(vAuthenticationAlgorithmNisw, v)
+		case "authentication_algorithm__iew":
+			v := value
+			vAuthenticationAlgorithmIew = append(vAuthenticationAlgorithmIew, v)
+		case "authentication_algorithm__niew":
+			v := value
+			vAuthenticationAlgorithmNiew = append(vAuthenticationAlgorithmNiew, v)
+		case "authentication_algorithm__empty":
+			if vAuthenticationAlgorithmEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'authentication_algorithm__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'authentication_algorithm__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vAuthenticationAlgorithmEmpty = &v
+		case "authentication_algorithm__regex":
+			v := value
+			vAuthenticationAlgorithmRegex = append(vAuthenticationAlgorithmRegex, v)
+		case "authentication_algorithm__iregex":
+			v := value
+			vAuthenticationAlgorithmIregex = append(vAuthenticationAlgorithmIregex, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "group":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group' takes an integer, got %q.", value))
+				return
+			}
+			vGroup = append(vGroup, v)
+		case "group__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__n' takes an integer, got %q.", value))
+				return
+			}
+			vGroupn = append(vGroupn, v)
+		case "group__ic":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__ic' takes an integer, got %q.", value))
+				return
+			}
+			vGroupIc = append(vGroupIc, v)
+		case "group__nic":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__nic' takes an integer, got %q.", value))
+				return
+			}
+			vGroupNic = append(vGroupNic, v)
+		case "group__ie":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__ie' takes an integer, got %q.", value))
+				return
+			}
+			vGroupIe = append(vGroupIe, v)
+		case "group__nie":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__nie' takes an integer, got %q.", value))
+				return
+			}
+			vGroupNie = append(vGroupNie, v)
+		case "group__isw":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__isw' takes an integer, got %q.", value))
+				return
+			}
+			vGroupIsw = append(vGroupIsw, v)
+		case "group__nisw":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__nisw' takes an integer, got %q.", value))
+				return
+			}
+			vGroupNisw = append(vGroupNisw, v)
+		case "group__iew":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__iew' takes an integer, got %q.", value))
+				return
+			}
+			vGroupIew = append(vGroupIew, v)
+		case "group__niew":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__niew' takes an integer, got %q.", value))
+				return
+			}
+			vGroupNiew = append(vGroupNiew, v)
+		case "group__regex":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__regex' takes an integer, got %q.", value))
+				return
+			}
+			vGroupRegex = append(vGroupRegex, v)
+		case "group__iregex":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group__iregex' takes an integer, got %q.", value))
+				return
+			}
+			vGroupIregex = append(vGroupIregex, v)
+		case "ike_policy":
+			v := value
+			vIkePolicy = append(vIkePolicy, v)
+		case "ike_policy__n":
+			v := value
+			vIkePolicyn = append(vIkePolicyn, v)
+		case "ike_policy_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'ike_policy_id' takes an integer, got %q.", value))
+				return
+			}
+			vIkePolicyID = append(vIkePolicyID, v)
+		case "ike_policy_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'ike_policy_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vIkePolicyIDn = append(vIkePolicyIDn, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "sa_lifetime":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'sa_lifetime' takes an integer, got %q.", value))
+				return
+			}
+			vSaLifetime = append(vSaLifetime, v)
+		case "sa_lifetime__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'sa_lifetime__n' takes an integer, got %q.", value))
+				return
+			}
+			vSaLifetimen = append(vSaLifetimen, v)
+		case "sa_lifetime__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'sa_lifetime__lt' takes an integer, got %q.", value))
+				return
+			}
+			vSaLifetimeLt = append(vSaLifetimeLt, v)
+		case "sa_lifetime__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'sa_lifetime__lte' takes an integer, got %q.", value))
+				return
+			}
+			vSaLifetimeLte = append(vSaLifetimeLte, v)
+		case "sa_lifetime__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'sa_lifetime__gt' takes an integer, got %q.", value))
+				return
+			}
+			vSaLifetimeGt = append(vSaLifetimeGt, v)
+		case "sa_lifetime__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'sa_lifetime__gte' takes an integer, got %q.", value))
+				return
+			}
+			vSaLifetimeGte = append(vSaLifetimeGte, v)
+		case "sa_lifetime__empty":
+			if vSaLifetimeEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'sa_lifetime__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'sa_lifetime__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vSaLifetimeEmpty = &v
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -651,6 +1071,225 @@ func (d *ikeProposalsDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vAuthenticationAlgorithm) > 0 {
+		params.SetAuthenticationAlgorithm(vAuthenticationAlgorithm)
+	}
+	if len(vAuthenticationAlgorithmn) > 0 {
+		params.SetAuthenticationAlgorithmn(vAuthenticationAlgorithmn)
+	}
+	if len(vAuthenticationAlgorithmIc) > 0 {
+		params.SetAuthenticationAlgorithmIc(vAuthenticationAlgorithmIc)
+	}
+	if len(vAuthenticationAlgorithmNic) > 0 {
+		params.SetAuthenticationAlgorithmNic(vAuthenticationAlgorithmNic)
+	}
+	if len(vAuthenticationAlgorithmIe) > 0 {
+		params.SetAuthenticationAlgorithmIe(vAuthenticationAlgorithmIe)
+	}
+	if len(vAuthenticationAlgorithmNie) > 0 {
+		params.SetAuthenticationAlgorithmNie(vAuthenticationAlgorithmNie)
+	}
+	if len(vAuthenticationAlgorithmIsw) > 0 {
+		params.SetAuthenticationAlgorithmIsw(vAuthenticationAlgorithmIsw)
+	}
+	if len(vAuthenticationAlgorithmNisw) > 0 {
+		params.SetAuthenticationAlgorithmNisw(vAuthenticationAlgorithmNisw)
+	}
+	if len(vAuthenticationAlgorithmIew) > 0 {
+		params.SetAuthenticationAlgorithmIew(vAuthenticationAlgorithmIew)
+	}
+	if len(vAuthenticationAlgorithmNiew) > 0 {
+		params.SetAuthenticationAlgorithmNiew(vAuthenticationAlgorithmNiew)
+	}
+	if vAuthenticationAlgorithmEmpty != nil {
+		params.SetAuthenticationAlgorithmEmpty(vAuthenticationAlgorithmEmpty)
+	}
+	if len(vAuthenticationAlgorithmRegex) > 0 {
+		params.SetAuthenticationAlgorithmRegex(vAuthenticationAlgorithmRegex)
+	}
+	if len(vAuthenticationAlgorithmIregex) > 0 {
+		params.SetAuthenticationAlgorithmIregex(vAuthenticationAlgorithmIregex)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vGroup) > 0 {
+		params.SetGroup(vGroup)
+	}
+	if len(vGroupn) > 0 {
+		params.SetGroupn(vGroupn)
+	}
+	if len(vGroupIc) > 0 {
+		params.SetGroupIc(vGroupIc)
+	}
+	if len(vGroupNic) > 0 {
+		params.SetGroupNic(vGroupNic)
+	}
+	if len(vGroupIe) > 0 {
+		params.SetGroupIe(vGroupIe)
+	}
+	if len(vGroupNie) > 0 {
+		params.SetGroupNie(vGroupNie)
+	}
+	if len(vGroupIsw) > 0 {
+		params.SetGroupIsw(vGroupIsw)
+	}
+	if len(vGroupNisw) > 0 {
+		params.SetGroupNisw(vGroupNisw)
+	}
+	if len(vGroupIew) > 0 {
+		params.SetGroupIew(vGroupIew)
+	}
+	if len(vGroupNiew) > 0 {
+		params.SetGroupNiew(vGroupNiew)
+	}
+	if len(vGroupRegex) > 0 {
+		params.SetGroupRegex(vGroupRegex)
+	}
+	if len(vGroupIregex) > 0 {
+		params.SetGroupIregex(vGroupIregex)
+	}
+	if len(vIkePolicy) > 0 {
+		params.SetIkePolicy(vIkePolicy)
+	}
+	if len(vIkePolicyn) > 0 {
+		params.SetIkePolicyn(vIkePolicyn)
+	}
+	if len(vIkePolicyID) > 0 {
+		params.SetIkePolicyID(vIkePolicyID)
+	}
+	if len(vIkePolicyIDn) > 0 {
+		params.SetIkePolicyIDn(vIkePolicyIDn)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vSaLifetime) > 0 {
+		params.SetSaLifetime(vSaLifetime)
+	}
+	if len(vSaLifetimen) > 0 {
+		params.SetSaLifetimen(vSaLifetimen)
+	}
+	if len(vSaLifetimeLt) > 0 {
+		params.SetSaLifetimeLt(vSaLifetimeLt)
+	}
+	if len(vSaLifetimeLte) > 0 {
+		params.SetSaLifetimeLte(vSaLifetimeLte)
+	}
+	if len(vSaLifetimeGt) > 0 {
+		params.SetSaLifetimeGt(vSaLifetimeGt)
+	}
+	if len(vSaLifetimeGte) > 0 {
+		params.SetSaLifetimeGte(vSaLifetimeGte)
+	}
+	if vSaLifetimeEmpty != nil {
+		params.SetSaLifetimeEmpty(vSaLifetimeEmpty)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

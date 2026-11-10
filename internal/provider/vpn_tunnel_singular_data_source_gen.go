@@ -10,6 +10,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/vpn"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -36,6 +37,19 @@ type vpnTunnelDataSource struct {
 type vpnTunnelDataSourceModel struct {
 	vpnTunnelResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	Contact            types.Int64  `tfsdk:"contact"`
+	ContactGroupSlug   types.String `tfsdk:"contact_group_slug"`
+	ContactRole        types.Int64  `tfsdk:"contact_role"`
+	GroupSlug          types.String `tfsdk:"group_slug"`
+	IpsecProfileName   types.String `tfsdk:"ipsec_profile_name"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Q                  types.String `tfsdk:"q"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	TenantSlug         types.String `tfsdk:"tenant_slug"`
+	TenantGroupSlug    types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID      types.String `tfsdk:"tenant_group_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -48,6 +62,7 @@ func (d *vpnTunnelDataSource) Schema(ctx context.Context, req datasource.SchemaR
 		Description: ":meta:subcategory:VPN Tunnels:An encrypted or virtual tunnel (vpn.tunnel).\n\nFrom the [official documentation](https://docs.netbox.dev/en/stable/features/vpn-tunnels/):\n\n> NetBox can model private tunnels formed among virtual termination points across your network. Typical tunnel implementations include GRE, IP-in-IP, and IPSec. A tunnel may be terminated to two or more device or virtual machine interfaces. For convenient organization, tunnels may be assigned to user-defined groups.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "NetBox id.",
 			},
@@ -59,12 +74,20 @@ func (d *vpnTunnelDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				},
 			},
 			"status": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Operational status. One of: planned, active, disabled.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("planned", "active", "disabled"),
+				},
 			},
 			"encapsulation": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Tunnel encapsulation protocol. One of: ipsec-transport, ipsec-tunnel, ip-ip, gre, wireguard, openvpn, l2tp, pptp.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("ipsec-transport", "ipsec-tunnel", "ip-ip", "gre", "wireguard", "openvpn", "l2tp", "pptp"),
+				},
 			},
 			"vpn_tunnel_group_id": schema.Int64Attribute{
 				Optional:    true,
@@ -77,19 +100,29 @@ func (d *vpnTunnelDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description:        "Deprecated alias of vpn_tunnel_group_id.",
 			},
 			"ipsec_profile_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the IPsec profile.",
 			},
 			"tenant_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the tenant.",
 			},
 			"tunnel_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Numeric tunnel identifier on the wire (e.g. a GRE key), not the NetBox id.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -100,9 +133,11 @@ func (d *vpnTunnelDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -130,6 +165,58 @@ func (d *vpnTunnelDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tunnel group.",
+			},
+			"ipsec_profile_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the IPSec profile.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -188,6 +275,116 @@ func (d *vpnTunnelDataSource) Read(ctx context.Context, req datasource.ReadReque
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.Encapsulation.IsNull() {
+		v := state.Encapsulation.ValueString()
+		params.SetEncapsulation([]string{v})
+		hasInput = true
+	}
+	if !state.GroupSlug.IsNull() {
+		v := state.GroupSlug.ValueString()
+		params.SetGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ID.IsNull() {
+		v := state.ID.ValueInt64()
+		params.SetID([]int64{v})
+		hasInput = true
+	}
+	if !state.IpsecProfileName.IsNull() {
+		v := state.IpsecProfileName.ValueString()
+		params.SetIpsecProfile([]string{v})
+		hasInput = true
+	}
+	if !state.IpsecProfileID.IsNull() {
+		v := state.IpsecProfileID.ValueInt64()
+		params.SetIpsecProfileID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.Status.IsNull() {
+		v := state.Status.ValueString()
+		params.SetStatus([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TenantID.IsNull() {
+		v := state.TenantID.ValueInt64()
+		params.SetTenantID([]int64{v})
+		hasInput = true
+	}
+	if !state.TunnelID.IsNull() {
+		v := state.TunnelID.ValueInt64()
+		params.SetTunnelID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -195,7 +392,7 @@ func (d *vpnTunnelDataSource) Read(ctx context.Context, req datasource.ReadReque
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set name and/or vpn_tunnel_group_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_vpn_tunnel.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_vpn_tunnel.")
 		return
 	}
 	res, err := d.client.Vpn.VpnTunnelsListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

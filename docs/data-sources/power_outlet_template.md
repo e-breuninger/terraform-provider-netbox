@@ -29,20 +29,22 @@ data "netbox_power_outlet_template" "test" {
 
 ### Optional
 
+- `color` (String) Color to match.
+- `created` (String)
+- `description` (String)
+- `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `feed_leg` (String) Phase of the upstream feed this outlet is mapped to. One of: A, B, C.
 - `id` (Number) NetBox id.
+- `label` (String) Physical label.
+- `last_updated` (String)
 - `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
 - `name` (String)
+- `power_port_template_id` (Number) Id of the power port template this outlet draws from.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `type` (String) Outlet type as its NetBox slug, e.g. iec-60320-c13, nema-5-15r, CS8364C (any of NetBox's power outlet type choices).
 
 ### Read-Only
 
 - `color_hex` (String) RGB color in hex (e.g. ff0000).
-- `created` (String)
-- `description` (String)
-- `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
-- `label` (String) Physical label.
-- `last_updated` (String)
 - `power_port_id` (Number, Deprecated) Deprecated alias of power_port_template_id.
-- `power_port_template_id` (Number) Id of the power port template this outlet draws from.
 - `url` (String)

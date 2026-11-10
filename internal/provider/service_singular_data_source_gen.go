@@ -10,6 +10,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -35,8 +36,23 @@ type serviceDataSource struct {
 // serviceDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type serviceDataSourceModel struct {
 	serviceResourceModel
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	TagSlug            types.String  `tfsdk:"tag_slug"`
+	Contact            types.Int64   `tfsdk:"contact"`
+	ContactGroupSlug   types.String  `tfsdk:"contact_group_slug"`
+	ContactRole        types.Int64   `tfsdk:"contact_role"`
+	DeviceName         types.String  `tfsdk:"device_name"`
+	Fhrpgroup          types.String  `tfsdk:"fhrpgroup"`
+	FhrpgroupID        types.Int64   `tfsdk:"fhrpgroup_id"`
+	IPAddress          types.String  `tfsdk:"ip_address"`
+	IPAddressID        types.Int64   `tfsdk:"ip_address_id"`
+	OwnerName          types.String  `tfsdk:"owner_name"`
+	OwnerGroupName     types.String  `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64   `tfsdk:"owner_group_id"`
+	Port               types.Float64 `tfsdk:"port"`
+	Q                  types.String  `tfsdk:"q"`
+	TagID              types.Int64   `tfsdk:"tag_id"`
+	VirtualMachineName types.String  `tfsdk:"virtual_machine_name"`
+	CustomFieldFilters types.Map     `tfsdk:"custom_field_filters"`
 }
 
 func (d *serviceDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -73,12 +89,20 @@ func (d *serviceDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				Description: "Port numbers the service listens on.",
 			},
 			"parent_object_type": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Content type of the object the service runs on. Derived from device_id or virtual_machine_id when one of those is set; set it together with parent_object_id to address the object directly. One of: dcim.device, virtualization.virtualmachine.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("dcim.device", "virtualization.virtualmachine"),
+				},
 			},
 			"parent_object_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the object named by parent_object_type.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"device_id": schema.Int64Attribute{
 				Optional:    true,
@@ -111,9 +135,11 @@ func (d *serviceDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -137,6 +163,66 @@ func (d *serviceDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"device_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the device.",
+			},
+			"fhrpgroup": schema.StringAttribute{
+				Optional:    true,
+				Description: "Fhrpgroup to match.",
+			},
+			"fhrpgroup_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the fhrpgroup.",
+			},
+			"ip_address": schema.StringAttribute{
+				Optional:    true,
+				Description: "IP address.",
+			},
+			"ip_address_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the IP address.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"port": schema.Float64Attribute{
+				Optional:    true,
+				Description: "Port to match.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"virtual_machine_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the virtual machine.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -215,6 +301,101 @@ func (d *serviceDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.DeviceName.IsNull() {
+		v := state.DeviceName.ValueString()
+		params.SetDevice([]string{v})
+		hasInput = true
+	}
+	if !state.Fhrpgroup.IsNull() {
+		v := state.Fhrpgroup.ValueString()
+		params.SetFhrpgroup([]string{v})
+		hasInput = true
+	}
+	if !state.FhrpgroupID.IsNull() {
+		v := state.FhrpgroupID.ValueInt64()
+		params.SetFhrpgroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.IPAddress.IsNull() {
+		v := state.IPAddress.ValueString()
+		params.SetIPAddress([]string{v})
+		hasInput = true
+	}
+	if !state.IPAddressID.IsNull() {
+		v := state.IPAddressID.ValueInt64()
+		params.SetIPAddressID([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.ParentObjectID.IsNull() {
+		v := state.ParentObjectID.ValueInt64()
+		params.SetParentObjectID([]int64{v})
+		hasInput = true
+	}
+	if !state.ParentObjectType.IsNull() {
+		v := state.ParentObjectType.ValueString()
+		params.SetParentObjectType([]string{v})
+		hasInput = true
+	}
+	if !state.Port.IsNull() {
+		v := state.Port.ValueFloat64()
+		params.SetPort(&v)
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineName.IsNull() {
+		v := state.VirtualMachineName.ValueString()
+		params.SetVirtualMachine([]string{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -222,7 +403,7 @@ func (d *serviceDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or protocol and/or device_id and/or virtual_machine_id and/or description and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_service.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_service.")
 		return
 	}
 	res, err := d.client.Ipam.IpamServicesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

@@ -75,7 +75,7 @@ func (d *virtualMachineTypesDataSource) Schema(ctx context.Context, req datasour
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: default_platform_id, default_platform_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner_id, owner_id__n, slug, slug__empty, slug__ic, slug__ie, slug__iew, slug__iregex, slug__isw, slug__n, slug__nic, slug__nie, slug__niew, slug__nisw, slug__regex, tag, tag__any, tag__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, default_memory, default_memory__empty, default_memory__gt, default_memory__gte, default_memory__lt, default_memory__lte, default_memory__n, default_platform, default_platform__n, default_platform_id, default_platform_id__n, default_vcpus, default_vcpus__empty, default_vcpus__gt, default_vcpus__gte, default_vcpus__lt, default_vcpus__lte, default_vcpus__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, q, slug, slug__empty, slug__ic, slug__ie, slug__iew, slug__iregex, slug__isw, slug__n, slug__nic, slug__nie, slug__niew, slug__nisw, slug__regex, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, virtual_machine_count, virtual_machine_count__empty, virtual_machine_count__gt, virtual_machine_count__gte, virtual_machine_count__lt, virtual_machine_count__lte, virtual_machine_count__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -256,6 +256,66 @@ func (d *virtualMachineTypesDataSource) Read(ctx context.Context, req datasource
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDefaultMemory []int64
+	var vDefaultMemoryn []int64
+	var vDefaultMemoryLt []int64
+	var vDefaultMemoryLte []int64
+	var vDefaultMemoryGt []int64
+	var vDefaultMemoryGte []int64
+	var vDefaultMemoryEmpty *bool
+	var vDefaultPlatform []string
+	var vDefaultPlatformn []string
+	var vDefaultVcpus []float64
+	var vDefaultVcpusn []float64
+	var vDefaultVcpusLt []float64
+	var vDefaultVcpusLte []float64
+	var vDefaultVcpusGt []float64
+	var vDefaultVcpusGte []float64
+	var vDefaultVcpusEmpty *bool
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vQ *string
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vVirtualMachineCount []int64
+	var vVirtualMachineCountn []int64
+	var vVirtualMachineCountLt []int64
+	var vVirtualMachineCountLte []int64
+	var vVirtualMachineCountGt []int64
+	var vVirtualMachineCountGte []int64
+	var vVirtualMachineCountEmpty *bool
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -442,6 +502,314 @@ func (d *virtualMachineTypesDataSource) Read(ctx context.Context, req datasource
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "default_memory":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_memory' takes an integer, got %q.", value))
+				return
+			}
+			vDefaultMemory = append(vDefaultMemory, v)
+		case "default_memory__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_memory__n' takes an integer, got %q.", value))
+				return
+			}
+			vDefaultMemoryn = append(vDefaultMemoryn, v)
+		case "default_memory__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_memory__lt' takes an integer, got %q.", value))
+				return
+			}
+			vDefaultMemoryLt = append(vDefaultMemoryLt, v)
+		case "default_memory__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_memory__lte' takes an integer, got %q.", value))
+				return
+			}
+			vDefaultMemoryLte = append(vDefaultMemoryLte, v)
+		case "default_memory__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_memory__gt' takes an integer, got %q.", value))
+				return
+			}
+			vDefaultMemoryGt = append(vDefaultMemoryGt, v)
+		case "default_memory__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_memory__gte' takes an integer, got %q.", value))
+				return
+			}
+			vDefaultMemoryGte = append(vDefaultMemoryGte, v)
+		case "default_memory__empty":
+			if vDefaultMemoryEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'default_memory__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_memory__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDefaultMemoryEmpty = &v
+		case "default_platform":
+			v := value
+			vDefaultPlatform = append(vDefaultPlatform, v)
+		case "default_platform__n":
+			v := value
+			vDefaultPlatformn = append(vDefaultPlatformn, v)
+		case "default_vcpus":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_vcpus' takes a number, got %q.", value))
+				return
+			}
+			vDefaultVcpus = append(vDefaultVcpus, v)
+		case "default_vcpus__n":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_vcpus__n' takes a number, got %q.", value))
+				return
+			}
+			vDefaultVcpusn = append(vDefaultVcpusn, v)
+		case "default_vcpus__lt":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_vcpus__lt' takes a number, got %q.", value))
+				return
+			}
+			vDefaultVcpusLt = append(vDefaultVcpusLt, v)
+		case "default_vcpus__lte":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_vcpus__lte' takes a number, got %q.", value))
+				return
+			}
+			vDefaultVcpusLte = append(vDefaultVcpusLte, v)
+		case "default_vcpus__gt":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_vcpus__gt' takes a number, got %q.", value))
+				return
+			}
+			vDefaultVcpusGt = append(vDefaultVcpusGt, v)
+		case "default_vcpus__gte":
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_vcpus__gte' takes a number, got %q.", value))
+				return
+			}
+			vDefaultVcpusGte = append(vDefaultVcpusGte, v)
+		case "default_vcpus__empty":
+			if vDefaultVcpusEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'default_vcpus__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'default_vcpus__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDefaultVcpusEmpty = &v
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "virtual_machine_count":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_count' takes an integer, got %q.", value))
+				return
+			}
+			vVirtualMachineCount = append(vVirtualMachineCount, v)
+		case "virtual_machine_count__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_count__n' takes an integer, got %q.", value))
+				return
+			}
+			vVirtualMachineCountn = append(vVirtualMachineCountn, v)
+		case "virtual_machine_count__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_count__lt' takes an integer, got %q.", value))
+				return
+			}
+			vVirtualMachineCountLt = append(vVirtualMachineCountLt, v)
+		case "virtual_machine_count__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_count__lte' takes an integer, got %q.", value))
+				return
+			}
+			vVirtualMachineCountLte = append(vVirtualMachineCountLte, v)
+		case "virtual_machine_count__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_count__gt' takes an integer, got %q.", value))
+				return
+			}
+			vVirtualMachineCountGt = append(vVirtualMachineCountGt, v)
+		case "virtual_machine_count__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_count__gte' takes an integer, got %q.", value))
+				return
+			}
+			vVirtualMachineCountGte = append(vVirtualMachineCountGte, v)
+		case "virtual_machine_count__empty":
+			if vVirtualMachineCountEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'virtual_machine_count__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_count__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vVirtualMachineCountEmpty = &v
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -566,6 +934,186 @@ func (d *virtualMachineTypesDataSource) Read(ctx context.Context, req datasource
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDefaultMemory) > 0 {
+		params.SetDefaultMemory(vDefaultMemory)
+	}
+	if len(vDefaultMemoryn) > 0 {
+		params.SetDefaultMemoryn(vDefaultMemoryn)
+	}
+	if len(vDefaultMemoryLt) > 0 {
+		params.SetDefaultMemoryLt(vDefaultMemoryLt)
+	}
+	if len(vDefaultMemoryLte) > 0 {
+		params.SetDefaultMemoryLte(vDefaultMemoryLte)
+	}
+	if len(vDefaultMemoryGt) > 0 {
+		params.SetDefaultMemoryGt(vDefaultMemoryGt)
+	}
+	if len(vDefaultMemoryGte) > 0 {
+		params.SetDefaultMemoryGte(vDefaultMemoryGte)
+	}
+	if vDefaultMemoryEmpty != nil {
+		params.SetDefaultMemoryEmpty(vDefaultMemoryEmpty)
+	}
+	if len(vDefaultPlatform) > 0 {
+		params.SetDefaultPlatform(vDefaultPlatform)
+	}
+	if len(vDefaultPlatformn) > 0 {
+		params.SetDefaultPlatformn(vDefaultPlatformn)
+	}
+	if len(vDefaultVcpus) > 0 {
+		params.SetDefaultVcpus(vDefaultVcpus)
+	}
+	if len(vDefaultVcpusn) > 0 {
+		params.SetDefaultVcpusn(vDefaultVcpusn)
+	}
+	if len(vDefaultVcpusLt) > 0 {
+		params.SetDefaultVcpusLt(vDefaultVcpusLt)
+	}
+	if len(vDefaultVcpusLte) > 0 {
+		params.SetDefaultVcpusLte(vDefaultVcpusLte)
+	}
+	if len(vDefaultVcpusGt) > 0 {
+		params.SetDefaultVcpusGt(vDefaultVcpusGt)
+	}
+	if len(vDefaultVcpusGte) > 0 {
+		params.SetDefaultVcpusGte(vDefaultVcpusGte)
+	}
+	if vDefaultVcpusEmpty != nil {
+		params.SetDefaultVcpusEmpty(vDefaultVcpusEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if len(vVirtualMachineCount) > 0 {
+		params.SetVirtualMachineCount(vVirtualMachineCount)
+	}
+	if len(vVirtualMachineCountn) > 0 {
+		params.SetVirtualMachineCountn(vVirtualMachineCountn)
+	}
+	if len(vVirtualMachineCountLt) > 0 {
+		params.SetVirtualMachineCountLt(vVirtualMachineCountLt)
+	}
+	if len(vVirtualMachineCountLte) > 0 {
+		params.SetVirtualMachineCountLte(vVirtualMachineCountLte)
+	}
+	if len(vVirtualMachineCountGt) > 0 {
+		params.SetVirtualMachineCountGt(vVirtualMachineCountGt)
+	}
+	if len(vVirtualMachineCountGte) > 0 {
+		params.SetVirtualMachineCountGte(vVirtualMachineCountGte)
+	}
+	if vVirtualMachineCountEmpty != nil {
+		params.SetVirtualMachineCountEmpty(vVirtualMachineCountEmpty)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

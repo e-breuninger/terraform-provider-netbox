@@ -11,6 +11,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -37,6 +38,21 @@ type asnRangeDataSource struct {
 type asnRangeDataSourceModel struct {
 	asnRangeResourceModel
 	TagSlug            types.String `tfsdk:"tag_slug"`
+	OwnerName          types.String `tfsdk:"owner_name"`
+	OwnerGroupName     types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID       types.Int64  `tfsdk:"owner_group_id"`
+	Q                  types.String `tfsdk:"q"`
+	RirSlug            types.String `tfsdk:"rir_slug"`
+	StartEmpty         types.Bool   `tfsdk:"start__empty"`
+	StartGt            types.Int64  `tfsdk:"start__gt"`
+	StartGte           types.Int64  `tfsdk:"start__gte"`
+	StartLt            types.Int64  `tfsdk:"start__lt"`
+	StartLte           types.Int64  `tfsdk:"start__lte"`
+	StartN             types.Int64  `tfsdk:"start__n"`
+	TagID              types.Int64  `tfsdk:"tag_id"`
+	TenantSlug         types.String `tfsdk:"tenant_slug"`
+	TenantGroupSlug    types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID      types.String `tfsdk:"tenant_group_id"`
 	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
 }
 
@@ -79,15 +95,24 @@ func (d *asnRangeDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Description: "First AS number in the range. Must be a whole number.",
 			},
 			"end": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Last AS number in the range. Must be a whole number.",
+				Validators: []validator.Int64{
+					int64validator.Between(1, 4294967295),
+				},
 			},
 			"tenant_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the tenant the range belongs to.",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -98,9 +123,11 @@ func (d *asnRangeDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
@@ -128,6 +155,66 @@ func (d *asnRangeDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"rir_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the RIR.",
+			},
+			"start__empty": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Whether start is empty.",
+			},
+			"start__gt": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Start of the range is greater than this.",
+			},
+			"start__gte": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Start of the range is at least this.",
+			},
+			"start__lt": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Start of the range is less than this.",
+			},
+			"start__lte": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Start of the range is at most this.",
+			},
+			"start__n": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Excluded start of the range.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -196,6 +283,106 @@ func (d *asnRangeDataSource) Read(ctx context.Context, req datasource.ReadReques
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.End.IsNull() {
+		v := state.End.ValueInt64()
+		params.SetEnd([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RirSlug.IsNull() {
+		v := state.RirSlug.ValueString()
+		params.SetRir([]string{v})
+		hasInput = true
+	}
+	if !state.StartEmpty.IsNull() {
+		v := state.StartEmpty.ValueBool()
+		params.SetStartEmpty(&v)
+		hasInput = true
+	}
+	if !state.StartGt.IsNull() {
+		v := state.StartGt.ValueInt64()
+		params.SetStartGt([]int64{v})
+		hasInput = true
+	}
+	if !state.StartGte.IsNull() {
+		v := state.StartGte.ValueInt64()
+		params.SetStartGte([]int64{v})
+		hasInput = true
+	}
+	if !state.StartLt.IsNull() {
+		v := state.StartLt.ValueInt64()
+		params.SetStartLt([]int64{v})
+		hasInput = true
+	}
+	if !state.StartLte.IsNull() {
+		v := state.StartLte.ValueInt64()
+		params.SetStartLte([]int64{v})
+		hasInput = true
+	}
+	if !state.StartN.IsNull() {
+		v := state.StartN.ValueInt64()
+		params.SetStartn([]int64{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.TenantID.IsNull() {
+		v := state.TenantID.ValueInt64()
+		params.SetTenantID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -203,7 +390,7 @@ func (d *asnRangeDataSource) Read(ctx context.Context, req datasource.ReadReques
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or slug and/or rir_id and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_asn_range.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_asn_range.")
 		return
 	}
 	res, err := d.client.Ipam.IpamAsnRangesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

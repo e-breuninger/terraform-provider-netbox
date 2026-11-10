@@ -29,20 +29,26 @@ data "netbox_custom_link" "test" {
 
 ### Optional
 
-- `enabled` (Boolean) Whether the link is rendered.
-- `id` (Number) NetBox id.
-- `name` (String)
-- `owner_id` (Number) Id of the owner the object is assigned to.
-
-### Read-Only
-
 - `button_class` (String) Button style. One of: default, blue, indigo, purple, pink, red, orange, yellow, green, teal, cyan, gray, black, white, ghost-dark.
 - `created` (String)
+- `enabled` (Boolean) Whether the link is rendered.
 - `group_name` (String) Links with the same group name are rendered as a dropdown.
+- `id` (Number) NetBox id.
 - `last_updated` (String)
 - `link_text` (String) Jinja2 template for the link text; the object is available as {{ object }}.
 - `link_url` (String) Jinja2 template for the link URL; the object is available as {{ object }}.
+- `name` (String)
 - `new_window` (Boolean) Open the link in a new browser window.
+- `object_type` (String) Object type to match.
+- `object_type_id` (Number) Id of the object type.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
+- `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `weight` (Number) Order within the group. Must be a whole number.
+
+### Read-Only
+
 - `object_types` (Set of String) Object types the link is shown on, as app-labelled content types (dcim.device).
 - `url` (String)
-- `weight` (Number) Order within the group. Must be a whole number.

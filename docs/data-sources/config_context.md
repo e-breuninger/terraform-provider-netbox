@@ -29,10 +29,48 @@ data "netbox_config_context" "test" {
 
 ### Optional
 
+- `auto_sync_enabled` (Boolean) Whether auto sync enabled is set.
+- `cluster_group_id` (Number) Id of the cluster group.
+- `cluster_group_slug` (String) Slug of the cluster group.
+- `cluster_id` (Number) Id of the cluster.
+- `cluster_type_id` (Number) Id of the cluster type.
+- `cluster_type_slug` (String) Slug of the cluster type.
+- `created` (String)
+- `data_file_id` (Number) Id of the data file.
+- `data_source_id` (Number) Id of the data source.
+- `data_synced` (String) Data synced to match.
+- `description` (String)
+- `device_role_id` (Number) Id of the role.
+- `device_role_slug` (String) Slug of the role.
+- `device_type_id` (Number) Id of the device type.
 - `id` (Number) NetBox id.
 - `is_active` (Boolean) Whether the context is applied.
+- `last_updated` (String)
+- `location_id` (Number) Id of the location.
+- `location_slug` (String) Slug of the location.
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `platform_id` (Number) Id of the platform.
+- `platform_slug` (String) Slug of the platform.
+- `profile_id` (Number) Id of the config context profile whose schema the data must satisfy.
+- `profile_name` (String) Name of the profile.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `region_id` (Number) Id of the region.
+- `region_slug` (String) Slug of the region.
+- `site_group_id` (Number) Id of the site group.
+- `site_group_slug` (String) Slug of the site group.
+- `site_id` (Number) Id of the site.
+- `site_slug` (String) Slug of the site.
+- `tag_id` (Number) Id of a tag the object carries.
+- `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (Number) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
+- `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `weight` (Number) Merge order; higher weights are applied later and win. Must be a whole number.
 
 ### Read-Only
 
@@ -42,18 +80,14 @@ data "netbox_config_context" "test" {
 - `cluster_type_ids` (Set of Number) Ids of the cluster types the context applies to; empty means all.
 - `cluster_types` (Set of Number, Deprecated) Deprecated alias of cluster_type_ids.
 - `clusters` (Set of Number, Deprecated) Deprecated alias of cluster_ids.
-- `created` (String)
 - `data` (String) The context data as JSON text (use jsonencode()).
-- `description` (String)
 - `device_role_ids` (Set of Number) Ids of the device roles the context applies to; empty means all.
 - `device_type_ids` (Set of Number) Ids of the device types the context applies to; empty means all.
 - `device_types` (Set of Number, Deprecated) Deprecated alias of device_type_ids.
-- `last_updated` (String)
 - `location_ids` (Set of Number) Ids of the locations the context applies to; empty means all.
 - `locations` (Set of Number, Deprecated) Deprecated alias of location_ids.
 - `platform_ids` (Set of Number) Ids of the platforms the context applies to; empty means all.
 - `platforms` (Set of Number, Deprecated) Deprecated alias of platform_ids.
-- `profile_id` (Number) Id of the config context profile whose schema the data must satisfy.
 - `region_ids` (Set of Number) Ids of the regions the context applies to; empty means all.
 - `regions` (Set of Number, Deprecated) Deprecated alias of region_ids.
 - `roles` (Set of Number, Deprecated) Deprecated alias of device_role_ids.
@@ -67,4 +101,3 @@ data "netbox_config_context" "test" {
 - `tenant_ids` (Set of Number) Ids of the tenants the context applies to; empty means all.
 - `tenants` (Set of Number, Deprecated) Deprecated alias of tenant_ids.
 - `url` (String)
-- `weight` (Number) Merge order; higher weights are applied later and win. Must be a whole number.

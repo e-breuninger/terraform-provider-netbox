@@ -31,18 +31,26 @@ data "netbox_user" "test" {
 
 ### Optional
 
+- `date_joined` (String) When the account was created.
+- `email` (String) Email address.
+- `first_name` (String)
+- `group_id` (Number) Id of the group.
+- `group_name` (String) Name of the group.
 - `id` (Number) NetBox id.
+- `is_active` (Boolean) Whether the user may log in.
+- `is_superuser` (Boolean) Whether is superuser is set.
+- `last_login` (String) When the user last logged in; null until the first login.
+- `last_name` (String)
+- `notification_group_id` (Number) Id of the notification group.
+- `owner_id` (Number) Id of the owner.
+- `owner_name` (String) Name of the owner.
+- `permission_id` (Number) Id of the permission.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `username` (String)
 
 ### Read-Only
 
 - `active` (Boolean, Deprecated) Deprecated alias of is_active.
-- `date_joined` (String) When the account was created.
-- `email` (String) Email address.
-- `first_name` (String)
 - `group_ids` (Set of Number) Ids of the groups the user belongs to.
-- `is_active` (Boolean) Whether the user may log in.
-- `last_login` (String) When the user last logged in; null until the first login.
-- `last_name` (String)
 - `password` (String, Sensitive) Password of the user. Never returned by NetBox, so changes made outside Terraform go unnoticed.
 - `url` (String)

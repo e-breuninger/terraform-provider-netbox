@@ -87,6 +87,16 @@ data "netbox_cables" "test" {
     { name = "tenant_id", value = netbox_tenant.test.id },
   ]
   depends_on = [netbox_cable.test]
+}
+data "netbox_cables" "by_site" {
+  filters = [
+    { name = "site_id", value = netbox_site.test.id },
+    { name = "site", value = netbox_site.test.slug },
+    { name = "device_id", value = netbox_device.a.id },
+    { name = "description__ic", value = "acceptance test" },
+    { name = "length__gte", value = "3" },
+  ]
+  depends_on = [netbox_cable.test]
 }`, testName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_cable.test", "a_side.object_type", "dcim.interface"),
@@ -102,6 +112,8 @@ data "netbox_cables" "test" {
 					resource.TestCheckResourceAttrPair("data.netbox_cable.test", "id", "netbox_cable.test", "id"),
 					resource.TestCheckResourceAttrPair("data.netbox_cable.test", "a_side.device_interface_ids.0", "netbox_device_interface.a0", "id"),
 					resource.TestCheckResourceAttr("data.netbox_cables.test", "cables.#", "1"),
+					resource.TestCheckResourceAttr("data.netbox_cables.by_site", "cables.#", "1"),
+					resource.TestCheckResourceAttrPair("data.netbox_cables.by_site", "cables.0.id", "netbox_cable.test", "id"),
 				),
 			},
 			{
@@ -175,6 +187,16 @@ resource "netbox_cable" "test" {
   b_side = {}
 }`,
 				ExpectError: regexp.MustCompile("Missing terminations"),
+			},
+			{
+				// NetBox ignores names it does not know and would match everything, so they fail here.
+				Config: deps + `
+data "netbox_cables" "unknown" {
+  filters = [
+    { name = "not_a_parameter", value = "x" },
+  ]
+}`,
+				ExpectError: regexp.MustCompile("is not a supported filter parameter"),
 			},
 		},
 	})

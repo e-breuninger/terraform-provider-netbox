@@ -29,18 +29,19 @@ data "netbox_power_port_template" "test" {
 
 ### Optional
 
-- `id` (Number) NetBox id.
-- `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
-- `name` (String)
-- `type` (String) Port type as its NetBox slug, e.g. iec-60320-c14, nema-5-15p, cs8365c (any of NetBox's power port type choices).
-
-### Read-Only
-
 - `allocated_draw` (Number) Allocated power draw in watts. Must be a whole number.
 - `created` (String)
 - `description` (String)
 - `device_type_id` (Number) Id of the device type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
+- `id` (Number) NetBox id.
 - `label` (String) Physical label.
 - `last_updated` (String)
 - `maximum_draw` (Number) Maximum power draw in watts. Must be a whole number.
+- `module_type_id` (Number) Id of the module type. Set exactly one of device_type_id and module_type_id; NetBox rejects both and neither.
+- `name` (String)
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `type` (String) Port type as its NetBox slug, e.g. iec-60320-c14, nema-5-15p, cs8365c (any of NetBox's power port type choices).
+
+### Read-Only
+
 - `url` (String)

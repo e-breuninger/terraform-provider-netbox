@@ -29,26 +29,35 @@ data "netbox_device_role" "test" {
 
 ### Optional
 
+- `ancestor` (String) Ancestor to match.
+- `ancestor_id` (String) Id of the ancestor.
+- `color` (String) Color to match.
+- `config_template_id` (Number) Id of the config template devices of this role render by default.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `id` (Number) NetBox id.
+- `last_updated` (String)
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `parent_id` (Number) Id of the parent device role.
+- `parent_slug` (String) Slug of the parent device role.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
 - `slug` (String) URL-friendly unique shorthand; derived from name when not set.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `vm_role` (Boolean) Whether virtual machines may be assigned this role.
 
 ### Read-Only
 
 - `color_hex` (String) RGB color in hex (e.g. ff0000). Defaults to 9e9e9e.
 - `comments` (String)
-- `config_template_id` (Number) Id of the config template devices of this role render by default.
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
 - `device_count` (Number) Number of devices with the role.
-- `last_updated` (String)
-- `parent_id` (Number) Id of the parent device role.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)
 - `virtual_machine_count` (Number) Number of virtual machines with the role.
-- `vm_role` (Boolean) Whether virtual machines may be assigned this role.

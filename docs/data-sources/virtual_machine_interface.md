@@ -32,31 +32,43 @@ data "netbox_virtual_machine_interface" "test" {
 - `bridge_id` (Number) Id of the bridged interface.
 - `cluster_id` (Number) Id of the cluster of the virtual machine.
 - `cluster_name` (String) Name of the cluster of the virtual machine.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
 - `description` (String)
 - `enabled` (Boolean) Whether the interface is enabled.
 - `id` (Number) NetBox id.
+- `l2vpn` (Number) Id of the L2VPN.
+- `l2vpn_id` (Number) Id of the L2VPN.
+- `last_updated` (String)
 - `mac_address` (String) MAC address assigned to the interface.
 - `mode` (String) 802.1Q tagging mode. One of: access, tagged, tagged-all, q-in-q.
 - `mtu` (Number) MTU in bytes. Must be a whole number.
 - `name` (String)
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
 - `parent_id` (Number) Id of the parent interface.
+- `primary_mac_address` (String) Primary MAC address.
+- `primary_mac_address_id` (Number) Id of the primary MAC address.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
 - `virtual_machine_id` (Number) Id of the virtual machine.
 - `virtual_machine_name` (String) Name of the virtual machine.
+- `vlan` (String) Assigned VID.
+- `vlan_id` (String) Assigned VLAN.
+- `vlan_translation_policy` (String) VLAN Translation Policy.
+- `vlan_translation_policy_id` (Number) Id of the VLAN translation policy.
 - `vrf_id` (Number) Id of the VRF.
 - `vrf_rd` (String) Route distinguisher of the VRF.
 
 ### Read-Only
 
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `last_updated` (String)
 - `qinq_svlan_id` (Number) Id of the Q-in-Q service VLAN.
 - `tagged_vlan_ids` (Set of Number) Ids of the tagged VLANs.
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `untagged_vlan_id` (Number) Id of the untagged VLAN.
 - `url` (String)
-- `vlan_translation_policy_id` (Number) Id of the VLAN translation policy.

@@ -31,36 +31,52 @@ data "netbox_site" "test" {
 
 ### Optional
 
+- `asn` (Number) Id of the AS.
+- `asn_id` (Number) Id of the AS.
+- `contact` (Number) Id of the contact.
+- `contact_group_slug` (String) Slug of the contact group.
+- `contact_role` (Number) Id of the contact role.
+- `created` (String)
 - `custom_field_filters` (Map of String) Custom field values to match, by field name, e.g. { tier = "gold" }: each entry filters as cf_<field name> with the field's own filter logic, loose (case-insensitive substring) or exact.
+- `description` (String)
 - `facility` (String) Local facility ID or description.
+- `group` (String) Group to match.
+- `group_id` (Number) Id of the site group.
 - `id` (Number) NetBox id of the site.
+- `last_updated` (String)
+- `latitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
+- `longitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
 - `name` (String) Full name of the site.
+- `owner_group_id` (Number) Id of the owner group.
+- `owner_group_name` (String) Name of the owner group.
 - `owner_id` (Number) Id of the owner the object is assigned to.
+- `owner_name` (String) Name of the owner.
+- `q` (String) Search term, matched against the fields NetBox searches for this object type.
+- `region_id` (Number) Id of the region.
+- `region_slug` (String) Slug of the region.
 - `slug` (String) URL-friendly unique shorthand; derived from name when not set.
 - `status` (String) Operational status. One of: planned, staging, active, decommissioning, retired.
+- `tag_id` (Number) Id of a tag the object carries.
 - `tag_slug` (String) Slug of a tag the object carries.
+- `tenant_group_id` (String) Id of the tenant group.
+- `tenant_group_slug` (String) Slug of the tenant group.
+- `tenant_id` (Number) Id of the tenant.
+- `tenant_slug` (String) Slug of the tenant.
+- `time_zone` (String) Time zone to match.
 
 ### Read-Only
 
 - `asn_ids` (Set of Number) Ids of ASNs assigned to the site.
 - `circuit_count` (Number) Number of circuits at the site.
 - `comments` (String)
-- `created` (String)
 - `custom_fields` (Map of String) Custom field values by field name. Every value is a string; NetBox coerces numbers and booleans. An object field holds the related object's id, e.g. "12", a multiobject field a JSON list of ids in any order, e.g. jsonencode([12, 13]). A key removed from the map is cleared in NetBox (set {} to clear all).
-- `description` (String)
 - `device_count` (Number) Number of devices at the site.
-- `group_id` (Number) Id of the site group.
-- `last_updated` (String)
-- `latitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
-- `longitude` (Number) GPS coordinate in decimal format (xx.yyyyyy).
 - `physical_address` (String)
 - `prefix_count` (Number) Number of prefixes at the site.
 - `rack_count` (Number) Number of racks at the site.
-- `region_id` (Number) Id of the region.
 - `shipping_address` (String)
 - `tags` (Set of String) Slugs of the tags assigned to the object (the provider's default_tags are added on top, see tags_all).
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
-- `tenant_id` (Number) Id of the tenant.
 - `timezone` (String) Time zone name, e.g. Europe/Berlin.
 - `url` (String)
 - `virtual_machine_count` (Number) Number of virtual machines at the site.

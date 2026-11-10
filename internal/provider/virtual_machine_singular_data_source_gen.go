@@ -12,6 +12,7 @@ import (
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/virtualization"
 	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
+	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -37,14 +38,40 @@ type virtualMachineDataSource struct {
 // virtualMachineDataSourceModel is the data source model: the resource model plus lookup-only inputs.
 type virtualMachineDataSourceModel struct {
 	virtualMachineResourceModel
-	ClusterGroupSlug   types.String `tfsdk:"cluster_group_slug"`
-	DeviceName         types.String `tfsdk:"device_name"`
-	PlatformSlug       types.String `tfsdk:"platform_slug"`
-	RegionSlug         types.String `tfsdk:"region_slug"`
-	RoleSlug           types.String `tfsdk:"role_slug"`
-	SiteSlug           types.String `tfsdk:"site_slug"`
-	TagSlug            types.String `tfsdk:"tag_slug"`
-	CustomFieldFilters types.Map    `tfsdk:"custom_field_filters"`
+	ClusterGroupSlug       types.String `tfsdk:"cluster_group_slug"`
+	DeviceName             types.String `tfsdk:"device_name"`
+	PlatformSlug           types.String `tfsdk:"platform_slug"`
+	RegionSlug             types.String `tfsdk:"region_slug"`
+	RoleSlug               types.String `tfsdk:"role_slug"`
+	SiteSlug               types.String `tfsdk:"site_slug"`
+	TagSlug                types.String `tfsdk:"tag_slug"`
+	Cluster                types.String `tfsdk:"cluster"`
+	ClusterGroupID         types.Int64  `tfsdk:"cluster_group_id"`
+	ClusterTypeSlug        types.String `tfsdk:"cluster_type_slug"`
+	ClusterTypeID          types.Int64  `tfsdk:"cluster_type_id"`
+	Contact                types.Int64  `tfsdk:"contact"`
+	ContactGroupSlug       types.String `tfsdk:"contact_group_slug"`
+	ContactRole            types.Int64  `tfsdk:"contact_role"`
+	Disk                   types.Int64  `tfsdk:"disk"`
+	HasPrimaryIP           types.Bool   `tfsdk:"has_primary_ip"`
+	HasLocalContextData    types.Bool   `tfsdk:"has_local_context_data"`
+	MacAddress             types.String `tfsdk:"mac_address"`
+	Memory                 types.Int64  `tfsdk:"memory"`
+	OwnerName              types.String `tfsdk:"owner_name"`
+	OwnerGroupName         types.String `tfsdk:"owner_group_name"`
+	OwnerGroupID           types.Int64  `tfsdk:"owner_group_id"`
+	PrimaryIp4             types.String `tfsdk:"primary_ip4"`
+	PrimaryIp6             types.String `tfsdk:"primary_ip6"`
+	Q                      types.String `tfsdk:"q"`
+	RegionID               types.String `tfsdk:"region_id"`
+	SiteGroupSlug          types.String `tfsdk:"site_group_slug"`
+	SiteGroupID            types.String `tfsdk:"site_group_id"`
+	TagID                  types.Int64  `tfsdk:"tag_id"`
+	TenantSlug             types.String `tfsdk:"tenant_slug"`
+	TenantGroupSlug        types.String `tfsdk:"tenant_group_slug"`
+	TenantGroupID          types.String `tfsdk:"tenant_group_id"`
+	VirtualMachineTypeSlug types.String `tfsdk:"virtual_machine_type_slug"`
+	CustomFieldFilters     types.Map    `tfsdk:"custom_field_filters"`
 }
 
 func (d *virtualMachineDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -76,8 +103,12 @@ func (d *virtualMachineDataSource) Schema(ctx context.Context, req datasource.Sc
 				},
 			},
 			"start_on_boot": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Power state the virtual machine takes when its host boots. One of: on, off, laststate.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("on", "off", "laststate"),
+				},
 			},
 			"cluster_id": schema.Int64Attribute{
 				Optional:    true,
@@ -95,6 +126,7 @@ func (d *virtualMachineDataSource) Schema(ctx context.Context, req datasource.Sc
 				Description: "Id of the functional device role.",
 			},
 			"virtual_machine_type_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the virtual machine type.",
 			},
@@ -114,24 +146,35 @@ func (d *virtualMachineDataSource) Schema(ctx context.Context, req datasource.Sc
 				Description: "Id of the device hosting the VM.",
 			},
 			"config_template_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the config template.",
 			},
 			"serial": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Serial number.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(50),
+				},
 			},
 			"primary_ip4_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the primary IPv4 address (managed by netbox_primary_ip).",
 			},
 			"primary_ip6_id": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Id of the primary IPv6 address (managed by netbox_primary_ip).",
 			},
 			"vcpus": schema.Float64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Number of virtual CPUs (fractions allowed).",
+				Validators: []validator.Float64{
+					float64validator.Between(0.01, 10000),
+				},
 			},
 			"memory_mb": schema.Int64Attribute{
 				Computed:    true,
@@ -152,7 +195,11 @@ func (d *virtualMachineDataSource) Schema(ctx context.Context, req datasource.Sc
 				Description: "Rendered config context (local_context_data merged with the context assigned through cluster, platform, role, site, tenant and tags) as JSON text, decode with jsondecode().",
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(200),
+				},
 			},
 			"comments": schema.StringAttribute{
 				Computed: true,
@@ -163,19 +210,23 @@ func (d *virtualMachineDataSource) Schema(ctx context.Context, req datasource.Sc
 				Description: "Id of the owner the object is assigned to.",
 			},
 			"created": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"last_updated": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
 			},
 			"url": schema.StringAttribute{
 				Computed: true,
 			},
 			"interface_count": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Number of interfaces on the virtual machine.",
 			},
 			"virtual_disk_count": schema.Int64Attribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Number of virtual disks on the virtual machine.",
 			},
@@ -221,6 +272,110 @@ func (d *virtualMachineDataSource) Schema(ctx context.Context, req datasource.Sc
 			"tag_slug": schema.StringAttribute{
 				Optional:    true,
 				Description: "Slug of a tag the object carries.",
+			},
+			"cluster": schema.StringAttribute{
+				Optional:    true,
+				Description: "Cluster.",
+			},
+			"cluster_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the cluster group.",
+			},
+			"cluster_type_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the cluster type.",
+			},
+			"cluster_type_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the cluster type.",
+			},
+			"contact": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact.",
+			},
+			"contact_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the contact group.",
+			},
+			"contact_role": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the contact role.",
+			},
+			"disk": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Disk to match.",
+			},
+			"has_primary_ip": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Has a primary IP.",
+			},
+			"has_local_context_data": schema.BoolAttribute{
+				Optional:    true,
+				Description: "Whether the object has local config context data.",
+			},
+			"mac_address": schema.StringAttribute{
+				Optional:    true,
+				Description: "Mac address to match.",
+			},
+			"memory": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Memory to match.",
+			},
+			"owner_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner.",
+			},
+			"owner_group_name": schema.StringAttribute{
+				Optional:    true,
+				Description: "Name of the owner group.",
+			},
+			"owner_group_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of the owner group.",
+			},
+			"primary_ip4": schema.StringAttribute{
+				Optional:    true,
+				Description: "Primary IPv4 (address).",
+			},
+			"primary_ip6": schema.StringAttribute{
+				Optional:    true,
+				Description: "Primary IPv6 (address).",
+			},
+			"q": schema.StringAttribute{
+				Optional:    true,
+				Description: "Search term, matched against the fields NetBox searches for this object type.",
+			},
+			"region_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the region.",
+			},
+			"site_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the site group.",
+			},
+			"site_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the site group.",
+			},
+			"tag_id": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Id of a tag the object carries.",
+			},
+			"tenant_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant.",
+			},
+			"tenant_group_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the tenant group.",
+			},
+			"tenant_group_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "Id of the tenant group.",
+			},
+			"virtual_machine_type_slug": schema.StringAttribute{
+				Optional:    true,
+				Description: "Slug of the virtual machine type.",
 			},
 			"custom_field_filters": schema.MapAttribute{
 				Optional:    true,
@@ -344,6 +499,196 @@ func (d *virtualMachineDataSource) Read(ctx context.Context, req datasource.Read
 		params.SetTag([]string{v})
 		hasInput = true
 	}
+	if !state.Cluster.IsNull() {
+		v := state.Cluster.ValueString()
+		params.SetCluster([]string{v})
+		hasInput = true
+	}
+	if !state.ClusterGroupID.IsNull() {
+		v := state.ClusterGroupID.ValueInt64()
+		params.SetClusterGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.ClusterTypeSlug.IsNull() {
+		v := state.ClusterTypeSlug.ValueString()
+		params.SetClusterType([]string{v})
+		hasInput = true
+	}
+	if !state.ClusterTypeID.IsNull() {
+		v := state.ClusterTypeID.ValueInt64()
+		params.SetClusterTypeID([]int64{v})
+		hasInput = true
+	}
+	if !state.ConfigTemplateID.IsNull() {
+		v := state.ConfigTemplateID.ValueInt64()
+		params.SetConfigTemplateID([]int64{v})
+		hasInput = true
+	}
+	if !state.Contact.IsNull() {
+		v := state.Contact.ValueInt64()
+		params.SetContact([]int64{v})
+		hasInput = true
+	}
+	if !state.ContactGroupSlug.IsNull() {
+		v := state.ContactGroupSlug.ValueString()
+		params.SetContactGroup([]string{v})
+		hasInput = true
+	}
+	if !state.ContactRole.IsNull() {
+		v := state.ContactRole.ValueInt64()
+		params.SetContactRole([]int64{v})
+		hasInput = true
+	}
+	if !state.Created.IsNull() {
+		v := state.Created.ValueString()
+		params.SetCreated([]string{v})
+		hasInput = true
+	}
+	if !state.Description.IsNull() {
+		v := state.Description.ValueString()
+		params.SetDescription([]string{v})
+		hasInput = true
+	}
+	if !state.Disk.IsNull() {
+		v := state.Disk.ValueInt64()
+		params.SetDisk([]int64{v})
+		hasInput = true
+	}
+	if !state.HasPrimaryIP.IsNull() {
+		v := state.HasPrimaryIP.ValueBool()
+		params.SetHasPrimaryIP(&v)
+		hasInput = true
+	}
+	if !state.InterfaceCount.IsNull() {
+		v := state.InterfaceCount.ValueInt64()
+		params.SetInterfaceCount([]int64{v})
+		hasInput = true
+	}
+	if !state.LastUpdated.IsNull() {
+		v := state.LastUpdated.ValueString()
+		params.SetLastUpdated([]string{v})
+		hasInput = true
+	}
+	if !state.HasLocalContextData.IsNull() {
+		v := state.HasLocalContextData.ValueBool()
+		params.SetLocalContextData(&v)
+		hasInput = true
+	}
+	if !state.MacAddress.IsNull() {
+		v := state.MacAddress.ValueString()
+		params.SetMacAddress([]string{v})
+		hasInput = true
+	}
+	if !state.Memory.IsNull() {
+		v := state.Memory.ValueInt64()
+		params.SetMemory([]int64{v})
+		hasInput = true
+	}
+	if !state.OwnerName.IsNull() {
+		v := state.OwnerName.ValueString()
+		params.SetOwner([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupName.IsNull() {
+		v := state.OwnerGroupName.ValueString()
+		params.SetOwnerGroup([]string{v})
+		hasInput = true
+	}
+	if !state.OwnerGroupID.IsNull() {
+		v := state.OwnerGroupID.ValueInt64()
+		params.SetOwnerGroupID([]int64{v})
+		hasInput = true
+	}
+	if !state.PrimaryIp4.IsNull() {
+		v := state.PrimaryIp4.ValueString()
+		params.SetPrimaryIp4([]string{v})
+		hasInput = true
+	}
+	if !state.PrimaryIp4ID.IsNull() {
+		v := state.PrimaryIp4ID.ValueInt64()
+		params.SetPrimaryIp4ID([]int64{v})
+		hasInput = true
+	}
+	if !state.PrimaryIp6.IsNull() {
+		v := state.PrimaryIp6.ValueString()
+		params.SetPrimaryIp6([]string{v})
+		hasInput = true
+	}
+	if !state.PrimaryIp6ID.IsNull() {
+		v := state.PrimaryIp6ID.ValueInt64()
+		params.SetPrimaryIp6ID([]int64{v})
+		hasInput = true
+	}
+	if !state.Q.IsNull() {
+		v := state.Q.ValueString()
+		params.SetQ(&v)
+		hasInput = true
+	}
+	if !state.RegionID.IsNull() {
+		v := state.RegionID.ValueString()
+		params.SetRegionID([]string{v})
+		hasInput = true
+	}
+	if !state.Serial.IsNull() {
+		v := state.Serial.ValueString()
+		params.SetSerial([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupSlug.IsNull() {
+		v := state.SiteGroupSlug.ValueString()
+		params.SetSiteGroup([]string{v})
+		hasInput = true
+	}
+	if !state.SiteGroupID.IsNull() {
+		v := state.SiteGroupID.ValueString()
+		params.SetSiteGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.StartOnBoot.IsNull() {
+		v := state.StartOnBoot.ValueString()
+		params.SetStartOnBoot([]string{v})
+		hasInput = true
+	}
+	if !state.TagID.IsNull() {
+		v := state.TagID.ValueInt64()
+		params.SetTagID([]int64{v})
+		hasInput = true
+	}
+	if !state.TenantSlug.IsNull() {
+		v := state.TenantSlug.ValueString()
+		params.SetTenant([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupSlug.IsNull() {
+		v := state.TenantGroupSlug.ValueString()
+		params.SetTenantGroup([]string{v})
+		hasInput = true
+	}
+	if !state.TenantGroupID.IsNull() {
+		v := state.TenantGroupID.ValueString()
+		params.SetTenantGroupID([]string{v})
+		hasInput = true
+	}
+	if !state.Vcpus.IsNull() {
+		v := state.Vcpus.ValueFloat64()
+		params.SetVcpus([]float64{v})
+		hasInput = true
+	}
+	if !state.VirtualDiskCount.IsNull() {
+		v := state.VirtualDiskCount.ValueInt64()
+		params.SetVirtualDiskCount([]int64{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineTypeSlug.IsNull() {
+		v := state.VirtualMachineTypeSlug.ValueString()
+		params.SetVirtualMachineType([]string{v})
+		hasInput = true
+	}
+	if !state.VirtualMachineTypeID.IsNull() {
+		v := state.VirtualMachineTypeID.ValueInt64()
+		params.SetVirtualMachineTypeID([]int64{v})
+		hasInput = true
+	}
 	if !state.CustomFieldFilters.IsNull() {
 		for name, value := range conv.MapTo[string](ctx, state.CustomFieldFilters, &resp.Diagnostics) {
 			queryParams.Add("cf_"+name, value)
@@ -351,7 +696,7 @@ func (d *virtualMachineDataSource) Read(ctx context.Context, req datasource.Read
 		hasInput = true
 	}
 	if !hasInput {
-		resp.Diagnostics.AddError("Missing lookup attribute", "Set id and/or name and/or cluster_id and/or status and/or site_id and/or role_id and/or tenant_id and/or platform_id and/or device_id and/or cluster_group_slug and/or device_name and/or platform_slug and/or region_slug and/or role_slug and/or site_slug and/or owner_id and/or tag_slug and/or custom_field_filters to look up a netbox_virtual_machine.")
+		resp.Diagnostics.AddError("Missing lookup attribute", "Set at least one lookup attribute to look up a netbox_virtual_machine.")
 		return
 	}
 	res, err := d.client.Virtualization.VirtualizationVirtualMachinesListContext(ctx, params, nil, netboxapi.WithQuery(queryParams))

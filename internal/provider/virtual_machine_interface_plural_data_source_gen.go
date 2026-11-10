@@ -80,7 +80,7 @@ func (d *virtualMachineInterfacesDataSource) Schema(ctx context.Context, req dat
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: bridge_id, bridge_id__n, cluster, cluster_id, cluster_id__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, enabled, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, mac_address, mode, mode__empty, mode__ic, mode__ie, mode__iew, mode__iregex, mode__isw, mode__n, mode__nic, mode__nie, mode__niew, mode__nisw, mode__regex, mtu, mtu__empty, mtu__gt, mtu__gte, mtu__lt, mtu__lte, mtu__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner_id, owner_id__n, parent_id, parent_id__n, tag, tag__any, tag__n, virtual_machine, virtual_machine_id, virtual_machine_id__n, vrf, vrf__n, vrf_id, vrf_id__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: bridge_id, bridge_id__n, cluster, cluster__n, cluster_id, cluster_id__n, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, enabled, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, l2vpn, l2vpn__n, l2vpn_id, l2vpn_id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, mac_address, mac_address__ic, mac_address__ie, mac_address__iew, mac_address__iregex, mac_address__isw, mac_address__n, mac_address__nic, mac_address__nie, mac_address__niew, mac_address__nisw, mac_address__regex, mode, mode__empty, mode__ic, mode__ie, mode__iew, mode__iregex, mode__isw, mode__n, mode__nic, mode__nie, mode__niew, mode__nisw, mode__regex, mtu, mtu__empty, mtu__gt, mtu__gte, mtu__lt, mtu__lte, mtu__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, parent_id, parent_id__n, primary_mac_address, primary_mac_address__n, primary_mac_address_id, primary_mac_address_id__n, q, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, virtual_machine, virtual_machine__n, virtual_machine_id, virtual_machine_id__n, vlan, vlan_id, vlan_translation_policy, vlan_translation_policy__n, vlan_translation_policy_id, vlan_translation_policy_id__n, vrf, vrf__n, vrf_id, vrf_id__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -268,6 +268,17 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 	var vClusterID []int64
 	var vClusterIDn []int64
 	var vMacAddress []string
+	var vMacAddressn []string
+	var vMacAddressIc []string
+	var vMacAddressNic []string
+	var vMacAddressIe []string
+	var vMacAddressNie []string
+	var vMacAddressIsw []string
+	var vMacAddressNisw []string
+	var vMacAddressIew []string
+	var vMacAddressNiew []string
+	var vMacAddressRegex []string
+	var vMacAddressIregex []string
 	var vEnabled *bool
 	var vMode []string
 	var vModen []string
@@ -309,7 +320,9 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 	var vDescriptionRegex []string
 	var vDescriptionIregex []string
 	var vVirtualMachine []string
+	var vVirtualMachinen []string
 	var vCluster []string
+	var vClustern []string
 	var vVrf []string
 	var vVrfn []string
 	var vOwnerID []int64
@@ -317,6 +330,44 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vL2vpn []int64
+	var vL2vpnn []int64
+	var vL2vpnID []int64
+	var vL2vpnIDn []int64
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vPrimaryMacAddress []string
+	var vPrimaryMacAddressn []string
+	var vPrimaryMacAddressID []int64
+	var vPrimaryMacAddressIDn []int64
+	var vQ *string
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vVlan *string
+	var vVlanID *string
+	var vVlanTranslationPolicy []string
+	var vVlanTranslationPolicyn []string
+	var vVlanTranslationPolicyID []int64
+	var vVlanTranslationPolicyIDn []int64
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -458,6 +509,39 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 		case "mac_address":
 			v := value
 			vMacAddress = append(vMacAddress, v)
+		case "mac_address__n":
+			v := value
+			vMacAddressn = append(vMacAddressn, v)
+		case "mac_address__ic":
+			v := value
+			vMacAddressIc = append(vMacAddressIc, v)
+		case "mac_address__nic":
+			v := value
+			vMacAddressNic = append(vMacAddressNic, v)
+		case "mac_address__ie":
+			v := value
+			vMacAddressIe = append(vMacAddressIe, v)
+		case "mac_address__nie":
+			v := value
+			vMacAddressNie = append(vMacAddressNie, v)
+		case "mac_address__isw":
+			v := value
+			vMacAddressIsw = append(vMacAddressIsw, v)
+		case "mac_address__nisw":
+			v := value
+			vMacAddressNisw = append(vMacAddressNisw, v)
+		case "mac_address__iew":
+			v := value
+			vMacAddressIew = append(vMacAddressIew, v)
+		case "mac_address__niew":
+			v := value
+			vMacAddressNiew = append(vMacAddressNiew, v)
+		case "mac_address__regex":
+			v := value
+			vMacAddressRegex = append(vMacAddressRegex, v)
+		case "mac_address__iregex":
+			v := value
+			vMacAddressIregex = append(vMacAddressIregex, v)
 		case "enabled":
 			if vEnabled != nil {
 				resp.Diagnostics.AddError("Duplicate filter", "Filter 'enabled' takes a single value.")
@@ -661,9 +745,15 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 		case "virtual_machine":
 			v := value
 			vVirtualMachine = append(vVirtualMachine, v)
+		case "virtual_machine__n":
+			v := value
+			vVirtualMachinen = append(vVirtualMachinen, v)
 		case "cluster":
 			v := value
 			vCluster = append(vCluster, v)
+		case "cluster__n":
+			v := value
+			vClustern = append(vClustern, v)
 		case "vrf":
 			v := value
 			vVrf = append(vVrf, v)
@@ -693,6 +783,184 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "l2vpn":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'l2vpn' takes an integer, got %q.", value))
+				return
+			}
+			vL2vpn = append(vL2vpn, v)
+		case "l2vpn__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'l2vpn__n' takes an integer, got %q.", value))
+				return
+			}
+			vL2vpnn = append(vL2vpnn, v)
+		case "l2vpn_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'l2vpn_id' takes an integer, got %q.", value))
+				return
+			}
+			vL2vpnID = append(vL2vpnID, v)
+		case "l2vpn_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'l2vpn_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vL2vpnIDn = append(vL2vpnIDn, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "primary_mac_address":
+			v := value
+			vPrimaryMacAddress = append(vPrimaryMacAddress, v)
+		case "primary_mac_address__n":
+			v := value
+			vPrimaryMacAddressn = append(vPrimaryMacAddressn, v)
+		case "primary_mac_address_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'primary_mac_address_id' takes an integer, got %q.", value))
+				return
+			}
+			vPrimaryMacAddressID = append(vPrimaryMacAddressID, v)
+		case "primary_mac_address_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'primary_mac_address_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vPrimaryMacAddressIDn = append(vPrimaryMacAddressIDn, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "vlan":
+			if vVlan != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'vlan' takes a single value.")
+				return
+			}
+			v := value
+			vVlan = &v
+		case "vlan_id":
+			if vVlanID != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'vlan_id' takes a single value.")
+				return
+			}
+			v := value
+			vVlanID = &v
+		case "vlan_translation_policy":
+			v := value
+			vVlanTranslationPolicy = append(vVlanTranslationPolicy, v)
+		case "vlan_translation_policy__n":
+			v := value
+			vVlanTranslationPolicyn = append(vVlanTranslationPolicyn, v)
+		case "vlan_translation_policy_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vlan_translation_policy_id' takes an integer, got %q.", value))
+				return
+			}
+			vVlanTranslationPolicyID = append(vVlanTranslationPolicyID, v)
+		case "vlan_translation_policy_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vlan_translation_policy_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vVlanTranslationPolicyIDn = append(vVlanTranslationPolicyIDn, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -772,6 +1040,39 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 	}
 	if len(vMacAddress) > 0 {
 		params.SetMacAddress(vMacAddress)
+	}
+	if len(vMacAddressn) > 0 {
+		params.SetMacAddressn(vMacAddressn)
+	}
+	if len(vMacAddressIc) > 0 {
+		params.SetMacAddressIc(vMacAddressIc)
+	}
+	if len(vMacAddressNic) > 0 {
+		params.SetMacAddressNic(vMacAddressNic)
+	}
+	if len(vMacAddressIe) > 0 {
+		params.SetMacAddressIe(vMacAddressIe)
+	}
+	if len(vMacAddressNie) > 0 {
+		params.SetMacAddressNie(vMacAddressNie)
+	}
+	if len(vMacAddressIsw) > 0 {
+		params.SetMacAddressIsw(vMacAddressIsw)
+	}
+	if len(vMacAddressNisw) > 0 {
+		params.SetMacAddressNisw(vMacAddressNisw)
+	}
+	if len(vMacAddressIew) > 0 {
+		params.SetMacAddressIew(vMacAddressIew)
+	}
+	if len(vMacAddressNiew) > 0 {
+		params.SetMacAddressNiew(vMacAddressNiew)
+	}
+	if len(vMacAddressRegex) > 0 {
+		params.SetMacAddressRegex(vMacAddressRegex)
+	}
+	if len(vMacAddressIregex) > 0 {
+		params.SetMacAddressIregex(vMacAddressIregex)
 	}
 	if vEnabled != nil {
 		params.SetEnabled(vEnabled)
@@ -896,8 +1197,14 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 	if len(vVirtualMachine) > 0 {
 		params.SetVirtualMachine(vVirtualMachine)
 	}
+	if len(vVirtualMachinen) > 0 {
+		params.SetVirtualMachinen(vVirtualMachinen)
+	}
 	if len(vCluster) > 0 {
 		params.SetCluster(vCluster)
+	}
+	if len(vClustern) > 0 {
+		params.SetClustern(vClustern)
 	}
 	if len(vVrf) > 0 {
 		params.SetVrf(vVrf)
@@ -919,6 +1226,120 @@ func (d *virtualMachineInterfacesDataSource) Read(ctx context.Context, req datas
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vL2vpn) > 0 {
+		params.SetL2vpn(vL2vpn)
+	}
+	if len(vL2vpnn) > 0 {
+		params.SetL2vpnn(vL2vpnn)
+	}
+	if len(vL2vpnID) > 0 {
+		params.SetL2vpnID(vL2vpnID)
+	}
+	if len(vL2vpnIDn) > 0 {
+		params.SetL2vpnIDn(vL2vpnIDn)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if len(vPrimaryMacAddress) > 0 {
+		params.SetPrimaryMacAddress(vPrimaryMacAddress)
+	}
+	if len(vPrimaryMacAddressn) > 0 {
+		params.SetPrimaryMacAddressn(vPrimaryMacAddressn)
+	}
+	if len(vPrimaryMacAddressID) > 0 {
+		params.SetPrimaryMacAddressID(vPrimaryMacAddressID)
+	}
+	if len(vPrimaryMacAddressIDn) > 0 {
+		params.SetPrimaryMacAddressIDn(vPrimaryMacAddressIDn)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if vVlan != nil {
+		params.SetVlan(vVlan)
+	}
+	if vVlanID != nil {
+		params.SetVlanID(vVlanID)
+	}
+	if len(vVlanTranslationPolicy) > 0 {
+		params.SetVlanTranslationPolicy(vVlanTranslationPolicy)
+	}
+	if len(vVlanTranslationPolicyn) > 0 {
+		params.SetVlanTranslationPolicyn(vVlanTranslationPolicyn)
+	}
+	if len(vVlanTranslationPolicyID) > 0 {
+		params.SetVlanTranslationPolicyID(vVlanTranslationPolicyID)
+	}
+	if len(vVlanTranslationPolicyIDn) > 0 {
+		params.SetVlanTranslationPolicyIDn(vVlanTranslationPolicyIDn)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

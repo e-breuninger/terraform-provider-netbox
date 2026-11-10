@@ -96,7 +96,7 @@ func (d *racksDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.SetNestedAttribute{
 				Optional:    true,
-				Description: "Query filters, sent as API list parameters. Supported names: asset_tag, asset_tag__empty, asset_tag__ic, asset_tag__ie, asset_tag__iew, asset_tag__iregex, asset_tag__isw, asset_tag__n, asset_tag__nic, asset_tag__nie, asset_tag__niew, asset_tag__nisw, asset_tag__regex, contact, contact__n, contact_group, contact_group__n, contact_role, contact_role__n, desc_units, facility_id, facility_id__empty, facility_id__ic, facility_id__ie, facility_id__iew, facility_id__iregex, facility_id__isw, facility_id__n, facility_id__nic, facility_id__nie, facility_id__niew, facility_id__nisw, facility_id__regex, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, location_id, location_id__n, max_weight, max_weight__empty, max_weight__gt, max_weight__gte, max_weight__lt, max_weight__lte, max_weight__n, mounting_depth, mounting_depth__empty, mounting_depth__gt, mounting_depth__gte, mounting_depth__lt, mounting_depth__lte, mounting_depth__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, outer_depth, outer_depth__empty, outer_depth__gt, outer_depth__gte, outer_depth__lt, outer_depth__lte, outer_depth__n, outer_unit, outer_unit__empty, outer_unit__ic, outer_unit__ie, outer_unit__iew, outer_unit__iregex, outer_unit__isw, outer_unit__n, outer_unit__nic, outer_unit__nie, outer_unit__niew, outer_unit__nisw, outer_unit__regex, outer_width, outer_width__empty, outer_width__gt, outer_width__gte, outer_width__lt, outer_width__lte, outer_width__n, owner_id, owner_id__n, rack_type_id, rack_type_id__n, region_id, region_id__n, role_id, role_id__n, serial, serial__empty, serial__ic, serial__ie, serial__iew, serial__iregex, serial__isw, serial__n, serial__nic, serial__nie, serial__niew, serial__nisw, serial__regex, site_id, site_id__n, status, status__empty, status__ic, status__ie, status__iew, status__iregex, status__isw, status__n, status__nic, status__nie, status__niew, status__nisw, status__regex, tag, tag__any, tag__n, tenant_id, tenant_id__n, u_height, u_height__empty, u_height__gt, u_height__gte, u_height__lt, u_height__lte, u_height__n, weight, weight__empty, weight__gt, weight__gte, weight__lt, weight__lte, weight__n, weight_unit, weight_unit__empty, weight_unit__ic, weight_unit__ie, weight_unit__iew, weight_unit__iregex, weight_unit__isw, weight_unit__n, weight_unit__nic, weight_unit__nie, weight_unit__niew, weight_unit__nisw, weight_unit__regex, width, width__n. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
+				Description: "Query filters, sent as API list parameters. Supported names: airflow, airflow__empty, airflow__ic, airflow__ie, airflow__iew, airflow__iregex, airflow__isw, airflow__n, airflow__nic, airflow__nie, airflow__niew, airflow__nisw, airflow__regex, asset_tag, asset_tag__empty, asset_tag__ic, asset_tag__ie, asset_tag__iew, asset_tag__iregex, asset_tag__isw, asset_tag__n, asset_tag__nic, asset_tag__nie, asset_tag__niew, asset_tag__nisw, asset_tag__regex, contact, contact__n, contact_group, contact_group__n, contact_role, contact_role__n, created, created__empty, created__gt, created__gte, created__lt, created__lte, created__n, desc_units, description, description__empty, description__ic, description__ie, description__iew, description__iregex, description__isw, description__n, description__nic, description__nie, description__niew, description__nisw, description__regex, facility_id, facility_id__empty, facility_id__ic, facility_id__ie, facility_id__iew, facility_id__iregex, facility_id__isw, facility_id__n, facility_id__nic, facility_id__nie, facility_id__niew, facility_id__nisw, facility_id__regex, form_factor, form_factor__empty, form_factor__ic, form_factor__ie, form_factor__iew, form_factor__iregex, form_factor__isw, form_factor__n, form_factor__nic, form_factor__nie, form_factor__niew, form_factor__nisw, form_factor__regex, group, group__n, group_id, group_id__n, id, id__empty, id__gt, id__gte, id__lt, id__lte, id__n, last_updated, last_updated__empty, last_updated__gt, last_updated__gte, last_updated__lt, last_updated__lte, last_updated__n, location, location__n, location_id, location_id__n, manufacturer, manufacturer__n, manufacturer_id, manufacturer_id__n, max_weight, max_weight__empty, max_weight__gt, max_weight__gte, max_weight__lt, max_weight__lte, max_weight__n, mounting_depth, mounting_depth__empty, mounting_depth__gt, mounting_depth__gte, mounting_depth__lt, mounting_depth__lte, mounting_depth__n, name, name__empty, name__ic, name__ie, name__iew, name__iregex, name__isw, name__n, name__nic, name__nie, name__niew, name__nisw, name__regex, outer_depth, outer_depth__empty, outer_depth__gt, outer_depth__gte, outer_depth__lt, outer_depth__lte, outer_depth__n, outer_height, outer_height__empty, outer_height__gt, outer_height__gte, outer_height__lt, outer_height__lte, outer_height__n, outer_unit, outer_unit__empty, outer_unit__ic, outer_unit__ie, outer_unit__iew, outer_unit__iregex, outer_unit__isw, outer_unit__n, outer_unit__nic, outer_unit__nie, outer_unit__niew, outer_unit__nisw, outer_unit__regex, outer_width, outer_width__empty, outer_width__gt, outer_width__gte, outer_width__lt, outer_width__lte, outer_width__n, owner, owner__n, owner_group, owner_group__n, owner_group_id, owner_group_id__n, owner_id, owner_id__n, q, rack_type, rack_type__n, rack_type_id, rack_type_id__n, region, region__n, region_id, region_id__n, role, role__n, role_id, role_id__n, serial, serial__empty, serial__ic, serial__ie, serial__iew, serial__iregex, serial__isw, serial__n, serial__nic, serial__nie, serial__niew, serial__nisw, serial__regex, site, site__n, site_group, site_group__n, site_group_id, site_group_id__n, site_id, site_id__n, starting_unit, starting_unit__empty, starting_unit__gt, starting_unit__gte, starting_unit__lt, starting_unit__lte, starting_unit__n, status, status__empty, status__ic, status__ie, status__iew, status__iregex, status__isw, status__n, status__nic, status__nie, status__niew, status__nisw, status__regex, tag, tag__any, tag__n, tag_id, tag_id__any, tag_id__n, tenant, tenant__n, tenant_group, tenant_group__n, tenant_group_id, tenant_group_id__n, tenant_id, tenant_id__n, u_height, u_height__empty, u_height__gt, u_height__gte, u_height__lt, u_height__lte, u_height__n, weight, weight__empty, weight__gt, weight__gte, weight__lt, weight__lte, weight__n, weight_unit, weight_unit__empty, weight_unit__ic, weight_unit__ie, weight_unit__iew, weight_unit__iregex, weight_unit__isw, weight_unit__n, weight_unit__nic, weight_unit__nie, weight_unit__niew, weight_unit__nisw, weight_unit__regex, width, width__ic, width__ie, width__iew, width__iregex, width__isw, width__n, width__nic, width__nie, width__niew, width__nisw, width__regex. Repeating a name sends that parameter once per value. Custom fields filter as cf_<field name>, e.g. cf_tier, with the field's own filter logic: loose is a case-insensitive substring match, exact an exact match. NetBox ignores names it has no custom field for, and such an entry does not narrow the result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -366,6 +366,16 @@ func (d *racksDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	var vStatusIregex []string
 	var vWidth []int64
 	var vWidthn []int64
+	var vWidthIc []int64
+	var vWidthNic []int64
+	var vWidthIe []int64
+	var vWidthNie []int64
+	var vWidthIsw []int64
+	var vWidthNisw []int64
+	var vWidthIew []int64
+	var vWidthNiew []int64
+	var vWidthRegex []int64
+	var vWidthIregex []int64
 	var vUHeight []int64
 	var vUHeightn []int64
 	var vUHeightLt []int64
@@ -487,6 +497,111 @@ func (d *racksDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	var vTag []string
 	var vTagn []string
 	var vTagAny []string
+	var vAirflow *string
+	var vAirflown *string
+	var vAirflowIc []string
+	var vAirflowNic []string
+	var vAirflowIe []string
+	var vAirflowNie []string
+	var vAirflowIsw []string
+	var vAirflowNisw []string
+	var vAirflowIew []string
+	var vAirflowNiew []string
+	var vAirflowEmpty *bool
+	var vAirflowRegex []string
+	var vAirflowIregex []string
+	var vCreated []string
+	var vCreatedn []string
+	var vCreatedLt []string
+	var vCreatedLte []string
+	var vCreatedGt []string
+	var vCreatedGte []string
+	var vCreatedEmpty []string
+	var vDescription []string
+	var vDescriptionn []string
+	var vDescriptionIc []string
+	var vDescriptionNic []string
+	var vDescriptionIe []string
+	var vDescriptionNie []string
+	var vDescriptionIsw []string
+	var vDescriptionNisw []string
+	var vDescriptionIew []string
+	var vDescriptionNiew []string
+	var vDescriptionEmpty *bool
+	var vDescriptionRegex []string
+	var vDescriptionIregex []string
+	var vFormFactor []string
+	var vFormFactorn []string
+	var vFormFactorIc []string
+	var vFormFactorNic []string
+	var vFormFactorIe []string
+	var vFormFactorNie []string
+	var vFormFactorIsw []string
+	var vFormFactorNisw []string
+	var vFormFactorIew []string
+	var vFormFactorNiew []string
+	var vFormFactorEmpty *bool
+	var vFormFactorRegex []string
+	var vFormFactorIregex []string
+	var vGroup []string
+	var vGroupn []string
+	var vGroupID []int64
+	var vGroupIDn []int64
+	var vLastUpdated []string
+	var vLastUpdatedn []string
+	var vLastUpdatedLt []string
+	var vLastUpdatedLte []string
+	var vLastUpdatedGt []string
+	var vLastUpdatedGte []string
+	var vLastUpdatedEmpty []string
+	var vLocation []string
+	var vLocationn []string
+	var vManufacturer []string
+	var vManufacturern []string
+	var vManufacturerID []int64
+	var vManufacturerIDn []int64
+	var vOuterHeight []int64
+	var vOuterHeightn []int64
+	var vOuterHeightLt []int64
+	var vOuterHeightLte []int64
+	var vOuterHeightGt []int64
+	var vOuterHeightGte []int64
+	var vOuterHeightEmpty *bool
+	var vOwner []string
+	var vOwnern []string
+	var vOwnerGroup []string
+	var vOwnerGroupn []string
+	var vOwnerGroupID []int64
+	var vOwnerGroupIDn []int64
+	var vQ *string
+	var vRackType []string
+	var vRackTypen []string
+	var vRegion []string
+	var vRegionn []string
+	var vRole []string
+	var vRolen []string
+	var vSite []string
+	var vSiten []string
+	var vSiteGroup []string
+	var vSiteGroupn []string
+	var vSiteGroupID []string
+	var vSiteGroupIDn []string
+	var vStartingUnit []int64
+	var vStartingUnitn []int64
+	var vStartingUnitLt []int64
+	var vStartingUnitLte []int64
+	var vStartingUnitGt []int64
+	var vStartingUnitGte []int64
+	var vStartingUnitEmpty *bool
+	var vTagID []int64
+	var vTagIDn []int64
+	var vTagIDAny []int64
+	var vTenant []string
+	var vTenantn []string
+	var vTenantGroup []string
+	var vTenantGroupn []string
+	var vTenantGroupID []string
+	var vTenantGroupIDn []string
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -720,6 +835,76 @@ func (d *racksDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 				return
 			}
 			vWidthn = append(vWidthn, v)
+		case "width__ic":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__ic' takes an integer, got %q.", value))
+				return
+			}
+			vWidthIc = append(vWidthIc, v)
+		case "width__nic":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__nic' takes an integer, got %q.", value))
+				return
+			}
+			vWidthNic = append(vWidthNic, v)
+		case "width__ie":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__ie' takes an integer, got %q.", value))
+				return
+			}
+			vWidthIe = append(vWidthIe, v)
+		case "width__nie":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__nie' takes an integer, got %q.", value))
+				return
+			}
+			vWidthNie = append(vWidthNie, v)
+		case "width__isw":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__isw' takes an integer, got %q.", value))
+				return
+			}
+			vWidthIsw = append(vWidthIsw, v)
+		case "width__nisw":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__nisw' takes an integer, got %q.", value))
+				return
+			}
+			vWidthNisw = append(vWidthNisw, v)
+		case "width__iew":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__iew' takes an integer, got %q.", value))
+				return
+			}
+			vWidthIew = append(vWidthIew, v)
+		case "width__niew":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__niew' takes an integer, got %q.", value))
+				return
+			}
+			vWidthNiew = append(vWidthNiew, v)
+		case "width__regex":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__regex' takes an integer, got %q.", value))
+				return
+			}
+			vWidthRegex = append(vWidthRegex, v)
+		case "width__iregex":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'width__iregex' takes an integer, got %q.", value))
+				return
+			}
+			vWidthIregex = append(vWidthIregex, v)
 		case "u_height":
 			v, err := strconv.ParseInt(value, 10, 64)
 			if err != nil {
@@ -1363,6 +1548,457 @@ func (d *racksDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		case "tag__any":
 			v := value
 			vTagAny = append(vTagAny, v)
+		case "airflow":
+			if vAirflow != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'airflow' takes a single value.")
+				return
+			}
+			v := value
+			vAirflow = &v
+		case "airflow__n":
+			if vAirflown != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'airflow__n' takes a single value.")
+				return
+			}
+			v := value
+			vAirflown = &v
+		case "airflow__ic":
+			v := value
+			vAirflowIc = append(vAirflowIc, v)
+		case "airflow__nic":
+			v := value
+			vAirflowNic = append(vAirflowNic, v)
+		case "airflow__ie":
+			v := value
+			vAirflowIe = append(vAirflowIe, v)
+		case "airflow__nie":
+			v := value
+			vAirflowNie = append(vAirflowNie, v)
+		case "airflow__isw":
+			v := value
+			vAirflowIsw = append(vAirflowIsw, v)
+		case "airflow__nisw":
+			v := value
+			vAirflowNisw = append(vAirflowNisw, v)
+		case "airflow__iew":
+			v := value
+			vAirflowIew = append(vAirflowIew, v)
+		case "airflow__niew":
+			v := value
+			vAirflowNiew = append(vAirflowNiew, v)
+		case "airflow__empty":
+			if vAirflowEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'airflow__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'airflow__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vAirflowEmpty = &v
+		case "airflow__regex":
+			v := value
+			vAirflowRegex = append(vAirflowRegex, v)
+		case "airflow__iregex":
+			v := value
+			vAirflowIregex = append(vAirflowIregex, v)
+		case "created":
+			v := value
+			vCreated = append(vCreated, v)
+		case "created__n":
+			v := value
+			vCreatedn = append(vCreatedn, v)
+		case "created__lt":
+			v := value
+			vCreatedLt = append(vCreatedLt, v)
+		case "created__lte":
+			v := value
+			vCreatedLte = append(vCreatedLte, v)
+		case "created__gt":
+			v := value
+			vCreatedGt = append(vCreatedGt, v)
+		case "created__gte":
+			v := value
+			vCreatedGte = append(vCreatedGte, v)
+		case "created__empty":
+			v := value
+			vCreatedEmpty = append(vCreatedEmpty, v)
+		case "description":
+			v := value
+			vDescription = append(vDescription, v)
+		case "description__n":
+			v := value
+			vDescriptionn = append(vDescriptionn, v)
+		case "description__ic":
+			v := value
+			vDescriptionIc = append(vDescriptionIc, v)
+		case "description__nic":
+			v := value
+			vDescriptionNic = append(vDescriptionNic, v)
+		case "description__ie":
+			v := value
+			vDescriptionIe = append(vDescriptionIe, v)
+		case "description__nie":
+			v := value
+			vDescriptionNie = append(vDescriptionNie, v)
+		case "description__isw":
+			v := value
+			vDescriptionIsw = append(vDescriptionIsw, v)
+		case "description__nisw":
+			v := value
+			vDescriptionNisw = append(vDescriptionNisw, v)
+		case "description__iew":
+			v := value
+			vDescriptionIew = append(vDescriptionIew, v)
+		case "description__niew":
+			v := value
+			vDescriptionNiew = append(vDescriptionNiew, v)
+		case "description__empty":
+			if vDescriptionEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vDescriptionEmpty = &v
+		case "description__regex":
+			v := value
+			vDescriptionRegex = append(vDescriptionRegex, v)
+		case "description__iregex":
+			v := value
+			vDescriptionIregex = append(vDescriptionIregex, v)
+		case "form_factor":
+			v := value
+			vFormFactor = append(vFormFactor, v)
+		case "form_factor__n":
+			v := value
+			vFormFactorn = append(vFormFactorn, v)
+		case "form_factor__ic":
+			v := value
+			vFormFactorIc = append(vFormFactorIc, v)
+		case "form_factor__nic":
+			v := value
+			vFormFactorNic = append(vFormFactorNic, v)
+		case "form_factor__ie":
+			v := value
+			vFormFactorIe = append(vFormFactorIe, v)
+		case "form_factor__nie":
+			v := value
+			vFormFactorNie = append(vFormFactorNie, v)
+		case "form_factor__isw":
+			v := value
+			vFormFactorIsw = append(vFormFactorIsw, v)
+		case "form_factor__nisw":
+			v := value
+			vFormFactorNisw = append(vFormFactorNisw, v)
+		case "form_factor__iew":
+			v := value
+			vFormFactorIew = append(vFormFactorIew, v)
+		case "form_factor__niew":
+			v := value
+			vFormFactorNiew = append(vFormFactorNiew, v)
+		case "form_factor__empty":
+			if vFormFactorEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'form_factor__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'form_factor__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vFormFactorEmpty = &v
+		case "form_factor__regex":
+			v := value
+			vFormFactorRegex = append(vFormFactorRegex, v)
+		case "form_factor__iregex":
+			v := value
+			vFormFactorIregex = append(vFormFactorIregex, v)
+		case "group":
+			v := value
+			vGroup = append(vGroup, v)
+		case "group__n":
+			v := value
+			vGroupn = append(vGroupn, v)
+		case "group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group_id' takes an integer, got %q.", value))
+				return
+			}
+			vGroupID = append(vGroupID, v)
+		case "group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vGroupIDn = append(vGroupIDn, v)
+		case "last_updated":
+			v := value
+			vLastUpdated = append(vLastUpdated, v)
+		case "last_updated__n":
+			v := value
+			vLastUpdatedn = append(vLastUpdatedn, v)
+		case "last_updated__lt":
+			v := value
+			vLastUpdatedLt = append(vLastUpdatedLt, v)
+		case "last_updated__lte":
+			v := value
+			vLastUpdatedLte = append(vLastUpdatedLte, v)
+		case "last_updated__gt":
+			v := value
+			vLastUpdatedGt = append(vLastUpdatedGt, v)
+		case "last_updated__gte":
+			v := value
+			vLastUpdatedGte = append(vLastUpdatedGte, v)
+		case "last_updated__empty":
+			v := value
+			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
+		case "location":
+			v := value
+			vLocation = append(vLocation, v)
+		case "location__n":
+			v := value
+			vLocationn = append(vLocationn, v)
+		case "manufacturer":
+			v := value
+			vManufacturer = append(vManufacturer, v)
+		case "manufacturer__n":
+			v := value
+			vManufacturern = append(vManufacturern, v)
+		case "manufacturer_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'manufacturer_id' takes an integer, got %q.", value))
+				return
+			}
+			vManufacturerID = append(vManufacturerID, v)
+		case "manufacturer_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'manufacturer_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vManufacturerIDn = append(vManufacturerIDn, v)
+		case "outer_height":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'outer_height' takes an integer, got %q.", value))
+				return
+			}
+			vOuterHeight = append(vOuterHeight, v)
+		case "outer_height__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'outer_height__n' takes an integer, got %q.", value))
+				return
+			}
+			vOuterHeightn = append(vOuterHeightn, v)
+		case "outer_height__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'outer_height__lt' takes an integer, got %q.", value))
+				return
+			}
+			vOuterHeightLt = append(vOuterHeightLt, v)
+		case "outer_height__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'outer_height__lte' takes an integer, got %q.", value))
+				return
+			}
+			vOuterHeightLte = append(vOuterHeightLte, v)
+		case "outer_height__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'outer_height__gt' takes an integer, got %q.", value))
+				return
+			}
+			vOuterHeightGt = append(vOuterHeightGt, v)
+		case "outer_height__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'outer_height__gte' takes an integer, got %q.", value))
+				return
+			}
+			vOuterHeightGte = append(vOuterHeightGte, v)
+		case "outer_height__empty":
+			if vOuterHeightEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'outer_height__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'outer_height__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vOuterHeightEmpty = &v
+		case "owner":
+			v := value
+			vOwner = append(vOwner, v)
+		case "owner__n":
+			v := value
+			vOwnern = append(vOwnern, v)
+		case "owner_group":
+			v := value
+			vOwnerGroup = append(vOwnerGroup, v)
+		case "owner_group__n":
+			v := value
+			vOwnerGroupn = append(vOwnerGroupn, v)
+		case "owner_group_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupID = append(vOwnerGroupID, v)
+		case "owner_group_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
+		case "q":
+			if vQ != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
+				return
+			}
+			v := value
+			vQ = &v
+		case "rack_type":
+			v := value
+			vRackType = append(vRackType, v)
+		case "rack_type__n":
+			v := value
+			vRackTypen = append(vRackTypen, v)
+		case "region":
+			v := value
+			vRegion = append(vRegion, v)
+		case "region__n":
+			v := value
+			vRegionn = append(vRegionn, v)
+		case "role":
+			v := value
+			vRole = append(vRole, v)
+		case "role__n":
+			v := value
+			vRolen = append(vRolen, v)
+		case "site":
+			v := value
+			vSite = append(vSite, v)
+		case "site__n":
+			v := value
+			vSiten = append(vSiten, v)
+		case "site_group":
+			v := value
+			vSiteGroup = append(vSiteGroup, v)
+		case "site_group__n":
+			v := value
+			vSiteGroupn = append(vSiteGroupn, v)
+		case "site_group_id":
+			v := value
+			vSiteGroupID = append(vSiteGroupID, v)
+		case "site_group_id__n":
+			v := value
+			vSiteGroupIDn = append(vSiteGroupIDn, v)
+		case "starting_unit":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'starting_unit' takes an integer, got %q.", value))
+				return
+			}
+			vStartingUnit = append(vStartingUnit, v)
+		case "starting_unit__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'starting_unit__n' takes an integer, got %q.", value))
+				return
+			}
+			vStartingUnitn = append(vStartingUnitn, v)
+		case "starting_unit__lt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'starting_unit__lt' takes an integer, got %q.", value))
+				return
+			}
+			vStartingUnitLt = append(vStartingUnitLt, v)
+		case "starting_unit__lte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'starting_unit__lte' takes an integer, got %q.", value))
+				return
+			}
+			vStartingUnitLte = append(vStartingUnitLte, v)
+		case "starting_unit__gt":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'starting_unit__gt' takes an integer, got %q.", value))
+				return
+			}
+			vStartingUnitGt = append(vStartingUnitGt, v)
+		case "starting_unit__gte":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'starting_unit__gte' takes an integer, got %q.", value))
+				return
+			}
+			vStartingUnitGte = append(vStartingUnitGte, v)
+		case "starting_unit__empty":
+			if vStartingUnitEmpty != nil {
+				resp.Diagnostics.AddError("Duplicate filter", "Filter 'starting_unit__empty' takes a single value.")
+				return
+			}
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'starting_unit__empty' takes a boolean, got %q.", value))
+				return
+			}
+			vStartingUnitEmpty = &v
+		case "tag_id":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
+				return
+			}
+			vTagID = append(vTagID, v)
+		case "tag_id__n":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDn = append(vTagIDn, v)
+		case "tag_id__any":
+			v, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
+				return
+			}
+			vTagIDAny = append(vTagIDAny, v)
+		case "tenant":
+			v := value
+			vTenant = append(vTenant, v)
+		case "tenant__n":
+			v := value
+			vTenantn = append(vTenantn, v)
+		case "tenant_group":
+			v := value
+			vTenantGroup = append(vTenantGroup, v)
+		case "tenant_group__n":
+			v := value
+			vTenantGroupn = append(vTenantGroupn, v)
+		case "tenant_group_id":
+			v := value
+			vTenantGroupID = append(vTenantGroupID, v)
+		case "tenant_group_id__n":
+			v := value
+			vTenantGroupIDn = append(vTenantGroupIDn, v)
 		default:
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
@@ -1502,6 +2138,36 @@ func (d *racksDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	}
 	if len(vWidthn) > 0 {
 		params.SetWidthn(vWidthn)
+	}
+	if len(vWidthIc) > 0 {
+		params.SetWidthIc(vWidthIc)
+	}
+	if len(vWidthNic) > 0 {
+		params.SetWidthNic(vWidthNic)
+	}
+	if len(vWidthIe) > 0 {
+		params.SetWidthIe(vWidthIe)
+	}
+	if len(vWidthNie) > 0 {
+		params.SetWidthNie(vWidthNie)
+	}
+	if len(vWidthIsw) > 0 {
+		params.SetWidthIsw(vWidthIsw)
+	}
+	if len(vWidthNisw) > 0 {
+		params.SetWidthNisw(vWidthNisw)
+	}
+	if len(vWidthIew) > 0 {
+		params.SetWidthIew(vWidthIew)
+	}
+	if len(vWidthNiew) > 0 {
+		params.SetWidthNiew(vWidthNiew)
+	}
+	if len(vWidthRegex) > 0 {
+		params.SetWidthRegex(vWidthRegex)
+	}
+	if len(vWidthIregex) > 0 {
+		params.SetWidthIregex(vWidthIregex)
 	}
 	if len(vUHeight) > 0 {
 		params.SetUHeight(vUHeight)
@@ -1865,6 +2531,321 @@ func (d *racksDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	}
 	if len(vTagAny) > 0 {
 		params.SetTagAny(vTagAny)
+	}
+	if vAirflow != nil {
+		params.SetAirflow(vAirflow)
+	}
+	if vAirflown != nil {
+		params.SetAirflown(vAirflown)
+	}
+	if len(vAirflowIc) > 0 {
+		params.SetAirflowIc(vAirflowIc)
+	}
+	if len(vAirflowNic) > 0 {
+		params.SetAirflowNic(vAirflowNic)
+	}
+	if len(vAirflowIe) > 0 {
+		params.SetAirflowIe(vAirflowIe)
+	}
+	if len(vAirflowNie) > 0 {
+		params.SetAirflowNie(vAirflowNie)
+	}
+	if len(vAirflowIsw) > 0 {
+		params.SetAirflowIsw(vAirflowIsw)
+	}
+	if len(vAirflowNisw) > 0 {
+		params.SetAirflowNisw(vAirflowNisw)
+	}
+	if len(vAirflowIew) > 0 {
+		params.SetAirflowIew(vAirflowIew)
+	}
+	if len(vAirflowNiew) > 0 {
+		params.SetAirflowNiew(vAirflowNiew)
+	}
+	if vAirflowEmpty != nil {
+		params.SetAirflowEmpty(vAirflowEmpty)
+	}
+	if len(vAirflowRegex) > 0 {
+		params.SetAirflowRegex(vAirflowRegex)
+	}
+	if len(vAirflowIregex) > 0 {
+		params.SetAirflowIregex(vAirflowIregex)
+	}
+	if len(vCreated) > 0 {
+		params.SetCreated(vCreated)
+	}
+	if len(vCreatedn) > 0 {
+		params.SetCreatedn(vCreatedn)
+	}
+	if len(vCreatedLt) > 0 {
+		params.SetCreatedLt(vCreatedLt)
+	}
+	if len(vCreatedLte) > 0 {
+		params.SetCreatedLte(vCreatedLte)
+	}
+	if len(vCreatedGt) > 0 {
+		params.SetCreatedGt(vCreatedGt)
+	}
+	if len(vCreatedGte) > 0 {
+		params.SetCreatedGte(vCreatedGte)
+	}
+	if len(vCreatedEmpty) > 0 {
+		params.SetCreatedEmpty(vCreatedEmpty)
+	}
+	if len(vDescription) > 0 {
+		params.SetDescription(vDescription)
+	}
+	if len(vDescriptionn) > 0 {
+		params.SetDescriptionn(vDescriptionn)
+	}
+	if len(vDescriptionIc) > 0 {
+		params.SetDescriptionIc(vDescriptionIc)
+	}
+	if len(vDescriptionNic) > 0 {
+		params.SetDescriptionNic(vDescriptionNic)
+	}
+	if len(vDescriptionIe) > 0 {
+		params.SetDescriptionIe(vDescriptionIe)
+	}
+	if len(vDescriptionNie) > 0 {
+		params.SetDescriptionNie(vDescriptionNie)
+	}
+	if len(vDescriptionIsw) > 0 {
+		params.SetDescriptionIsw(vDescriptionIsw)
+	}
+	if len(vDescriptionNisw) > 0 {
+		params.SetDescriptionNisw(vDescriptionNisw)
+	}
+	if len(vDescriptionIew) > 0 {
+		params.SetDescriptionIew(vDescriptionIew)
+	}
+	if len(vDescriptionNiew) > 0 {
+		params.SetDescriptionNiew(vDescriptionNiew)
+	}
+	if vDescriptionEmpty != nil {
+		params.SetDescriptionEmpty(vDescriptionEmpty)
+	}
+	if len(vDescriptionRegex) > 0 {
+		params.SetDescriptionRegex(vDescriptionRegex)
+	}
+	if len(vDescriptionIregex) > 0 {
+		params.SetDescriptionIregex(vDescriptionIregex)
+	}
+	if len(vFormFactor) > 0 {
+		params.SetFormFactor(vFormFactor)
+	}
+	if len(vFormFactorn) > 0 {
+		params.SetFormFactorn(vFormFactorn)
+	}
+	if len(vFormFactorIc) > 0 {
+		params.SetFormFactorIc(vFormFactorIc)
+	}
+	if len(vFormFactorNic) > 0 {
+		params.SetFormFactorNic(vFormFactorNic)
+	}
+	if len(vFormFactorIe) > 0 {
+		params.SetFormFactorIe(vFormFactorIe)
+	}
+	if len(vFormFactorNie) > 0 {
+		params.SetFormFactorNie(vFormFactorNie)
+	}
+	if len(vFormFactorIsw) > 0 {
+		params.SetFormFactorIsw(vFormFactorIsw)
+	}
+	if len(vFormFactorNisw) > 0 {
+		params.SetFormFactorNisw(vFormFactorNisw)
+	}
+	if len(vFormFactorIew) > 0 {
+		params.SetFormFactorIew(vFormFactorIew)
+	}
+	if len(vFormFactorNiew) > 0 {
+		params.SetFormFactorNiew(vFormFactorNiew)
+	}
+	if vFormFactorEmpty != nil {
+		params.SetFormFactorEmpty(vFormFactorEmpty)
+	}
+	if len(vFormFactorRegex) > 0 {
+		params.SetFormFactorRegex(vFormFactorRegex)
+	}
+	if len(vFormFactorIregex) > 0 {
+		params.SetFormFactorIregex(vFormFactorIregex)
+	}
+	if len(vGroup) > 0 {
+		params.SetGroup(vGroup)
+	}
+	if len(vGroupn) > 0 {
+		params.SetGroupn(vGroupn)
+	}
+	if len(vGroupID) > 0 {
+		params.SetGroupID(vGroupID)
+	}
+	if len(vGroupIDn) > 0 {
+		params.SetGroupIDn(vGroupIDn)
+	}
+	if len(vLastUpdated) > 0 {
+		params.SetLastUpdated(vLastUpdated)
+	}
+	if len(vLastUpdatedn) > 0 {
+		params.SetLastUpdatedn(vLastUpdatedn)
+	}
+	if len(vLastUpdatedLt) > 0 {
+		params.SetLastUpdatedLt(vLastUpdatedLt)
+	}
+	if len(vLastUpdatedLte) > 0 {
+		params.SetLastUpdatedLte(vLastUpdatedLte)
+	}
+	if len(vLastUpdatedGt) > 0 {
+		params.SetLastUpdatedGt(vLastUpdatedGt)
+	}
+	if len(vLastUpdatedGte) > 0 {
+		params.SetLastUpdatedGte(vLastUpdatedGte)
+	}
+	if len(vLastUpdatedEmpty) > 0 {
+		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
+	}
+	if len(vLocation) > 0 {
+		params.SetLocation(vLocation)
+	}
+	if len(vLocationn) > 0 {
+		params.SetLocationn(vLocationn)
+	}
+	if len(vManufacturer) > 0 {
+		params.SetManufacturer(vManufacturer)
+	}
+	if len(vManufacturern) > 0 {
+		params.SetManufacturern(vManufacturern)
+	}
+	if len(vManufacturerID) > 0 {
+		params.SetManufacturerID(vManufacturerID)
+	}
+	if len(vManufacturerIDn) > 0 {
+		params.SetManufacturerIDn(vManufacturerIDn)
+	}
+	if len(vOuterHeight) > 0 {
+		params.SetOuterHeight(vOuterHeight)
+	}
+	if len(vOuterHeightn) > 0 {
+		params.SetOuterHeightn(vOuterHeightn)
+	}
+	if len(vOuterHeightLt) > 0 {
+		params.SetOuterHeightLt(vOuterHeightLt)
+	}
+	if len(vOuterHeightLte) > 0 {
+		params.SetOuterHeightLte(vOuterHeightLte)
+	}
+	if len(vOuterHeightGt) > 0 {
+		params.SetOuterHeightGt(vOuterHeightGt)
+	}
+	if len(vOuterHeightGte) > 0 {
+		params.SetOuterHeightGte(vOuterHeightGte)
+	}
+	if vOuterHeightEmpty != nil {
+		params.SetOuterHeightEmpty(vOuterHeightEmpty)
+	}
+	if len(vOwner) > 0 {
+		params.SetOwner(vOwner)
+	}
+	if len(vOwnern) > 0 {
+		params.SetOwnern(vOwnern)
+	}
+	if len(vOwnerGroup) > 0 {
+		params.SetOwnerGroup(vOwnerGroup)
+	}
+	if len(vOwnerGroupn) > 0 {
+		params.SetOwnerGroupn(vOwnerGroupn)
+	}
+	if len(vOwnerGroupID) > 0 {
+		params.SetOwnerGroupID(vOwnerGroupID)
+	}
+	if len(vOwnerGroupIDn) > 0 {
+		params.SetOwnerGroupIDn(vOwnerGroupIDn)
+	}
+	if vQ != nil {
+		params.SetQ(vQ)
+	}
+	if len(vRackType) > 0 {
+		params.SetRackType(vRackType)
+	}
+	if len(vRackTypen) > 0 {
+		params.SetRackTypen(vRackTypen)
+	}
+	if len(vRegion) > 0 {
+		params.SetRegion(vRegion)
+	}
+	if len(vRegionn) > 0 {
+		params.SetRegionn(vRegionn)
+	}
+	if len(vRole) > 0 {
+		params.SetRole(vRole)
+	}
+	if len(vRolen) > 0 {
+		params.SetRolen(vRolen)
+	}
+	if len(vSite) > 0 {
+		params.SetSite(vSite)
+	}
+	if len(vSiten) > 0 {
+		params.SetSiten(vSiten)
+	}
+	if len(vSiteGroup) > 0 {
+		params.SetSiteGroup(vSiteGroup)
+	}
+	if len(vSiteGroupn) > 0 {
+		params.SetSiteGroupn(vSiteGroupn)
+	}
+	if len(vSiteGroupID) > 0 {
+		params.SetSiteGroupID(vSiteGroupID)
+	}
+	if len(vSiteGroupIDn) > 0 {
+		params.SetSiteGroupIDn(vSiteGroupIDn)
+	}
+	if len(vStartingUnit) > 0 {
+		params.SetStartingUnit(vStartingUnit)
+	}
+	if len(vStartingUnitn) > 0 {
+		params.SetStartingUnitn(vStartingUnitn)
+	}
+	if len(vStartingUnitLt) > 0 {
+		params.SetStartingUnitLt(vStartingUnitLt)
+	}
+	if len(vStartingUnitLte) > 0 {
+		params.SetStartingUnitLte(vStartingUnitLte)
+	}
+	if len(vStartingUnitGt) > 0 {
+		params.SetStartingUnitGt(vStartingUnitGt)
+	}
+	if len(vStartingUnitGte) > 0 {
+		params.SetStartingUnitGte(vStartingUnitGte)
+	}
+	if vStartingUnitEmpty != nil {
+		params.SetStartingUnitEmpty(vStartingUnitEmpty)
+	}
+	if len(vTagID) > 0 {
+		params.SetTagID(vTagID)
+	}
+	if len(vTagIDn) > 0 {
+		params.SetTagIDn(vTagIDn)
+	}
+	if len(vTagIDAny) > 0 {
+		params.SetTagIDAny(vTagIDAny)
+	}
+	if len(vTenant) > 0 {
+		params.SetTenant(vTenant)
+	}
+	if len(vTenantn) > 0 {
+		params.SetTenantn(vTenantn)
+	}
+	if len(vTenantGroup) > 0 {
+		params.SetTenantGroup(vTenantGroup)
+	}
+	if len(vTenantGroupn) > 0 {
+		params.SetTenantGroupn(vTenantGroupn)
+	}
+	if len(vTenantGroupID) > 0 {
+		params.SetTenantGroupID(vTenantGroupID)
+	}
+	if len(vTenantGroupIDn) > 0 {
+		params.SetTenantGroupIDn(vTenantGroupIDn)
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)
