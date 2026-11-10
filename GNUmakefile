@@ -4,9 +4,8 @@ DOCKER_COMPOSE=docker compose
 
 export NETBOX_VERSION=v4.6.10
 export NETBOX_SERVER_URL=http://localhost:8001
-# The admin token docker/docker-compose.yml configures, joined as
-# nbt_<SUPERUSER_API_KEY>.<SUPERUSER_API_TOKEN>.
-export NETBOX_API_TOKEN := nbt_mrcLJrER9ves.Iw2JZtpMdYjBuIVIZLItd4lB2RYEiv6xhY23W0tQ
+# The admin token baked into the seeded database docker/docker-compose.yml uses.
+export NETBOX_API_TOKEN := nbt_haiweeni2Aiv.ahgeechahdaighah6queivoo6ahChahgo2ohch9inahyei5ahk
 # The parallel suite against one container overwhelms the provider's 10s default.
 export NETBOX_REQUEST_TIMEOUT := 60
 # Refresh the state after every apply: the related-object counts a write response carries go stale

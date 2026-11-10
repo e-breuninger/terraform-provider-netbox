@@ -1,7 +1,10 @@
 ---
 services:
   postgres:
-    image: postgres:18-alpine
+    # A Postgres with the NetBox NETBOX_VERSION schema already migrated and an admin user and token
+    # (https://github.com/i-am-smolli/netbox-seeded-db), so NetBox starts without running
+    # migrations. The credentials are public test values.
+    image: ghcr.io/i-am-smolli/netbox-postgres-seeded:${NETBOX_VERSION}
     # GRANIAN_BACKPRESSURE below lets Netbox run up to 100 requests at once, and
     # Django holds a connection per in-flight request (plus the housekeeping and
     # rq ones, ~40 at idle). Postgres defaults to 100 connections, so the app's
@@ -11,10 +14,16 @@ services:
     # configured to use.
     command: postgres -c max_connections=300
     environment:
+      - POSTGRES_DB=netbox
       - POSTGRES_USER=netbox
       - POSTGRES_PASSWORD=netbox
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -q -t 2 -U $$POSTGRES_USER"]
+      # Over TCP: while the image loads its dump on first start, Postgres listens on the socket only.
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -q -t 2 -h 127.0.0.1 -d $$POSTGRES_DB -U $$POSTGRES_USER",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -42,27 +51,25 @@ services:
       - DB_HOST=postgres
       - REDIS_HOST=redis
       - SECRET_KEY=0123456789abcdefghij0123456789abcdefghij0123456789
-      - SUPERUSER_PASSWORD=admin
-      # The admin's v2 token, nbt_<key>.<token>, is what the acceptance tests authenticate with
-      # (NETBOX_API_TOKEN in the GNUmakefile). NetBox creates no token without a pepper.
-      - SUPERUSER_API_TOKEN=Iw2JZtpMdYjBuIVIZLItd4lB2RYEiv6xhY23W0tQ
-      - SUPERUSER_API_KEY=mrcLJrER9ves
-      - API_TOKEN_PEPPER_1=C9Bp3tmBgchWcWc2OkoFuaV9aoKZfhJgZUBG7g0PFxYzf1AkLd
+      # The seeded database already has the admin user and its v2 token, which the acceptance tests
+      # authenticate with (NETBOX_API_TOKEN in the GNUmakefile); the token only validates with the
+      # pepper it was created with.
+      - SKIP_SUPERUSER=true
+      - "API_TOKEN_PEPPER_1=Qy+F=OTeGskWQ(wTMgjc+NPPlz6YwFXY=KHIIg=wpYXT&e(6u8"
       - GRANIAN_BACKPRESSURE=100
       # A page of at most 2 objects, so every plural data source read in the suite spans pages.
       - MAX_PAGE_SIZE=2
-    # Gate on a real readiness signal: /login/ only serves 200 once migrations
-    # have run and the app is up (matches netbox-community/netbox-docker). The
-    # previous /metrics check went green before Netbox was actually ready,
-    # racing the acceptance tests.
+    # Gate on a real readiness signal: /login/ only serves 200 once the app is
+    # up (matches netbox-community/netbox-docker). The previous /metrics check
+    # went green before Netbox was actually ready, racing the acceptance tests.
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/login/"]
       interval: 15s
       timeout: 5s
-      # Generous headroom: migrations on a cold/slow CI runner can take well
-      # over a minute. A successful check during start_period still marks the
-      # container healthy immediately, so a large value never delays readiness
-      # detection -- it only widens the grace window before giving up.
+      # Generous headroom for a cold/slow CI runner. A successful check during
+      # start_period still marks the container healthy immediately, so a large
+      # value never delays readiness detection -- it only widens the grace
+      # window before giving up.
       # start_period (180s) + retries*interval (20*15s) => up to ~8min tolerance.
       retries: 20
       start_period: 180s
