@@ -1,10 +1,12 @@
-## 6.0.1 (November 10th, 2026)
+## 6.0.1 (November 13th, 2026)
 
 ENHANCEMENTS
 
 This version adds lots of missing filters to the data sources.
 In particular, this includes filters for things that the filtered-for object does not directly have as an attribute.
 (e.g. you can now filter for site in cables)
+
+**New Resource:** `netbox_virtual_chassis_master`
 
 ## 6.0.0 (November 4th, 2026)
 
