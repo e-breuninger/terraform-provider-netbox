@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
@@ -294,220 +293,222 @@ func (d *virtualMachinesDataSource) Read(ctx context.Context, req datasource.Rea
 	var responseDTOs []*netboxapi.VirtualMachineResponseDTO
 
 	params := virtualization.NewVirtualizationVirtualMachinesListParams()
-	var vID []int64
-	var vIDn []int64
-	var vIDLt []int64
-	var vIDLte []int64
-	var vIDGt []int64
-	var vIDGte []int64
-	var vIDEmpty *bool
-	var vName []string
-	var vNamen []string
-	var vNameIc []string
-	var vNameNic []string
-	var vNameIe []string
-	var vNameNie []string
-	var vNameIsw []string
-	var vNameNisw []string
-	var vNameIew []string
-	var vNameNiew []string
-	var vNameEmpty *bool
-	var vNameRegex []string
-	var vNameIregex []string
-	var vClusterID []int64
-	var vClusterIDn []int64
-	var vStatus []string
-	var vStatusn []string
-	var vStatusIc []string
-	var vStatusNic []string
-	var vStatusIe []string
-	var vStatusNie []string
-	var vStatusIsw []string
-	var vStatusNisw []string
-	var vStatusIew []string
-	var vStatusNiew []string
-	var vStatusEmpty *bool
-	var vStatusRegex []string
-	var vStatusIregex []string
-	var vSiteID []int64
-	var vSiteIDn []int64
-	var vRoleID []string
-	var vRoleIDn []string
-	var vTenantID []int64
-	var vTenantIDn []int64
-	var vPlatformID []string
-	var vPlatformIDn []string
-	var vDeviceID []int64
-	var vDeviceIDn []int64
-	var vClusterGroup []string
-	var vClusterGroupn []string
-	var vDevice []string
-	var vDevicen []string
-	var vPlatform []string
-	var vPlatformn []string
-	var vRegion []string
-	var vRegionn []string
-	var vRole []string
-	var vRolen []string
-	var vSite []string
-	var vSiten []string
-	var vOwnerID []int64
-	var vOwnerIDn []int64
-	var vTag []string
-	var vTagn []string
-	var vTagAny []string
-	var vCluster []string
-	var vClustern []string
-	var vClusterGroupID []int64
-	var vClusterGroupIDn []int64
-	var vClusterType []string
-	var vClusterTypen []string
-	var vClusterTypeID []int64
-	var vClusterTypeIDn []int64
-	var vConfigTemplateID []int64
-	var vConfigTemplateIDn []int64
-	var vContact []int64
-	var vContactn []int64
-	var vContactGroup []string
-	var vContactGroupn []string
-	var vContactRole []int64
-	var vContactRolen []int64
-	var vCreated []string
-	var vCreatedn []string
-	var vCreatedLt []string
-	var vCreatedLte []string
-	var vCreatedGt []string
-	var vCreatedGte []string
-	var vCreatedEmpty []string
-	var vDescription []string
-	var vDescriptionn []string
-	var vDescriptionIc []string
-	var vDescriptionNic []string
-	var vDescriptionIe []string
-	var vDescriptionNie []string
-	var vDescriptionIsw []string
-	var vDescriptionNisw []string
-	var vDescriptionIew []string
-	var vDescriptionNiew []string
-	var vDescriptionEmpty *bool
-	var vDescriptionRegex []string
-	var vDescriptionIregex []string
-	var vDisk []int64
-	var vDiskn []int64
-	var vDiskLt []int64
-	var vDiskLte []int64
-	var vDiskGt []int64
-	var vDiskGte []int64
-	var vDiskEmpty *bool
-	var vHasPrimaryIP *bool
-	var vInterfaceCount []int64
-	var vInterfaceCountn []int64
-	var vInterfaceCountLt []int64
-	var vInterfaceCountLte []int64
-	var vInterfaceCountGt []int64
-	var vInterfaceCountGte []int64
-	var vInterfaceCountEmpty *bool
-	var vLastUpdated []string
-	var vLastUpdatedn []string
-	var vLastUpdatedLt []string
-	var vLastUpdatedLte []string
-	var vLastUpdatedGt []string
-	var vLastUpdatedGte []string
-	var vLastUpdatedEmpty []string
-	var vLocalContextData *bool
-	var vMacAddress []string
-	var vMacAddressn []string
-	var vMacAddressIc []string
-	var vMacAddressNic []string
-	var vMacAddressIe []string
-	var vMacAddressNie []string
-	var vMacAddressIsw []string
-	var vMacAddressNisw []string
-	var vMacAddressIew []string
-	var vMacAddressNiew []string
-	var vMacAddressRegex []string
-	var vMacAddressIregex []string
-	var vMemory []int64
-	var vMemoryn []int64
-	var vMemoryLt []int64
-	var vMemoryLte []int64
-	var vMemoryGt []int64
-	var vMemoryGte []int64
-	var vMemoryEmpty *bool
-	var vOwner []string
-	var vOwnern []string
-	var vOwnerGroup []string
-	var vOwnerGroupn []string
-	var vOwnerGroupID []int64
-	var vOwnerGroupIDn []int64
-	var vPrimaryIp4 []string
-	var vPrimaryIp4n []string
-	var vPrimaryIp4ID []int64
-	var vPrimaryIp4IDn []int64
-	var vPrimaryIp6 []string
-	var vPrimaryIp6n []string
-	var vPrimaryIp6ID []int64
-	var vPrimaryIp6IDn []int64
-	var vQ *string
-	var vRegionID []string
-	var vRegionIDn []string
-	var vSerial []string
-	var vSerialn []string
-	var vSerialIc []string
-	var vSerialNic []string
-	var vSerialIe []string
-	var vSerialNie []string
-	var vSerialIsw []string
-	var vSerialNisw []string
-	var vSerialIew []string
-	var vSerialNiew []string
-	var vSerialEmpty *bool
-	var vSerialRegex []string
-	var vSerialIregex []string
-	var vSiteGroup []string
-	var vSiteGroupn []string
-	var vSiteGroupID []string
-	var vSiteGroupIDn []string
-	var vStartOnBoot []string
-	var vStartOnBootn []string
-	var vStartOnBootIc []string
-	var vStartOnBootNic []string
-	var vStartOnBootIe []string
-	var vStartOnBootNie []string
-	var vStartOnBootIsw []string
-	var vStartOnBootNisw []string
-	var vStartOnBootIew []string
-	var vStartOnBootNiew []string
-	var vStartOnBootEmpty *bool
-	var vStartOnBootRegex []string
-	var vStartOnBootIregex []string
-	var vTagID []int64
-	var vTagIDn []int64
-	var vTagIDAny []int64
-	var vTenant []string
-	var vTenantn []string
-	var vTenantGroup []string
-	var vTenantGroupn []string
-	var vTenantGroupID []string
-	var vTenantGroupIDn []string
-	var vVcpus []float64
-	var vVcpusn []float64
-	var vVcpusLt []float64
-	var vVcpusLte []float64
-	var vVcpusGt []float64
-	var vVcpusGte []float64
-	var vVcpusEmpty *bool
-	var vVirtualDiskCount []int64
-	var vVirtualDiskCountn []int64
-	var vVirtualDiskCountLt []int64
-	var vVirtualDiskCountLte []int64
-	var vVirtualDiskCountGt []int64
-	var vVirtualDiskCountGte []int64
-	var vVirtualDiskCountEmpty *bool
-	var vVirtualMachineType []string
-	var vVirtualMachineTypen []string
-	var vVirtualMachineTypeID []int64
-	var vVirtualMachineTypeIDn []int64
+	listFilters := map[string]netboxapi.ListFilter{
+		"id":                         netboxapi.FilterInt64s(params.SetID),
+		"id__n":                      netboxapi.FilterInt64s(params.SetIDn),
+		"id__lt":                     netboxapi.FilterInt64s(params.SetIDLt),
+		"id__lte":                    netboxapi.FilterInt64s(params.SetIDLte),
+		"id__gt":                     netboxapi.FilterInt64s(params.SetIDGt),
+		"id__gte":                    netboxapi.FilterInt64s(params.SetIDGte),
+		"id__empty":                  netboxapi.FilterBool(params.SetIDEmpty),
+		"name":                       netboxapi.FilterStrings(params.SetName),
+		"name__n":                    netboxapi.FilterStrings(params.SetNamen),
+		"name__ic":                   netboxapi.FilterStrings(params.SetNameIc),
+		"name__nic":                  netboxapi.FilterStrings(params.SetNameNic),
+		"name__ie":                   netboxapi.FilterStrings(params.SetNameIe),
+		"name__nie":                  netboxapi.FilterStrings(params.SetNameNie),
+		"name__isw":                  netboxapi.FilterStrings(params.SetNameIsw),
+		"name__nisw":                 netboxapi.FilterStrings(params.SetNameNisw),
+		"name__iew":                  netboxapi.FilterStrings(params.SetNameIew),
+		"name__niew":                 netboxapi.FilterStrings(params.SetNameNiew),
+		"name__empty":                netboxapi.FilterBool(params.SetNameEmpty),
+		"name__regex":                netboxapi.FilterStrings(params.SetNameRegex),
+		"name__iregex":               netboxapi.FilterStrings(params.SetNameIregex),
+		"cluster_id":                 netboxapi.FilterInt64s(params.SetClusterID),
+		"cluster_id__n":              netboxapi.FilterInt64s(params.SetClusterIDn),
+		"status":                     netboxapi.FilterStrings(params.SetStatus),
+		"status__n":                  netboxapi.FilterStrings(params.SetStatusn),
+		"status__ic":                 netboxapi.FilterStrings(params.SetStatusIc),
+		"status__nic":                netboxapi.FilterStrings(params.SetStatusNic),
+		"status__ie":                 netboxapi.FilterStrings(params.SetStatusIe),
+		"status__nie":                netboxapi.FilterStrings(params.SetStatusNie),
+		"status__isw":                netboxapi.FilterStrings(params.SetStatusIsw),
+		"status__nisw":               netboxapi.FilterStrings(params.SetStatusNisw),
+		"status__iew":                netboxapi.FilterStrings(params.SetStatusIew),
+		"status__niew":               netboxapi.FilterStrings(params.SetStatusNiew),
+		"status__empty":              netboxapi.FilterBool(params.SetStatusEmpty),
+		"status__regex":              netboxapi.FilterStrings(params.SetStatusRegex),
+		"status__iregex":             netboxapi.FilterStrings(params.SetStatusIregex),
+		"site_id":                    netboxapi.FilterInt64s(params.SetSiteID),
+		"site_id__n":                 netboxapi.FilterInt64s(params.SetSiteIDn),
+		"role_id":                    netboxapi.FilterStrings(params.SetRoleID),
+		"role_id__n":                 netboxapi.FilterStrings(params.SetRoleIDn),
+		"tenant_id":                  netboxapi.FilterInt64s(params.SetTenantID),
+		"tenant_id__n":               netboxapi.FilterInt64s(params.SetTenantIDn),
+		"platform_id":                netboxapi.FilterStrings(params.SetPlatformID),
+		"platform_id__n":             netboxapi.FilterStrings(params.SetPlatformIDn),
+		"device_id":                  netboxapi.FilterInt64s(params.SetDeviceID),
+		"device_id__n":               netboxapi.FilterInt64s(params.SetDeviceIDn),
+		"cluster_group":              netboxapi.FilterStrings(params.SetClusterGroup),
+		"cluster_group__n":           netboxapi.FilterStrings(params.SetClusterGroupn),
+		"device":                     netboxapi.FilterStrings(params.SetDevice),
+		"device__n":                  netboxapi.FilterStrings(params.SetDevicen),
+		"platform":                   netboxapi.FilterStrings(params.SetPlatform),
+		"platform__n":                netboxapi.FilterStrings(params.SetPlatformn),
+		"region":                     netboxapi.FilterStrings(params.SetRegion),
+		"region__n":                  netboxapi.FilterStrings(params.SetRegionn),
+		"role":                       netboxapi.FilterStrings(params.SetRole),
+		"role__n":                    netboxapi.FilterStrings(params.SetRolen),
+		"site":                       netboxapi.FilterStrings(params.SetSite),
+		"site__n":                    netboxapi.FilterStrings(params.SetSiten),
+		"owner_id":                   netboxapi.FilterInt64s(params.SetOwnerID),
+		"owner_id__n":                netboxapi.FilterInt64s(params.SetOwnerIDn),
+		"tag":                        netboxapi.FilterStrings(params.SetTag),
+		"tag__n":                     netboxapi.FilterStrings(params.SetTagn),
+		"tag__any":                   netboxapi.FilterStrings(params.SetTagAny),
+		"cluster":                    netboxapi.FilterStrings(params.SetCluster),
+		"cluster__n":                 netboxapi.FilterStrings(params.SetClustern),
+		"cluster_group_id":           netboxapi.FilterInt64s(params.SetClusterGroupID),
+		"cluster_group_id__n":        netboxapi.FilterInt64s(params.SetClusterGroupIDn),
+		"cluster_type":               netboxapi.FilterStrings(params.SetClusterType),
+		"cluster_type__n":            netboxapi.FilterStrings(params.SetClusterTypen),
+		"cluster_type_id":            netboxapi.FilterInt64s(params.SetClusterTypeID),
+		"cluster_type_id__n":         netboxapi.FilterInt64s(params.SetClusterTypeIDn),
+		"config_template_id":         netboxapi.FilterInt64s(params.SetConfigTemplateID),
+		"config_template_id__n":      netboxapi.FilterInt64s(params.SetConfigTemplateIDn),
+		"contact":                    netboxapi.FilterInt64s(params.SetContact),
+		"contact__n":                 netboxapi.FilterInt64s(params.SetContactn),
+		"contact_group":              netboxapi.FilterStrings(params.SetContactGroup),
+		"contact_group__n":           netboxapi.FilterStrings(params.SetContactGroupn),
+		"contact_role":               netboxapi.FilterInt64s(params.SetContactRole),
+		"contact_role__n":            netboxapi.FilterInt64s(params.SetContactRolen),
+		"created":                    netboxapi.FilterStrings(params.SetCreated),
+		"created__n":                 netboxapi.FilterStrings(params.SetCreatedn),
+		"created__lt":                netboxapi.FilterStrings(params.SetCreatedLt),
+		"created__lte":               netboxapi.FilterStrings(params.SetCreatedLte),
+		"created__gt":                netboxapi.FilterStrings(params.SetCreatedGt),
+		"created__gte":               netboxapi.FilterStrings(params.SetCreatedGte),
+		"created__empty":             netboxapi.FilterStrings(params.SetCreatedEmpty),
+		"description":                netboxapi.FilterStrings(params.SetDescription),
+		"description__n":             netboxapi.FilterStrings(params.SetDescriptionn),
+		"description__ic":            netboxapi.FilterStrings(params.SetDescriptionIc),
+		"description__nic":           netboxapi.FilterStrings(params.SetDescriptionNic),
+		"description__ie":            netboxapi.FilterStrings(params.SetDescriptionIe),
+		"description__nie":           netboxapi.FilterStrings(params.SetDescriptionNie),
+		"description__isw":           netboxapi.FilterStrings(params.SetDescriptionIsw),
+		"description__nisw":          netboxapi.FilterStrings(params.SetDescriptionNisw),
+		"description__iew":           netboxapi.FilterStrings(params.SetDescriptionIew),
+		"description__niew":          netboxapi.FilterStrings(params.SetDescriptionNiew),
+		"description__empty":         netboxapi.FilterBool(params.SetDescriptionEmpty),
+		"description__regex":         netboxapi.FilterStrings(params.SetDescriptionRegex),
+		"description__iregex":        netboxapi.FilterStrings(params.SetDescriptionIregex),
+		"disk":                       netboxapi.FilterInt64s(params.SetDisk),
+		"disk__n":                    netboxapi.FilterInt64s(params.SetDiskn),
+		"disk__lt":                   netboxapi.FilterInt64s(params.SetDiskLt),
+		"disk__lte":                  netboxapi.FilterInt64s(params.SetDiskLte),
+		"disk__gt":                   netboxapi.FilterInt64s(params.SetDiskGt),
+		"disk__gte":                  netboxapi.FilterInt64s(params.SetDiskGte),
+		"disk__empty":                netboxapi.FilterBool(params.SetDiskEmpty),
+		"has_primary_ip":             netboxapi.FilterBool(params.SetHasPrimaryIP),
+		"interface_count":            netboxapi.FilterInt64s(params.SetInterfaceCount),
+		"interface_count__n":         netboxapi.FilterInt64s(params.SetInterfaceCountn),
+		"interface_count__lt":        netboxapi.FilterInt64s(params.SetInterfaceCountLt),
+		"interface_count__lte":       netboxapi.FilterInt64s(params.SetInterfaceCountLte),
+		"interface_count__gt":        netboxapi.FilterInt64s(params.SetInterfaceCountGt),
+		"interface_count__gte":       netboxapi.FilterInt64s(params.SetInterfaceCountGte),
+		"interface_count__empty":     netboxapi.FilterBool(params.SetInterfaceCountEmpty),
+		"last_updated":               netboxapi.FilterStrings(params.SetLastUpdated),
+		"last_updated__n":            netboxapi.FilterStrings(params.SetLastUpdatedn),
+		"last_updated__lt":           netboxapi.FilterStrings(params.SetLastUpdatedLt),
+		"last_updated__lte":          netboxapi.FilterStrings(params.SetLastUpdatedLte),
+		"last_updated__gt":           netboxapi.FilterStrings(params.SetLastUpdatedGt),
+		"last_updated__gte":          netboxapi.FilterStrings(params.SetLastUpdatedGte),
+		"last_updated__empty":        netboxapi.FilterStrings(params.SetLastUpdatedEmpty),
+		"local_context_data":         netboxapi.FilterBool(params.SetLocalContextData),
+		"mac_address":                netboxapi.FilterStrings(params.SetMacAddress),
+		"mac_address__n":             netboxapi.FilterStrings(params.SetMacAddressn),
+		"mac_address__ic":            netboxapi.FilterStrings(params.SetMacAddressIc),
+		"mac_address__nic":           netboxapi.FilterStrings(params.SetMacAddressNic),
+		"mac_address__ie":            netboxapi.FilterStrings(params.SetMacAddressIe),
+		"mac_address__nie":           netboxapi.FilterStrings(params.SetMacAddressNie),
+		"mac_address__isw":           netboxapi.FilterStrings(params.SetMacAddressIsw),
+		"mac_address__nisw":          netboxapi.FilterStrings(params.SetMacAddressNisw),
+		"mac_address__iew":           netboxapi.FilterStrings(params.SetMacAddressIew),
+		"mac_address__niew":          netboxapi.FilterStrings(params.SetMacAddressNiew),
+		"mac_address__regex":         netboxapi.FilterStrings(params.SetMacAddressRegex),
+		"mac_address__iregex":        netboxapi.FilterStrings(params.SetMacAddressIregex),
+		"memory":                     netboxapi.FilterInt64s(params.SetMemory),
+		"memory__n":                  netboxapi.FilterInt64s(params.SetMemoryn),
+		"memory__lt":                 netboxapi.FilterInt64s(params.SetMemoryLt),
+		"memory__lte":                netboxapi.FilterInt64s(params.SetMemoryLte),
+		"memory__gt":                 netboxapi.FilterInt64s(params.SetMemoryGt),
+		"memory__gte":                netboxapi.FilterInt64s(params.SetMemoryGte),
+		"memory__empty":              netboxapi.FilterBool(params.SetMemoryEmpty),
+		"owner":                      netboxapi.FilterStrings(params.SetOwner),
+		"owner__n":                   netboxapi.FilterStrings(params.SetOwnern),
+		"owner_group":                netboxapi.FilterStrings(params.SetOwnerGroup),
+		"owner_group__n":             netboxapi.FilterStrings(params.SetOwnerGroupn),
+		"owner_group_id":             netboxapi.FilterInt64s(params.SetOwnerGroupID),
+		"owner_group_id__n":          netboxapi.FilterInt64s(params.SetOwnerGroupIDn),
+		"primary_ip4":                netboxapi.FilterStrings(params.SetPrimaryIp4),
+		"primary_ip4__n":             netboxapi.FilterStrings(params.SetPrimaryIp4n),
+		"primary_ip4_id":             netboxapi.FilterInt64s(params.SetPrimaryIp4ID),
+		"primary_ip4_id__n":          netboxapi.FilterInt64s(params.SetPrimaryIp4IDn),
+		"primary_ip6":                netboxapi.FilterStrings(params.SetPrimaryIp6),
+		"primary_ip6__n":             netboxapi.FilterStrings(params.SetPrimaryIp6n),
+		"primary_ip6_id":             netboxapi.FilterInt64s(params.SetPrimaryIp6ID),
+		"primary_ip6_id__n":          netboxapi.FilterInt64s(params.SetPrimaryIp6IDn),
+		"q":                          netboxapi.FilterString(params.SetQ),
+		"region_id":                  netboxapi.FilterStrings(params.SetRegionID),
+		"region_id__n":               netboxapi.FilterStrings(params.SetRegionIDn),
+		"serial":                     netboxapi.FilterStrings(params.SetSerial),
+		"serial__n":                  netboxapi.FilterStrings(params.SetSerialn),
+		"serial__ic":                 netboxapi.FilterStrings(params.SetSerialIc),
+		"serial__nic":                netboxapi.FilterStrings(params.SetSerialNic),
+		"serial__ie":                 netboxapi.FilterStrings(params.SetSerialIe),
+		"serial__nie":                netboxapi.FilterStrings(params.SetSerialNie),
+		"serial__isw":                netboxapi.FilterStrings(params.SetSerialIsw),
+		"serial__nisw":               netboxapi.FilterStrings(params.SetSerialNisw),
+		"serial__iew":                netboxapi.FilterStrings(params.SetSerialIew),
+		"serial__niew":               netboxapi.FilterStrings(params.SetSerialNiew),
+		"serial__empty":              netboxapi.FilterBool(params.SetSerialEmpty),
+		"serial__regex":              netboxapi.FilterStrings(params.SetSerialRegex),
+		"serial__iregex":             netboxapi.FilterStrings(params.SetSerialIregex),
+		"site_group":                 netboxapi.FilterStrings(params.SetSiteGroup),
+		"site_group__n":              netboxapi.FilterStrings(params.SetSiteGroupn),
+		"site_group_id":              netboxapi.FilterStrings(params.SetSiteGroupID),
+		"site_group_id__n":           netboxapi.FilterStrings(params.SetSiteGroupIDn),
+		"start_on_boot":              netboxapi.FilterStrings(params.SetStartOnBoot),
+		"start_on_boot__n":           netboxapi.FilterStrings(params.SetStartOnBootn),
+		"start_on_boot__ic":          netboxapi.FilterStrings(params.SetStartOnBootIc),
+		"start_on_boot__nic":         netboxapi.FilterStrings(params.SetStartOnBootNic),
+		"start_on_boot__ie":          netboxapi.FilterStrings(params.SetStartOnBootIe),
+		"start_on_boot__nie":         netboxapi.FilterStrings(params.SetStartOnBootNie),
+		"start_on_boot__isw":         netboxapi.FilterStrings(params.SetStartOnBootIsw),
+		"start_on_boot__nisw":        netboxapi.FilterStrings(params.SetStartOnBootNisw),
+		"start_on_boot__iew":         netboxapi.FilterStrings(params.SetStartOnBootIew),
+		"start_on_boot__niew":        netboxapi.FilterStrings(params.SetStartOnBootNiew),
+		"start_on_boot__empty":       netboxapi.FilterBool(params.SetStartOnBootEmpty),
+		"start_on_boot__regex":       netboxapi.FilterStrings(params.SetStartOnBootRegex),
+		"start_on_boot__iregex":      netboxapi.FilterStrings(params.SetStartOnBootIregex),
+		"tag_id":                     netboxapi.FilterInt64s(params.SetTagID),
+		"tag_id__n":                  netboxapi.FilterInt64s(params.SetTagIDn),
+		"tag_id__any":                netboxapi.FilterInt64s(params.SetTagIDAny),
+		"tenant":                     netboxapi.FilterStrings(params.SetTenant),
+		"tenant__n":                  netboxapi.FilterStrings(params.SetTenantn),
+		"tenant_group":               netboxapi.FilterStrings(params.SetTenantGroup),
+		"tenant_group__n":            netboxapi.FilterStrings(params.SetTenantGroupn),
+		"tenant_group_id":            netboxapi.FilterStrings(params.SetTenantGroupID),
+		"tenant_group_id__n":         netboxapi.FilterStrings(params.SetTenantGroupIDn),
+		"vcpus":                      netboxapi.FilterFloat64s(params.SetVcpus),
+		"vcpus__n":                   netboxapi.FilterFloat64s(params.SetVcpusn),
+		"vcpus__lt":                  netboxapi.FilterFloat64s(params.SetVcpusLt),
+		"vcpus__lte":                 netboxapi.FilterFloat64s(params.SetVcpusLte),
+		"vcpus__gt":                  netboxapi.FilterFloat64s(params.SetVcpusGt),
+		"vcpus__gte":                 netboxapi.FilterFloat64s(params.SetVcpusGte),
+		"vcpus__empty":               netboxapi.FilterBool(params.SetVcpusEmpty),
+		"virtual_disk_count":         netboxapi.FilterInt64s(params.SetVirtualDiskCount),
+		"virtual_disk_count__n":      netboxapi.FilterInt64s(params.SetVirtualDiskCountn),
+		"virtual_disk_count__lt":     netboxapi.FilterInt64s(params.SetVirtualDiskCountLt),
+		"virtual_disk_count__lte":    netboxapi.FilterInt64s(params.SetVirtualDiskCountLte),
+		"virtual_disk_count__gt":     netboxapi.FilterInt64s(params.SetVirtualDiskCountGt),
+		"virtual_disk_count__gte":    netboxapi.FilterInt64s(params.SetVirtualDiskCountGte),
+		"virtual_disk_count__empty":  netboxapi.FilterBool(params.SetVirtualDiskCountEmpty),
+		"virtual_machine_type":       netboxapi.FilterStrings(params.SetVirtualMachineType),
+		"virtual_machine_type__n":    netboxapi.FilterStrings(params.SetVirtualMachineTypen),
+		"virtual_machine_type_id":    netboxapi.FilterInt64s(params.SetVirtualMachineTypeID),
+		"virtual_machine_type_id__n": netboxapi.FilterInt64s(params.SetVirtualMachineTypeIDn),
+	}
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -517,1671 +518,18 @@ func (d *virtualMachinesDataSource) Read(ctx context.Context, req datasource.Rea
 			customFieldQuery.Add(name, value)
 			continue
 		}
-		switch name {
-		case "id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id' takes an integer, got %q.", value))
-				return
-			}
-			vID = append(vID, v)
-		case "id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__n' takes an integer, got %q.", value))
-				return
-			}
-			vIDn = append(vIDn, v)
-		case "id__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lt' takes an integer, got %q.", value))
-				return
-			}
-			vIDLt = append(vIDLt, v)
-		case "id__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lte' takes an integer, got %q.", value))
-				return
-			}
-			vIDLte = append(vIDLte, v)
-		case "id__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gt' takes an integer, got %q.", value))
-				return
-			}
-			vIDGt = append(vIDGt, v)
-		case "id__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gte' takes an integer, got %q.", value))
-				return
-			}
-			vIDGte = append(vIDGte, v)
-		case "id__empty":
-			if vIDEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'id__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vIDEmpty = &v
-		case "name":
-			v := value
-			vName = append(vName, v)
-		case "name__n":
-			v := value
-			vNamen = append(vNamen, v)
-		case "name__ic":
-			v := value
-			vNameIc = append(vNameIc, v)
-		case "name__nic":
-			v := value
-			vNameNic = append(vNameNic, v)
-		case "name__ie":
-			v := value
-			vNameIe = append(vNameIe, v)
-		case "name__nie":
-			v := value
-			vNameNie = append(vNameNie, v)
-		case "name__isw":
-			v := value
-			vNameIsw = append(vNameIsw, v)
-		case "name__nisw":
-			v := value
-			vNameNisw = append(vNameNisw, v)
-		case "name__iew":
-			v := value
-			vNameIew = append(vNameIew, v)
-		case "name__niew":
-			v := value
-			vNameNiew = append(vNameNiew, v)
-		case "name__empty":
-			if vNameEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'name__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'name__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vNameEmpty = &v
-		case "name__regex":
-			v := value
-			vNameRegex = append(vNameRegex, v)
-		case "name__iregex":
-			v := value
-			vNameIregex = append(vNameIregex, v)
-		case "cluster_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'cluster_id' takes an integer, got %q.", value))
-				return
-			}
-			vClusterID = append(vClusterID, v)
-		case "cluster_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'cluster_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vClusterIDn = append(vClusterIDn, v)
-		case "status":
-			v := value
-			vStatus = append(vStatus, v)
-		case "status__n":
-			v := value
-			vStatusn = append(vStatusn, v)
-		case "status__ic":
-			v := value
-			vStatusIc = append(vStatusIc, v)
-		case "status__nic":
-			v := value
-			vStatusNic = append(vStatusNic, v)
-		case "status__ie":
-			v := value
-			vStatusIe = append(vStatusIe, v)
-		case "status__nie":
-			v := value
-			vStatusNie = append(vStatusNie, v)
-		case "status__isw":
-			v := value
-			vStatusIsw = append(vStatusIsw, v)
-		case "status__nisw":
-			v := value
-			vStatusNisw = append(vStatusNisw, v)
-		case "status__iew":
-			v := value
-			vStatusIew = append(vStatusIew, v)
-		case "status__niew":
-			v := value
-			vStatusNiew = append(vStatusNiew, v)
-		case "status__empty":
-			if vStatusEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'status__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'status__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vStatusEmpty = &v
-		case "status__regex":
-			v := value
-			vStatusRegex = append(vStatusRegex, v)
-		case "status__iregex":
-			v := value
-			vStatusIregex = append(vStatusIregex, v)
-		case "site_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'site_id' takes an integer, got %q.", value))
-				return
-			}
-			vSiteID = append(vSiteID, v)
-		case "site_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'site_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vSiteIDn = append(vSiteIDn, v)
-		case "role_id":
-			v := value
-			vRoleID = append(vRoleID, v)
-		case "role_id__n":
-			v := value
-			vRoleIDn = append(vRoleIDn, v)
-		case "tenant_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tenant_id' takes an integer, got %q.", value))
-				return
-			}
-			vTenantID = append(vTenantID, v)
-		case "tenant_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tenant_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vTenantIDn = append(vTenantIDn, v)
-		case "platform_id":
-			v := value
-			vPlatformID = append(vPlatformID, v)
-		case "platform_id__n":
-			v := value
-			vPlatformIDn = append(vPlatformIDn, v)
-		case "device_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_id' takes an integer, got %q.", value))
-				return
-			}
-			vDeviceID = append(vDeviceID, v)
-		case "device_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vDeviceIDn = append(vDeviceIDn, v)
-		case "cluster_group":
-			v := value
-			vClusterGroup = append(vClusterGroup, v)
-		case "cluster_group__n":
-			v := value
-			vClusterGroupn = append(vClusterGroupn, v)
-		case "device":
-			v := value
-			vDevice = append(vDevice, v)
-		case "device__n":
-			v := value
-			vDevicen = append(vDevicen, v)
-		case "platform":
-			v := value
-			vPlatform = append(vPlatform, v)
-		case "platform__n":
-			v := value
-			vPlatformn = append(vPlatformn, v)
-		case "region":
-			v := value
-			vRegion = append(vRegion, v)
-		case "region__n":
-			v := value
-			vRegionn = append(vRegionn, v)
-		case "role":
-			v := value
-			vRole = append(vRole, v)
-		case "role__n":
-			v := value
-			vRolen = append(vRolen, v)
-		case "site":
-			v := value
-			vSite = append(vSite, v)
-		case "site__n":
-			v := value
-			vSiten = append(vSiten, v)
-		case "owner_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_id' takes an integer, got %q.", value))
-				return
-			}
-			vOwnerID = append(vOwnerID, v)
-		case "owner_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vOwnerIDn = append(vOwnerIDn, v)
-		case "tag":
-			v := value
-			vTag = append(vTag, v)
-		case "tag__n":
-			v := value
-			vTagn = append(vTagn, v)
-		case "tag__any":
-			v := value
-			vTagAny = append(vTagAny, v)
-		case "cluster":
-			v := value
-			vCluster = append(vCluster, v)
-		case "cluster__n":
-			v := value
-			vClustern = append(vClustern, v)
-		case "cluster_group_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'cluster_group_id' takes an integer, got %q.", value))
-				return
-			}
-			vClusterGroupID = append(vClusterGroupID, v)
-		case "cluster_group_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'cluster_group_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vClusterGroupIDn = append(vClusterGroupIDn, v)
-		case "cluster_type":
-			v := value
-			vClusterType = append(vClusterType, v)
-		case "cluster_type__n":
-			v := value
-			vClusterTypen = append(vClusterTypen, v)
-		case "cluster_type_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'cluster_type_id' takes an integer, got %q.", value))
-				return
-			}
-			vClusterTypeID = append(vClusterTypeID, v)
-		case "cluster_type_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'cluster_type_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vClusterTypeIDn = append(vClusterTypeIDn, v)
-		case "config_template_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'config_template_id' takes an integer, got %q.", value))
-				return
-			}
-			vConfigTemplateID = append(vConfigTemplateID, v)
-		case "config_template_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'config_template_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vConfigTemplateIDn = append(vConfigTemplateIDn, v)
-		case "contact":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact' takes an integer, got %q.", value))
-				return
-			}
-			vContact = append(vContact, v)
-		case "contact__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact__n' takes an integer, got %q.", value))
-				return
-			}
-			vContactn = append(vContactn, v)
-		case "contact_group":
-			v := value
-			vContactGroup = append(vContactGroup, v)
-		case "contact_group__n":
-			v := value
-			vContactGroupn = append(vContactGroupn, v)
-		case "contact_role":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact_role' takes an integer, got %q.", value))
-				return
-			}
-			vContactRole = append(vContactRole, v)
-		case "contact_role__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact_role__n' takes an integer, got %q.", value))
-				return
-			}
-			vContactRolen = append(vContactRolen, v)
-		case "created":
-			v := value
-			vCreated = append(vCreated, v)
-		case "created__n":
-			v := value
-			vCreatedn = append(vCreatedn, v)
-		case "created__lt":
-			v := value
-			vCreatedLt = append(vCreatedLt, v)
-		case "created__lte":
-			v := value
-			vCreatedLte = append(vCreatedLte, v)
-		case "created__gt":
-			v := value
-			vCreatedGt = append(vCreatedGt, v)
-		case "created__gte":
-			v := value
-			vCreatedGte = append(vCreatedGte, v)
-		case "created__empty":
-			v := value
-			vCreatedEmpty = append(vCreatedEmpty, v)
-		case "description":
-			v := value
-			vDescription = append(vDescription, v)
-		case "description__n":
-			v := value
-			vDescriptionn = append(vDescriptionn, v)
-		case "description__ic":
-			v := value
-			vDescriptionIc = append(vDescriptionIc, v)
-		case "description__nic":
-			v := value
-			vDescriptionNic = append(vDescriptionNic, v)
-		case "description__ie":
-			v := value
-			vDescriptionIe = append(vDescriptionIe, v)
-		case "description__nie":
-			v := value
-			vDescriptionNie = append(vDescriptionNie, v)
-		case "description__isw":
-			v := value
-			vDescriptionIsw = append(vDescriptionIsw, v)
-		case "description__nisw":
-			v := value
-			vDescriptionNisw = append(vDescriptionNisw, v)
-		case "description__iew":
-			v := value
-			vDescriptionIew = append(vDescriptionIew, v)
-		case "description__niew":
-			v := value
-			vDescriptionNiew = append(vDescriptionNiew, v)
-		case "description__empty":
-			if vDescriptionEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vDescriptionEmpty = &v
-		case "description__regex":
-			v := value
-			vDescriptionRegex = append(vDescriptionRegex, v)
-		case "description__iregex":
-			v := value
-			vDescriptionIregex = append(vDescriptionIregex, v)
-		case "disk":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'disk' takes an integer, got %q.", value))
-				return
-			}
-			vDisk = append(vDisk, v)
-		case "disk__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'disk__n' takes an integer, got %q.", value))
-				return
-			}
-			vDiskn = append(vDiskn, v)
-		case "disk__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'disk__lt' takes an integer, got %q.", value))
-				return
-			}
-			vDiskLt = append(vDiskLt, v)
-		case "disk__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'disk__lte' takes an integer, got %q.", value))
-				return
-			}
-			vDiskLte = append(vDiskLte, v)
-		case "disk__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'disk__gt' takes an integer, got %q.", value))
-				return
-			}
-			vDiskGt = append(vDiskGt, v)
-		case "disk__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'disk__gte' takes an integer, got %q.", value))
-				return
-			}
-			vDiskGte = append(vDiskGte, v)
-		case "disk__empty":
-			if vDiskEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'disk__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'disk__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vDiskEmpty = &v
-		case "has_primary_ip":
-			if vHasPrimaryIP != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'has_primary_ip' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'has_primary_ip' takes a boolean, got %q.", value))
-				return
-			}
-			vHasPrimaryIP = &v
-		case "interface_count":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_count' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceCount = append(vInterfaceCount, v)
-		case "interface_count__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_count__n' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceCountn = append(vInterfaceCountn, v)
-		case "interface_count__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_count__lt' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceCountLt = append(vInterfaceCountLt, v)
-		case "interface_count__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_count__lte' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceCountLte = append(vInterfaceCountLte, v)
-		case "interface_count__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_count__gt' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceCountGt = append(vInterfaceCountGt, v)
-		case "interface_count__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_count__gte' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceCountGte = append(vInterfaceCountGte, v)
-		case "interface_count__empty":
-			if vInterfaceCountEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'interface_count__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_count__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vInterfaceCountEmpty = &v
-		case "last_updated":
-			v := value
-			vLastUpdated = append(vLastUpdated, v)
-		case "last_updated__n":
-			v := value
-			vLastUpdatedn = append(vLastUpdatedn, v)
-		case "last_updated__lt":
-			v := value
-			vLastUpdatedLt = append(vLastUpdatedLt, v)
-		case "last_updated__lte":
-			v := value
-			vLastUpdatedLte = append(vLastUpdatedLte, v)
-		case "last_updated__gt":
-			v := value
-			vLastUpdatedGt = append(vLastUpdatedGt, v)
-		case "last_updated__gte":
-			v := value
-			vLastUpdatedGte = append(vLastUpdatedGte, v)
-		case "last_updated__empty":
-			v := value
-			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
-		case "local_context_data":
-			if vLocalContextData != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'local_context_data' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'local_context_data' takes a boolean, got %q.", value))
-				return
-			}
-			vLocalContextData = &v
-		case "mac_address":
-			v := value
-			vMacAddress = append(vMacAddress, v)
-		case "mac_address__n":
-			v := value
-			vMacAddressn = append(vMacAddressn, v)
-		case "mac_address__ic":
-			v := value
-			vMacAddressIc = append(vMacAddressIc, v)
-		case "mac_address__nic":
-			v := value
-			vMacAddressNic = append(vMacAddressNic, v)
-		case "mac_address__ie":
-			v := value
-			vMacAddressIe = append(vMacAddressIe, v)
-		case "mac_address__nie":
-			v := value
-			vMacAddressNie = append(vMacAddressNie, v)
-		case "mac_address__isw":
-			v := value
-			vMacAddressIsw = append(vMacAddressIsw, v)
-		case "mac_address__nisw":
-			v := value
-			vMacAddressNisw = append(vMacAddressNisw, v)
-		case "mac_address__iew":
-			v := value
-			vMacAddressIew = append(vMacAddressIew, v)
-		case "mac_address__niew":
-			v := value
-			vMacAddressNiew = append(vMacAddressNiew, v)
-		case "mac_address__regex":
-			v := value
-			vMacAddressRegex = append(vMacAddressRegex, v)
-		case "mac_address__iregex":
-			v := value
-			vMacAddressIregex = append(vMacAddressIregex, v)
-		case "memory":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'memory' takes an integer, got %q.", value))
-				return
-			}
-			vMemory = append(vMemory, v)
-		case "memory__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'memory__n' takes an integer, got %q.", value))
-				return
-			}
-			vMemoryn = append(vMemoryn, v)
-		case "memory__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'memory__lt' takes an integer, got %q.", value))
-				return
-			}
-			vMemoryLt = append(vMemoryLt, v)
-		case "memory__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'memory__lte' takes an integer, got %q.", value))
-				return
-			}
-			vMemoryLte = append(vMemoryLte, v)
-		case "memory__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'memory__gt' takes an integer, got %q.", value))
-				return
-			}
-			vMemoryGt = append(vMemoryGt, v)
-		case "memory__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'memory__gte' takes an integer, got %q.", value))
-				return
-			}
-			vMemoryGte = append(vMemoryGte, v)
-		case "memory__empty":
-			if vMemoryEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'memory__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'memory__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vMemoryEmpty = &v
-		case "owner":
-			v := value
-			vOwner = append(vOwner, v)
-		case "owner__n":
-			v := value
-			vOwnern = append(vOwnern, v)
-		case "owner_group":
-			v := value
-			vOwnerGroup = append(vOwnerGroup, v)
-		case "owner_group__n":
-			v := value
-			vOwnerGroupn = append(vOwnerGroupn, v)
-		case "owner_group_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
-				return
-			}
-			vOwnerGroupID = append(vOwnerGroupID, v)
-		case "owner_group_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
-		case "primary_ip4":
-			v := value
-			vPrimaryIp4 = append(vPrimaryIp4, v)
-		case "primary_ip4__n":
-			v := value
-			vPrimaryIp4n = append(vPrimaryIp4n, v)
-		case "primary_ip4_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'primary_ip4_id' takes an integer, got %q.", value))
-				return
-			}
-			vPrimaryIp4ID = append(vPrimaryIp4ID, v)
-		case "primary_ip4_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'primary_ip4_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vPrimaryIp4IDn = append(vPrimaryIp4IDn, v)
-		case "primary_ip6":
-			v := value
-			vPrimaryIp6 = append(vPrimaryIp6, v)
-		case "primary_ip6__n":
-			v := value
-			vPrimaryIp6n = append(vPrimaryIp6n, v)
-		case "primary_ip6_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'primary_ip6_id' takes an integer, got %q.", value))
-				return
-			}
-			vPrimaryIp6ID = append(vPrimaryIp6ID, v)
-		case "primary_ip6_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'primary_ip6_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vPrimaryIp6IDn = append(vPrimaryIp6IDn, v)
-		case "q":
-			if vQ != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
-				return
-			}
-			v := value
-			vQ = &v
-		case "region_id":
-			v := value
-			vRegionID = append(vRegionID, v)
-		case "region_id__n":
-			v := value
-			vRegionIDn = append(vRegionIDn, v)
-		case "serial":
-			v := value
-			vSerial = append(vSerial, v)
-		case "serial__n":
-			v := value
-			vSerialn = append(vSerialn, v)
-		case "serial__ic":
-			v := value
-			vSerialIc = append(vSerialIc, v)
-		case "serial__nic":
-			v := value
-			vSerialNic = append(vSerialNic, v)
-		case "serial__ie":
-			v := value
-			vSerialIe = append(vSerialIe, v)
-		case "serial__nie":
-			v := value
-			vSerialNie = append(vSerialNie, v)
-		case "serial__isw":
-			v := value
-			vSerialIsw = append(vSerialIsw, v)
-		case "serial__nisw":
-			v := value
-			vSerialNisw = append(vSerialNisw, v)
-		case "serial__iew":
-			v := value
-			vSerialIew = append(vSerialIew, v)
-		case "serial__niew":
-			v := value
-			vSerialNiew = append(vSerialNiew, v)
-		case "serial__empty":
-			if vSerialEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'serial__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'serial__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vSerialEmpty = &v
-		case "serial__regex":
-			v := value
-			vSerialRegex = append(vSerialRegex, v)
-		case "serial__iregex":
-			v := value
-			vSerialIregex = append(vSerialIregex, v)
-		case "site_group":
-			v := value
-			vSiteGroup = append(vSiteGroup, v)
-		case "site_group__n":
-			v := value
-			vSiteGroupn = append(vSiteGroupn, v)
-		case "site_group_id":
-			v := value
-			vSiteGroupID = append(vSiteGroupID, v)
-		case "site_group_id__n":
-			v := value
-			vSiteGroupIDn = append(vSiteGroupIDn, v)
-		case "start_on_boot":
-			v := value
-			vStartOnBoot = append(vStartOnBoot, v)
-		case "start_on_boot__n":
-			v := value
-			vStartOnBootn = append(vStartOnBootn, v)
-		case "start_on_boot__ic":
-			v := value
-			vStartOnBootIc = append(vStartOnBootIc, v)
-		case "start_on_boot__nic":
-			v := value
-			vStartOnBootNic = append(vStartOnBootNic, v)
-		case "start_on_boot__ie":
-			v := value
-			vStartOnBootIe = append(vStartOnBootIe, v)
-		case "start_on_boot__nie":
-			v := value
-			vStartOnBootNie = append(vStartOnBootNie, v)
-		case "start_on_boot__isw":
-			v := value
-			vStartOnBootIsw = append(vStartOnBootIsw, v)
-		case "start_on_boot__nisw":
-			v := value
-			vStartOnBootNisw = append(vStartOnBootNisw, v)
-		case "start_on_boot__iew":
-			v := value
-			vStartOnBootIew = append(vStartOnBootIew, v)
-		case "start_on_boot__niew":
-			v := value
-			vStartOnBootNiew = append(vStartOnBootNiew, v)
-		case "start_on_boot__empty":
-			if vStartOnBootEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'start_on_boot__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'start_on_boot__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vStartOnBootEmpty = &v
-		case "start_on_boot__regex":
-			v := value
-			vStartOnBootRegex = append(vStartOnBootRegex, v)
-		case "start_on_boot__iregex":
-			v := value
-			vStartOnBootIregex = append(vStartOnBootIregex, v)
-		case "tag_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
-				return
-			}
-			vTagID = append(vTagID, v)
-		case "tag_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vTagIDn = append(vTagIDn, v)
-		case "tag_id__any":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
-				return
-			}
-			vTagIDAny = append(vTagIDAny, v)
-		case "tenant":
-			v := value
-			vTenant = append(vTenant, v)
-		case "tenant__n":
-			v := value
-			vTenantn = append(vTenantn, v)
-		case "tenant_group":
-			v := value
-			vTenantGroup = append(vTenantGroup, v)
-		case "tenant_group__n":
-			v := value
-			vTenantGroupn = append(vTenantGroupn, v)
-		case "tenant_group_id":
-			v := value
-			vTenantGroupID = append(vTenantGroupID, v)
-		case "tenant_group_id__n":
-			v := value
-			vTenantGroupIDn = append(vTenantGroupIDn, v)
-		case "vcpus":
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vcpus' takes a number, got %q.", value))
-				return
-			}
-			vVcpus = append(vVcpus, v)
-		case "vcpus__n":
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vcpus__n' takes a number, got %q.", value))
-				return
-			}
-			vVcpusn = append(vVcpusn, v)
-		case "vcpus__lt":
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vcpus__lt' takes a number, got %q.", value))
-				return
-			}
-			vVcpusLt = append(vVcpusLt, v)
-		case "vcpus__lte":
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vcpus__lte' takes a number, got %q.", value))
-				return
-			}
-			vVcpusLte = append(vVcpusLte, v)
-		case "vcpus__gt":
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vcpus__gt' takes a number, got %q.", value))
-				return
-			}
-			vVcpusGt = append(vVcpusGt, v)
-		case "vcpus__gte":
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vcpus__gte' takes a number, got %q.", value))
-				return
-			}
-			vVcpusGte = append(vVcpusGte, v)
-		case "vcpus__empty":
-			if vVcpusEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'vcpus__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vcpus__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vVcpusEmpty = &v
-		case "virtual_disk_count":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_disk_count' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualDiskCount = append(vVirtualDiskCount, v)
-		case "virtual_disk_count__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_disk_count__n' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualDiskCountn = append(vVirtualDiskCountn, v)
-		case "virtual_disk_count__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_disk_count__lt' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualDiskCountLt = append(vVirtualDiskCountLt, v)
-		case "virtual_disk_count__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_disk_count__lte' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualDiskCountLte = append(vVirtualDiskCountLte, v)
-		case "virtual_disk_count__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_disk_count__gt' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualDiskCountGt = append(vVirtualDiskCountGt, v)
-		case "virtual_disk_count__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_disk_count__gte' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualDiskCountGte = append(vVirtualDiskCountGte, v)
-		case "virtual_disk_count__empty":
-			if vVirtualDiskCountEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'virtual_disk_count__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_disk_count__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vVirtualDiskCountEmpty = &v
-		case "virtual_machine_type":
-			v := value
-			vVirtualMachineType = append(vVirtualMachineType, v)
-		case "virtual_machine_type__n":
-			v := value
-			vVirtualMachineTypen = append(vVirtualMachineTypen, v)
-		case "virtual_machine_type_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_type_id' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualMachineTypeID = append(vVirtualMachineTypeID, v)
-		case "virtual_machine_type_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_type_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualMachineTypeIDn = append(vVirtualMachineTypeIDn, v)
-		default:
+		listFilter, ok := listFilters[name]
+		if !ok {
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
 		}
-	}
-	if len(vID) > 0 {
-		params.SetID(vID)
-	}
-	if len(vIDn) > 0 {
-		params.SetIDn(vIDn)
-	}
-	if len(vIDLt) > 0 {
-		params.SetIDLt(vIDLt)
-	}
-	if len(vIDLte) > 0 {
-		params.SetIDLte(vIDLte)
-	}
-	if len(vIDGt) > 0 {
-		params.SetIDGt(vIDGt)
-	}
-	if len(vIDGte) > 0 {
-		params.SetIDGte(vIDGte)
-	}
-	if vIDEmpty != nil {
-		params.SetIDEmpty(vIDEmpty)
-	}
-	if len(vName) > 0 {
-		params.SetName(vName)
-	}
-	if len(vNamen) > 0 {
-		params.SetNamen(vNamen)
-	}
-	if len(vNameIc) > 0 {
-		params.SetNameIc(vNameIc)
-	}
-	if len(vNameNic) > 0 {
-		params.SetNameNic(vNameNic)
-	}
-	if len(vNameIe) > 0 {
-		params.SetNameIe(vNameIe)
-	}
-	if len(vNameNie) > 0 {
-		params.SetNameNie(vNameNie)
-	}
-	if len(vNameIsw) > 0 {
-		params.SetNameIsw(vNameIsw)
-	}
-	if len(vNameNisw) > 0 {
-		params.SetNameNisw(vNameNisw)
-	}
-	if len(vNameIew) > 0 {
-		params.SetNameIew(vNameIew)
-	}
-	if len(vNameNiew) > 0 {
-		params.SetNameNiew(vNameNiew)
-	}
-	if vNameEmpty != nil {
-		params.SetNameEmpty(vNameEmpty)
-	}
-	if len(vNameRegex) > 0 {
-		params.SetNameRegex(vNameRegex)
-	}
-	if len(vNameIregex) > 0 {
-		params.SetNameIregex(vNameIregex)
-	}
-	if len(vClusterID) > 0 {
-		params.SetClusterID(vClusterID)
-	}
-	if len(vClusterIDn) > 0 {
-		params.SetClusterIDn(vClusterIDn)
-	}
-	if len(vStatus) > 0 {
-		params.SetStatus(vStatus)
-	}
-	if len(vStatusn) > 0 {
-		params.SetStatusn(vStatusn)
-	}
-	if len(vStatusIc) > 0 {
-		params.SetStatusIc(vStatusIc)
-	}
-	if len(vStatusNic) > 0 {
-		params.SetStatusNic(vStatusNic)
-	}
-	if len(vStatusIe) > 0 {
-		params.SetStatusIe(vStatusIe)
-	}
-	if len(vStatusNie) > 0 {
-		params.SetStatusNie(vStatusNie)
-	}
-	if len(vStatusIsw) > 0 {
-		params.SetStatusIsw(vStatusIsw)
-	}
-	if len(vStatusNisw) > 0 {
-		params.SetStatusNisw(vStatusNisw)
-	}
-	if len(vStatusIew) > 0 {
-		params.SetStatusIew(vStatusIew)
-	}
-	if len(vStatusNiew) > 0 {
-		params.SetStatusNiew(vStatusNiew)
-	}
-	if vStatusEmpty != nil {
-		params.SetStatusEmpty(vStatusEmpty)
-	}
-	if len(vStatusRegex) > 0 {
-		params.SetStatusRegex(vStatusRegex)
-	}
-	if len(vStatusIregex) > 0 {
-		params.SetStatusIregex(vStatusIregex)
-	}
-	if len(vSiteID) > 0 {
-		params.SetSiteID(vSiteID)
-	}
-	if len(vSiteIDn) > 0 {
-		params.SetSiteIDn(vSiteIDn)
-	}
-	if len(vRoleID) > 0 {
-		params.SetRoleID(vRoleID)
-	}
-	if len(vRoleIDn) > 0 {
-		params.SetRoleIDn(vRoleIDn)
-	}
-	if len(vTenantID) > 0 {
-		params.SetTenantID(vTenantID)
-	}
-	if len(vTenantIDn) > 0 {
-		params.SetTenantIDn(vTenantIDn)
-	}
-	if len(vPlatformID) > 0 {
-		params.SetPlatformID(vPlatformID)
-	}
-	if len(vPlatformIDn) > 0 {
-		params.SetPlatformIDn(vPlatformIDn)
-	}
-	if len(vDeviceID) > 0 {
-		params.SetDeviceID(vDeviceID)
-	}
-	if len(vDeviceIDn) > 0 {
-		params.SetDeviceIDn(vDeviceIDn)
-	}
-	if len(vClusterGroup) > 0 {
-		params.SetClusterGroup(vClusterGroup)
-	}
-	if len(vClusterGroupn) > 0 {
-		params.SetClusterGroupn(vClusterGroupn)
-	}
-	if len(vDevice) > 0 {
-		params.SetDevice(vDevice)
-	}
-	if len(vDevicen) > 0 {
-		params.SetDevicen(vDevicen)
-	}
-	if len(vPlatform) > 0 {
-		params.SetPlatform(vPlatform)
-	}
-	if len(vPlatformn) > 0 {
-		params.SetPlatformn(vPlatformn)
-	}
-	if len(vRegion) > 0 {
-		params.SetRegion(vRegion)
-	}
-	if len(vRegionn) > 0 {
-		params.SetRegionn(vRegionn)
-	}
-	if len(vRole) > 0 {
-		params.SetRole(vRole)
-	}
-	if len(vRolen) > 0 {
-		params.SetRolen(vRolen)
-	}
-	if len(vSite) > 0 {
-		params.SetSite(vSite)
-	}
-	if len(vSiten) > 0 {
-		params.SetSiten(vSiten)
-	}
-	if len(vOwnerID) > 0 {
-		params.SetOwnerID(vOwnerID)
-	}
-	if len(vOwnerIDn) > 0 {
-		params.SetOwnerIDn(vOwnerIDn)
-	}
-	if len(vTag) > 0 {
-		params.SetTag(vTag)
-	}
-	if len(vTagn) > 0 {
-		params.SetTagn(vTagn)
-	}
-	if len(vTagAny) > 0 {
-		params.SetTagAny(vTagAny)
-	}
-	if len(vCluster) > 0 {
-		params.SetCluster(vCluster)
-	}
-	if len(vClustern) > 0 {
-		params.SetClustern(vClustern)
-	}
-	if len(vClusterGroupID) > 0 {
-		params.SetClusterGroupID(vClusterGroupID)
-	}
-	if len(vClusterGroupIDn) > 0 {
-		params.SetClusterGroupIDn(vClusterGroupIDn)
-	}
-	if len(vClusterType) > 0 {
-		params.SetClusterType(vClusterType)
-	}
-	if len(vClusterTypen) > 0 {
-		params.SetClusterTypen(vClusterTypen)
-	}
-	if len(vClusterTypeID) > 0 {
-		params.SetClusterTypeID(vClusterTypeID)
-	}
-	if len(vClusterTypeIDn) > 0 {
-		params.SetClusterTypeIDn(vClusterTypeIDn)
-	}
-	if len(vConfigTemplateID) > 0 {
-		params.SetConfigTemplateID(vConfigTemplateID)
-	}
-	if len(vConfigTemplateIDn) > 0 {
-		params.SetConfigTemplateIDn(vConfigTemplateIDn)
-	}
-	if len(vContact) > 0 {
-		params.SetContact(vContact)
-	}
-	if len(vContactn) > 0 {
-		params.SetContactn(vContactn)
-	}
-	if len(vContactGroup) > 0 {
-		params.SetContactGroup(vContactGroup)
-	}
-	if len(vContactGroupn) > 0 {
-		params.SetContactGroupn(vContactGroupn)
-	}
-	if len(vContactRole) > 0 {
-		params.SetContactRole(vContactRole)
-	}
-	if len(vContactRolen) > 0 {
-		params.SetContactRolen(vContactRolen)
-	}
-	if len(vCreated) > 0 {
-		params.SetCreated(vCreated)
-	}
-	if len(vCreatedn) > 0 {
-		params.SetCreatedn(vCreatedn)
-	}
-	if len(vCreatedLt) > 0 {
-		params.SetCreatedLt(vCreatedLt)
-	}
-	if len(vCreatedLte) > 0 {
-		params.SetCreatedLte(vCreatedLte)
-	}
-	if len(vCreatedGt) > 0 {
-		params.SetCreatedGt(vCreatedGt)
-	}
-	if len(vCreatedGte) > 0 {
-		params.SetCreatedGte(vCreatedGte)
-	}
-	if len(vCreatedEmpty) > 0 {
-		params.SetCreatedEmpty(vCreatedEmpty)
-	}
-	if len(vDescription) > 0 {
-		params.SetDescription(vDescription)
-	}
-	if len(vDescriptionn) > 0 {
-		params.SetDescriptionn(vDescriptionn)
-	}
-	if len(vDescriptionIc) > 0 {
-		params.SetDescriptionIc(vDescriptionIc)
-	}
-	if len(vDescriptionNic) > 0 {
-		params.SetDescriptionNic(vDescriptionNic)
-	}
-	if len(vDescriptionIe) > 0 {
-		params.SetDescriptionIe(vDescriptionIe)
-	}
-	if len(vDescriptionNie) > 0 {
-		params.SetDescriptionNie(vDescriptionNie)
-	}
-	if len(vDescriptionIsw) > 0 {
-		params.SetDescriptionIsw(vDescriptionIsw)
-	}
-	if len(vDescriptionNisw) > 0 {
-		params.SetDescriptionNisw(vDescriptionNisw)
-	}
-	if len(vDescriptionIew) > 0 {
-		params.SetDescriptionIew(vDescriptionIew)
-	}
-	if len(vDescriptionNiew) > 0 {
-		params.SetDescriptionNiew(vDescriptionNiew)
-	}
-	if vDescriptionEmpty != nil {
-		params.SetDescriptionEmpty(vDescriptionEmpty)
-	}
-	if len(vDescriptionRegex) > 0 {
-		params.SetDescriptionRegex(vDescriptionRegex)
-	}
-	if len(vDescriptionIregex) > 0 {
-		params.SetDescriptionIregex(vDescriptionIregex)
-	}
-	if len(vDisk) > 0 {
-		params.SetDisk(vDisk)
-	}
-	if len(vDiskn) > 0 {
-		params.SetDiskn(vDiskn)
-	}
-	if len(vDiskLt) > 0 {
-		params.SetDiskLt(vDiskLt)
-	}
-	if len(vDiskLte) > 0 {
-		params.SetDiskLte(vDiskLte)
-	}
-	if len(vDiskGt) > 0 {
-		params.SetDiskGt(vDiskGt)
-	}
-	if len(vDiskGte) > 0 {
-		params.SetDiskGte(vDiskGte)
-	}
-	if vDiskEmpty != nil {
-		params.SetDiskEmpty(vDiskEmpty)
-	}
-	if vHasPrimaryIP != nil {
-		params.SetHasPrimaryIP(vHasPrimaryIP)
-	}
-	if len(vInterfaceCount) > 0 {
-		params.SetInterfaceCount(vInterfaceCount)
-	}
-	if len(vInterfaceCountn) > 0 {
-		params.SetInterfaceCountn(vInterfaceCountn)
-	}
-	if len(vInterfaceCountLt) > 0 {
-		params.SetInterfaceCountLt(vInterfaceCountLt)
-	}
-	if len(vInterfaceCountLte) > 0 {
-		params.SetInterfaceCountLte(vInterfaceCountLte)
-	}
-	if len(vInterfaceCountGt) > 0 {
-		params.SetInterfaceCountGt(vInterfaceCountGt)
-	}
-	if len(vInterfaceCountGte) > 0 {
-		params.SetInterfaceCountGte(vInterfaceCountGte)
-	}
-	if vInterfaceCountEmpty != nil {
-		params.SetInterfaceCountEmpty(vInterfaceCountEmpty)
-	}
-	if len(vLastUpdated) > 0 {
-		params.SetLastUpdated(vLastUpdated)
-	}
-	if len(vLastUpdatedn) > 0 {
-		params.SetLastUpdatedn(vLastUpdatedn)
-	}
-	if len(vLastUpdatedLt) > 0 {
-		params.SetLastUpdatedLt(vLastUpdatedLt)
-	}
-	if len(vLastUpdatedLte) > 0 {
-		params.SetLastUpdatedLte(vLastUpdatedLte)
-	}
-	if len(vLastUpdatedGt) > 0 {
-		params.SetLastUpdatedGt(vLastUpdatedGt)
-	}
-	if len(vLastUpdatedGte) > 0 {
-		params.SetLastUpdatedGte(vLastUpdatedGte)
-	}
-	if len(vLastUpdatedEmpty) > 0 {
-		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
-	}
-	if vLocalContextData != nil {
-		params.SetLocalContextData(vLocalContextData)
-	}
-	if len(vMacAddress) > 0 {
-		params.SetMacAddress(vMacAddress)
-	}
-	if len(vMacAddressn) > 0 {
-		params.SetMacAddressn(vMacAddressn)
-	}
-	if len(vMacAddressIc) > 0 {
-		params.SetMacAddressIc(vMacAddressIc)
-	}
-	if len(vMacAddressNic) > 0 {
-		params.SetMacAddressNic(vMacAddressNic)
-	}
-	if len(vMacAddressIe) > 0 {
-		params.SetMacAddressIe(vMacAddressIe)
-	}
-	if len(vMacAddressNie) > 0 {
-		params.SetMacAddressNie(vMacAddressNie)
-	}
-	if len(vMacAddressIsw) > 0 {
-		params.SetMacAddressIsw(vMacAddressIsw)
-	}
-	if len(vMacAddressNisw) > 0 {
-		params.SetMacAddressNisw(vMacAddressNisw)
-	}
-	if len(vMacAddressIew) > 0 {
-		params.SetMacAddressIew(vMacAddressIew)
-	}
-	if len(vMacAddressNiew) > 0 {
-		params.SetMacAddressNiew(vMacAddressNiew)
-	}
-	if len(vMacAddressRegex) > 0 {
-		params.SetMacAddressRegex(vMacAddressRegex)
-	}
-	if len(vMacAddressIregex) > 0 {
-		params.SetMacAddressIregex(vMacAddressIregex)
-	}
-	if len(vMemory) > 0 {
-		params.SetMemory(vMemory)
-	}
-	if len(vMemoryn) > 0 {
-		params.SetMemoryn(vMemoryn)
-	}
-	if len(vMemoryLt) > 0 {
-		params.SetMemoryLt(vMemoryLt)
-	}
-	if len(vMemoryLte) > 0 {
-		params.SetMemoryLte(vMemoryLte)
-	}
-	if len(vMemoryGt) > 0 {
-		params.SetMemoryGt(vMemoryGt)
-	}
-	if len(vMemoryGte) > 0 {
-		params.SetMemoryGte(vMemoryGte)
-	}
-	if vMemoryEmpty != nil {
-		params.SetMemoryEmpty(vMemoryEmpty)
-	}
-	if len(vOwner) > 0 {
-		params.SetOwner(vOwner)
-	}
-	if len(vOwnern) > 0 {
-		params.SetOwnern(vOwnern)
-	}
-	if len(vOwnerGroup) > 0 {
-		params.SetOwnerGroup(vOwnerGroup)
-	}
-	if len(vOwnerGroupn) > 0 {
-		params.SetOwnerGroupn(vOwnerGroupn)
-	}
-	if len(vOwnerGroupID) > 0 {
-		params.SetOwnerGroupID(vOwnerGroupID)
-	}
-	if len(vOwnerGroupIDn) > 0 {
-		params.SetOwnerGroupIDn(vOwnerGroupIDn)
-	}
-	if len(vPrimaryIp4) > 0 {
-		params.SetPrimaryIp4(vPrimaryIp4)
-	}
-	if len(vPrimaryIp4n) > 0 {
-		params.SetPrimaryIp4n(vPrimaryIp4n)
-	}
-	if len(vPrimaryIp4ID) > 0 {
-		params.SetPrimaryIp4ID(vPrimaryIp4ID)
-	}
-	if len(vPrimaryIp4IDn) > 0 {
-		params.SetPrimaryIp4IDn(vPrimaryIp4IDn)
-	}
-	if len(vPrimaryIp6) > 0 {
-		params.SetPrimaryIp6(vPrimaryIp6)
-	}
-	if len(vPrimaryIp6n) > 0 {
-		params.SetPrimaryIp6n(vPrimaryIp6n)
-	}
-	if len(vPrimaryIp6ID) > 0 {
-		params.SetPrimaryIp6ID(vPrimaryIp6ID)
-	}
-	if len(vPrimaryIp6IDn) > 0 {
-		params.SetPrimaryIp6IDn(vPrimaryIp6IDn)
-	}
-	if vQ != nil {
-		params.SetQ(vQ)
-	}
-	if len(vRegionID) > 0 {
-		params.SetRegionID(vRegionID)
-	}
-	if len(vRegionIDn) > 0 {
-		params.SetRegionIDn(vRegionIDn)
-	}
-	if len(vSerial) > 0 {
-		params.SetSerial(vSerial)
-	}
-	if len(vSerialn) > 0 {
-		params.SetSerialn(vSerialn)
-	}
-	if len(vSerialIc) > 0 {
-		params.SetSerialIc(vSerialIc)
-	}
-	if len(vSerialNic) > 0 {
-		params.SetSerialNic(vSerialNic)
-	}
-	if len(vSerialIe) > 0 {
-		params.SetSerialIe(vSerialIe)
-	}
-	if len(vSerialNie) > 0 {
-		params.SetSerialNie(vSerialNie)
-	}
-	if len(vSerialIsw) > 0 {
-		params.SetSerialIsw(vSerialIsw)
-	}
-	if len(vSerialNisw) > 0 {
-		params.SetSerialNisw(vSerialNisw)
-	}
-	if len(vSerialIew) > 0 {
-		params.SetSerialIew(vSerialIew)
-	}
-	if len(vSerialNiew) > 0 {
-		params.SetSerialNiew(vSerialNiew)
-	}
-	if vSerialEmpty != nil {
-		params.SetSerialEmpty(vSerialEmpty)
-	}
-	if len(vSerialRegex) > 0 {
-		params.SetSerialRegex(vSerialRegex)
-	}
-	if len(vSerialIregex) > 0 {
-		params.SetSerialIregex(vSerialIregex)
-	}
-	if len(vSiteGroup) > 0 {
-		params.SetSiteGroup(vSiteGroup)
-	}
-	if len(vSiteGroupn) > 0 {
-		params.SetSiteGroupn(vSiteGroupn)
-	}
-	if len(vSiteGroupID) > 0 {
-		params.SetSiteGroupID(vSiteGroupID)
-	}
-	if len(vSiteGroupIDn) > 0 {
-		params.SetSiteGroupIDn(vSiteGroupIDn)
-	}
-	if len(vStartOnBoot) > 0 {
-		params.SetStartOnBoot(vStartOnBoot)
-	}
-	if len(vStartOnBootn) > 0 {
-		params.SetStartOnBootn(vStartOnBootn)
-	}
-	if len(vStartOnBootIc) > 0 {
-		params.SetStartOnBootIc(vStartOnBootIc)
-	}
-	if len(vStartOnBootNic) > 0 {
-		params.SetStartOnBootNic(vStartOnBootNic)
-	}
-	if len(vStartOnBootIe) > 0 {
-		params.SetStartOnBootIe(vStartOnBootIe)
-	}
-	if len(vStartOnBootNie) > 0 {
-		params.SetStartOnBootNie(vStartOnBootNie)
-	}
-	if len(vStartOnBootIsw) > 0 {
-		params.SetStartOnBootIsw(vStartOnBootIsw)
-	}
-	if len(vStartOnBootNisw) > 0 {
-		params.SetStartOnBootNisw(vStartOnBootNisw)
-	}
-	if len(vStartOnBootIew) > 0 {
-		params.SetStartOnBootIew(vStartOnBootIew)
-	}
-	if len(vStartOnBootNiew) > 0 {
-		params.SetStartOnBootNiew(vStartOnBootNiew)
-	}
-	if vStartOnBootEmpty != nil {
-		params.SetStartOnBootEmpty(vStartOnBootEmpty)
-	}
-	if len(vStartOnBootRegex) > 0 {
-		params.SetStartOnBootRegex(vStartOnBootRegex)
-	}
-	if len(vStartOnBootIregex) > 0 {
-		params.SetStartOnBootIregex(vStartOnBootIregex)
-	}
-	if len(vTagID) > 0 {
-		params.SetTagID(vTagID)
-	}
-	if len(vTagIDn) > 0 {
-		params.SetTagIDn(vTagIDn)
-	}
-	if len(vTagIDAny) > 0 {
-		params.SetTagIDAny(vTagIDAny)
-	}
-	if len(vTenant) > 0 {
-		params.SetTenant(vTenant)
-	}
-	if len(vTenantn) > 0 {
-		params.SetTenantn(vTenantn)
-	}
-	if len(vTenantGroup) > 0 {
-		params.SetTenantGroup(vTenantGroup)
-	}
-	if len(vTenantGroupn) > 0 {
-		params.SetTenantGroupn(vTenantGroupn)
-	}
-	if len(vTenantGroupID) > 0 {
-		params.SetTenantGroupID(vTenantGroupID)
-	}
-	if len(vTenantGroupIDn) > 0 {
-		params.SetTenantGroupIDn(vTenantGroupIDn)
-	}
-	if len(vVcpus) > 0 {
-		params.SetVcpus(vVcpus)
-	}
-	if len(vVcpusn) > 0 {
-		params.SetVcpusn(vVcpusn)
-	}
-	if len(vVcpusLt) > 0 {
-		params.SetVcpusLt(vVcpusLt)
-	}
-	if len(vVcpusLte) > 0 {
-		params.SetVcpusLte(vVcpusLte)
-	}
-	if len(vVcpusGt) > 0 {
-		params.SetVcpusGt(vVcpusGt)
-	}
-	if len(vVcpusGte) > 0 {
-		params.SetVcpusGte(vVcpusGte)
-	}
-	if vVcpusEmpty != nil {
-		params.SetVcpusEmpty(vVcpusEmpty)
-	}
-	if len(vVirtualDiskCount) > 0 {
-		params.SetVirtualDiskCount(vVirtualDiskCount)
-	}
-	if len(vVirtualDiskCountn) > 0 {
-		params.SetVirtualDiskCountn(vVirtualDiskCountn)
-	}
-	if len(vVirtualDiskCountLt) > 0 {
-		params.SetVirtualDiskCountLt(vVirtualDiskCountLt)
-	}
-	if len(vVirtualDiskCountLte) > 0 {
-		params.SetVirtualDiskCountLte(vVirtualDiskCountLte)
-	}
-	if len(vVirtualDiskCountGt) > 0 {
-		params.SetVirtualDiskCountGt(vVirtualDiskCountGt)
-	}
-	if len(vVirtualDiskCountGte) > 0 {
-		params.SetVirtualDiskCountGte(vVirtualDiskCountGte)
-	}
-	if vVirtualDiskCountEmpty != nil {
-		params.SetVirtualDiskCountEmpty(vVirtualDiskCountEmpty)
-	}
-	if len(vVirtualMachineType) > 0 {
-		params.SetVirtualMachineType(vVirtualMachineType)
-	}
-	if len(vVirtualMachineTypen) > 0 {
-		params.SetVirtualMachineTypen(vVirtualMachineTypen)
-	}
-	if len(vVirtualMachineTypeID) > 0 {
-		params.SetVirtualMachineTypeID(vVirtualMachineTypeID)
-	}
-	if len(vVirtualMachineTypeIDn) > 0 {
-		params.SetVirtualMachineTypeIDn(vVirtualMachineTypeIDn)
+		if problem := listFilter.Add(name, value); problem != nil {
+			resp.Diagnostics.AddError(problem.Summary, problem.Detail)
+			return
+		}
+	}
+	for _, listFilter := range listFilters {
+		listFilter.Apply()
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

@@ -5,7 +5,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/ipam"
@@ -174,426 +173,65 @@ func (d *fhrpGroupAssignmentsDataSource) Read(ctx context.Context, req datasourc
 	var responseDTOs []*netboxapi.FhrpGroupAssignmentResponseDTO
 
 	params := ipam.NewIpamFhrpGroupAssignmentsListParams()
-	var vID []int64
-	var vIDn []int64
-	var vIDLt []int64
-	var vIDLte []int64
-	var vIDGt []int64
-	var vIDGte []int64
-	var vIDEmpty *bool
-	var vGroupID []int64
-	var vGroupIDn []int64
-	var vInterfaceType []string
-	var vInterfaceTypen []string
-	var vInterfaceID []int64
-	var vInterfaceIDn []int64
-	var vInterfaceIDLt []int64
-	var vInterfaceIDLte []int64
-	var vInterfaceIDGt []int64
-	var vInterfaceIDGte []int64
-	var vInterfaceIDEmpty *bool
-	var vPriority []int64
-	var vPriorityn []int64
-	var vPriorityLt []int64
-	var vPriorityLte []int64
-	var vPriorityGt []int64
-	var vPriorityGte []int64
-	var vPriorityEmpty *bool
-	var vCreated []string
-	var vCreatedn []string
-	var vCreatedLt []string
-	var vCreatedLte []string
-	var vCreatedGt []string
-	var vCreatedGte []string
-	var vCreatedEmpty []string
-	var vDevice []string
-	var vDeviceID []int64
-	var vLastUpdated []string
-	var vLastUpdatedn []string
-	var vLastUpdatedLt []string
-	var vLastUpdatedLte []string
-	var vLastUpdatedGt []string
-	var vLastUpdatedGte []string
-	var vLastUpdatedEmpty []string
-	var vVirtualMachine []string
-	var vVirtualMachineID []int64
+	listFilters := map[string]netboxapi.ListFilter{
+		"id":                  netboxapi.FilterInt64s(params.SetID),
+		"id__n":               netboxapi.FilterInt64s(params.SetIDn),
+		"id__lt":              netboxapi.FilterInt64s(params.SetIDLt),
+		"id__lte":             netboxapi.FilterInt64s(params.SetIDLte),
+		"id__gt":              netboxapi.FilterInt64s(params.SetIDGt),
+		"id__gte":             netboxapi.FilterInt64s(params.SetIDGte),
+		"id__empty":           netboxapi.FilterBool(params.SetIDEmpty),
+		"group_id":            netboxapi.FilterInt64s(params.SetGroupID),
+		"group_id__n":         netboxapi.FilterInt64s(params.SetGroupIDn),
+		"interface_type":      netboxapi.FilterStrings(params.SetInterfaceType),
+		"interface_type__n":   netboxapi.FilterStrings(params.SetInterfaceTypen),
+		"interface_id":        netboxapi.FilterInt64s(params.SetInterfaceID),
+		"interface_id__n":     netboxapi.FilterInt64s(params.SetInterfaceIDn),
+		"interface_id__lt":    netboxapi.FilterInt64s(params.SetInterfaceIDLt),
+		"interface_id__lte":   netboxapi.FilterInt64s(params.SetInterfaceIDLte),
+		"interface_id__gt":    netboxapi.FilterInt64s(params.SetInterfaceIDGt),
+		"interface_id__gte":   netboxapi.FilterInt64s(params.SetInterfaceIDGte),
+		"interface_id__empty": netboxapi.FilterBool(params.SetInterfaceIDEmpty),
+		"priority":            netboxapi.FilterInt64s(params.SetPriority),
+		"priority__n":         netboxapi.FilterInt64s(params.SetPriorityn),
+		"priority__lt":        netboxapi.FilterInt64s(params.SetPriorityLt),
+		"priority__lte":       netboxapi.FilterInt64s(params.SetPriorityLte),
+		"priority__gt":        netboxapi.FilterInt64s(params.SetPriorityGt),
+		"priority__gte":       netboxapi.FilterInt64s(params.SetPriorityGte),
+		"priority__empty":     netboxapi.FilterBool(params.SetPriorityEmpty),
+		"created":             netboxapi.FilterStrings(params.SetCreated),
+		"created__n":          netboxapi.FilterStrings(params.SetCreatedn),
+		"created__lt":         netboxapi.FilterStrings(params.SetCreatedLt),
+		"created__lte":        netboxapi.FilterStrings(params.SetCreatedLte),
+		"created__gt":         netboxapi.FilterStrings(params.SetCreatedGt),
+		"created__gte":        netboxapi.FilterStrings(params.SetCreatedGte),
+		"created__empty":      netboxapi.FilterStrings(params.SetCreatedEmpty),
+		"device":              netboxapi.FilterStrings(params.SetDevice),
+		"device_id":           netboxapi.FilterInt64s(params.SetDeviceID),
+		"last_updated":        netboxapi.FilterStrings(params.SetLastUpdated),
+		"last_updated__n":     netboxapi.FilterStrings(params.SetLastUpdatedn),
+		"last_updated__lt":    netboxapi.FilterStrings(params.SetLastUpdatedLt),
+		"last_updated__lte":   netboxapi.FilterStrings(params.SetLastUpdatedLte),
+		"last_updated__gt":    netboxapi.FilterStrings(params.SetLastUpdatedGt),
+		"last_updated__gte":   netboxapi.FilterStrings(params.SetLastUpdatedGte),
+		"last_updated__empty": netboxapi.FilterStrings(params.SetLastUpdatedEmpty),
+		"virtual_machine":     netboxapi.FilterStrings(params.SetVirtualMachine),
+		"virtual_machine_id":  netboxapi.FilterInt64s(params.SetVirtualMachineID),
+	}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
-		switch name {
-		case "id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id' takes an integer, got %q.", value))
-				return
-			}
-			vID = append(vID, v)
-		case "id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__n' takes an integer, got %q.", value))
-				return
-			}
-			vIDn = append(vIDn, v)
-		case "id__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lt' takes an integer, got %q.", value))
-				return
-			}
-			vIDLt = append(vIDLt, v)
-		case "id__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lte' takes an integer, got %q.", value))
-				return
-			}
-			vIDLte = append(vIDLte, v)
-		case "id__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gt' takes an integer, got %q.", value))
-				return
-			}
-			vIDGt = append(vIDGt, v)
-		case "id__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gte' takes an integer, got %q.", value))
-				return
-			}
-			vIDGte = append(vIDGte, v)
-		case "id__empty":
-			if vIDEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'id__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vIDEmpty = &v
-		case "group_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group_id' takes an integer, got %q.", value))
-				return
-			}
-			vGroupID = append(vGroupID, v)
-		case "group_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vGroupIDn = append(vGroupIDn, v)
-		case "interface_type":
-			v := value
-			vInterfaceType = append(vInterfaceType, v)
-		case "interface_type__n":
-			v := value
-			vInterfaceTypen = append(vInterfaceTypen, v)
-		case "interface_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceID = append(vInterfaceID, v)
-		case "interface_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceIDn = append(vInterfaceIDn, v)
-		case "interface_id__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id__lt' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceIDLt = append(vInterfaceIDLt, v)
-		case "interface_id__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id__lte' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceIDLte = append(vInterfaceIDLte, v)
-		case "interface_id__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id__gt' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceIDGt = append(vInterfaceIDGt, v)
-		case "interface_id__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id__gte' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceIDGte = append(vInterfaceIDGte, v)
-		case "interface_id__empty":
-			if vInterfaceIDEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'interface_id__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vInterfaceIDEmpty = &v
-		case "priority":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'priority' takes an integer, got %q.", value))
-				return
-			}
-			vPriority = append(vPriority, v)
-		case "priority__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'priority__n' takes an integer, got %q.", value))
-				return
-			}
-			vPriorityn = append(vPriorityn, v)
-		case "priority__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'priority__lt' takes an integer, got %q.", value))
-				return
-			}
-			vPriorityLt = append(vPriorityLt, v)
-		case "priority__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'priority__lte' takes an integer, got %q.", value))
-				return
-			}
-			vPriorityLte = append(vPriorityLte, v)
-		case "priority__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'priority__gt' takes an integer, got %q.", value))
-				return
-			}
-			vPriorityGt = append(vPriorityGt, v)
-		case "priority__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'priority__gte' takes an integer, got %q.", value))
-				return
-			}
-			vPriorityGte = append(vPriorityGte, v)
-		case "priority__empty":
-			if vPriorityEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'priority__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'priority__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vPriorityEmpty = &v
-		case "created":
-			v := value
-			vCreated = append(vCreated, v)
-		case "created__n":
-			v := value
-			vCreatedn = append(vCreatedn, v)
-		case "created__lt":
-			v := value
-			vCreatedLt = append(vCreatedLt, v)
-		case "created__lte":
-			v := value
-			vCreatedLte = append(vCreatedLte, v)
-		case "created__gt":
-			v := value
-			vCreatedGt = append(vCreatedGt, v)
-		case "created__gte":
-			v := value
-			vCreatedGte = append(vCreatedGte, v)
-		case "created__empty":
-			v := value
-			vCreatedEmpty = append(vCreatedEmpty, v)
-		case "device":
-			v := value
-			vDevice = append(vDevice, v)
-		case "device_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_id' takes an integer, got %q.", value))
-				return
-			}
-			vDeviceID = append(vDeviceID, v)
-		case "last_updated":
-			v := value
-			vLastUpdated = append(vLastUpdated, v)
-		case "last_updated__n":
-			v := value
-			vLastUpdatedn = append(vLastUpdatedn, v)
-		case "last_updated__lt":
-			v := value
-			vLastUpdatedLt = append(vLastUpdatedLt, v)
-		case "last_updated__lte":
-			v := value
-			vLastUpdatedLte = append(vLastUpdatedLte, v)
-		case "last_updated__gt":
-			v := value
-			vLastUpdatedGt = append(vLastUpdatedGt, v)
-		case "last_updated__gte":
-			v := value
-			vLastUpdatedGte = append(vLastUpdatedGte, v)
-		case "last_updated__empty":
-			v := value
-			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
-		case "virtual_machine":
-			v := value
-			vVirtualMachine = append(vVirtualMachine, v)
-		case "virtual_machine_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_id' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualMachineID = append(vVirtualMachineID, v)
-		default:
+		listFilter, ok := listFilters[name]
+		if !ok {
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
 		}
+		if problem := listFilter.Add(name, value); problem != nil {
+			resp.Diagnostics.AddError(problem.Summary, problem.Detail)
+			return
+		}
 	}
-	if len(vID) > 0 {
-		params.SetID(vID)
-	}
-	if len(vIDn) > 0 {
-		params.SetIDn(vIDn)
-	}
-	if len(vIDLt) > 0 {
-		params.SetIDLt(vIDLt)
-	}
-	if len(vIDLte) > 0 {
-		params.SetIDLte(vIDLte)
-	}
-	if len(vIDGt) > 0 {
-		params.SetIDGt(vIDGt)
-	}
-	if len(vIDGte) > 0 {
-		params.SetIDGte(vIDGte)
-	}
-	if vIDEmpty != nil {
-		params.SetIDEmpty(vIDEmpty)
-	}
-	if len(vGroupID) > 0 {
-		params.SetGroupID(vGroupID)
-	}
-	if len(vGroupIDn) > 0 {
-		params.SetGroupIDn(vGroupIDn)
-	}
-	if len(vInterfaceType) > 0 {
-		params.SetInterfaceType(vInterfaceType)
-	}
-	if len(vInterfaceTypen) > 0 {
-		params.SetInterfaceTypen(vInterfaceTypen)
-	}
-	if len(vInterfaceID) > 0 {
-		params.SetInterfaceID(vInterfaceID)
-	}
-	if len(vInterfaceIDn) > 0 {
-		params.SetInterfaceIDn(vInterfaceIDn)
-	}
-	if len(vInterfaceIDLt) > 0 {
-		params.SetInterfaceIDLt(vInterfaceIDLt)
-	}
-	if len(vInterfaceIDLte) > 0 {
-		params.SetInterfaceIDLte(vInterfaceIDLte)
-	}
-	if len(vInterfaceIDGt) > 0 {
-		params.SetInterfaceIDGt(vInterfaceIDGt)
-	}
-	if len(vInterfaceIDGte) > 0 {
-		params.SetInterfaceIDGte(vInterfaceIDGte)
-	}
-	if vInterfaceIDEmpty != nil {
-		params.SetInterfaceIDEmpty(vInterfaceIDEmpty)
-	}
-	if len(vPriority) > 0 {
-		params.SetPriority(vPriority)
-	}
-	if len(vPriorityn) > 0 {
-		params.SetPriorityn(vPriorityn)
-	}
-	if len(vPriorityLt) > 0 {
-		params.SetPriorityLt(vPriorityLt)
-	}
-	if len(vPriorityLte) > 0 {
-		params.SetPriorityLte(vPriorityLte)
-	}
-	if len(vPriorityGt) > 0 {
-		params.SetPriorityGt(vPriorityGt)
-	}
-	if len(vPriorityGte) > 0 {
-		params.SetPriorityGte(vPriorityGte)
-	}
-	if vPriorityEmpty != nil {
-		params.SetPriorityEmpty(vPriorityEmpty)
-	}
-	if len(vCreated) > 0 {
-		params.SetCreated(vCreated)
-	}
-	if len(vCreatedn) > 0 {
-		params.SetCreatedn(vCreatedn)
-	}
-	if len(vCreatedLt) > 0 {
-		params.SetCreatedLt(vCreatedLt)
-	}
-	if len(vCreatedLte) > 0 {
-		params.SetCreatedLte(vCreatedLte)
-	}
-	if len(vCreatedGt) > 0 {
-		params.SetCreatedGt(vCreatedGt)
-	}
-	if len(vCreatedGte) > 0 {
-		params.SetCreatedGte(vCreatedGte)
-	}
-	if len(vCreatedEmpty) > 0 {
-		params.SetCreatedEmpty(vCreatedEmpty)
-	}
-	if len(vDevice) > 0 {
-		params.SetDevice(vDevice)
-	}
-	if len(vDeviceID) > 0 {
-		params.SetDeviceID(vDeviceID)
-	}
-	if len(vLastUpdated) > 0 {
-		params.SetLastUpdated(vLastUpdated)
-	}
-	if len(vLastUpdatedn) > 0 {
-		params.SetLastUpdatedn(vLastUpdatedn)
-	}
-	if len(vLastUpdatedLt) > 0 {
-		params.SetLastUpdatedLt(vLastUpdatedLt)
-	}
-	if len(vLastUpdatedLte) > 0 {
-		params.SetLastUpdatedLte(vLastUpdatedLte)
-	}
-	if len(vLastUpdatedGt) > 0 {
-		params.SetLastUpdatedGt(vLastUpdatedGt)
-	}
-	if len(vLastUpdatedGte) > 0 {
-		params.SetLastUpdatedGte(vLastUpdatedGte)
-	}
-	if len(vLastUpdatedEmpty) > 0 {
-		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
-	}
-	if len(vVirtualMachine) > 0 {
-		params.SetVirtualMachine(vVirtualMachine)
-	}
-	if len(vVirtualMachineID) > 0 {
-		params.SetVirtualMachineID(vVirtualMachineID)
+	for _, listFilter := range listFilters {
+		listFilter.Apply()
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)
