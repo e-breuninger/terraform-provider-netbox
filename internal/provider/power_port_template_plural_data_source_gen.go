@@ -5,7 +5,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/dcim"
@@ -192,813 +191,114 @@ func (d *powerPortTemplatesDataSource) Read(ctx context.Context, req datasource.
 	var responseDTOs []*netboxapi.PowerPortTemplateResponseDTO
 
 	params := dcim.NewDcimPowerPortTemplatesListParams()
-	var vID []int64
-	var vIDn []int64
-	var vIDLt []int64
-	var vIDLte []int64
-	var vIDGt []int64
-	var vIDGte []int64
-	var vIDEmpty *bool
-	var vName []string
-	var vNamen []string
-	var vNameIc []string
-	var vNameNic []string
-	var vNameIe []string
-	var vNameNie []string
-	var vNameIsw []string
-	var vNameNisw []string
-	var vNameIew []string
-	var vNameNiew []string
-	var vNameEmpty *bool
-	var vNameRegex []string
-	var vNameIregex []string
-	var vType *string
-	var vTypen *string
-	var vTypeIc []string
-	var vTypeNic []string
-	var vTypeIe []string
-	var vTypeNie []string
-	var vTypeIsw []string
-	var vTypeNisw []string
-	var vTypeIew []string
-	var vTypeNiew []string
-	var vTypeEmpty *bool
-	var vTypeRegex []string
-	var vTypeIregex []string
-	var vModuleTypeID []int64
-	var vModuleTypeIDn []int64
-	var vAllocatedDraw []int64
-	var vAllocatedDrawn []int64
-	var vAllocatedDrawLt []int64
-	var vAllocatedDrawLte []int64
-	var vAllocatedDrawGt []int64
-	var vAllocatedDrawGte []int64
-	var vAllocatedDrawEmpty *bool
-	var vCreated []string
-	var vCreatedn []string
-	var vCreatedLt []string
-	var vCreatedLte []string
-	var vCreatedGt []string
-	var vCreatedGte []string
-	var vCreatedEmpty []string
-	var vDescription []string
-	var vDescriptionn []string
-	var vDescriptionIc []string
-	var vDescriptionNic []string
-	var vDescriptionIe []string
-	var vDescriptionNie []string
-	var vDescriptionIsw []string
-	var vDescriptionNisw []string
-	var vDescriptionIew []string
-	var vDescriptionNiew []string
-	var vDescriptionEmpty *bool
-	var vDescriptionRegex []string
-	var vDescriptionIregex []string
-	var vDeviceTypeID []int64
-	var vDeviceTypeIDn []int64
-	var vLabel []string
-	var vLabeln []string
-	var vLabelIc []string
-	var vLabelNic []string
-	var vLabelIe []string
-	var vLabelNie []string
-	var vLabelIsw []string
-	var vLabelNisw []string
-	var vLabelIew []string
-	var vLabelNiew []string
-	var vLabelEmpty *bool
-	var vLabelRegex []string
-	var vLabelIregex []string
-	var vLastUpdated []string
-	var vLastUpdatedn []string
-	var vLastUpdatedLt []string
-	var vLastUpdatedLte []string
-	var vLastUpdatedGt []string
-	var vLastUpdatedGte []string
-	var vLastUpdatedEmpty []string
-	var vMaximumDraw []int64
-	var vMaximumDrawn []int64
-	var vMaximumDrawLt []int64
-	var vMaximumDrawLte []int64
-	var vMaximumDrawGt []int64
-	var vMaximumDrawGte []int64
-	var vMaximumDrawEmpty *bool
-	var vQ *string
+	listFilters := map[string]netboxapi.ListFilter{
+		"id":                    netboxapi.FilterInt64s(params.SetID),
+		"id__n":                 netboxapi.FilterInt64s(params.SetIDn),
+		"id__lt":                netboxapi.FilterInt64s(params.SetIDLt),
+		"id__lte":               netboxapi.FilterInt64s(params.SetIDLte),
+		"id__gt":                netboxapi.FilterInt64s(params.SetIDGt),
+		"id__gte":               netboxapi.FilterInt64s(params.SetIDGte),
+		"id__empty":             netboxapi.FilterBool(params.SetIDEmpty),
+		"name":                  netboxapi.FilterStrings(params.SetName),
+		"name__n":               netboxapi.FilterStrings(params.SetNamen),
+		"name__ic":              netboxapi.FilterStrings(params.SetNameIc),
+		"name__nic":             netboxapi.FilterStrings(params.SetNameNic),
+		"name__ie":              netboxapi.FilterStrings(params.SetNameIe),
+		"name__nie":             netboxapi.FilterStrings(params.SetNameNie),
+		"name__isw":             netboxapi.FilterStrings(params.SetNameIsw),
+		"name__nisw":            netboxapi.FilterStrings(params.SetNameNisw),
+		"name__iew":             netboxapi.FilterStrings(params.SetNameIew),
+		"name__niew":            netboxapi.FilterStrings(params.SetNameNiew),
+		"name__empty":           netboxapi.FilterBool(params.SetNameEmpty),
+		"name__regex":           netboxapi.FilterStrings(params.SetNameRegex),
+		"name__iregex":          netboxapi.FilterStrings(params.SetNameIregex),
+		"type":                  netboxapi.FilterString(params.SetType),
+		"type__n":               netboxapi.FilterString(params.SetTypen),
+		"type__ic":              netboxapi.FilterStrings(params.SetTypeIc),
+		"type__nic":             netboxapi.FilterStrings(params.SetTypeNic),
+		"type__ie":              netboxapi.FilterStrings(params.SetTypeIe),
+		"type__nie":             netboxapi.FilterStrings(params.SetTypeNie),
+		"type__isw":             netboxapi.FilterStrings(params.SetTypeIsw),
+		"type__nisw":            netboxapi.FilterStrings(params.SetTypeNisw),
+		"type__iew":             netboxapi.FilterStrings(params.SetTypeIew),
+		"type__niew":            netboxapi.FilterStrings(params.SetTypeNiew),
+		"type__empty":           netboxapi.FilterBool(params.SetTypeEmpty),
+		"type__regex":           netboxapi.FilterStrings(params.SetTypeRegex),
+		"type__iregex":          netboxapi.FilterStrings(params.SetTypeIregex),
+		"module_type_id":        netboxapi.FilterInt64s(params.SetModuleTypeID),
+		"module_type_id__n":     netboxapi.FilterInt64s(params.SetModuleTypeIDn),
+		"allocated_draw":        netboxapi.FilterInt64s(params.SetAllocatedDraw),
+		"allocated_draw__n":     netboxapi.FilterInt64s(params.SetAllocatedDrawn),
+		"allocated_draw__lt":    netboxapi.FilterInt64s(params.SetAllocatedDrawLt),
+		"allocated_draw__lte":   netboxapi.FilterInt64s(params.SetAllocatedDrawLte),
+		"allocated_draw__gt":    netboxapi.FilterInt64s(params.SetAllocatedDrawGt),
+		"allocated_draw__gte":   netboxapi.FilterInt64s(params.SetAllocatedDrawGte),
+		"allocated_draw__empty": netboxapi.FilterBool(params.SetAllocatedDrawEmpty),
+		"created":               netboxapi.FilterStrings(params.SetCreated),
+		"created__n":            netboxapi.FilterStrings(params.SetCreatedn),
+		"created__lt":           netboxapi.FilterStrings(params.SetCreatedLt),
+		"created__lte":          netboxapi.FilterStrings(params.SetCreatedLte),
+		"created__gt":           netboxapi.FilterStrings(params.SetCreatedGt),
+		"created__gte":          netboxapi.FilterStrings(params.SetCreatedGte),
+		"created__empty":        netboxapi.FilterStrings(params.SetCreatedEmpty),
+		"description":           netboxapi.FilterStrings(params.SetDescription),
+		"description__n":        netboxapi.FilterStrings(params.SetDescriptionn),
+		"description__ic":       netboxapi.FilterStrings(params.SetDescriptionIc),
+		"description__nic":      netboxapi.FilterStrings(params.SetDescriptionNic),
+		"description__ie":       netboxapi.FilterStrings(params.SetDescriptionIe),
+		"description__nie":      netboxapi.FilterStrings(params.SetDescriptionNie),
+		"description__isw":      netboxapi.FilterStrings(params.SetDescriptionIsw),
+		"description__nisw":     netboxapi.FilterStrings(params.SetDescriptionNisw),
+		"description__iew":      netboxapi.FilterStrings(params.SetDescriptionIew),
+		"description__niew":     netboxapi.FilterStrings(params.SetDescriptionNiew),
+		"description__empty":    netboxapi.FilterBool(params.SetDescriptionEmpty),
+		"description__regex":    netboxapi.FilterStrings(params.SetDescriptionRegex),
+		"description__iregex":   netboxapi.FilterStrings(params.SetDescriptionIregex),
+		"device_type_id":        netboxapi.FilterInt64s(params.SetDeviceTypeID),
+		"device_type_id__n":     netboxapi.FilterInt64s(params.SetDeviceTypeIDn),
+		"label":                 netboxapi.FilterStrings(params.SetLabel),
+		"label__n":              netboxapi.FilterStrings(params.SetLabeln),
+		"label__ic":             netboxapi.FilterStrings(params.SetLabelIc),
+		"label__nic":            netboxapi.FilterStrings(params.SetLabelNic),
+		"label__ie":             netboxapi.FilterStrings(params.SetLabelIe),
+		"label__nie":            netboxapi.FilterStrings(params.SetLabelNie),
+		"label__isw":            netboxapi.FilterStrings(params.SetLabelIsw),
+		"label__nisw":           netboxapi.FilterStrings(params.SetLabelNisw),
+		"label__iew":            netboxapi.FilterStrings(params.SetLabelIew),
+		"label__niew":           netboxapi.FilterStrings(params.SetLabelNiew),
+		"label__empty":          netboxapi.FilterBool(params.SetLabelEmpty),
+		"label__regex":          netboxapi.FilterStrings(params.SetLabelRegex),
+		"label__iregex":         netboxapi.FilterStrings(params.SetLabelIregex),
+		"last_updated":          netboxapi.FilterStrings(params.SetLastUpdated),
+		"last_updated__n":       netboxapi.FilterStrings(params.SetLastUpdatedn),
+		"last_updated__lt":      netboxapi.FilterStrings(params.SetLastUpdatedLt),
+		"last_updated__lte":     netboxapi.FilterStrings(params.SetLastUpdatedLte),
+		"last_updated__gt":      netboxapi.FilterStrings(params.SetLastUpdatedGt),
+		"last_updated__gte":     netboxapi.FilterStrings(params.SetLastUpdatedGte),
+		"last_updated__empty":   netboxapi.FilterStrings(params.SetLastUpdatedEmpty),
+		"maximum_draw":          netboxapi.FilterInt64s(params.SetMaximumDraw),
+		"maximum_draw__n":       netboxapi.FilterInt64s(params.SetMaximumDrawn),
+		"maximum_draw__lt":      netboxapi.FilterInt64s(params.SetMaximumDrawLt),
+		"maximum_draw__lte":     netboxapi.FilterInt64s(params.SetMaximumDrawLte),
+		"maximum_draw__gt":      netboxapi.FilterInt64s(params.SetMaximumDrawGt),
+		"maximum_draw__gte":     netboxapi.FilterInt64s(params.SetMaximumDrawGte),
+		"maximum_draw__empty":   netboxapi.FilterBool(params.SetMaximumDrawEmpty),
+		"q":                     netboxapi.FilterString(params.SetQ),
+	}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
-		switch name {
-		case "id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id' takes an integer, got %q.", value))
-				return
-			}
-			vID = append(vID, v)
-		case "id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__n' takes an integer, got %q.", value))
-				return
-			}
-			vIDn = append(vIDn, v)
-		case "id__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lt' takes an integer, got %q.", value))
-				return
-			}
-			vIDLt = append(vIDLt, v)
-		case "id__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lte' takes an integer, got %q.", value))
-				return
-			}
-			vIDLte = append(vIDLte, v)
-		case "id__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gt' takes an integer, got %q.", value))
-				return
-			}
-			vIDGt = append(vIDGt, v)
-		case "id__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gte' takes an integer, got %q.", value))
-				return
-			}
-			vIDGte = append(vIDGte, v)
-		case "id__empty":
-			if vIDEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'id__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vIDEmpty = &v
-		case "name":
-			v := value
-			vName = append(vName, v)
-		case "name__n":
-			v := value
-			vNamen = append(vNamen, v)
-		case "name__ic":
-			v := value
-			vNameIc = append(vNameIc, v)
-		case "name__nic":
-			v := value
-			vNameNic = append(vNameNic, v)
-		case "name__ie":
-			v := value
-			vNameIe = append(vNameIe, v)
-		case "name__nie":
-			v := value
-			vNameNie = append(vNameNie, v)
-		case "name__isw":
-			v := value
-			vNameIsw = append(vNameIsw, v)
-		case "name__nisw":
-			v := value
-			vNameNisw = append(vNameNisw, v)
-		case "name__iew":
-			v := value
-			vNameIew = append(vNameIew, v)
-		case "name__niew":
-			v := value
-			vNameNiew = append(vNameNiew, v)
-		case "name__empty":
-			if vNameEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'name__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'name__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vNameEmpty = &v
-		case "name__regex":
-			v := value
-			vNameRegex = append(vNameRegex, v)
-		case "name__iregex":
-			v := value
-			vNameIregex = append(vNameIregex, v)
-		case "type":
-			if vType != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'type' takes a single value.")
-				return
-			}
-			v := value
-			vType = &v
-		case "type__n":
-			if vTypen != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'type__n' takes a single value.")
-				return
-			}
-			v := value
-			vTypen = &v
-		case "type__ic":
-			v := value
-			vTypeIc = append(vTypeIc, v)
-		case "type__nic":
-			v := value
-			vTypeNic = append(vTypeNic, v)
-		case "type__ie":
-			v := value
-			vTypeIe = append(vTypeIe, v)
-		case "type__nie":
-			v := value
-			vTypeNie = append(vTypeNie, v)
-		case "type__isw":
-			v := value
-			vTypeIsw = append(vTypeIsw, v)
-		case "type__nisw":
-			v := value
-			vTypeNisw = append(vTypeNisw, v)
-		case "type__iew":
-			v := value
-			vTypeIew = append(vTypeIew, v)
-		case "type__niew":
-			v := value
-			vTypeNiew = append(vTypeNiew, v)
-		case "type__empty":
-			if vTypeEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'type__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'type__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vTypeEmpty = &v
-		case "type__regex":
-			v := value
-			vTypeRegex = append(vTypeRegex, v)
-		case "type__iregex":
-			v := value
-			vTypeIregex = append(vTypeIregex, v)
-		case "module_type_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'module_type_id' takes an integer, got %q.", value))
-				return
-			}
-			vModuleTypeID = append(vModuleTypeID, v)
-		case "module_type_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'module_type_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vModuleTypeIDn = append(vModuleTypeIDn, v)
-		case "allocated_draw":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'allocated_draw' takes an integer, got %q.", value))
-				return
-			}
-			vAllocatedDraw = append(vAllocatedDraw, v)
-		case "allocated_draw__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'allocated_draw__n' takes an integer, got %q.", value))
-				return
-			}
-			vAllocatedDrawn = append(vAllocatedDrawn, v)
-		case "allocated_draw__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'allocated_draw__lt' takes an integer, got %q.", value))
-				return
-			}
-			vAllocatedDrawLt = append(vAllocatedDrawLt, v)
-		case "allocated_draw__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'allocated_draw__lte' takes an integer, got %q.", value))
-				return
-			}
-			vAllocatedDrawLte = append(vAllocatedDrawLte, v)
-		case "allocated_draw__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'allocated_draw__gt' takes an integer, got %q.", value))
-				return
-			}
-			vAllocatedDrawGt = append(vAllocatedDrawGt, v)
-		case "allocated_draw__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'allocated_draw__gte' takes an integer, got %q.", value))
-				return
-			}
-			vAllocatedDrawGte = append(vAllocatedDrawGte, v)
-		case "allocated_draw__empty":
-			if vAllocatedDrawEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'allocated_draw__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'allocated_draw__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vAllocatedDrawEmpty = &v
-		case "created":
-			v := value
-			vCreated = append(vCreated, v)
-		case "created__n":
-			v := value
-			vCreatedn = append(vCreatedn, v)
-		case "created__lt":
-			v := value
-			vCreatedLt = append(vCreatedLt, v)
-		case "created__lte":
-			v := value
-			vCreatedLte = append(vCreatedLte, v)
-		case "created__gt":
-			v := value
-			vCreatedGt = append(vCreatedGt, v)
-		case "created__gte":
-			v := value
-			vCreatedGte = append(vCreatedGte, v)
-		case "created__empty":
-			v := value
-			vCreatedEmpty = append(vCreatedEmpty, v)
-		case "description":
-			v := value
-			vDescription = append(vDescription, v)
-		case "description__n":
-			v := value
-			vDescriptionn = append(vDescriptionn, v)
-		case "description__ic":
-			v := value
-			vDescriptionIc = append(vDescriptionIc, v)
-		case "description__nic":
-			v := value
-			vDescriptionNic = append(vDescriptionNic, v)
-		case "description__ie":
-			v := value
-			vDescriptionIe = append(vDescriptionIe, v)
-		case "description__nie":
-			v := value
-			vDescriptionNie = append(vDescriptionNie, v)
-		case "description__isw":
-			v := value
-			vDescriptionIsw = append(vDescriptionIsw, v)
-		case "description__nisw":
-			v := value
-			vDescriptionNisw = append(vDescriptionNisw, v)
-		case "description__iew":
-			v := value
-			vDescriptionIew = append(vDescriptionIew, v)
-		case "description__niew":
-			v := value
-			vDescriptionNiew = append(vDescriptionNiew, v)
-		case "description__empty":
-			if vDescriptionEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vDescriptionEmpty = &v
-		case "description__regex":
-			v := value
-			vDescriptionRegex = append(vDescriptionRegex, v)
-		case "description__iregex":
-			v := value
-			vDescriptionIregex = append(vDescriptionIregex, v)
-		case "device_type_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_type_id' takes an integer, got %q.", value))
-				return
-			}
-			vDeviceTypeID = append(vDeviceTypeID, v)
-		case "device_type_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_type_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vDeviceTypeIDn = append(vDeviceTypeIDn, v)
-		case "label":
-			v := value
-			vLabel = append(vLabel, v)
-		case "label__n":
-			v := value
-			vLabeln = append(vLabeln, v)
-		case "label__ic":
-			v := value
-			vLabelIc = append(vLabelIc, v)
-		case "label__nic":
-			v := value
-			vLabelNic = append(vLabelNic, v)
-		case "label__ie":
-			v := value
-			vLabelIe = append(vLabelIe, v)
-		case "label__nie":
-			v := value
-			vLabelNie = append(vLabelNie, v)
-		case "label__isw":
-			v := value
-			vLabelIsw = append(vLabelIsw, v)
-		case "label__nisw":
-			v := value
-			vLabelNisw = append(vLabelNisw, v)
-		case "label__iew":
-			v := value
-			vLabelIew = append(vLabelIew, v)
-		case "label__niew":
-			v := value
-			vLabelNiew = append(vLabelNiew, v)
-		case "label__empty":
-			if vLabelEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'label__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'label__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vLabelEmpty = &v
-		case "label__regex":
-			v := value
-			vLabelRegex = append(vLabelRegex, v)
-		case "label__iregex":
-			v := value
-			vLabelIregex = append(vLabelIregex, v)
-		case "last_updated":
-			v := value
-			vLastUpdated = append(vLastUpdated, v)
-		case "last_updated__n":
-			v := value
-			vLastUpdatedn = append(vLastUpdatedn, v)
-		case "last_updated__lt":
-			v := value
-			vLastUpdatedLt = append(vLastUpdatedLt, v)
-		case "last_updated__lte":
-			v := value
-			vLastUpdatedLte = append(vLastUpdatedLte, v)
-		case "last_updated__gt":
-			v := value
-			vLastUpdatedGt = append(vLastUpdatedGt, v)
-		case "last_updated__gte":
-			v := value
-			vLastUpdatedGte = append(vLastUpdatedGte, v)
-		case "last_updated__empty":
-			v := value
-			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
-		case "maximum_draw":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'maximum_draw' takes an integer, got %q.", value))
-				return
-			}
-			vMaximumDraw = append(vMaximumDraw, v)
-		case "maximum_draw__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'maximum_draw__n' takes an integer, got %q.", value))
-				return
-			}
-			vMaximumDrawn = append(vMaximumDrawn, v)
-		case "maximum_draw__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'maximum_draw__lt' takes an integer, got %q.", value))
-				return
-			}
-			vMaximumDrawLt = append(vMaximumDrawLt, v)
-		case "maximum_draw__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'maximum_draw__lte' takes an integer, got %q.", value))
-				return
-			}
-			vMaximumDrawLte = append(vMaximumDrawLte, v)
-		case "maximum_draw__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'maximum_draw__gt' takes an integer, got %q.", value))
-				return
-			}
-			vMaximumDrawGt = append(vMaximumDrawGt, v)
-		case "maximum_draw__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'maximum_draw__gte' takes an integer, got %q.", value))
-				return
-			}
-			vMaximumDrawGte = append(vMaximumDrawGte, v)
-		case "maximum_draw__empty":
-			if vMaximumDrawEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'maximum_draw__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'maximum_draw__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vMaximumDrawEmpty = &v
-		case "q":
-			if vQ != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
-				return
-			}
-			v := value
-			vQ = &v
-		default:
+		listFilter, ok := listFilters[name]
+		if !ok {
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
 		}
-	}
-	if len(vID) > 0 {
-		params.SetID(vID)
-	}
-	if len(vIDn) > 0 {
-		params.SetIDn(vIDn)
-	}
-	if len(vIDLt) > 0 {
-		params.SetIDLt(vIDLt)
-	}
-	if len(vIDLte) > 0 {
-		params.SetIDLte(vIDLte)
-	}
-	if len(vIDGt) > 0 {
-		params.SetIDGt(vIDGt)
-	}
-	if len(vIDGte) > 0 {
-		params.SetIDGte(vIDGte)
-	}
-	if vIDEmpty != nil {
-		params.SetIDEmpty(vIDEmpty)
-	}
-	if len(vName) > 0 {
-		params.SetName(vName)
-	}
-	if len(vNamen) > 0 {
-		params.SetNamen(vNamen)
-	}
-	if len(vNameIc) > 0 {
-		params.SetNameIc(vNameIc)
-	}
-	if len(vNameNic) > 0 {
-		params.SetNameNic(vNameNic)
-	}
-	if len(vNameIe) > 0 {
-		params.SetNameIe(vNameIe)
-	}
-	if len(vNameNie) > 0 {
-		params.SetNameNie(vNameNie)
-	}
-	if len(vNameIsw) > 0 {
-		params.SetNameIsw(vNameIsw)
-	}
-	if len(vNameNisw) > 0 {
-		params.SetNameNisw(vNameNisw)
-	}
-	if len(vNameIew) > 0 {
-		params.SetNameIew(vNameIew)
-	}
-	if len(vNameNiew) > 0 {
-		params.SetNameNiew(vNameNiew)
-	}
-	if vNameEmpty != nil {
-		params.SetNameEmpty(vNameEmpty)
-	}
-	if len(vNameRegex) > 0 {
-		params.SetNameRegex(vNameRegex)
-	}
-	if len(vNameIregex) > 0 {
-		params.SetNameIregex(vNameIregex)
-	}
-	if vType != nil {
-		params.SetType(vType)
-	}
-	if vTypen != nil {
-		params.SetTypen(vTypen)
-	}
-	if len(vTypeIc) > 0 {
-		params.SetTypeIc(vTypeIc)
-	}
-	if len(vTypeNic) > 0 {
-		params.SetTypeNic(vTypeNic)
-	}
-	if len(vTypeIe) > 0 {
-		params.SetTypeIe(vTypeIe)
-	}
-	if len(vTypeNie) > 0 {
-		params.SetTypeNie(vTypeNie)
-	}
-	if len(vTypeIsw) > 0 {
-		params.SetTypeIsw(vTypeIsw)
-	}
-	if len(vTypeNisw) > 0 {
-		params.SetTypeNisw(vTypeNisw)
-	}
-	if len(vTypeIew) > 0 {
-		params.SetTypeIew(vTypeIew)
-	}
-	if len(vTypeNiew) > 0 {
-		params.SetTypeNiew(vTypeNiew)
-	}
-	if vTypeEmpty != nil {
-		params.SetTypeEmpty(vTypeEmpty)
-	}
-	if len(vTypeRegex) > 0 {
-		params.SetTypeRegex(vTypeRegex)
-	}
-	if len(vTypeIregex) > 0 {
-		params.SetTypeIregex(vTypeIregex)
-	}
-	if len(vModuleTypeID) > 0 {
-		params.SetModuleTypeID(vModuleTypeID)
-	}
-	if len(vModuleTypeIDn) > 0 {
-		params.SetModuleTypeIDn(vModuleTypeIDn)
-	}
-	if len(vAllocatedDraw) > 0 {
-		params.SetAllocatedDraw(vAllocatedDraw)
-	}
-	if len(vAllocatedDrawn) > 0 {
-		params.SetAllocatedDrawn(vAllocatedDrawn)
-	}
-	if len(vAllocatedDrawLt) > 0 {
-		params.SetAllocatedDrawLt(vAllocatedDrawLt)
-	}
-	if len(vAllocatedDrawLte) > 0 {
-		params.SetAllocatedDrawLte(vAllocatedDrawLte)
-	}
-	if len(vAllocatedDrawGt) > 0 {
-		params.SetAllocatedDrawGt(vAllocatedDrawGt)
-	}
-	if len(vAllocatedDrawGte) > 0 {
-		params.SetAllocatedDrawGte(vAllocatedDrawGte)
-	}
-	if vAllocatedDrawEmpty != nil {
-		params.SetAllocatedDrawEmpty(vAllocatedDrawEmpty)
-	}
-	if len(vCreated) > 0 {
-		params.SetCreated(vCreated)
-	}
-	if len(vCreatedn) > 0 {
-		params.SetCreatedn(vCreatedn)
-	}
-	if len(vCreatedLt) > 0 {
-		params.SetCreatedLt(vCreatedLt)
-	}
-	if len(vCreatedLte) > 0 {
-		params.SetCreatedLte(vCreatedLte)
-	}
-	if len(vCreatedGt) > 0 {
-		params.SetCreatedGt(vCreatedGt)
-	}
-	if len(vCreatedGte) > 0 {
-		params.SetCreatedGte(vCreatedGte)
-	}
-	if len(vCreatedEmpty) > 0 {
-		params.SetCreatedEmpty(vCreatedEmpty)
-	}
-	if len(vDescription) > 0 {
-		params.SetDescription(vDescription)
-	}
-	if len(vDescriptionn) > 0 {
-		params.SetDescriptionn(vDescriptionn)
-	}
-	if len(vDescriptionIc) > 0 {
-		params.SetDescriptionIc(vDescriptionIc)
-	}
-	if len(vDescriptionNic) > 0 {
-		params.SetDescriptionNic(vDescriptionNic)
-	}
-	if len(vDescriptionIe) > 0 {
-		params.SetDescriptionIe(vDescriptionIe)
-	}
-	if len(vDescriptionNie) > 0 {
-		params.SetDescriptionNie(vDescriptionNie)
-	}
-	if len(vDescriptionIsw) > 0 {
-		params.SetDescriptionIsw(vDescriptionIsw)
-	}
-	if len(vDescriptionNisw) > 0 {
-		params.SetDescriptionNisw(vDescriptionNisw)
-	}
-	if len(vDescriptionIew) > 0 {
-		params.SetDescriptionIew(vDescriptionIew)
-	}
-	if len(vDescriptionNiew) > 0 {
-		params.SetDescriptionNiew(vDescriptionNiew)
-	}
-	if vDescriptionEmpty != nil {
-		params.SetDescriptionEmpty(vDescriptionEmpty)
-	}
-	if len(vDescriptionRegex) > 0 {
-		params.SetDescriptionRegex(vDescriptionRegex)
-	}
-	if len(vDescriptionIregex) > 0 {
-		params.SetDescriptionIregex(vDescriptionIregex)
-	}
-	if len(vDeviceTypeID) > 0 {
-		params.SetDeviceTypeID(vDeviceTypeID)
-	}
-	if len(vDeviceTypeIDn) > 0 {
-		params.SetDeviceTypeIDn(vDeviceTypeIDn)
-	}
-	if len(vLabel) > 0 {
-		params.SetLabel(vLabel)
-	}
-	if len(vLabeln) > 0 {
-		params.SetLabeln(vLabeln)
-	}
-	if len(vLabelIc) > 0 {
-		params.SetLabelIc(vLabelIc)
-	}
-	if len(vLabelNic) > 0 {
-		params.SetLabelNic(vLabelNic)
-	}
-	if len(vLabelIe) > 0 {
-		params.SetLabelIe(vLabelIe)
-	}
-	if len(vLabelNie) > 0 {
-		params.SetLabelNie(vLabelNie)
-	}
-	if len(vLabelIsw) > 0 {
-		params.SetLabelIsw(vLabelIsw)
-	}
-	if len(vLabelNisw) > 0 {
-		params.SetLabelNisw(vLabelNisw)
-	}
-	if len(vLabelIew) > 0 {
-		params.SetLabelIew(vLabelIew)
-	}
-	if len(vLabelNiew) > 0 {
-		params.SetLabelNiew(vLabelNiew)
-	}
-	if vLabelEmpty != nil {
-		params.SetLabelEmpty(vLabelEmpty)
-	}
-	if len(vLabelRegex) > 0 {
-		params.SetLabelRegex(vLabelRegex)
-	}
-	if len(vLabelIregex) > 0 {
-		params.SetLabelIregex(vLabelIregex)
-	}
-	if len(vLastUpdated) > 0 {
-		params.SetLastUpdated(vLastUpdated)
-	}
-	if len(vLastUpdatedn) > 0 {
-		params.SetLastUpdatedn(vLastUpdatedn)
-	}
-	if len(vLastUpdatedLt) > 0 {
-		params.SetLastUpdatedLt(vLastUpdatedLt)
-	}
-	if len(vLastUpdatedLte) > 0 {
-		params.SetLastUpdatedLte(vLastUpdatedLte)
-	}
-	if len(vLastUpdatedGt) > 0 {
-		params.SetLastUpdatedGt(vLastUpdatedGt)
-	}
-	if len(vLastUpdatedGte) > 0 {
-		params.SetLastUpdatedGte(vLastUpdatedGte)
-	}
-	if len(vLastUpdatedEmpty) > 0 {
-		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
-	}
-	if len(vMaximumDraw) > 0 {
-		params.SetMaximumDraw(vMaximumDraw)
-	}
-	if len(vMaximumDrawn) > 0 {
-		params.SetMaximumDrawn(vMaximumDrawn)
-	}
-	if len(vMaximumDrawLt) > 0 {
-		params.SetMaximumDrawLt(vMaximumDrawLt)
-	}
-	if len(vMaximumDrawLte) > 0 {
-		params.SetMaximumDrawLte(vMaximumDrawLte)
-	}
-	if len(vMaximumDrawGt) > 0 {
-		params.SetMaximumDrawGt(vMaximumDrawGt)
-	}
-	if len(vMaximumDrawGte) > 0 {
-		params.SetMaximumDrawGte(vMaximumDrawGte)
-	}
-	if vMaximumDrawEmpty != nil {
-		params.SetMaximumDrawEmpty(vMaximumDrawEmpty)
-	}
-	if vQ != nil {
-		params.SetQ(vQ)
+		if problem := listFilter.Add(name, value); problem != nil {
+			resp.Diagnostics.AddError(problem.Summary, problem.Detail)
+			return
+		}
+	}
+	for _, listFilter := range listFilters {
+		listFilter.Apply()
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)

@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/conv"
@@ -285,149 +284,151 @@ func (d *ipAddressesDataSource) Read(ctx context.Context, req datasource.ReadReq
 	var responseDTOs []*netboxapi.IPAddressResponseDTO
 
 	params := ipam.NewIpamIPAddressesListParams()
-	var vID []int64
-	var vIDn []int64
-	var vIDLt []int64
-	var vIDLte []int64
-	var vIDGt []int64
-	var vIDGte []int64
-	var vIDEmpty *bool
-	var vAddress []string
-	var vDNSName []string
-	var vDNSNamen []string
-	var vDNSNameIc []string
-	var vDNSNameNic []string
-	var vDNSNameIe []string
-	var vDNSNameNie []string
-	var vDNSNameIsw []string
-	var vDNSNameNisw []string
-	var vDNSNameIew []string
-	var vDNSNameNiew []string
-	var vDNSNameEmpty *bool
-	var vDNSNameRegex []string
-	var vDNSNameIregex []string
-	var vVrfID []int64
-	var vVrfIDn []int64
-	var vTenantID []int64
-	var vTenantIDn []int64
-	var vDevice []string
-	var vInterfaceID []int64
-	var vInterfaceIDn []int64
-	var vStatus []string
-	var vStatusn []string
-	var vStatusIc []string
-	var vStatusNic []string
-	var vStatusIe []string
-	var vStatusNie []string
-	var vStatusIsw []string
-	var vStatusNisw []string
-	var vStatusIew []string
-	var vStatusNiew []string
-	var vStatusEmpty *bool
-	var vStatusRegex []string
-	var vStatusIregex []string
-	var vRole []string
-	var vRolen []string
-	var vRoleIc []string
-	var vRoleNic []string
-	var vRoleIe []string
-	var vRoleNie []string
-	var vRoleIsw []string
-	var vRoleNisw []string
-	var vRoleIew []string
-	var vRoleNiew []string
-	var vRoleEmpty *bool
-	var vRoleRegex []string
-	var vRoleIregex []string
-	var vDescription []string
-	var vDescriptionn []string
-	var vDescriptionIc []string
-	var vDescriptionNic []string
-	var vDescriptionIe []string
-	var vDescriptionNie []string
-	var vDescriptionIsw []string
-	var vDescriptionNisw []string
-	var vDescriptionIew []string
-	var vDescriptionNiew []string
-	var vDescriptionEmpty *bool
-	var vDescriptionRegex []string
-	var vDescriptionIregex []string
-	var vVminterfaceID []int64
-	var vVminterfaceIDn []int64
-	var vDeviceID []int64
-	var vParent []string
-	var vTenant []string
-	var vTenantn []string
-	var vVrf []string
-	var vVrfn []string
-	var vOwnerID []int64
-	var vOwnerIDn []int64
-	var vTag []string
-	var vTagn []string
-	var vTagAny []string
-	var vAssigned *bool
-	var vAssignedObjectID []int64
-	var vAssignedObjectIDn []int64
-	var vAssignedObjectIDLt []int64
-	var vAssignedObjectIDLte []int64
-	var vAssignedObjectIDGt []int64
-	var vAssignedObjectIDGte []int64
-	var vAssignedObjectIDEmpty *bool
-	var vAssignedObjectType []string
-	var vAssignedObjectTypen []string
-	var vAssignedToInterface *bool
-	var vContact []int64
-	var vContactn []int64
-	var vContactGroup []string
-	var vContactGroupn []string
-	var vContactRole []int64
-	var vContactRolen []int64
-	var vCreated []string
-	var vCreatedn []string
-	var vCreatedLt []string
-	var vCreatedLte []string
-	var vCreatedGt []string
-	var vCreatedGte []string
-	var vCreatedEmpty []string
-	var vFamily *float64
-	var vFhrpgroupID []int64
-	var vFhrpgroupIDn []int64
-	var vInterface []string
-	var vInterfacen []string
-	var vLastUpdated []string
-	var vLastUpdatedn []string
-	var vLastUpdatedLt []string
-	var vLastUpdatedLte []string
-	var vLastUpdatedGt []string
-	var vLastUpdatedGte []string
-	var vLastUpdatedEmpty []string
-	var vMaskLengthGte *float64
-	var vMaskLengthLte *float64
-	var vMaskLength []int64
-	var vNatInsideID []int64
-	var vNatInsideIDn []int64
-	var vOwner []string
-	var vOwnern []string
-	var vOwnerGroup []string
-	var vOwnerGroupn []string
-	var vOwnerGroupID []int64
-	var vOwnerGroupIDn []int64
-	var vPresentInVrf *string
-	var vPresentInVrfID *string
-	var vQ *string
-	var vServiceID []int64
-	var vServiceIDn []int64
-	var vTagID []int64
-	var vTagIDn []int64
-	var vTagIDAny []int64
-	var vTenantGroup []string
-	var vTenantGroupn []string
-	var vTenantGroupID []string
-	var vTenantGroupIDn []string
-	var vVirtualMachine []string
-	var vVirtualMachineID []int64
-	var vVminterface []string
-	var vVminterfacen []string
+	listFilters := map[string]netboxapi.ListFilter{
+		"id":                        netboxapi.FilterInt64s(params.SetID),
+		"id__n":                     netboxapi.FilterInt64s(params.SetIDn),
+		"id__lt":                    netboxapi.FilterInt64s(params.SetIDLt),
+		"id__lte":                   netboxapi.FilterInt64s(params.SetIDLte),
+		"id__gt":                    netboxapi.FilterInt64s(params.SetIDGt),
+		"id__gte":                   netboxapi.FilterInt64s(params.SetIDGte),
+		"id__empty":                 netboxapi.FilterBool(params.SetIDEmpty),
+		"address":                   netboxapi.FilterStrings(params.SetAddress),
+		"dns_name":                  netboxapi.FilterStrings(params.SetDNSName),
+		"dns_name__n":               netboxapi.FilterStrings(params.SetDNSNamen),
+		"dns_name__ic":              netboxapi.FilterStrings(params.SetDNSNameIc),
+		"dns_name__nic":             netboxapi.FilterStrings(params.SetDNSNameNic),
+		"dns_name__ie":              netboxapi.FilterStrings(params.SetDNSNameIe),
+		"dns_name__nie":             netboxapi.FilterStrings(params.SetDNSNameNie),
+		"dns_name__isw":             netboxapi.FilterStrings(params.SetDNSNameIsw),
+		"dns_name__nisw":            netboxapi.FilterStrings(params.SetDNSNameNisw),
+		"dns_name__iew":             netboxapi.FilterStrings(params.SetDNSNameIew),
+		"dns_name__niew":            netboxapi.FilterStrings(params.SetDNSNameNiew),
+		"dns_name__empty":           netboxapi.FilterBool(params.SetDNSNameEmpty),
+		"dns_name__regex":           netboxapi.FilterStrings(params.SetDNSNameRegex),
+		"dns_name__iregex":          netboxapi.FilterStrings(params.SetDNSNameIregex),
+		"vrf_id":                    netboxapi.FilterInt64s(params.SetVrfID),
+		"vrf_id__n":                 netboxapi.FilterInt64s(params.SetVrfIDn),
+		"tenant_id":                 netboxapi.FilterInt64s(params.SetTenantID),
+		"tenant_id__n":              netboxapi.FilterInt64s(params.SetTenantIDn),
+		"device":                    netboxapi.FilterStrings(params.SetDevice),
+		"interface_id":              netboxapi.FilterInt64s(params.SetInterfaceID),
+		"interface_id__n":           netboxapi.FilterInt64s(params.SetInterfaceIDn),
+		"status":                    netboxapi.FilterStrings(params.SetStatus),
+		"status__n":                 netboxapi.FilterStrings(params.SetStatusn),
+		"status__ic":                netboxapi.FilterStrings(params.SetStatusIc),
+		"status__nic":               netboxapi.FilterStrings(params.SetStatusNic),
+		"status__ie":                netboxapi.FilterStrings(params.SetStatusIe),
+		"status__nie":               netboxapi.FilterStrings(params.SetStatusNie),
+		"status__isw":               netboxapi.FilterStrings(params.SetStatusIsw),
+		"status__nisw":              netboxapi.FilterStrings(params.SetStatusNisw),
+		"status__iew":               netboxapi.FilterStrings(params.SetStatusIew),
+		"status__niew":              netboxapi.FilterStrings(params.SetStatusNiew),
+		"status__empty":             netboxapi.FilterBool(params.SetStatusEmpty),
+		"status__regex":             netboxapi.FilterStrings(params.SetStatusRegex),
+		"status__iregex":            netboxapi.FilterStrings(params.SetStatusIregex),
+		"role":                      netboxapi.FilterStrings(params.SetRole),
+		"role__n":                   netboxapi.FilterStrings(params.SetRolen),
+		"role__ic":                  netboxapi.FilterStrings(params.SetRoleIc),
+		"role__nic":                 netboxapi.FilterStrings(params.SetRoleNic),
+		"role__ie":                  netboxapi.FilterStrings(params.SetRoleIe),
+		"role__nie":                 netboxapi.FilterStrings(params.SetRoleNie),
+		"role__isw":                 netboxapi.FilterStrings(params.SetRoleIsw),
+		"role__nisw":                netboxapi.FilterStrings(params.SetRoleNisw),
+		"role__iew":                 netboxapi.FilterStrings(params.SetRoleIew),
+		"role__niew":                netboxapi.FilterStrings(params.SetRoleNiew),
+		"role__empty":               netboxapi.FilterBool(params.SetRoleEmpty),
+		"role__regex":               netboxapi.FilterStrings(params.SetRoleRegex),
+		"role__iregex":              netboxapi.FilterStrings(params.SetRoleIregex),
+		"description":               netboxapi.FilterStrings(params.SetDescription),
+		"description__n":            netboxapi.FilterStrings(params.SetDescriptionn),
+		"description__ic":           netboxapi.FilterStrings(params.SetDescriptionIc),
+		"description__nic":          netboxapi.FilterStrings(params.SetDescriptionNic),
+		"description__ie":           netboxapi.FilterStrings(params.SetDescriptionIe),
+		"description__nie":          netboxapi.FilterStrings(params.SetDescriptionNie),
+		"description__isw":          netboxapi.FilterStrings(params.SetDescriptionIsw),
+		"description__nisw":         netboxapi.FilterStrings(params.SetDescriptionNisw),
+		"description__iew":          netboxapi.FilterStrings(params.SetDescriptionIew),
+		"description__niew":         netboxapi.FilterStrings(params.SetDescriptionNiew),
+		"description__empty":        netboxapi.FilterBool(params.SetDescriptionEmpty),
+		"description__regex":        netboxapi.FilterStrings(params.SetDescriptionRegex),
+		"description__iregex":       netboxapi.FilterStrings(params.SetDescriptionIregex),
+		"vminterface_id":            netboxapi.FilterInt64s(params.SetVminterfaceID),
+		"vminterface_id__n":         netboxapi.FilterInt64s(params.SetVminterfaceIDn),
+		"device_id":                 netboxapi.FilterInt64s(params.SetDeviceID),
+		"parent":                    netboxapi.FilterStrings(params.SetParent),
+		"tenant":                    netboxapi.FilterStrings(params.SetTenant),
+		"tenant__n":                 netboxapi.FilterStrings(params.SetTenantn),
+		"vrf":                       netboxapi.FilterStrings(params.SetVrf),
+		"vrf__n":                    netboxapi.FilterStrings(params.SetVrfn),
+		"owner_id":                  netboxapi.FilterInt64s(params.SetOwnerID),
+		"owner_id__n":               netboxapi.FilterInt64s(params.SetOwnerIDn),
+		"tag":                       netboxapi.FilterStrings(params.SetTag),
+		"tag__n":                    netboxapi.FilterStrings(params.SetTagn),
+		"tag__any":                  netboxapi.FilterStrings(params.SetTagAny),
+		"assigned":                  netboxapi.FilterBool(params.SetAssigned),
+		"assigned_object_id":        netboxapi.FilterInt64s(params.SetAssignedObjectID),
+		"assigned_object_id__n":     netboxapi.FilterInt64s(params.SetAssignedObjectIDn),
+		"assigned_object_id__lt":    netboxapi.FilterInt64s(params.SetAssignedObjectIDLt),
+		"assigned_object_id__lte":   netboxapi.FilterInt64s(params.SetAssignedObjectIDLte),
+		"assigned_object_id__gt":    netboxapi.FilterInt64s(params.SetAssignedObjectIDGt),
+		"assigned_object_id__gte":   netboxapi.FilterInt64s(params.SetAssignedObjectIDGte),
+		"assigned_object_id__empty": netboxapi.FilterBool(params.SetAssignedObjectIDEmpty),
+		"assigned_object_type":      netboxapi.FilterStrings(params.SetAssignedObjectType),
+		"assigned_object_type__n":   netboxapi.FilterStrings(params.SetAssignedObjectTypen),
+		"assigned_to_interface":     netboxapi.FilterBool(params.SetAssignedToInterface),
+		"contact":                   netboxapi.FilterInt64s(params.SetContact),
+		"contact__n":                netboxapi.FilterInt64s(params.SetContactn),
+		"contact_group":             netboxapi.FilterStrings(params.SetContactGroup),
+		"contact_group__n":          netboxapi.FilterStrings(params.SetContactGroupn),
+		"contact_role":              netboxapi.FilterInt64s(params.SetContactRole),
+		"contact_role__n":           netboxapi.FilterInt64s(params.SetContactRolen),
+		"created":                   netboxapi.FilterStrings(params.SetCreated),
+		"created__n":                netboxapi.FilterStrings(params.SetCreatedn),
+		"created__lt":               netboxapi.FilterStrings(params.SetCreatedLt),
+		"created__lte":              netboxapi.FilterStrings(params.SetCreatedLte),
+		"created__gt":               netboxapi.FilterStrings(params.SetCreatedGt),
+		"created__gte":              netboxapi.FilterStrings(params.SetCreatedGte),
+		"created__empty":            netboxapi.FilterStrings(params.SetCreatedEmpty),
+		"family":                    netboxapi.FilterFloat64(params.SetFamily),
+		"fhrpgroup_id":              netboxapi.FilterInt64s(params.SetFhrpgroupID),
+		"fhrpgroup_id__n":           netboxapi.FilterInt64s(params.SetFhrpgroupIDn),
+		"interface":                 netboxapi.FilterStrings(params.SetInterface),
+		"interface__n":              netboxapi.FilterStrings(params.SetInterfacen),
+		"last_updated":              netboxapi.FilterStrings(params.SetLastUpdated),
+		"last_updated__n":           netboxapi.FilterStrings(params.SetLastUpdatedn),
+		"last_updated__lt":          netboxapi.FilterStrings(params.SetLastUpdatedLt),
+		"last_updated__lte":         netboxapi.FilterStrings(params.SetLastUpdatedLte),
+		"last_updated__gt":          netboxapi.FilterStrings(params.SetLastUpdatedGt),
+		"last_updated__gte":         netboxapi.FilterStrings(params.SetLastUpdatedGte),
+		"last_updated__empty":       netboxapi.FilterStrings(params.SetLastUpdatedEmpty),
+		"mask_length__gte":          netboxapi.FilterFloat64(params.SetMaskLengthGte),
+		"mask_length__lte":          netboxapi.FilterFloat64(params.SetMaskLengthLte),
+		"mask_length":               netboxapi.FilterInt64s(params.SetMaskLength),
+		"nat_inside_id":             netboxapi.FilterInt64s(params.SetNatInsideID),
+		"nat_inside_id__n":          netboxapi.FilterInt64s(params.SetNatInsideIDn),
+		"owner":                     netboxapi.FilterStrings(params.SetOwner),
+		"owner__n":                  netboxapi.FilterStrings(params.SetOwnern),
+		"owner_group":               netboxapi.FilterStrings(params.SetOwnerGroup),
+		"owner_group__n":            netboxapi.FilterStrings(params.SetOwnerGroupn),
+		"owner_group_id":            netboxapi.FilterInt64s(params.SetOwnerGroupID),
+		"owner_group_id__n":         netboxapi.FilterInt64s(params.SetOwnerGroupIDn),
+		"present_in_vrf":            netboxapi.FilterString(params.SetPresentInVrf),
+		"present_in_vrf_id":         netboxapi.FilterString(params.SetPresentInVrfID),
+		"q":                         netboxapi.FilterString(params.SetQ),
+		"service_id":                netboxapi.FilterInt64s(params.SetServiceID),
+		"service_id__n":             netboxapi.FilterInt64s(params.SetServiceIDn),
+		"tag_id":                    netboxapi.FilterInt64s(params.SetTagID),
+		"tag_id__n":                 netboxapi.FilterInt64s(params.SetTagIDn),
+		"tag_id__any":               netboxapi.FilterInt64s(params.SetTagIDAny),
+		"tenant_group":              netboxapi.FilterStrings(params.SetTenantGroup),
+		"tenant_group__n":           netboxapi.FilterStrings(params.SetTenantGroupn),
+		"tenant_group_id":           netboxapi.FilterStrings(params.SetTenantGroupID),
+		"tenant_group_id__n":        netboxapi.FilterStrings(params.SetTenantGroupIDn),
+		"virtual_machine":           netboxapi.FilterStrings(params.SetVirtualMachine),
+		"virtual_machine_id":        netboxapi.FilterInt64s(params.SetVirtualMachineID),
+		"vminterface":               netboxapi.FilterStrings(params.SetVminterface),
+		"vminterface__n":            netboxapi.FilterStrings(params.SetVminterfacen),
+	}
 	customFieldQuery := url.Values{}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
@@ -437,1129 +438,18 @@ func (d *ipAddressesDataSource) Read(ctx context.Context, req datasource.ReadReq
 			customFieldQuery.Add(name, value)
 			continue
 		}
-		switch name {
-		case "id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id' takes an integer, got %q.", value))
-				return
-			}
-			vID = append(vID, v)
-		case "id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__n' takes an integer, got %q.", value))
-				return
-			}
-			vIDn = append(vIDn, v)
-		case "id__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lt' takes an integer, got %q.", value))
-				return
-			}
-			vIDLt = append(vIDLt, v)
-		case "id__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lte' takes an integer, got %q.", value))
-				return
-			}
-			vIDLte = append(vIDLte, v)
-		case "id__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gt' takes an integer, got %q.", value))
-				return
-			}
-			vIDGt = append(vIDGt, v)
-		case "id__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gte' takes an integer, got %q.", value))
-				return
-			}
-			vIDGte = append(vIDGte, v)
-		case "id__empty":
-			if vIDEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'id__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vIDEmpty = &v
-		case "address":
-			v := value
-			vAddress = append(vAddress, v)
-		case "dns_name":
-			v := value
-			vDNSName = append(vDNSName, v)
-		case "dns_name__n":
-			v := value
-			vDNSNamen = append(vDNSNamen, v)
-		case "dns_name__ic":
-			v := value
-			vDNSNameIc = append(vDNSNameIc, v)
-		case "dns_name__nic":
-			v := value
-			vDNSNameNic = append(vDNSNameNic, v)
-		case "dns_name__ie":
-			v := value
-			vDNSNameIe = append(vDNSNameIe, v)
-		case "dns_name__nie":
-			v := value
-			vDNSNameNie = append(vDNSNameNie, v)
-		case "dns_name__isw":
-			v := value
-			vDNSNameIsw = append(vDNSNameIsw, v)
-		case "dns_name__nisw":
-			v := value
-			vDNSNameNisw = append(vDNSNameNisw, v)
-		case "dns_name__iew":
-			v := value
-			vDNSNameIew = append(vDNSNameIew, v)
-		case "dns_name__niew":
-			v := value
-			vDNSNameNiew = append(vDNSNameNiew, v)
-		case "dns_name__empty":
-			if vDNSNameEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'dns_name__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'dns_name__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vDNSNameEmpty = &v
-		case "dns_name__regex":
-			v := value
-			vDNSNameRegex = append(vDNSNameRegex, v)
-		case "dns_name__iregex":
-			v := value
-			vDNSNameIregex = append(vDNSNameIregex, v)
-		case "vrf_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vrf_id' takes an integer, got %q.", value))
-				return
-			}
-			vVrfID = append(vVrfID, v)
-		case "vrf_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vrf_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vVrfIDn = append(vVrfIDn, v)
-		case "tenant_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tenant_id' takes an integer, got %q.", value))
-				return
-			}
-			vTenantID = append(vTenantID, v)
-		case "tenant_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tenant_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vTenantIDn = append(vTenantIDn, v)
-		case "device":
-			v := value
-			vDevice = append(vDevice, v)
-		case "interface_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceID = append(vInterfaceID, v)
-		case "interface_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'interface_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vInterfaceIDn = append(vInterfaceIDn, v)
-		case "status":
-			v := value
-			vStatus = append(vStatus, v)
-		case "status__n":
-			v := value
-			vStatusn = append(vStatusn, v)
-		case "status__ic":
-			v := value
-			vStatusIc = append(vStatusIc, v)
-		case "status__nic":
-			v := value
-			vStatusNic = append(vStatusNic, v)
-		case "status__ie":
-			v := value
-			vStatusIe = append(vStatusIe, v)
-		case "status__nie":
-			v := value
-			vStatusNie = append(vStatusNie, v)
-		case "status__isw":
-			v := value
-			vStatusIsw = append(vStatusIsw, v)
-		case "status__nisw":
-			v := value
-			vStatusNisw = append(vStatusNisw, v)
-		case "status__iew":
-			v := value
-			vStatusIew = append(vStatusIew, v)
-		case "status__niew":
-			v := value
-			vStatusNiew = append(vStatusNiew, v)
-		case "status__empty":
-			if vStatusEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'status__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'status__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vStatusEmpty = &v
-		case "status__regex":
-			v := value
-			vStatusRegex = append(vStatusRegex, v)
-		case "status__iregex":
-			v := value
-			vStatusIregex = append(vStatusIregex, v)
-		case "role":
-			v := value
-			vRole = append(vRole, v)
-		case "role__n":
-			v := value
-			vRolen = append(vRolen, v)
-		case "role__ic":
-			v := value
-			vRoleIc = append(vRoleIc, v)
-		case "role__nic":
-			v := value
-			vRoleNic = append(vRoleNic, v)
-		case "role__ie":
-			v := value
-			vRoleIe = append(vRoleIe, v)
-		case "role__nie":
-			v := value
-			vRoleNie = append(vRoleNie, v)
-		case "role__isw":
-			v := value
-			vRoleIsw = append(vRoleIsw, v)
-		case "role__nisw":
-			v := value
-			vRoleNisw = append(vRoleNisw, v)
-		case "role__iew":
-			v := value
-			vRoleIew = append(vRoleIew, v)
-		case "role__niew":
-			v := value
-			vRoleNiew = append(vRoleNiew, v)
-		case "role__empty":
-			if vRoleEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'role__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'role__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vRoleEmpty = &v
-		case "role__regex":
-			v := value
-			vRoleRegex = append(vRoleRegex, v)
-		case "role__iregex":
-			v := value
-			vRoleIregex = append(vRoleIregex, v)
-		case "description":
-			v := value
-			vDescription = append(vDescription, v)
-		case "description__n":
-			v := value
-			vDescriptionn = append(vDescriptionn, v)
-		case "description__ic":
-			v := value
-			vDescriptionIc = append(vDescriptionIc, v)
-		case "description__nic":
-			v := value
-			vDescriptionNic = append(vDescriptionNic, v)
-		case "description__ie":
-			v := value
-			vDescriptionIe = append(vDescriptionIe, v)
-		case "description__nie":
-			v := value
-			vDescriptionNie = append(vDescriptionNie, v)
-		case "description__isw":
-			v := value
-			vDescriptionIsw = append(vDescriptionIsw, v)
-		case "description__nisw":
-			v := value
-			vDescriptionNisw = append(vDescriptionNisw, v)
-		case "description__iew":
-			v := value
-			vDescriptionIew = append(vDescriptionIew, v)
-		case "description__niew":
-			v := value
-			vDescriptionNiew = append(vDescriptionNiew, v)
-		case "description__empty":
-			if vDescriptionEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vDescriptionEmpty = &v
-		case "description__regex":
-			v := value
-			vDescriptionRegex = append(vDescriptionRegex, v)
-		case "description__iregex":
-			v := value
-			vDescriptionIregex = append(vDescriptionIregex, v)
-		case "vminterface_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vminterface_id' takes an integer, got %q.", value))
-				return
-			}
-			vVminterfaceID = append(vVminterfaceID, v)
-		case "vminterface_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'vminterface_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vVminterfaceIDn = append(vVminterfaceIDn, v)
-		case "device_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'device_id' takes an integer, got %q.", value))
-				return
-			}
-			vDeviceID = append(vDeviceID, v)
-		case "parent":
-			v := value
-			vParent = append(vParent, v)
-		case "tenant":
-			v := value
-			vTenant = append(vTenant, v)
-		case "tenant__n":
-			v := value
-			vTenantn = append(vTenantn, v)
-		case "vrf":
-			v := value
-			vVrf = append(vVrf, v)
-		case "vrf__n":
-			v := value
-			vVrfn = append(vVrfn, v)
-		case "owner_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_id' takes an integer, got %q.", value))
-				return
-			}
-			vOwnerID = append(vOwnerID, v)
-		case "owner_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vOwnerIDn = append(vOwnerIDn, v)
-		case "tag":
-			v := value
-			vTag = append(vTag, v)
-		case "tag__n":
-			v := value
-			vTagn = append(vTagn, v)
-		case "tag__any":
-			v := value
-			vTagAny = append(vTagAny, v)
-		case "assigned":
-			if vAssigned != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'assigned' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned' takes a boolean, got %q.", value))
-				return
-			}
-			vAssigned = &v
-		case "assigned_object_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned_object_id' takes an integer, got %q.", value))
-				return
-			}
-			vAssignedObjectID = append(vAssignedObjectID, v)
-		case "assigned_object_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned_object_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vAssignedObjectIDn = append(vAssignedObjectIDn, v)
-		case "assigned_object_id__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned_object_id__lt' takes an integer, got %q.", value))
-				return
-			}
-			vAssignedObjectIDLt = append(vAssignedObjectIDLt, v)
-		case "assigned_object_id__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned_object_id__lte' takes an integer, got %q.", value))
-				return
-			}
-			vAssignedObjectIDLte = append(vAssignedObjectIDLte, v)
-		case "assigned_object_id__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned_object_id__gt' takes an integer, got %q.", value))
-				return
-			}
-			vAssignedObjectIDGt = append(vAssignedObjectIDGt, v)
-		case "assigned_object_id__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned_object_id__gte' takes an integer, got %q.", value))
-				return
-			}
-			vAssignedObjectIDGte = append(vAssignedObjectIDGte, v)
-		case "assigned_object_id__empty":
-			if vAssignedObjectIDEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'assigned_object_id__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned_object_id__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vAssignedObjectIDEmpty = &v
-		case "assigned_object_type":
-			v := value
-			vAssignedObjectType = append(vAssignedObjectType, v)
-		case "assigned_object_type__n":
-			v := value
-			vAssignedObjectTypen = append(vAssignedObjectTypen, v)
-		case "assigned_to_interface":
-			if vAssignedToInterface != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'assigned_to_interface' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'assigned_to_interface' takes a boolean, got %q.", value))
-				return
-			}
-			vAssignedToInterface = &v
-		case "contact":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact' takes an integer, got %q.", value))
-				return
-			}
-			vContact = append(vContact, v)
-		case "contact__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact__n' takes an integer, got %q.", value))
-				return
-			}
-			vContactn = append(vContactn, v)
-		case "contact_group":
-			v := value
-			vContactGroup = append(vContactGroup, v)
-		case "contact_group__n":
-			v := value
-			vContactGroupn = append(vContactGroupn, v)
-		case "contact_role":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact_role' takes an integer, got %q.", value))
-				return
-			}
-			vContactRole = append(vContactRole, v)
-		case "contact_role__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'contact_role__n' takes an integer, got %q.", value))
-				return
-			}
-			vContactRolen = append(vContactRolen, v)
-		case "created":
-			v := value
-			vCreated = append(vCreated, v)
-		case "created__n":
-			v := value
-			vCreatedn = append(vCreatedn, v)
-		case "created__lt":
-			v := value
-			vCreatedLt = append(vCreatedLt, v)
-		case "created__lte":
-			v := value
-			vCreatedLte = append(vCreatedLte, v)
-		case "created__gt":
-			v := value
-			vCreatedGt = append(vCreatedGt, v)
-		case "created__gte":
-			v := value
-			vCreatedGte = append(vCreatedGte, v)
-		case "created__empty":
-			v := value
-			vCreatedEmpty = append(vCreatedEmpty, v)
-		case "family":
-			if vFamily != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'family' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'family' takes a number, got %q.", value))
-				return
-			}
-			vFamily = &v
-		case "fhrpgroup_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'fhrpgroup_id' takes an integer, got %q.", value))
-				return
-			}
-			vFhrpgroupID = append(vFhrpgroupID, v)
-		case "fhrpgroup_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'fhrpgroup_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vFhrpgroupIDn = append(vFhrpgroupIDn, v)
-		case "interface":
-			v := value
-			vInterface = append(vInterface, v)
-		case "interface__n":
-			v := value
-			vInterfacen = append(vInterfacen, v)
-		case "last_updated":
-			v := value
-			vLastUpdated = append(vLastUpdated, v)
-		case "last_updated__n":
-			v := value
-			vLastUpdatedn = append(vLastUpdatedn, v)
-		case "last_updated__lt":
-			v := value
-			vLastUpdatedLt = append(vLastUpdatedLt, v)
-		case "last_updated__lte":
-			v := value
-			vLastUpdatedLte = append(vLastUpdatedLte, v)
-		case "last_updated__gt":
-			v := value
-			vLastUpdatedGt = append(vLastUpdatedGt, v)
-		case "last_updated__gte":
-			v := value
-			vLastUpdatedGte = append(vLastUpdatedGte, v)
-		case "last_updated__empty":
-			v := value
-			vLastUpdatedEmpty = append(vLastUpdatedEmpty, v)
-		case "mask_length__gte":
-			if vMaskLengthGte != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'mask_length__gte' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'mask_length__gte' takes a number, got %q.", value))
-				return
-			}
-			vMaskLengthGte = &v
-		case "mask_length__lte":
-			if vMaskLengthLte != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'mask_length__lte' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'mask_length__lte' takes a number, got %q.", value))
-				return
-			}
-			vMaskLengthLte = &v
-		case "mask_length":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'mask_length' takes an integer, got %q.", value))
-				return
-			}
-			vMaskLength = append(vMaskLength, v)
-		case "nat_inside_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'nat_inside_id' takes an integer, got %q.", value))
-				return
-			}
-			vNatInsideID = append(vNatInsideID, v)
-		case "nat_inside_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'nat_inside_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vNatInsideIDn = append(vNatInsideIDn, v)
-		case "owner":
-			v := value
-			vOwner = append(vOwner, v)
-		case "owner__n":
-			v := value
-			vOwnern = append(vOwnern, v)
-		case "owner_group":
-			v := value
-			vOwnerGroup = append(vOwnerGroup, v)
-		case "owner_group__n":
-			v := value
-			vOwnerGroupn = append(vOwnerGroupn, v)
-		case "owner_group_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id' takes an integer, got %q.", value))
-				return
-			}
-			vOwnerGroupID = append(vOwnerGroupID, v)
-		case "owner_group_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'owner_group_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vOwnerGroupIDn = append(vOwnerGroupIDn, v)
-		case "present_in_vrf":
-			if vPresentInVrf != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'present_in_vrf' takes a single value.")
-				return
-			}
-			v := value
-			vPresentInVrf = &v
-		case "present_in_vrf_id":
-			if vPresentInVrfID != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'present_in_vrf_id' takes a single value.")
-				return
-			}
-			v := value
-			vPresentInVrfID = &v
-		case "q":
-			if vQ != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
-				return
-			}
-			v := value
-			vQ = &v
-		case "service_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'service_id' takes an integer, got %q.", value))
-				return
-			}
-			vServiceID = append(vServiceID, v)
-		case "service_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'service_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vServiceIDn = append(vServiceIDn, v)
-		case "tag_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id' takes an integer, got %q.", value))
-				return
-			}
-			vTagID = append(vTagID, v)
-		case "tag_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vTagIDn = append(vTagIDn, v)
-		case "tag_id__any":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'tag_id__any' takes an integer, got %q.", value))
-				return
-			}
-			vTagIDAny = append(vTagIDAny, v)
-		case "tenant_group":
-			v := value
-			vTenantGroup = append(vTenantGroup, v)
-		case "tenant_group__n":
-			v := value
-			vTenantGroupn = append(vTenantGroupn, v)
-		case "tenant_group_id":
-			v := value
-			vTenantGroupID = append(vTenantGroupID, v)
-		case "tenant_group_id__n":
-			v := value
-			vTenantGroupIDn = append(vTenantGroupIDn, v)
-		case "virtual_machine":
-			v := value
-			vVirtualMachine = append(vVirtualMachine, v)
-		case "virtual_machine_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'virtual_machine_id' takes an integer, got %q.", value))
-				return
-			}
-			vVirtualMachineID = append(vVirtualMachineID, v)
-		case "vminterface":
-			v := value
-			vVminterface = append(vVminterface, v)
-		case "vminterface__n":
-			v := value
-			vVminterfacen = append(vVminterfacen, v)
-		default:
+		listFilter, ok := listFilters[name]
+		if !ok {
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
 		}
-	}
-	if len(vID) > 0 {
-		params.SetID(vID)
-	}
-	if len(vIDn) > 0 {
-		params.SetIDn(vIDn)
-	}
-	if len(vIDLt) > 0 {
-		params.SetIDLt(vIDLt)
-	}
-	if len(vIDLte) > 0 {
-		params.SetIDLte(vIDLte)
-	}
-	if len(vIDGt) > 0 {
-		params.SetIDGt(vIDGt)
-	}
-	if len(vIDGte) > 0 {
-		params.SetIDGte(vIDGte)
-	}
-	if vIDEmpty != nil {
-		params.SetIDEmpty(vIDEmpty)
-	}
-	if len(vAddress) > 0 {
-		params.SetAddress(vAddress)
-	}
-	if len(vDNSName) > 0 {
-		params.SetDNSName(vDNSName)
-	}
-	if len(vDNSNamen) > 0 {
-		params.SetDNSNamen(vDNSNamen)
-	}
-	if len(vDNSNameIc) > 0 {
-		params.SetDNSNameIc(vDNSNameIc)
-	}
-	if len(vDNSNameNic) > 0 {
-		params.SetDNSNameNic(vDNSNameNic)
-	}
-	if len(vDNSNameIe) > 0 {
-		params.SetDNSNameIe(vDNSNameIe)
-	}
-	if len(vDNSNameNie) > 0 {
-		params.SetDNSNameNie(vDNSNameNie)
-	}
-	if len(vDNSNameIsw) > 0 {
-		params.SetDNSNameIsw(vDNSNameIsw)
-	}
-	if len(vDNSNameNisw) > 0 {
-		params.SetDNSNameNisw(vDNSNameNisw)
-	}
-	if len(vDNSNameIew) > 0 {
-		params.SetDNSNameIew(vDNSNameIew)
-	}
-	if len(vDNSNameNiew) > 0 {
-		params.SetDNSNameNiew(vDNSNameNiew)
-	}
-	if vDNSNameEmpty != nil {
-		params.SetDNSNameEmpty(vDNSNameEmpty)
-	}
-	if len(vDNSNameRegex) > 0 {
-		params.SetDNSNameRegex(vDNSNameRegex)
-	}
-	if len(vDNSNameIregex) > 0 {
-		params.SetDNSNameIregex(vDNSNameIregex)
-	}
-	if len(vVrfID) > 0 {
-		params.SetVrfID(vVrfID)
-	}
-	if len(vVrfIDn) > 0 {
-		params.SetVrfIDn(vVrfIDn)
-	}
-	if len(vTenantID) > 0 {
-		params.SetTenantID(vTenantID)
-	}
-	if len(vTenantIDn) > 0 {
-		params.SetTenantIDn(vTenantIDn)
-	}
-	if len(vDevice) > 0 {
-		params.SetDevice(vDevice)
-	}
-	if len(vInterfaceID) > 0 {
-		params.SetInterfaceID(vInterfaceID)
-	}
-	if len(vInterfaceIDn) > 0 {
-		params.SetInterfaceIDn(vInterfaceIDn)
-	}
-	if len(vStatus) > 0 {
-		params.SetStatus(vStatus)
-	}
-	if len(vStatusn) > 0 {
-		params.SetStatusn(vStatusn)
-	}
-	if len(vStatusIc) > 0 {
-		params.SetStatusIc(vStatusIc)
-	}
-	if len(vStatusNic) > 0 {
-		params.SetStatusNic(vStatusNic)
-	}
-	if len(vStatusIe) > 0 {
-		params.SetStatusIe(vStatusIe)
-	}
-	if len(vStatusNie) > 0 {
-		params.SetStatusNie(vStatusNie)
-	}
-	if len(vStatusIsw) > 0 {
-		params.SetStatusIsw(vStatusIsw)
-	}
-	if len(vStatusNisw) > 0 {
-		params.SetStatusNisw(vStatusNisw)
-	}
-	if len(vStatusIew) > 0 {
-		params.SetStatusIew(vStatusIew)
-	}
-	if len(vStatusNiew) > 0 {
-		params.SetStatusNiew(vStatusNiew)
-	}
-	if vStatusEmpty != nil {
-		params.SetStatusEmpty(vStatusEmpty)
-	}
-	if len(vStatusRegex) > 0 {
-		params.SetStatusRegex(vStatusRegex)
-	}
-	if len(vStatusIregex) > 0 {
-		params.SetStatusIregex(vStatusIregex)
-	}
-	if len(vRole) > 0 {
-		params.SetRole(vRole)
-	}
-	if len(vRolen) > 0 {
-		params.SetRolen(vRolen)
-	}
-	if len(vRoleIc) > 0 {
-		params.SetRoleIc(vRoleIc)
-	}
-	if len(vRoleNic) > 0 {
-		params.SetRoleNic(vRoleNic)
-	}
-	if len(vRoleIe) > 0 {
-		params.SetRoleIe(vRoleIe)
-	}
-	if len(vRoleNie) > 0 {
-		params.SetRoleNie(vRoleNie)
-	}
-	if len(vRoleIsw) > 0 {
-		params.SetRoleIsw(vRoleIsw)
-	}
-	if len(vRoleNisw) > 0 {
-		params.SetRoleNisw(vRoleNisw)
-	}
-	if len(vRoleIew) > 0 {
-		params.SetRoleIew(vRoleIew)
-	}
-	if len(vRoleNiew) > 0 {
-		params.SetRoleNiew(vRoleNiew)
-	}
-	if vRoleEmpty != nil {
-		params.SetRoleEmpty(vRoleEmpty)
-	}
-	if len(vRoleRegex) > 0 {
-		params.SetRoleRegex(vRoleRegex)
-	}
-	if len(vRoleIregex) > 0 {
-		params.SetRoleIregex(vRoleIregex)
-	}
-	if len(vDescription) > 0 {
-		params.SetDescription(vDescription)
-	}
-	if len(vDescriptionn) > 0 {
-		params.SetDescriptionn(vDescriptionn)
-	}
-	if len(vDescriptionIc) > 0 {
-		params.SetDescriptionIc(vDescriptionIc)
-	}
-	if len(vDescriptionNic) > 0 {
-		params.SetDescriptionNic(vDescriptionNic)
-	}
-	if len(vDescriptionIe) > 0 {
-		params.SetDescriptionIe(vDescriptionIe)
-	}
-	if len(vDescriptionNie) > 0 {
-		params.SetDescriptionNie(vDescriptionNie)
-	}
-	if len(vDescriptionIsw) > 0 {
-		params.SetDescriptionIsw(vDescriptionIsw)
-	}
-	if len(vDescriptionNisw) > 0 {
-		params.SetDescriptionNisw(vDescriptionNisw)
-	}
-	if len(vDescriptionIew) > 0 {
-		params.SetDescriptionIew(vDescriptionIew)
-	}
-	if len(vDescriptionNiew) > 0 {
-		params.SetDescriptionNiew(vDescriptionNiew)
-	}
-	if vDescriptionEmpty != nil {
-		params.SetDescriptionEmpty(vDescriptionEmpty)
-	}
-	if len(vDescriptionRegex) > 0 {
-		params.SetDescriptionRegex(vDescriptionRegex)
-	}
-	if len(vDescriptionIregex) > 0 {
-		params.SetDescriptionIregex(vDescriptionIregex)
-	}
-	if len(vVminterfaceID) > 0 {
-		params.SetVminterfaceID(vVminterfaceID)
-	}
-	if len(vVminterfaceIDn) > 0 {
-		params.SetVminterfaceIDn(vVminterfaceIDn)
-	}
-	if len(vDeviceID) > 0 {
-		params.SetDeviceID(vDeviceID)
-	}
-	if len(vParent) > 0 {
-		params.SetParent(vParent)
-	}
-	if len(vTenant) > 0 {
-		params.SetTenant(vTenant)
-	}
-	if len(vTenantn) > 0 {
-		params.SetTenantn(vTenantn)
-	}
-	if len(vVrf) > 0 {
-		params.SetVrf(vVrf)
-	}
-	if len(vVrfn) > 0 {
-		params.SetVrfn(vVrfn)
-	}
-	if len(vOwnerID) > 0 {
-		params.SetOwnerID(vOwnerID)
-	}
-	if len(vOwnerIDn) > 0 {
-		params.SetOwnerIDn(vOwnerIDn)
-	}
-	if len(vTag) > 0 {
-		params.SetTag(vTag)
-	}
-	if len(vTagn) > 0 {
-		params.SetTagn(vTagn)
-	}
-	if len(vTagAny) > 0 {
-		params.SetTagAny(vTagAny)
-	}
-	if vAssigned != nil {
-		params.SetAssigned(vAssigned)
-	}
-	if len(vAssignedObjectID) > 0 {
-		params.SetAssignedObjectID(vAssignedObjectID)
-	}
-	if len(vAssignedObjectIDn) > 0 {
-		params.SetAssignedObjectIDn(vAssignedObjectIDn)
-	}
-	if len(vAssignedObjectIDLt) > 0 {
-		params.SetAssignedObjectIDLt(vAssignedObjectIDLt)
-	}
-	if len(vAssignedObjectIDLte) > 0 {
-		params.SetAssignedObjectIDLte(vAssignedObjectIDLte)
-	}
-	if len(vAssignedObjectIDGt) > 0 {
-		params.SetAssignedObjectIDGt(vAssignedObjectIDGt)
-	}
-	if len(vAssignedObjectIDGte) > 0 {
-		params.SetAssignedObjectIDGte(vAssignedObjectIDGte)
-	}
-	if vAssignedObjectIDEmpty != nil {
-		params.SetAssignedObjectIDEmpty(vAssignedObjectIDEmpty)
-	}
-	if len(vAssignedObjectType) > 0 {
-		params.SetAssignedObjectType(vAssignedObjectType)
-	}
-	if len(vAssignedObjectTypen) > 0 {
-		params.SetAssignedObjectTypen(vAssignedObjectTypen)
-	}
-	if vAssignedToInterface != nil {
-		params.SetAssignedToInterface(vAssignedToInterface)
-	}
-	if len(vContact) > 0 {
-		params.SetContact(vContact)
-	}
-	if len(vContactn) > 0 {
-		params.SetContactn(vContactn)
-	}
-	if len(vContactGroup) > 0 {
-		params.SetContactGroup(vContactGroup)
-	}
-	if len(vContactGroupn) > 0 {
-		params.SetContactGroupn(vContactGroupn)
-	}
-	if len(vContactRole) > 0 {
-		params.SetContactRole(vContactRole)
-	}
-	if len(vContactRolen) > 0 {
-		params.SetContactRolen(vContactRolen)
-	}
-	if len(vCreated) > 0 {
-		params.SetCreated(vCreated)
-	}
-	if len(vCreatedn) > 0 {
-		params.SetCreatedn(vCreatedn)
-	}
-	if len(vCreatedLt) > 0 {
-		params.SetCreatedLt(vCreatedLt)
-	}
-	if len(vCreatedLte) > 0 {
-		params.SetCreatedLte(vCreatedLte)
-	}
-	if len(vCreatedGt) > 0 {
-		params.SetCreatedGt(vCreatedGt)
-	}
-	if len(vCreatedGte) > 0 {
-		params.SetCreatedGte(vCreatedGte)
-	}
-	if len(vCreatedEmpty) > 0 {
-		params.SetCreatedEmpty(vCreatedEmpty)
-	}
-	if vFamily != nil {
-		params.SetFamily(vFamily)
-	}
-	if len(vFhrpgroupID) > 0 {
-		params.SetFhrpgroupID(vFhrpgroupID)
-	}
-	if len(vFhrpgroupIDn) > 0 {
-		params.SetFhrpgroupIDn(vFhrpgroupIDn)
-	}
-	if len(vInterface) > 0 {
-		params.SetInterface(vInterface)
-	}
-	if len(vInterfacen) > 0 {
-		params.SetInterfacen(vInterfacen)
-	}
-	if len(vLastUpdated) > 0 {
-		params.SetLastUpdated(vLastUpdated)
-	}
-	if len(vLastUpdatedn) > 0 {
-		params.SetLastUpdatedn(vLastUpdatedn)
-	}
-	if len(vLastUpdatedLt) > 0 {
-		params.SetLastUpdatedLt(vLastUpdatedLt)
-	}
-	if len(vLastUpdatedLte) > 0 {
-		params.SetLastUpdatedLte(vLastUpdatedLte)
-	}
-	if len(vLastUpdatedGt) > 0 {
-		params.SetLastUpdatedGt(vLastUpdatedGt)
-	}
-	if len(vLastUpdatedGte) > 0 {
-		params.SetLastUpdatedGte(vLastUpdatedGte)
-	}
-	if len(vLastUpdatedEmpty) > 0 {
-		params.SetLastUpdatedEmpty(vLastUpdatedEmpty)
-	}
-	if vMaskLengthGte != nil {
-		params.SetMaskLengthGte(vMaskLengthGte)
-	}
-	if vMaskLengthLte != nil {
-		params.SetMaskLengthLte(vMaskLengthLte)
-	}
-	if len(vMaskLength) > 0 {
-		params.SetMaskLength(vMaskLength)
-	}
-	if len(vNatInsideID) > 0 {
-		params.SetNatInsideID(vNatInsideID)
-	}
-	if len(vNatInsideIDn) > 0 {
-		params.SetNatInsideIDn(vNatInsideIDn)
-	}
-	if len(vOwner) > 0 {
-		params.SetOwner(vOwner)
-	}
-	if len(vOwnern) > 0 {
-		params.SetOwnern(vOwnern)
-	}
-	if len(vOwnerGroup) > 0 {
-		params.SetOwnerGroup(vOwnerGroup)
-	}
-	if len(vOwnerGroupn) > 0 {
-		params.SetOwnerGroupn(vOwnerGroupn)
-	}
-	if len(vOwnerGroupID) > 0 {
-		params.SetOwnerGroupID(vOwnerGroupID)
-	}
-	if len(vOwnerGroupIDn) > 0 {
-		params.SetOwnerGroupIDn(vOwnerGroupIDn)
-	}
-	if vPresentInVrf != nil {
-		params.SetPresentInVrf(vPresentInVrf)
-	}
-	if vPresentInVrfID != nil {
-		params.SetPresentInVrfID(vPresentInVrfID)
-	}
-	if vQ != nil {
-		params.SetQ(vQ)
-	}
-	if len(vServiceID) > 0 {
-		params.SetServiceID(vServiceID)
-	}
-	if len(vServiceIDn) > 0 {
-		params.SetServiceIDn(vServiceIDn)
-	}
-	if len(vTagID) > 0 {
-		params.SetTagID(vTagID)
-	}
-	if len(vTagIDn) > 0 {
-		params.SetTagIDn(vTagIDn)
-	}
-	if len(vTagIDAny) > 0 {
-		params.SetTagIDAny(vTagIDAny)
-	}
-	if len(vTenantGroup) > 0 {
-		params.SetTenantGroup(vTenantGroup)
-	}
-	if len(vTenantGroupn) > 0 {
-		params.SetTenantGroupn(vTenantGroupn)
-	}
-	if len(vTenantGroupID) > 0 {
-		params.SetTenantGroupID(vTenantGroupID)
-	}
-	if len(vTenantGroupIDn) > 0 {
-		params.SetTenantGroupIDn(vTenantGroupIDn)
-	}
-	if len(vVirtualMachine) > 0 {
-		params.SetVirtualMachine(vVirtualMachine)
-	}
-	if len(vVirtualMachineID) > 0 {
-		params.SetVirtualMachineID(vVirtualMachineID)
-	}
-	if len(vVminterface) > 0 {
-		params.SetVminterface(vVminterface)
-	}
-	if len(vVminterfacen) > 0 {
-		params.SetVminterfacen(vVminterfacen)
+		if problem := listFilter.Add(name, value); problem != nil {
+			resp.Diagnostics.AddError(problem.Summary, problem.Detail)
+			return
+		}
+	}
+	for _, listFilter := range listFilters {
+		listFilter.Apply()
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)
