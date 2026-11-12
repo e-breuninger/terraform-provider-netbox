@@ -1,3 +1,13 @@
+## Unreleased
+
+SUPPORTED VERSIONS
+
+This version adds NetBox 4.7.0 to 4.7.5, and keeps 4.6.8 to 4.6.10.
+
+BUG FIXES
+
+* `netbox_token`: NetBox 4.7 generates every token's secret and ignores one the client sends, so a configured `token` came back different and the apply failed with "inconsistent values for sensitive attribute" after the token had been created. On NetBox 4.7 and later a configured `token` is now refused at plan time, before anything is created. Remove it from the configuration: the secret NetBox generates is in the state after the apply. Up to 4.6 it is sent as before.
+
 ## 6.0.1 (November 10th, 2026)
 
 ENHANCEMENTS
