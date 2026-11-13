@@ -3,12 +3,12 @@
 page_title: "netbox_primary_ip Resource - terraform-provider-netbox"
 subcategory: "Virtualization"
 description: |-
-  Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as device/ or vm/.
+  Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as device//<4 or 6> or vm//<4 or 6>; the IP version can be left out when only one primary IP is set.
 ---
 
 # netbox_primary_ip (Resource)
 
-Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as device/<id> or vm/<id>.
+Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as device/<id>/<4 or 6> or vm/<id>/<4 or 6>; the IP version can be left out when only one primary IP is set.
 
 ## Example Usage
 
@@ -78,16 +78,16 @@ Import is supported using the following syntax:
 In Terraform v1.5.0 and later, the [`import` block](https://developer.hashicorp.com/terraform/language/import) can be used with the `id` attribute, for example:
 
 ```terraform
-# device/<device id> or vm/<virtual machine id>
+# device/<device id>/<4 or 6> or vm/<virtual machine id>/<4 or 6>; the IP version can be left out when only one primary IP is set
 import {
   to = netbox_primary_ip.test
-  id = "device/123"
+  id = "device/123/4"
 }
 ```
 
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-# device/<device id> or vm/<virtual machine id>
-terraform import netbox_primary_ip.test device/123
+# device/<device id>/<4 or 6> or vm/<virtual machine id>/<4 or 6>; the IP version can be left out when only one primary IP is set
+terraform import netbox_primary_ip.test device/123/4
 ```
