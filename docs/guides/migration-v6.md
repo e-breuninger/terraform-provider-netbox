@@ -62,7 +62,11 @@ The state of the following resources cannot be read by 6.0. Remove it with `terr
 | `netbox_custom_field` | an unset `default` is stored as `""`, which is not valid JSON | `netbox_custom_field`, `<custom field id>` |
 | `netbox_permission` | an unset `constraints` is stored as `""`, which is not valid JSON | `netbox_permission`, `<permission id>` |
 
-`netbox_device_primary_ip` and `netbox_primary_ip` need only the `terraform state rm`. A primary IP is a setting of its device or virtual machine, not an object of its own, so remove the old entry and let the next apply create `netbox_primary_ip` again: it sets the primary IP the device or virtual machine already has. Importing works too, with `device/<device id>` or `vm/<virtual machine id>` as the id.
+`netbox_device_primary_ip` and `netbox_primary_ip` need only the `terraform state rm`. A primary IP is a setting of its device or virtual machine, not an object of its own, so remove the old entry and let the next apply create `netbox_primary_ip` again: it sets the primary IP the device or virtual machine already has. To adopt the existing assignment without writing to NetBox, import with `device/<device id>/<family>` or `vm/<virtual machine id>/<family>`, where family is `4` or `6`. For example, `device/123/6` imports only that device's primary IPv6 assignment and leaves its primary IPv4 untouched. Import each family into its own resource when managing both.
+
+The legacy `device/<device id>` and `vm/<virtual machine id>` import formats still work when only one primary family is set. They fail with an ambiguity error when both are set; use an explicit family in that case. The resource's stored `id` remains the owner-only form, with the selected family recorded in `ip_address_version`. An explicitly selected family that is not set is treated as a missing resource, never as the other family's assignment.
+
+If a previous owner-only import adopted the wrong family, remove only that resource's state binding and re-import it with an explicit family before applying. Review the plan to ensure the configured `ip_address_id` matches the intended existing assignment. Do not destroy the resource to correct its state: deletion clears the primary family currently recorded in state.
 
 A resource that still fails to load shows `Unable to Read Previously Saved State` or `Invalid JSON String Value` in the plan; re-import it the same way.
 
