@@ -1,3 +1,9 @@
+## Unreleased
+
+BUG FIXES
+
+* `netbox_primary_ip`: support family-specific device and VM imports and reject ambiguous owner-only imports on dual-stack owners, preventing an IPv6 import from adopting and subsequently clearing IPv4.
+
 ## 6.0.1 (November 10th, 2026)
 
 ENHANCEMENTS

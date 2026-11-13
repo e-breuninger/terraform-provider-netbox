@@ -67,7 +67,7 @@ func (resource *primaryIPResource) Metadata(ctx context.Context, req resource.Me
 // Schema declares the attributes of netbox_primary_ip.
 func (resource *primaryIPResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: ":meta:subcategory:Virtualization:Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as device/<id> or vm/<id>.",
+		Description: ":meta:subcategory:Virtualization:Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as `device/<id>/<family>` or `vm/<id>/<family>`, where family is 4 or 6. The legacy owner-only import is supported when only one primary family is set; dual-stack owners require an explicit family.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -283,8 +283,8 @@ func (resource *primaryIPResource) Read(ctx context.Context, req resource.ReadRe
 		resp.Diagnostics.AddError("Error reading "+primaryTarget.String(), err.Error())
 		return
 	}
-	// The family in state picks which primary this resource owns; after an import (family unknown)
-	// whichever is set wins, IPv4 first.
+	// The family in state picks which primary this resource owns. A legacy owner-only
+	// import can infer the family only when exactly one primary is set.
 	var current *int64
 	family := state.Family.ValueInt64()
 	switch {
@@ -292,6 +292,10 @@ func (resource *primaryIPResource) Read(ctx context.Context, req resource.ReadRe
 		current = ip4
 	case family == 6:
 		current = ip6
+	case ip4 != nil && ip6 != nil:
+		resp.Diagnostics.AddError("Ambiguous primary IP import",
+			fmt.Sprintf("%s has both primary IPv4 and IPv6 addresses. Import with %s/4 or %s/6 to select the family to manage.", primaryTarget, primaryTarget, primaryTarget))
+		return
 	case ip4 != nil:
 		current, family = ip4, 4
 	case ip6 != nil:
@@ -350,17 +354,39 @@ func (resource *primaryIPResource) Delete(ctx context.Context, req resource.Dele
 	}
 }
 
-// ImportState parses an import id, e.g. "device/12" or "vm/7", into id and device_id or
-// virtual_machine_id; ip_address_id and ip_address_version stay null.
+// ImportState accepts an optional family suffix, e.g. "device/12/6" or "vm/7/4".
+// Keep the existing owner-only resource ID; the family is stored separately in state.
+// Legacy owner-only imports infer the family during Read when it is unambiguous.
 func (resource *primaryIPResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	primaryTarget, err := parsePrimaryTarget(req.ID)
+	parts := strings.Split(req.ID, "/")
+	if len(parts) != 2 && len(parts) != 3 {
+		resp.Diagnostics.AddError("Invalid import ID", "Expected device/<id>[/<family>] or vm/<id>[/<family>], where family is 4 or 6.")
+		return
+	}
+	family := types.Int64Null()
+	if len(parts) == 3 {
+		switch parts[2] {
+		case "4":
+			family = types.Int64Value(4)
+		case "6":
+			family = types.Int64Value(6)
+		default:
+			resp.Diagnostics.AddError("Invalid import ID", "The primary IP family must be 4 or 6, for example device/12/6 or vm/7/4.")
+			return
+		}
+	}
+	primaryTarget, err := parsePrimaryTarget(strings.Join(parts[:2], "/"))
 	if err != nil {
 		resp.Diagnostics.AddError("Invalid import ID", err.Error())
+		return
+	}
+	if primaryTarget.id <= 0 {
+		resp.Diagnostics.AddError("Invalid import ID", "The device or virtual machine ID must be a positive integer.")
 		return
 	}
 	var model primaryIPResourceModel
 	model.setTarget(primaryTarget)
 	model.IPAddressID = types.Int64Null()
-	model.Family = types.Int64Null()
+	model.Family = family
 	resp.Diagnostics.Append(resp.State.Set(ctx, &model)...)
 }
