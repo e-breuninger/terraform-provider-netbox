@@ -83,7 +83,7 @@ func (d *virtualChassisDataSource) Schema(ctx context.Context, req datasource.Sc
 			"master_id": schema.Int64Attribute{
 				Optional:    true,
 				Computed:    true,
-				Description: "Id of the device acting as chassis master.",
+				Description: "Id of the device acting as chassis master (managed by netbox_virtual_chassis_master).",
 			},
 			"description": schema.StringAttribute{
 				Optional: true,

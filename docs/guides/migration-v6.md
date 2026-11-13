@@ -349,7 +349,7 @@ resource "netbox_custom_field" "environment" {
 | Resource | 5.x attribute | In 6.0 |
 | --- | --- | --- |
 | `netbox_device`, `netbox_virtual_machine` | `primary_ipv4`, `primary_ipv6` | the read-only `primary_ip4_id` and `primary_ip6_id`, set through `netbox_primary_ip` |
-| `netbox_device` | `virtual_chassis_master` | removed |
+| `netbox_device` | `virtual_chassis_master` | set through the new `netbox_virtual_chassis_master` resource |
 | `netbox_device_interface` | `mac_address`, `mac_addresses`, `primary_mac_address_id` | a `netbox_mac_address` per address, and `netbox_device_interface_primary_mac_address` for the primary one |
 | `netbox_ip_address` | `nat_outside_addresses` | the read-only `nat_outside_ids` |
 | `netbox_user` | `staff` | removed, as NetBox no longer exposes it |
