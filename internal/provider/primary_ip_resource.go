@@ -67,7 +67,7 @@ func (resource *primaryIPResource) Metadata(ctx context.Context, req resource.Me
 // Schema declares the attributes of netbox_primary_ip.
 func (resource *primaryIPResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: ":meta:subcategory:Virtualization:Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as device/<id> or vm/<id>.",
+		Description: ":meta:subcategory:Virtualization:Sets the primary IPv4 or IPv6 address of a device or virtual machine. The address must be assigned to one of its interfaces; the family is taken from the address. Import as device/<id>/<4 or 6> or vm/<id>/<4 or 6>; the IP version can be left out when only one primary IP is set.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -283,19 +283,13 @@ func (resource *primaryIPResource) Read(ctx context.Context, req resource.ReadRe
 		resp.Diagnostics.AddError("Error reading "+primaryTarget.String(), err.Error())
 		return
 	}
-	// The family in state picks which primary this resource owns; after an import (family unknown)
-	// whichever is set wins, IPv4 first.
-	var current *int64
+	// The family in state picks which primary this resource owns.
 	family := state.Family.ValueInt64()
-	switch {
-	case family == 4:
-		current = ip4
-	case family == 6:
+	current := ip4
+	if family == 6 {
 		current = ip6
-	case ip4 != nil:
-		current, family = ip4, 4
-	case ip6 != nil:
-		current, family = ip6, 6
+	} else {
+		family = 4
 	}
 	if current == nil {
 		resp.State.RemoveResource(ctx)
@@ -350,17 +344,50 @@ func (resource *primaryIPResource) Delete(ctx context.Context, req resource.Dele
 	}
 }
 
-// ImportState parses an import id, e.g. "device/12" or "vm/7", into id and device_id or
-// virtual_machine_id; ip_address_id and ip_address_version stay null.
+// ImportState parses an import id, e.g. "device/12/6", "vm/7/4" or, without the IP version,
+// "device/12", into id, device_id or virtual_machine_id and ip_address_version; Read fills in
+// ip_address_id. Without a version it takes the only primary IP that is set. The version is not
+// part of the resource id.
 func (resource *primaryIPResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	primaryTarget, err := parsePrimaryTarget(req.ID)
+	target, family := req.ID, int64(0)
+	if strings.Count(req.ID, "/") == 2 {
+		index := strings.LastIndex(req.ID, "/")
+		switch req.ID[index+1:] {
+		case "4":
+			family = 4
+		case "6":
+			family = 6
+		default:
+			resp.Diagnostics.AddError("Invalid import ID", fmt.Sprintf("Expected the IP version 4 or 6 after the last slash, got %q.", req.ID))
+			return
+		}
+		target = req.ID[:index]
+	}
+	primaryTarget, err := parsePrimaryTarget(target)
 	if err != nil {
 		resp.Diagnostics.AddError("Invalid import ID", err.Error())
 		return
 	}
+	if family == 0 {
+		ip4, ip6, err := resource.readPrimaries(ctx, primaryTarget)
+		if err != nil {
+			resp.Diagnostics.AddError("Error reading "+primaryTarget.String(), err.Error())
+			return
+		}
+		switch {
+		case ip4 != nil && ip6 != nil:
+			resp.Diagnostics.AddError("Ambiguous import ID",
+				fmt.Sprintf("%[1]s has a primary IPv4 and a primary IPv6 address. Import %[1]s/4 or %[1]s/6.", primaryTarget))
+			return
+		case ip6 != nil:
+			family = 6
+		default:
+			family = 4
+		}
+	}
 	var model primaryIPResourceModel
 	model.setTarget(primaryTarget)
 	model.IPAddressID = types.Int64Null()
-	model.Family = types.Int64Null()
+	model.Family = types.Int64Value(family)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &model)...)
 }
