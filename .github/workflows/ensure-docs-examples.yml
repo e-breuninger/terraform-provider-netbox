@@ -1,6 +1,10 @@
 ---
 name: ensure-docs-examples
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 jobs:
   test:
     runs-on: ubuntu-latest

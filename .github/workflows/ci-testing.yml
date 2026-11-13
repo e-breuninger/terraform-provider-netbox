@@ -2,11 +2,8 @@
 name: ci-testing
 on:
   push:
-    # Temporarily run on every branch push, not only master, so the acceptance
-    # tests exercise work-in-progress branches before a pull request exists.
-    # Restore "branches: [master]" once branch runs are no longer needed.
     branches:
-      - "**"
+      - master
   pull_request:
     branches:
       - master
