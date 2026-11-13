@@ -37,7 +37,8 @@ jobs:
         uses: goreleaser/goreleaser-action@v7.3.0
         with:
           version: latest
-          args: release --clean
+          # Releasing only two versions in parallel should prevent this job from running oom
+          args: release --clean --parallelism 2
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

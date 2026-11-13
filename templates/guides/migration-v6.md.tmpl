@@ -53,7 +53,7 @@ The state of the following resources cannot be read by 6.0. Remove it with `terr
 | `netbox_custom_field` | an unset `default` is stored as `""`, which is not valid JSON | `netbox_custom_field`, `<custom field id>` |
 | `netbox_permission` | an unset `constraints` is stored as `""`, which is not valid JSON | `netbox_permission`, `<permission id>` |
 
-`netbox_device_primary_ip` and `netbox_primary_ip` need only the `terraform state rm`. A primary IP is a setting of its device or virtual machine, not an object of its own, so remove the old entry and let the next apply create `netbox_primary_ip` again: it sets the primary IP the device or virtual machine already has. Importing works too, with `device/<device id>` or `vm/<virtual machine id>` as the id.
+`netbox_device_primary_ip` and `netbox_primary_ip` need only the `terraform state rm`. A primary IP is a setting of its device or virtual machine, not an object of its own, so remove the old entry and let the next apply create `netbox_primary_ip` again: it sets the primary IP the device or virtual machine already has. Importing works too, with `device/<device id>/<4 or 6>` or `vm/<virtual machine id>/<4 or 6>` as the id; the IP version can be left out when only one primary IP is set.
 
 A resource that still fails to load shows `Unable to Read Previously Saved State` or `Invalid JSON String Value` in the plan; re-import it the same way.
 
@@ -155,7 +155,7 @@ These changes have no fallback and must be made in the configuration.
 | Resource | 5.x attribute | In 6.0 |
 | --- | --- | --- |
 | `netbox_device`, `netbox_virtual_machine` | `primary_ipv4`, `primary_ipv6` | the read-only `primary_ip4_id` and `primary_ip6_id`, set through `netbox_primary_ip` |
-| `netbox_device` | `virtual_chassis_master` | removed |
+| `netbox_device` | `virtual_chassis_master` | set through the new `netbox_virtual_chassis_master` resource |
 | `netbox_device_interface` | `mac_address`, `mac_addresses`, `primary_mac_address_id` | a `netbox_mac_address` per address, and `netbox_device_interface_primary_mac_address` for the primary one |
 | `netbox_ip_address` | `nat_outside_addresses` | the read-only `nat_outside_ids` |
 | `netbox_user` | `staff` | removed, as NetBox no longer exposes it |

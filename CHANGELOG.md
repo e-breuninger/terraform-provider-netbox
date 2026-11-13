@@ -8,13 +8,16 @@ BUG FIXES
 
 * `netbox_token`: NetBox 4.7 generates every token's secret and ignores one the client sends, so a configured `token` came back different and the apply failed with "inconsistent values for sensitive attribute" after the token had been created. On NetBox 4.7 and later a configured `token` is now refused at plan time, before anything is created. Remove it from the configuration: the secret NetBox generates is in the state after the apply. Up to 4.6 it is sent as before.
 
-## 6.0.1 (November 10th, 2026)
+## 6.0.1 (November 13th, 2026)
 
 ENHANCEMENTS
 
 This version adds lots of missing filters to the data sources.
 In particular, this includes filters for things that the filtered-for object does not directly have as an attribute.
 (e.g. you can now filter for site in cables)
+
+**New Resource:** `netbox_virtual_chassis_master`
+* resource/netbox_primary_ip: Allow correctly importing primary IPs of dual-stack machines
 
 ## 6.0.0 (November 4th, 2026)
 

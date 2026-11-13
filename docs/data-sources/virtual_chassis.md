@@ -35,7 +35,7 @@ data "netbox_virtual_chassis" "test" {
 - `domain` (String)
 - `id` (Number) NetBox id.
 - `last_updated` (String)
-- `master_id` (Number) Id of the device acting as chassis master.
+- `master_id` (Number) Id of the device acting as chassis master (managed by netbox_virtual_chassis_master).
 - `master_name` (String) Name of the master.
 - `member_count` (Number) Number of members of the virtual chassis.
 - `name` (String)

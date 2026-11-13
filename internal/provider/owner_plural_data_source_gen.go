@@ -5,7 +5,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/e-breuninger/terraform-provider-netbox/internal/netboxapi"
 	"github.com/fbreckle/go-netbox/netbox/client/users"
@@ -171,411 +170,68 @@ func (d *ownersDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	var responseDTOs []*netboxapi.OwnerResponseDTO
 
 	params := users.NewUsersOwnersListParams()
-	var vID []int64
-	var vIDn []int64
-	var vIDLt []int64
-	var vIDLte []int64
-	var vIDGt []int64
-	var vIDGte []int64
-	var vIDEmpty *bool
-	var vName []string
-	var vNamen []string
-	var vNameIc []string
-	var vNameNic []string
-	var vNameIe []string
-	var vNameNie []string
-	var vNameIsw []string
-	var vNameNisw []string
-	var vNameIew []string
-	var vNameNiew []string
-	var vNameEmpty *bool
-	var vNameRegex []string
-	var vNameIregex []string
-	var vGroupID []int64
-	var vGroupIDn []int64
-	var vDescription []string
-	var vDescriptionn []string
-	var vDescriptionIc []string
-	var vDescriptionNic []string
-	var vDescriptionIe []string
-	var vDescriptionNie []string
-	var vDescriptionIsw []string
-	var vDescriptionNisw []string
-	var vDescriptionIew []string
-	var vDescriptionNiew []string
-	var vDescriptionEmpty *bool
-	var vDescriptionRegex []string
-	var vDescriptionIregex []string
-	var vGroup []string
-	var vGroupn []string
-	var vQ *string
-	var vUser []string
-	var vUsern []string
-	var vUserGroup []string
-	var vUserGroupn []string
-	var vUserGroupID []int64
-	var vUserGroupIDn []int64
-	var vUserID []int64
-	var vUserIDn []int64
+	listFilters := map[string]netboxapi.ListFilter{
+		"id":                  netboxapi.FilterInt64s(params.SetID),
+		"id__n":               netboxapi.FilterInt64s(params.SetIDn),
+		"id__lt":              netboxapi.FilterInt64s(params.SetIDLt),
+		"id__lte":             netboxapi.FilterInt64s(params.SetIDLte),
+		"id__gt":              netboxapi.FilterInt64s(params.SetIDGt),
+		"id__gte":             netboxapi.FilterInt64s(params.SetIDGte),
+		"id__empty":           netboxapi.FilterBool(params.SetIDEmpty),
+		"name":                netboxapi.FilterStrings(params.SetName),
+		"name__n":             netboxapi.FilterStrings(params.SetNamen),
+		"name__ic":            netboxapi.FilterStrings(params.SetNameIc),
+		"name__nic":           netboxapi.FilterStrings(params.SetNameNic),
+		"name__ie":            netboxapi.FilterStrings(params.SetNameIe),
+		"name__nie":           netboxapi.FilterStrings(params.SetNameNie),
+		"name__isw":           netboxapi.FilterStrings(params.SetNameIsw),
+		"name__nisw":          netboxapi.FilterStrings(params.SetNameNisw),
+		"name__iew":           netboxapi.FilterStrings(params.SetNameIew),
+		"name__niew":          netboxapi.FilterStrings(params.SetNameNiew),
+		"name__empty":         netboxapi.FilterBool(params.SetNameEmpty),
+		"name__regex":         netboxapi.FilterStrings(params.SetNameRegex),
+		"name__iregex":        netboxapi.FilterStrings(params.SetNameIregex),
+		"group_id":            netboxapi.FilterInt64s(params.SetGroupID),
+		"group_id__n":         netboxapi.FilterInt64s(params.SetGroupIDn),
+		"description":         netboxapi.FilterStrings(params.SetDescription),
+		"description__n":      netboxapi.FilterStrings(params.SetDescriptionn),
+		"description__ic":     netboxapi.FilterStrings(params.SetDescriptionIc),
+		"description__nic":    netboxapi.FilterStrings(params.SetDescriptionNic),
+		"description__ie":     netboxapi.FilterStrings(params.SetDescriptionIe),
+		"description__nie":    netboxapi.FilterStrings(params.SetDescriptionNie),
+		"description__isw":    netboxapi.FilterStrings(params.SetDescriptionIsw),
+		"description__nisw":   netboxapi.FilterStrings(params.SetDescriptionNisw),
+		"description__iew":    netboxapi.FilterStrings(params.SetDescriptionIew),
+		"description__niew":   netboxapi.FilterStrings(params.SetDescriptionNiew),
+		"description__empty":  netboxapi.FilterBool(params.SetDescriptionEmpty),
+		"description__regex":  netboxapi.FilterStrings(params.SetDescriptionRegex),
+		"description__iregex": netboxapi.FilterStrings(params.SetDescriptionIregex),
+		"group":               netboxapi.FilterStrings(params.SetGroup),
+		"group__n":            netboxapi.FilterStrings(params.SetGroupn),
+		"q":                   netboxapi.FilterString(params.SetQ),
+		"user":                netboxapi.FilterStrings(params.SetUser),
+		"user__n":             netboxapi.FilterStrings(params.SetUsern),
+		"user_group":          netboxapi.FilterStrings(params.SetUserGroup),
+		"user_group__n":       netboxapi.FilterStrings(params.SetUserGroupn),
+		"user_group_id":       netboxapi.FilterInt64s(params.SetUserGroupID),
+		"user_group_id__n":    netboxapi.FilterInt64s(params.SetUserGroupIDn),
+		"user_id":             netboxapi.FilterInt64s(params.SetUserID),
+		"user_id__n":          netboxapi.FilterInt64s(params.SetUserIDn),
+	}
 	for _, filter := range filters {
 		name, value := filter.Name.ValueString(), filter.Value.ValueString()
-		switch name {
-		case "id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id' takes an integer, got %q.", value))
-				return
-			}
-			vID = append(vID, v)
-		case "id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__n' takes an integer, got %q.", value))
-				return
-			}
-			vIDn = append(vIDn, v)
-		case "id__lt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lt' takes an integer, got %q.", value))
-				return
-			}
-			vIDLt = append(vIDLt, v)
-		case "id__lte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__lte' takes an integer, got %q.", value))
-				return
-			}
-			vIDLte = append(vIDLte, v)
-		case "id__gt":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gt' takes an integer, got %q.", value))
-				return
-			}
-			vIDGt = append(vIDGt, v)
-		case "id__gte":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__gte' takes an integer, got %q.", value))
-				return
-			}
-			vIDGte = append(vIDGte, v)
-		case "id__empty":
-			if vIDEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'id__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'id__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vIDEmpty = &v
-		case "name":
-			v := value
-			vName = append(vName, v)
-		case "name__n":
-			v := value
-			vNamen = append(vNamen, v)
-		case "name__ic":
-			v := value
-			vNameIc = append(vNameIc, v)
-		case "name__nic":
-			v := value
-			vNameNic = append(vNameNic, v)
-		case "name__ie":
-			v := value
-			vNameIe = append(vNameIe, v)
-		case "name__nie":
-			v := value
-			vNameNie = append(vNameNie, v)
-		case "name__isw":
-			v := value
-			vNameIsw = append(vNameIsw, v)
-		case "name__nisw":
-			v := value
-			vNameNisw = append(vNameNisw, v)
-		case "name__iew":
-			v := value
-			vNameIew = append(vNameIew, v)
-		case "name__niew":
-			v := value
-			vNameNiew = append(vNameNiew, v)
-		case "name__empty":
-			if vNameEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'name__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'name__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vNameEmpty = &v
-		case "name__regex":
-			v := value
-			vNameRegex = append(vNameRegex, v)
-		case "name__iregex":
-			v := value
-			vNameIregex = append(vNameIregex, v)
-		case "group_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group_id' takes an integer, got %q.", value))
-				return
-			}
-			vGroupID = append(vGroupID, v)
-		case "group_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'group_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vGroupIDn = append(vGroupIDn, v)
-		case "description":
-			v := value
-			vDescription = append(vDescription, v)
-		case "description__n":
-			v := value
-			vDescriptionn = append(vDescriptionn, v)
-		case "description__ic":
-			v := value
-			vDescriptionIc = append(vDescriptionIc, v)
-		case "description__nic":
-			v := value
-			vDescriptionNic = append(vDescriptionNic, v)
-		case "description__ie":
-			v := value
-			vDescriptionIe = append(vDescriptionIe, v)
-		case "description__nie":
-			v := value
-			vDescriptionNie = append(vDescriptionNie, v)
-		case "description__isw":
-			v := value
-			vDescriptionIsw = append(vDescriptionIsw, v)
-		case "description__nisw":
-			v := value
-			vDescriptionNisw = append(vDescriptionNisw, v)
-		case "description__iew":
-			v := value
-			vDescriptionIew = append(vDescriptionIew, v)
-		case "description__niew":
-			v := value
-			vDescriptionNiew = append(vDescriptionNiew, v)
-		case "description__empty":
-			if vDescriptionEmpty != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'description__empty' takes a single value.")
-				return
-			}
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'description__empty' takes a boolean, got %q.", value))
-				return
-			}
-			vDescriptionEmpty = &v
-		case "description__regex":
-			v := value
-			vDescriptionRegex = append(vDescriptionRegex, v)
-		case "description__iregex":
-			v := value
-			vDescriptionIregex = append(vDescriptionIregex, v)
-		case "group":
-			v := value
-			vGroup = append(vGroup, v)
-		case "group__n":
-			v := value
-			vGroupn = append(vGroupn, v)
-		case "q":
-			if vQ != nil {
-				resp.Diagnostics.AddError("Duplicate filter", "Filter 'q' takes a single value.")
-				return
-			}
-			v := value
-			vQ = &v
-		case "user":
-			v := value
-			vUser = append(vUser, v)
-		case "user__n":
-			v := value
-			vUsern = append(vUsern, v)
-		case "user_group":
-			v := value
-			vUserGroup = append(vUserGroup, v)
-		case "user_group__n":
-			v := value
-			vUserGroupn = append(vUserGroupn, v)
-		case "user_group_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'user_group_id' takes an integer, got %q.", value))
-				return
-			}
-			vUserGroupID = append(vUserGroupID, v)
-		case "user_group_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'user_group_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vUserGroupIDn = append(vUserGroupIDn, v)
-		case "user_id":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'user_id' takes an integer, got %q.", value))
-				return
-			}
-			vUserID = append(vUserID, v)
-		case "user_id__n":
-			v, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid filter value", fmt.Sprintf("Filter 'user_id__n' takes an integer, got %q.", value))
-				return
-			}
-			vUserIDn = append(vUserIDn, v)
-		default:
+		listFilter, ok := listFilters[name]
+		if !ok {
 			resp.Diagnostics.AddError("Unsupported filter", fmt.Sprintf("'%s' is not a supported filter parameter", name))
 			return
 		}
+		if problem := listFilter.Add(name, value); problem != nil {
+			resp.Diagnostics.AddError(problem.Summary, problem.Detail)
+			return
+		}
 	}
-	if len(vID) > 0 {
-		params.SetID(vID)
-	}
-	if len(vIDn) > 0 {
-		params.SetIDn(vIDn)
-	}
-	if len(vIDLt) > 0 {
-		params.SetIDLt(vIDLt)
-	}
-	if len(vIDLte) > 0 {
-		params.SetIDLte(vIDLte)
-	}
-	if len(vIDGt) > 0 {
-		params.SetIDGt(vIDGt)
-	}
-	if len(vIDGte) > 0 {
-		params.SetIDGte(vIDGte)
-	}
-	if vIDEmpty != nil {
-		params.SetIDEmpty(vIDEmpty)
-	}
-	if len(vName) > 0 {
-		params.SetName(vName)
-	}
-	if len(vNamen) > 0 {
-		params.SetNamen(vNamen)
-	}
-	if len(vNameIc) > 0 {
-		params.SetNameIc(vNameIc)
-	}
-	if len(vNameNic) > 0 {
-		params.SetNameNic(vNameNic)
-	}
-	if len(vNameIe) > 0 {
-		params.SetNameIe(vNameIe)
-	}
-	if len(vNameNie) > 0 {
-		params.SetNameNie(vNameNie)
-	}
-	if len(vNameIsw) > 0 {
-		params.SetNameIsw(vNameIsw)
-	}
-	if len(vNameNisw) > 0 {
-		params.SetNameNisw(vNameNisw)
-	}
-	if len(vNameIew) > 0 {
-		params.SetNameIew(vNameIew)
-	}
-	if len(vNameNiew) > 0 {
-		params.SetNameNiew(vNameNiew)
-	}
-	if vNameEmpty != nil {
-		params.SetNameEmpty(vNameEmpty)
-	}
-	if len(vNameRegex) > 0 {
-		params.SetNameRegex(vNameRegex)
-	}
-	if len(vNameIregex) > 0 {
-		params.SetNameIregex(vNameIregex)
-	}
-	if len(vGroupID) > 0 {
-		params.SetGroupID(vGroupID)
-	}
-	if len(vGroupIDn) > 0 {
-		params.SetGroupIDn(vGroupIDn)
-	}
-	if len(vDescription) > 0 {
-		params.SetDescription(vDescription)
-	}
-	if len(vDescriptionn) > 0 {
-		params.SetDescriptionn(vDescriptionn)
-	}
-	if len(vDescriptionIc) > 0 {
-		params.SetDescriptionIc(vDescriptionIc)
-	}
-	if len(vDescriptionNic) > 0 {
-		params.SetDescriptionNic(vDescriptionNic)
-	}
-	if len(vDescriptionIe) > 0 {
-		params.SetDescriptionIe(vDescriptionIe)
-	}
-	if len(vDescriptionNie) > 0 {
-		params.SetDescriptionNie(vDescriptionNie)
-	}
-	if len(vDescriptionIsw) > 0 {
-		params.SetDescriptionIsw(vDescriptionIsw)
-	}
-	if len(vDescriptionNisw) > 0 {
-		params.SetDescriptionNisw(vDescriptionNisw)
-	}
-	if len(vDescriptionIew) > 0 {
-		params.SetDescriptionIew(vDescriptionIew)
-	}
-	if len(vDescriptionNiew) > 0 {
-		params.SetDescriptionNiew(vDescriptionNiew)
-	}
-	if vDescriptionEmpty != nil {
-		params.SetDescriptionEmpty(vDescriptionEmpty)
-	}
-	if len(vDescriptionRegex) > 0 {
-		params.SetDescriptionRegex(vDescriptionRegex)
-	}
-	if len(vDescriptionIregex) > 0 {
-		params.SetDescriptionIregex(vDescriptionIregex)
-	}
-	if len(vGroup) > 0 {
-		params.SetGroup(vGroup)
-	}
-	if len(vGroupn) > 0 {
-		params.SetGroupn(vGroupn)
-	}
-	if vQ != nil {
-		params.SetQ(vQ)
-	}
-	if len(vUser) > 0 {
-		params.SetUser(vUser)
-	}
-	if len(vUsern) > 0 {
-		params.SetUsern(vUsern)
-	}
-	if len(vUserGroup) > 0 {
-		params.SetUserGroup(vUserGroup)
-	}
-	if len(vUserGroupn) > 0 {
-		params.SetUserGroupn(vUserGroupn)
-	}
-	if len(vUserGroupID) > 0 {
-		params.SetUserGroupID(vUserGroupID)
-	}
-	if len(vUserGroupIDn) > 0 {
-		params.SetUserGroupIDn(vUserGroupIDn)
-	}
-	if len(vUserID) > 0 {
-		params.SetUserID(vUserID)
-	}
-	if len(vUserIDn) > 0 {
-		params.SetUserIDn(vUserIDn)
+	for _, listFilter := range listFilters {
+		listFilter.Apply()
 	}
 	// NetBox caps a page at its MAX_PAGE_SIZE, so the objects are read page by page.
 	offset := int64(0)
