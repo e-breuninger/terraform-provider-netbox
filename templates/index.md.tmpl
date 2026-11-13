@@ -20,6 +20,7 @@ It is generally recommended to use the provider version matching your Netbox ver
 
 | Netbox version  | Provider version |
 | --------------- | ---------------- |
+| v4.7.0 - 4.7.5  | unreleased       |
 | v4.6.8 - 4.6.10 | v6.0.0 and up    |
 | v4.3.0 - 4.6.5  | v5.6.1 and up    |
 | v4.3.0 - 4.4.10 | v5.0.0 - 5.6.0   |
