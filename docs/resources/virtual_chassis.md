@@ -47,7 +47,7 @@ resource "netbox_virtual_chassis" "test" {
 - `created` (String)
 - `id` (Number) NetBox id.
 - `last_updated` (String)
-- `master_id` (Number) Id of the device acting as chassis master.
+- `master_id` (Number) Id of the device acting as chassis master (managed by netbox_virtual_chassis_master).
 - `member_count` (Number) Number of members of the virtual chassis.
 - `tags_all` (Set of String) Slugs of all tags on the object, including the provider's default_tags.
 - `url` (String)

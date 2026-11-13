@@ -68,7 +68,7 @@ func (r *virtualChassisResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"master_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "Id of the device acting as chassis master.",
+				Description: "Id of the device acting as chassis master (managed by netbox_virtual_chassis_master).",
 			},
 			"description": schema.StringAttribute{
 				Optional: true,
@@ -337,7 +337,7 @@ func (r *virtualChassisResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 	netboxapi.AddDefaultTags(payload, r.client.DefaultTags)
-	res, err := r.client.Dcim.DcimVirtualChassisUpdateContext(ctx, dcim.NewDcimVirtualChassisUpdateParams().WithID(plan.ID.ValueInt64()), nil, netboxapi.WithBody(payload))
+	res, err := r.client.Dcim.DcimVirtualChassisPartialUpdateContext(ctx, dcim.NewDcimVirtualChassisPartialUpdateParams().WithID(plan.ID.ValueInt64()), nil, netboxapi.WithBody(payload))
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating netbox_virtual_chassis", err.Error())
 		return
