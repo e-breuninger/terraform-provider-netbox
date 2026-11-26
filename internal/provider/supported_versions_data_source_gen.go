@@ -14,7 +14,7 @@ import (
 // the spec's backend.options.supported_versions, in its order. The provider's
 // startup version check warns when the running NetBox is not among them, and
 // the supported_versions data source serves the list.
-var supportedVersions = []string{"4.6.8", "4.6.9", "4.6.10"}
+var supportedVersions = []string{"4.6.8", "4.6.9", "4.6.10", "4.7.0", "4.7.1", "4.7.2", "4.7.3", "4.7.4", "4.7.5"}
 
 // The data source has no NetBox object behind it, so it registers like a
 // hand-written companion instead of through the generated DataSources list.

@@ -124,6 +124,9 @@ resource "netbox_user" "test" {
 }
 
 func TestAccNetboxToken_basic(t *testing.T) {
+	if testAccNetboxAtLeast(t, 4, 7) {
+		t.Skip("NetBox 4.7 generates every secret and ignores a chosen one: TestAccNetboxToken_generated and _chosenSecretRefused cover it")
+	}
 	testName := testAccGetTestName("token")
 	deps := fmt.Sprintf(`
 resource "netbox_user" "test" {
@@ -234,6 +237,9 @@ resource "netbox_token" "chosen" {
 }
 
 func TestAccNetboxToken_v1(t *testing.T) {
+	if testAccNetboxAtLeast(t, 4, 7) {
+		t.Skip("NetBox 4.7 generates every secret and ignores a chosen one: TestAccNetboxToken_generated and _chosenSecretRefused cover it")
+	}
 	testName := testAccGetTestName("token_v1")
 	deps := fmt.Sprintf(`
 resource "netbox_user" "test" {
