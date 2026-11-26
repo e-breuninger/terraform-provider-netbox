@@ -44,10 +44,14 @@ resource "netbox_token" "test" {
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `description` (String)
 - `enabled` (Boolean) Whether the token can authenticate; disabling keeps the token but rejects its use.
 - `expires` (String) Expiry as an RFC 3339 timestamp with milliseconds (2030-01-01T00:00:00.000Z); never expires when unset.
 - `token` (String, Sensitive) The secret. NetBox returns it in the create response only, so an imported token has none in state and a secret changed outside Terraform goes unnoticed. Changing it replaces the token.
+- `token_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Caller-generated v2 token secret, sent at creation and omitted from plan and state. Requires token_wo_version.
+- `token_wo_version` (Number) Positive rotation counter for token_wo. Changing the counter replaces the NetBox token.
 - `version` (Number) Token format version (1 legacy plaintext, 2 hashed). Defaults to 2. Changing it replaces the token. One of: 1, 2.
 - `write_enabled` (Boolean) Whether the token permits write operations.
 

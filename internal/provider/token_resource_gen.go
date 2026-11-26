@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -76,6 +77,19 @@ func (r *tokenResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
+			},
+			"token_wo": schema.StringAttribute{
+				Optional:    true,
+				Sensitive:   true,
+				WriteOnly:   true,
+				Description: "Caller-generated v2 token secret, sent at creation and omitted from plan and state. Requires token_wo_version.",
+				Validators:  []validator.String{stringvalidator.LengthAtLeast(1)},
+			},
+			"token_wo_version": schema.Int64Attribute{
+				Optional:      true,
+				Description:   "Positive rotation counter for token_wo. Changing the counter replaces the NetBox token.",
+				PlanModifiers: []planmodifier.Int64{int64planmodifier.RequiresReplace()},
+				Validators:    []validator.Int64{int64validator.AtLeast(1)},
 			},
 			"enabled": schema.BoolAttribute{
 				Optional:    true,
@@ -163,7 +177,7 @@ func (r *tokenResource) Configure(ctx context.Context, req resource.ConfigureReq
 }
 
 func (r *tokenResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data tokenResourceModel
+	var data writeOnlyTokenResourceModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -175,24 +189,38 @@ func (r *tokenResource) Create(ctx context.Context, req resource.CreateRequest, 
 	// convert to DTO
 	priorToken := plan.Token
 	priorDescription := plan.Description
-	requestDTO, diags := expandToken(ctx, plan)
+	requestDTO, diags := expandToken(ctx, &plan.tokenResourceModel)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	// DTO to payload
 	payload := requestDTO.Payload()
+	if !plan.TokenWoVersion.IsNull() {
+		var secret types.String
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("token_wo"), &secret)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		if secret.IsNull() || secret.IsUnknown() || secret.ValueString() == "" {
+			resp.Diagnostics.AddAttributeError(path.Root("token_wo"), "Missing token secret", "Supply a known, non-empty token_wo at apply time.")
+			return
+		}
+		payload["token"] = secret.ValueString()
+	}
 
 	// Send request
 	res, err := r.client.Users.UsersTokensCreateContext(ctx, users.NewUsersTokensCreateParams(), nil, netboxapi.WithBody(payload))
 	if err != nil {
-		resp.Diagnostics.AddError("Error creating netbox_token", err.Error())
+		if plan.TokenWoVersion.IsNull() {
+			resp.Diagnostics.AddError("Error creating netbox_token", err.Error())
+		} else {
+			resp.Diagnostics.AddError("Error creating netbox_token", "NetBox could not create the write-only token. Check the server logs for details.")
+		}
 		return
 	}
-	resp.Diagnostics.Append(flattenToken(ctx, netboxapi.TokenResponseDTOFromGoNetbox(res.Payload), plan)...)
-	if plan.Token.IsNull() {
-		plan.Token = priorToken
-	}
+	resp.Diagnostics.Append(flattenToken(ctx, netboxapi.TokenResponseDTOFromGoNetbox(res.Payload), &plan.tokenResourceModel)...)
+	plan.restoreToken(priorToken)
 	plan.Description = keepPriorString(priorDescription, plan.Description)
 
 	if resp.Diagnostics.HasError() {
@@ -204,7 +232,7 @@ func (r *tokenResource) Create(ctx context.Context, req resource.CreateRequest, 
 }
 
 func (r *tokenResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data tokenResourceModel
+	var data writeOnlyTokenResourceModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -224,10 +252,8 @@ func (r *tokenResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Error reading netbox_token", err.Error())
 		return
 	}
-	resp.Diagnostics.Append(flattenToken(ctx, netboxapi.TokenResponseDTOFromGoNetbox(res.Payload), state)...)
-	if state.Token.IsNull() {
-		state.Token = priorToken
-	}
+	resp.Diagnostics.Append(flattenToken(ctx, netboxapi.TokenResponseDTOFromGoNetbox(res.Payload), &state.tokenResourceModel)...)
+	state.restoreToken(priorToken)
 	state.Description = keepPriorString(priorDescription, state.Description)
 
 	if resp.Diagnostics.HasError() {
@@ -239,7 +265,7 @@ func (r *tokenResource) Read(ctx context.Context, req resource.ReadRequest, resp
 }
 
 func (r *tokenResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data tokenResourceModel
+	var data writeOnlyTokenResourceModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -250,7 +276,7 @@ func (r *tokenResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	priorToken := plan.Token
 	priorDescription := plan.Description
-	requestDTO, diags := expandToken(ctx, plan)
+	requestDTO, diags := expandToken(ctx, &plan.tokenResourceModel)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -263,10 +289,8 @@ func (r *tokenResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		resp.Diagnostics.AddError("Error updating netbox_token", err.Error())
 		return
 	}
-	resp.Diagnostics.Append(flattenToken(ctx, netboxapi.TokenResponseDTOFromGoNetbox(res.Payload), plan)...)
-	if plan.Token.IsNull() {
-		plan.Token = priorToken
-	}
+	resp.Diagnostics.Append(flattenToken(ctx, netboxapi.TokenResponseDTOFromGoNetbox(res.Payload), &plan.tokenResourceModel)...)
+	plan.restoreToken(priorToken)
 	plan.Description = keepPriorString(priorDescription, plan.Description)
 
 	if resp.Diagnostics.HasError() {
@@ -278,7 +302,7 @@ func (r *tokenResource) Update(ctx context.Context, req resource.UpdateRequest, 
 }
 
 func (r *tokenResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data tokenResourceModel
+	var data writeOnlyTokenResourceModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
